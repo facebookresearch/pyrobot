@@ -1,0 +1,85 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Running camera tools on your robot · PyRobot</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;getting-started&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#getting-started&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Getting started&lt;/h2&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Running camera tools on your robot · PyRobot"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/pyrobot/"/><meta property="og:description" content="&lt;h2&gt;&lt;a class=&quot;anchor&quot; aria-hidden=&quot;true&quot; id=&quot;getting-started&quot;&gt;&lt;/a&gt;&lt;a href=&quot;#getting-started&quot; aria-hidden=&quot;true&quot; class=&quot;hash-link&quot;&gt;&lt;svg class=&quot;hash-link-icon&quot; aria-hidden=&quot;true&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Getting started&lt;/h2&gt;
+"/><meta property="og:image" content="https://facebookresearch.github.io/pyrobot/img/pyrobot_icon.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/pyrobot/img/pyrobot_icon.svg"/><link rel="shortcut icon" href="/pyrobot/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/css/code-block-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/code-block-buttons.js"></script><link rel="stylesheet" href="/pyrobot/css/main.css"/><script src="/pyrobot/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/pyrobot/"><img class="logo" src="/pyrobot/img/pyrobot_icon.svg" alt="PyRobot"/><h2 class="headerTitleWithLogo">PyRobot</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/pyrobot/docs/overview" target="_self">Tutorials</a></li><li class=""><a href="https://pyrobot-api.netlify.com" target="_self">API</a></li><li class="siteNavGroupActive"><a href="/pyrobot/docs/faq" target="_self">Help</a></li><li class=""><a href="https://github.com/adithyamurali/pyrobot" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Examples</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/pyrobot/docs/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/software">Install software</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Examples</h3><ul class=""><li class="navListItem"><a class="navItem" href="/pyrobot/docs/calibration">[Basic] Camera Calibration</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/navigation">[Basic] Navigation</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/manipulation">[Basic] Manipulation</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/demonstrations">[Basic] Demonstration</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/pyrobot/docs/active_camera">[Basic] Active Camera</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/crashing">[Advanced] Avoid crashing</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/grasping">[Advanced] Grasping</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/sim2real">[Advanced] Sim2Real</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/visual_nav_cmp">[Advanced] Visual Navigation (CMP)</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Help and Support</h3><ul class=""><li class="navListItem"><a class="navItem" href="/pyrobot/docs/new_robot_support">New Robot Support</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/faq">FAQ</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Running camera tools on your robot</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="getting-started"></a><a href="#getting-started" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Getting started</h2>
+<ul>
+<li><p>Make sure robot is turned ON</p></li>
+<li><p>Start the python virtual environment</p></li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-1-tab-2" class="nav-link active" data-group="group_1" data-tab="tab-group-1-content-2">Source virtual env</div></div><div class="tab-content"><div id="tab-group-1-content-2" class="tab-pane active" data-group="group_1" tabindex="-1"><div><span><pre><code class="hljs css language-bash"><span class="hljs-built_in">source</span> ~/pyenv_locobot/bin/activate<br /></code></pre>
+</span></div></div></div></div> 
+<ul>
+<li>Launch the robot driver</li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-3-tab-4" class="nav-link active" data-group="group_3" data-tab="tab-group-3-content-4">Launch driver</div></div><div class="tab-content"><div id="tab-group-3-content-4" class="tab-pane active" data-group="group_3" tabindex="-1"><div><span><pre><code class="hljs css language-bash">roslaunch locobot_control main.launch use_camera:=<span class="hljs-literal">true</span><br /></code></pre>
+</span></div></div></div></div> 
+<h2><a class="anchor" aria-hidden="true" id="example-usage"></a><a href="#example-usage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example usage</h2>
+<ul>
+<li>Initialize a robot instance</li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-5-tab-6" class="nav-link active" data-group="group_5" data-tab="tab-group-5-content-6">Create robot</div></div><div class="tab-content"><div id="tab-group-5-content-6" class="tab-pane active" data-group="group_5" tabindex="-1"><div><span><pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> pyrobot<br /><br />bot = pyrobot.Robot(<span class="hljs-string">'locobot'</span>)<br /><br />bot.camera.reset()<br /></code></pre>
+</span></div></div></div></div> 
+<ul>
+<li>Set camera pan or tilt angle, or set pan and tilt angles together</li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-7-tab-8" class="nav-link active" data-group="group_7" data-tab="tab-group-7-content-8">Set Pan</div><div id="tab-group-7-tab-9" class="nav-link" data-group="group_7" data-tab="tab-group-7-content-9">Set Tilt</div><div id="tab-group-7-tab-10" class="nav-link" data-group="group_7" data-tab="tab-group-7-content-10">Set Pan and Tilt</div></div><div class="tab-content"><div id="tab-group-7-content-8" class="tab-pane active" data-group="group_7" tabindex="-1"><div><span><pre><code class="hljs css language-py">pan = <span class="hljs-number">0.4</span><br />bot.camera.set_pan(pan, wait=<span class="hljs-literal">True</span>)<br /></code></pre>
+</span></div></div><div id="tab-group-7-content-9" class="tab-pane" data-group="group_7" tabindex="-1"><div><span><pre><code class="hljs css language-py">tilt = <span class="hljs-number">0.4</span><br />bot.camera.set_tilt(tilt, wait=<span class="hljs-literal">True</span>)<br /></code></pre>
+</span></div></div><div id="tab-group-7-content-10" class="tab-pane" data-group="group_7" tabindex="-1"><div><span><pre><code class="hljs css language-py">camera_pose = [<span class="hljs-number">0</span>, <span class="hljs-number">0.7</span>]<br />bot.camera.set_pan_tilt(camera_pose[<span class="hljs-number">0</span>], camera_pose[<span class="hljs-number">1</span>], wait=<span class="hljs-literal">True</span>)<br /></code></pre>
+</span></div></div></div></div> 
+<ul>
+<li>Get rgb or depth images</li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-11-tab-12" class="nav-link active" data-group="group_11" data-tab="tab-group-11-content-12">RGB</div><div id="tab-group-11-tab-13" class="nav-link" data-group="group_11" data-tab="tab-group-11-content-13">Depth</div><div id="tab-group-11-tab-14" class="nav-link" data-group="group_11" data-tab="tab-group-11-content-14">RGB and Depth</div></div><div class="tab-content"><div id="tab-group-11-content-12" class="tab-pane active" data-group="group_11" tabindex="-1"><div><span><pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> cv2<br />rgb = bot.camera.get_rgb()<br />cv2.imshow(<span class="hljs-string">'Color'</span>, rgb[:, :, ::<span class="hljs-number">-1</span>])<br />cv2.waitKey(<span class="hljs-number">5000</span>)<br /></code></pre>
+</span></div></div><div id="tab-group-11-content-13" class="tab-pane" data-group="group_11" tabindex="-1"><div><span><pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> cv2<br />depth = bot.camera.get_depth()<br />actual_depth_values = depth.astype(np.float64) / <span class="hljs-number">1000.0</span><br />cv2.imshow(<span class="hljs-string">'Depth'</span>, depth)<br />cv2.waitKey(<span class="hljs-number">5000</span>)<br /></code></pre>
+</span></div></div><div id="tab-group-11-content-14" class="tab-pane" data-group="group_11" tabindex="-1"><div><span><pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> cv2<br />rgb, depth = bot.camera.get_rgb_depth()<br />cv2.imshow(<span class="hljs-string">'Color'</span>, rgb[:, :, ::<span class="hljs-number">-1</span>])<br />cv2.imshow(<span class="hljs-string">'Depth'</span>, depth)<br />cv2.waitKey(<span class="hljs-number">5000</span>)<br /></code></pre>
+</span></div></div></div></div> 
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/pyrobot/docs/demonstrations"><span class="arrow-prev">← </span><span>[Basic] Demonstration</span></a><a class="docs-next button" href="/pyrobot/docs/crashing"><span>[Advanced] Avoid crashing</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#getting-started">Getting started</a></li><li><a href="#example-usage">Example usage</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/pyrobot/" class="nav-home"><img src="/pyrobot/img/pyrobot_icon.svg" alt="PyRobot" width="66" height="58"/></a><div><h5>Docs</h5><a href="/pyrobot/docs/en/overview.html">Getting Started</a></div><div><h5>More</h5><a href="https://github.com/adithyamurali/pyrobot">GitHub</a></div></section></footer></div></body></html>

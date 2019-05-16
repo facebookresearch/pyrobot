@@ -1,0 +1,144 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Running basic tools for manipulation · PyRobot</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;&lt;strong&gt;TODO&lt;/strong&gt;: &lt;a href=&quot;#sensing&quot;&gt;Sensing&lt;/a&gt; section needs to be written. Add videos! Also, need to decide if we should add demonstration information here or not.&lt;/p&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Running basic tools for manipulation · PyRobot"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/pyrobot/"/><meta property="og:description" content="&lt;p&gt;&lt;strong&gt;TODO&lt;/strong&gt;: &lt;a href=&quot;#sensing&quot;&gt;Sensing&lt;/a&gt; section needs to be written. Add videos! Also, need to decide if we should add demonstration information here or not.&lt;/p&gt;
+"/><meta property="og:image" content="https://facebookresearch.github.io/pyrobot/img/pyrobot_icon.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/pyrobot/img/pyrobot_icon.svg"/><link rel="shortcut icon" href="/pyrobot/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/css/code-block-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/code-block-buttons.js"></script><link rel="stylesheet" href="/pyrobot/css/main.css"/><script src="/pyrobot/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/pyrobot/"><img class="logo" src="/pyrobot/img/pyrobot_icon.svg" alt="PyRobot"/><h2 class="headerTitleWithLogo">PyRobot</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/pyrobot/docs/overview" target="_self">Tutorials</a></li><li class=""><a href="https://pyrobot-api.netlify.com" target="_self">API</a></li><li class="siteNavGroupActive"><a href="/pyrobot/docs/faq" target="_self">Help</a></li><li class=""><a href="https://github.com/adithyamurali/pyrobot" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Examples</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/pyrobot/docs/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/software">Install software</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Examples</h3><ul class=""><li class="navListItem"><a class="navItem" href="/pyrobot/docs/calibration">[Basic] Camera Calibration</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/navigation">[Basic] Navigation</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/pyrobot/docs/manipulation">[Basic] Manipulation</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/demonstrations">[Basic] Demonstration</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/active_camera">[Basic] Active Camera</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/crashing">[Advanced] Avoid crashing</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/grasping">[Advanced] Grasping</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/sim2real">[Advanced] Sim2Real</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/visual_nav_cmp">[Advanced] Visual Navigation (CMP)</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Help and Support</h3><ul class=""><li class="navListItem"><a class="navItem" href="/pyrobot/docs/new_robot_support">New Robot Support</a></li><li class="navListItem"><a class="navItem" href="/pyrobot/docs/faq">FAQ</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              const headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                if (event.target.tagName === 'A') {
+                  document.body.classList.remove('tocActive');
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Running basic tools for manipulation</h1></header><article><div><span><p><strong>TODO</strong>: <a href="#sensing">Sensing</a> section needs to be written. Add videos! Also, need to decide if we should add demonstration information here or not.</p>
+<h2><a class="anchor" aria-hidden="true" id="setup"></a><a href="#setup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setup</h2>
+<p>In this example we will run through basic manipulation tools currently available on PyRobot. This tutorial can also be run using a simulated version of the robot. Before we get started with this, ensure the following:</p>
+<ul>
+<li><p>The robot arm is supported by PyRobot. Check if your robot is supported <a href="/pyrobot/docs/overview">here</a>.</p></li>
+<li><p>The robot arm is switched ON. With the LoCoBot this is done by connecting the power supply and USB to the arm.</p></li>
+<li><p>The appropriate python virtual environment has been sourced. Since this has to be done before running any PyRobot package, we suggest adding it to your <code>.bashrc</code></p></li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-25-tab-26" class="nav-link active" data-group="group_25" data-tab="tab-group-25-content-26">Sourcing virtual env</div><div id="tab-group-25-tab-27" class="nav-link" data-group="group_25" data-tab="tab-group-25-content-27">Append sourcing</div></div><div class="tab-content"><div id="tab-group-25-content-26" class="tab-pane active" data-group="group_25" tabindex="-1"><div><span><pre><code class="hljs css language-bash"><span class="hljs-built_in">source</span> ~/pyenv_locobot/bin/activate<br /></code></pre>
+</span></div></div><div id="tab-group-25-content-27" class="tab-pane" data-group="group_25" tabindex="-1"><div><span><pre><code class="hljs css language-bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">'\nsource ~/pyenv_locobot/bin/activate'</span> &gt;&gt; ~/.bashrc<br /><span class="hljs-built_in">source</span> ~/.bashrc<br /></code></pre>
+</span></div></div></div></div> 
+<ul>
+<li>The robot's launch file has been run. Note that you have to set <code>use_arm:=true</code>.</li>
+</ul>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-28-tab-29" class="nav-link active" data-group="group_28" data-tab="tab-group-28-content-29">LoCoBot[Real Robot]</div><div id="tab-group-28-tab-30" class="nav-link" data-group="group_28" data-tab="tab-group-28-content-30">LoCoBot[Simulator]</div></div><div class="tab-content"><div id="tab-group-28-content-29" class="tab-pane active" data-group="group_28" tabindex="-1"><div><span><pre><code class="hljs css language-bash">roslaunch locobot_control main.launch use_arm:=<span class="hljs-literal">true</span><br /></code></pre>
+</span></div></div><div id="tab-group-28-content-30" class="tab-pane" data-group="group_28" tabindex="-1"><div><span><pre><code class="hljs css language-bash">roslaunch locobot_control main.launch use_arm:=<span class="hljs-literal">true</span> use_sim:=<span class="hljs-literal">true</span> <br /></code></pre>
+</span></div></div></div></div> 
+<h2><a class="anchor" aria-hidden="true" id="basic-movements"></a><a href="#basic-movements" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Basic movements</h2>
+<p>In your favorite Python command shell run the following to setup the robot object</p>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-31-tab-32" class="nav-link active" data-group="group_31" data-tab="tab-group-31-content-32">LoCoBot</div><div id="tab-group-31-tab-33" class="nav-link" data-group="group_31" data-tab="tab-group-31-content-33">Sawyer</div></div><div class="tab-content"><div id="tab-group-31-content-32" class="tab-pane active" data-group="group_31" tabindex="-1"><div><span><pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> pyrobot<br /><br />robot = pyrobot.Robot(<span class="hljs-string">'locobot'</span>)<br /></code></pre>
+</span></div></div><div id="tab-group-31-content-33" class="tab-pane" data-group="group_31" tabindex="-1"><div><span><pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> pyrobot<br /><br />robot = pyrobot.Robot(<span class="hljs-string">'sawyer'</span>)<br /></code></pre>
+</span></div></div></div></div> 
+<p>This creates a <code>Robot</code> object that encapsulates the robot's basic motion utilities. Note that if you are using a different robot (say the <a href="https://www.rethinkrobotics.com/sawyer/">Sawyer</a>), use <code>'sawyer'</code> instead of <code>'locobot'</code>.</p>
+<h3><a class="anchor" aria-hidden="true" id="joint-control"></a><a href="#joint-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Joint control</h3>
+<p>To move the joints of the robot to a desired joint configuration, run the following snippet:</p>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-34-tab-35" class="nav-link active" data-group="group_34" data-tab="tab-group-34-content-35">LoCoBot</div></div><div class="tab-content"><div id="tab-group-34-content-35" class="tab-pane active" data-group="group_34" tabindex="-1"><div><span><pre><code class="hljs css language-py">target_joint = [<span class="hljs-number">0.408</span>, <span class="hljs-number">0.721</span>, <span class="hljs-number">-0.471</span>, <span class="hljs-number">-1.4</span>, <span class="hljs-number">0.920</span>]<br />robot.arm.go_home()<br />robot.arm.set_joint_positions(target_joint, plan=<span class="hljs-literal">False</span>)<br /></code></pre>
+</span></div></div></div></div> 
+<p>Since we are using a 5 joint (DoF) arm on the LoCoBot, the <code>target_joint</code> is a 5D vector of desired individual joint angles from the base of the arm to its wrist. For the Sawyer, this would be a 7D vector since the Sawyer has a 7 joint arm. The next line <code>Robot.arm.go_home()</code> makes the arm to move to its <em>home</em> position. Then finally through the <code>set_joint_positions</code> method the Robot will move to the desired <code>target_joint</code>. The <code>plan=False</code> argument means that the robot will not plan around obstacles (like the base or the arm itself). To plan around obstacles look at using <a href="#planning-using-moveit">MoveIt</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="end-effector-pose-control"></a><a href="#end-effector-pose-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>End-effector pose control</h3>
+<p>In this example, we will look at controlling the <a href="https://whatis.techtarget.com/definition/end-effector">end-effector</a> pose of the arm. A <em>pose</em> object has two components: a 3D <em>position</em> vector and a 3X3 <em>orientation</em> matrix. It is defined as follows:</p>
+<pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+target_pose = {<span class="hljs-string">'position'</span>: np.array([<span class="hljs-number">0.279</span>, <span class="hljs-number">0.176</span>, <span class="hljs-number">0.217</span>]),
+               <span class="hljs-string">'orientation'</span>: np.array([[<span class="hljs-number">0.5380200</span>, <span class="hljs-number">-0.6650449</span>, <span class="hljs-number">0.5179283</span>],
+                                        [<span class="hljs-number">0.4758410</span>, <span class="hljs-number">0.7467951</span>, <span class="hljs-number">0.4646209</span>],
+                                        [<span class="hljs-number">-0.6957800</span>, <span class="hljs-number">-0.0035238</span>, <span class="hljs-number">0.7182463</span>]])}
+</code></pre>
+<p>Similar to the <a href="#Joint-control">Joint control</a> example, we an now command the robot to this <code>target_pose</code> as follows:</p>
+<pre><code class="hljs css language-py">robot.arm.go_home()
+robot.arm.set_ee_pose(**pose)
+</code></pre>
+<p>Note that since the LoCoBot only has 5 DoF, it can only reach target poses that lie in its configuration space.</p>
+<h3><a class="anchor" aria-hidden="true" id="end-effector-step-control"></a><a href="#end-effector-step-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>End-effector step control</h3>
+<p>In this example, we will move the arm in the X,Y,Z coordinates in straight line paths from the current pose.</p>
+<pre><code class="hljs css language-py"><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np
+robot.arm.go_home()
+displacement = np.array([<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">-0.15</span>])
+robot.arm.move_ee_xyz(displacement, plan=<span class="hljs-literal">True</span>)
+</code></pre>
+<p>For the straight line motion, planning is necessary. For more details on planning, look at <a href="#planning-using-moveit">MoveIt</a>.</p>
+<h3><a class="anchor" aria-hidden="true" id="joint-torque-control"></a><a href="#joint-torque-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Joint torque control</h3>
+<p>For direct torque control, one can use the <code>set_joint_torques</code> method as follows. To do this, we will first need to change the control mode of the arm from <em>position</em> control to <em>torque</em> control.</p>
+<pre><code class="hljs css language-py">arm_config = dict(control_mode=<span class="hljs-string">'torque'</span>)
+robot = pyrobot.Robot(<span class="hljs-string">'locobot'</span>, arm_config=arm_config)
+</code></pre>
+<p>Then we can command torques as follows:</p>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-36-tab-37" class="nav-link active" data-group="group_36" data-tab="tab-group-36-content-37">LoCoBot</div></div><div class="tab-content"><div id="tab-group-36-content-37" class="tab-pane active" data-group="group_36" tabindex="-1"><div><span><pre><code class="hljs css language-py">target_torque = <span class="hljs-number">4</span> * [<span class="hljs-number">0.1</span>]<br />robot.arm.set_joint_torques(target_torque)<br /></code></pre>
+</span></div></div></div></div> 
+<p>Note that on the LoCoBot only the first 4 joints have torque controllable.</p>
+<h3><a class="anchor" aria-hidden="true" id="gripper-control"></a><a href="#gripper-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Gripper control</h3>
+<p>Opening and closing the gripper is done via the <code>gripper</code> object.</p>
+<pre><code class="hljs css language-py"><span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> print_function
+<span class="hljs-keyword">import</span> time
+
+print(<span class="hljs-string">"Opening gripper"</span>)
+robot.gripper.open()
+time.sleep(<span class="hljs-number">1</span>)
+
+print(<span class="hljs-string">"Closing gripper"</span>)
+robot.gripper.close()
+</code></pre>
+<h2><a class="anchor" aria-hidden="true" id="planning-using-moveit"></a><a href="#planning-using-moveit" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Planning using MoveIt</h2>
+<p>To avoid hitting obstacles like the base or the arm itself, we support planning via <a href="https://moveit.ros.org/">MoveIt!</a>. To use this, we need to first set the robot with the approriate planning parameters:</p>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-38-tab-39" class="nav-link active" data-group="group_38" data-tab="tab-group-38-content-39">LoCoBot</div></div><div class="tab-content"><div id="tab-group-38-content-39" class="tab-pane active" data-group="group_38" tabindex="-1"><div><span><pre><code class="hljs css language-py">config = dict(moveit_planner_type=<span class="hljs-string">'ESTkConfigDefault'</span>)<br />robot = pyrobot.Robot(<span class="hljs-string">'locobot'</span>, arm_config=config)<br /></code></pre>
+</span></div></div></div></div> 
+<p>After this run <code>set_joint_positions</code> with the argument <code>plan=True</code>.</p>
+<div class="tabs"><div class="nav-tabs"><div id="tab-group-40-tab-41" class="nav-link active" data-group="group_40" data-tab="tab-group-40-content-41">LoCoBot</div></div><div class="tab-content"><div id="tab-group-40-content-41" class="tab-pane active" data-group="group_40" tabindex="-1"><div><span><pre><code class="hljs css language-py">target_joint = [<span class="hljs-number">0.408</span>, <span class="hljs-number">0.721</span>, <span class="hljs-number">-0.471</span>, <span class="hljs-number">-1.4</span>, <span class="hljs-number">0.920</span>]<br />robot.arm.go_home()<br />robot.arm.set_joint_positions(target_joint, plan=<span class="hljs-literal">True</span>)<br /></code></pre>
+</span></div></div></div></div> 
+<h2><a class="anchor" aria-hidden="true" id="sensing"></a><a href="#sensing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sensing</h2>
+<p>Most arms come with proprioceptive feedback. The following functions can be used to read the current state of the robot (joint angles, velocities, torques), etc.</p>
+<pre><code class="hljs css language-py"><span class="hljs-comment"># Get all joint angles of the robot</span>
+current_joints = robot.arm.get_joint_angles()
+
+<span class="hljs-comment"># Get state of a specific joint</span>
+current_joint = robot.arm.get_joint_angle(<span class="hljs-string">"joint_5"</span>)
+
+<span class="hljs-comment"># Get all joint velocities of the robot</span>
+current_velocity = robot.arm.get_joint_velocities()
+
+<span class="hljs-comment"># Get current joint torques (if mode='torque')</span>
+current_torques = robot.arm.get_joint_torques()
+</code></pre>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/pyrobot/docs/navigation"><span class="arrow-prev">← </span><span>[Basic] Navigation</span></a><a class="docs-next button" href="/pyrobot/docs/demonstrations"><span>[Basic] Demonstration</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#basic-movements">Basic movements</a><ul class="toc-headings"><li><a href="#joint-control">Joint control</a></li><li><a href="#end-effector-pose-control">End-effector pose control</a></li><li><a href="#end-effector-step-control">End-effector step control</a></li><li><a href="#joint-torque-control">Joint torque control</a></li><li><a href="#gripper-control">Gripper control</a></li></ul></li><li><a href="#planning-using-moveit">Planning using MoveIt</a></li><li><a href="#sensing">Sensing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/pyrobot/" class="nav-home"><img src="/pyrobot/img/pyrobot_icon.svg" alt="PyRobot" width="66" height="58"/></a><div><h5>Docs</h5><a href="/pyrobot/docs/en/overview.html">Getting Started</a></div><div><h5>More</h5><a href="https://github.com/adithyamurali/pyrobot">GitHub</a></div></section></footer></div></body></html>
