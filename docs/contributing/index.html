@@ -1,0 +1,140 @@
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Contributing to PyRobot · PyRobot</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;Thank you for your interest in contributing to PyRobot! Your contributions will probably fall into two categories:&lt;/p&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Contributing to PyRobot · PyRobot"/><meta property="og:type" content="website"/><meta property="og:url" content="https://facebookresearch.github.io/"/><meta property="og:description" content="&lt;p&gt;Thank you for your interest in contributing to PyRobot! Your contributions will probably fall into two categories:&lt;/p&gt;
+"/><meta property="og:image" content="https://facebookresearch.github.io/img/pyrobot_icon.svg"/><meta name="twitter:card" content="summary"/><meta name="twitter:image" content="https://facebookresearch.github.io/img/pyrobot_icon.svg"/><link rel="shortcut icon" href="/img/favicon.ico"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/><link rel="stylesheet" href="/css/code-block-buttons.css"/><script type="text/javascript" src="https://buttons.github.io/buttons.js"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script><script type="text/javascript" src="/js/code-block-buttons.js"></script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/"><img class="logo" src="/img/pyrobot_icon.svg" alt="PyRobot"/><h2 class="headerTitleWithLogo">PyRobot</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/docs/overview" target="_self">Tutorials</a></li><li class=""><a href="https://pyrobot-api.netlify.com" target="_self">API</a></li><li class="siteNavGroupActive"><a href="/docs/faq" target="_self">Help</a></li><li class=""><a href="https://github.com/facebookresearch/pyrobot" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Help and Support</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Getting Started</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/overview">Overview</a></li><li class="navListItem"><a class="navItem" href="/docs/software">Install software</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Examples</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/calibration">[Basic] Camera Calibration</a></li><li class="navListItem"><a class="navItem" href="/docs/navigation">[Basic] Navigation</a></li><li class="navListItem"><a class="navItem" href="/docs/manipulation">[Basic] Manipulation</a></li><li class="navListItem"><a class="navItem" href="/docs/demonstrations">[Basic] Demonstration</a></li><li class="navListItem"><a class="navItem" href="/docs/pushing">[Basic] Pushing</a></li><li class="navListItem"><a class="navItem" href="/docs/active_camera">[Basic] Active Camera</a></li><li class="navListItem"><a class="navItem" href="/docs/grasping">[Advanced] Grasping</a></li><li class="navListItem"><a class="navItem" href="/docs/sim2real">[Advanced] Sim2Real</a></li><li class="navListItem"><a class="navItem" href="/docs/visual_nav_cmp">[Advanced] Visual Navigation (CMP)</a></li></ul></div><div class="navGroup"><h3 class="navGroupCategoryTitle">Help and Support</h3><ul class=""><li class="navListItem"><a class="navItem" href="/docs/new_robot_support">New Robot Support</a></li><li class="navListItem"><a class="navItem" href="/docs/network">Networking</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/docs/contributing">Contributing to PyRobot</a></li><li class="navListItem"><a class="navItem" href="/docs/faq">FAQ</a></li></ul></div></div></section></div><script>
+            var coll = document.getElementsByClassName('collapsible');
+            var checkActiveCategory = true;
+            for (var i = 0; i < coll.length; i++) {
+              var links = coll[i].nextElementSibling.getElementsByTagName('*');
+              if (checkActiveCategory){
+                for (var j = 0; j < links.length; j++) {
+                  if (links[j].classList.contains('navListItemActive')){
+                    coll[i].nextElementSibling.classList.toggle('hide');
+                    coll[i].childNodes[1].classList.toggle('rotate');
+                    checkActiveCategory = false;
+                    break;
+                  }
+                }
+              }
+
+              coll[i].addEventListener('click', function() {
+                var arrow = this.childNodes[1];
+                arrow.classList.toggle('rotate');
+                var content = this.nextElementSibling;
+                content.classList.toggle('hide');
+              });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              createToggler('#navToggler', '#docsNav', 'docsSliderActive');
+              createToggler('#tocToggler', 'body', 'tocActive');
+
+              var headings = document.querySelector('.toc-headings');
+              headings && headings.addEventListener('click', function(event) {
+                var el = event.target;
+                while(el !== headings){
+                  if (el.tagName === 'A') {
+                    document.body.classList.remove('tocActive');
+                    break;
+                  } else{
+                    el = el.parentNode;
+                  }
+                }
+              }, false);
+
+              function createToggler(togglerSelector, targetSelector, className) {
+                var toggler = document.querySelector(togglerSelector);
+                var target = document.querySelector(targetSelector);
+
+                if (!toggler) {
+                  return;
+                }
+
+                toggler.onclick = function(event) {
+                  event.preventDefault();
+
+                  target.classList.toggle(className);
+                };
+              }
+            });
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Contributing to PyRobot</h1></header><article><div><span><p>Thank you for your interest in contributing to PyRobot! Your contributions will probably fall into two categories:</p>
+<ol>
+<li>You want to implement a feature or bug-fix for an outstanding issue.
+<ul>
+<li>You can search for existing issues here: <a href="https://github.com/facebookresearch/pyrobot/issues">https://github.com/facebookresearch/pyrobot/issues</a></li>
+<li>Pick an issue and comment on the task that you want to work on this feature.</li>
+<li>If you need more context on a particular issue, please ask and we shall provide.</li>
+</ul></li>
+<li>You would like to propose a new feature and implement it.
+<ul>
+<li>Post about your intended feature as a Github issue, and we shall discuss the design and
+implementation. Once we agree that the plan looks good, go ahead and implement it. Note that any core changes such as to the core PyRobot code or LoCoBot driver code will take a longer review process.</li>
+</ul></li>
+</ol>
+<p>Once you finish implementing a feature or bug-fix, please send a Pull Request to
+<a href="https://github.com/facebookresearch/pyrobot">https://github.com/facebookresearch/pyrobot</a></p>
+<p>For more best practices on how to contribute, please see <a href="https://github.com/pytorch/pytorch/blob/master/docs/source/community/contribution_guide.rst">Contributing Guide</a> from the <a href="https://pytorch.org">PyTorch</a> repo. The following document covers some of the more technical aspects of contributing to PyRobot.</p>
+<h2><a class="anchor" aria-hidden="true" id="issues"></a><a href="#issues" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Issues</h2>
+<p>We use GitHub issues to track public bugs. Please ensure your description is
+clear and has sufficient instructions to be able to reproduce the issue.</p>
+<p>Facebook has a <a href="https://www.facebook.com/whitehat/">bounty program</a> for the safe
+disclosure of security bugs. In those cases, please go through the process
+outlined on that page and do not file a public issue.</p>
+<h2><a class="anchor" aria-hidden="true" id="codebase-structure"></a><a href="#codebase-structure" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Codebase Structure</h2>
+<ul>
+<li><a href="docs">docs</a> This folder is for tutorial documentation
+<ul>
+<li><a href="docs/website/docs">website/docs</a> Contains the tutorial markdown files for each tutorial in <a href="https://pyrobot-v1-website.netlify.com/docs/overview">pyrobot.org</a>.</li>
+</ul></li>
+<li><a href="examples">examples</a>
+<ul>
+<li><a href="examples/locobot">locobot</a> Examples for commanding low level primitive actions for LoCobot</li>
+<li><a href="examples/sawyer">sawyer</a> Commanding low level primitive actions for the sawyer arm</li>
+<li>Contains other robot learning examples like <a href="examples/grasping">grasping</a> and <a href="examples/sim2real">sim2real</a></li>
+</ul></li>
+<li><a href="robots">robots</a>
+<ul>
+<li><a href="robots/LoCoBot">LoCoBot</a> Drivers and ROS packages for the real LoCoBot and Gazebo simulator
+<ul>
+<li><a href="robots/LoCoBot/install">install</a> bash scripts for easy installation</li>
+<li><a href="robots/LoCoBot/locobot_calibration">locobot_calibration</a> ROS package for hand-eye camera calibration for LoCoBot</li>
+<li><a href="robots/LoCoBot/locobot_control">locobot_control</a> ROS package for LoCoBot drivers, teleoperation, inverse kinematics, etc.</li>
+<li><a href="robots/LoCoBot/locobot_description">locobot_description</a> ROS package with LoCoBot urdf, mesh files, etc.</li>
+<li><a href="robots/LoCoBot/locobot_gazebo">locobot_gazebo</a> ROS package for LoCoBot gazebo interface</li>
+<li><a href="robots/LoCoBot/locobot_lite_moveit_config">locobot_lite_moveit_config</a> MoveIt package specific to full LoCoBot hardware setup (arm+base+camera mount)</li>
+<li><a href="robots/LoCoBot/locobot_moveit_config">locobot_moveit_config</a> MoveIt package specific to full LoCoBot-lite hardware setup</li>
+<li><a href="robots/LoCoBot/locobot_navigation">locobot_navigation</a>
+<ul>
+<li><a href="robots/LoCoBot/locobot_navigation/orb_slam2_ros">orb_slam2_ros</a> ROS package for ORB-SLAM2</li>
+<li><a href="robots/LoCoBot/locobot_navigation/base_navigation">base_navigation</a> MoveBase package specific to LoCoBot</li>
+</ul></li>
+<li><a href="robots/LoCoBot/thirdpart">thirdparty</a> Folder for LoCoBot specific external submodules</li>
+</ul></li>
+</ul></li>
+<li><a href="tests">tests</a> Tests for the core PyRobot API</li>
+</ul>
+<h2><a class="anchor" aria-hidden="true" id="pull-requests"></a><a href="#pull-requests" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pull Requests</h2>
+<p>Contributions will be managed through pull requests. This <a href="https://gist.github.com/Chaser324/ce0505fbed06b947d962">article</a> is good resource for the pull request workflow.</p>
+<ol>
+<li>Fork the repo and create your branch from <code>master</code>.</li>
+<li>If you've changed APIs, update the documentation.</li>
+<li>Follow the steps in the section below section on <a href="#testing">Testing</a></li>
+<li>Make sure your code lints.</li>
+<li>Please consider adding tutorials to better explain your feature. See section on <a href="#tutorials">Tutorials</a></li>
+<li>If you haven't already, complete the Contributor License Agreement (&quot;CLA&quot;).</li>
+</ol>
+<h2><a class="anchor" aria-hidden="true" id="testing"></a><a href="#testing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing</h2>
+<p>If you've added code that should be tested, please add tests. You can either add to existing test files or create new ones in the <a href="tests/">tests</a> folder. The <a href="tests/run_tests.py">tests/run_tests.py</a> script will launch and run the tests on a gazebo instance of the LoCoBot robot. Please also run existing tests and add new ones for the real robot (you can pass in <em>test_real</em> flag to the script). If you do not have any tests, please explain the reason.</p>
+<h2><a class="anchor" aria-hidden="true" id="tutorials"></a><a href="#tutorials" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tutorials</h2>
+<p>Please also consider adding tutorials if you are planning to submit a major feature, application or algorithm. Almost all the scripts in the <a href="examples">examples</a> folder have their associated <a href="https://pyrobot-v1-website.netlify.com/docs/overview">tutorials</a> synced with <a href="https://pyrobot-v1-website.netlify.com/docs/overview">pyrobot.org</a>. To add a new tutorial, first create a markdown file in <a href="docs/website/docs">docs/website/docs</a> or add a symlink to wherever you have added it in the repo (we suggest having a single location for this markdown file for better management). If you want to add a tutorial, you also need to declare the markdown file <em>id</em> in <a href="docs/website/website/sidebars.json">docs/website/website/sidebars.json</a> so that it shows up on the website.</p>
+<h2><a class="anchor" aria-hidden="true" id="contributor-license-agreement-cla"></a><a href="#contributor-license-agreement-cla" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Contributor License Agreement (&quot;CLA&quot;)</h2>
+<p>In order to accept your pull request, we need you to submit a CLA. You only need
+to do this once to work on any of Facebook's open source projects.</p>
+<p>Complete your CLA here: <a href="https://code.facebook.com/cla">https://code.facebook.com/cla</a></p>
+<h2><a class="anchor" aria-hidden="true" id="community"></a><a href="#community" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Community</h2>
+<p>Please consider joining our forum (start a google group?)</p>
+<h2><a class="anchor" aria-hidden="true" id="coding-style"></a><a href="#coding-style" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coding Style</h2>
+<p>The python code uses <a href="https://pypi.org/project/flake8/">Flake8</a> style. <a href="https://github.com/hhatto/autopep8">autopep8</a> will come in handy.</p>
+<h2><a class="anchor" aria-hidden="true" id="license"></a><a href="#license" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>License</h2>
+<p>By contributing to <strong>PyRobot</strong>, you agree that your contributions will be licensed
+under the LICENSE file in the root directory of this source tree.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/network"><span class="arrow-prev">← </span><span>Networking</span></a><a class="docs-next button" href="/docs/faq"><span>FAQ</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#issues">Issues</a></li><li><a href="#codebase-structure">Codebase Structure</a></li><li><a href="#pull-requests">Pull Requests</a></li><li><a href="#testing">Testing</a></li><li><a href="#tutorials">Tutorials</a></li><li><a href="#contributor-license-agreement-cla">Contributor License Agreement (&quot;CLA&quot;)</a></li><li><a href="#community">Community</a></li><li><a href="#coding-style">Coding Style</a></li><li><a href="#license">License</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/pyrobot_icon.svg" alt="PyRobot" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/overview.html">Getting Started</a><a href="/docs/calibration.html">Examples</a><a href="/docs/new_robot_support.html">Help and Support</a></div><div><h5>More</h5><a href="https://github.com/facebookresearch/pyrobot">GitHub</a><a class="github-button" data-icon="octicon-star" data-count-href="/facebookresearch/pyrobot/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a></div></section></footer></div></body></html>
