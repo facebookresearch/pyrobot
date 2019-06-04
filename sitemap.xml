@@ -12,6 +12,7 @@
 <url> <loc>https://www.pyrobot.org/docs/Base</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/Base" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/Robot</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/Robot" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/calibration</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/calibration" /> </url>
+<url> <loc>https://www.pyrobot.org/docs/contact</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/contact" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/contributing</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/contributing" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/active_camera</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/active_camera" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/crashing</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/crashing" /> </url>
