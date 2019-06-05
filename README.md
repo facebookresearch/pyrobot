@@ -8,7 +8,7 @@
 - [The Team](#the-team)
 - [Citation](#citation)
 - [License](#license)
-- [Future features](#Future features)
+- [Future features](#Future-features)
 
 ## What can you do with PyRobot?
 
