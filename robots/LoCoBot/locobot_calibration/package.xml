@@ -1,0 +1,14 @@
+<?xml version="0.1"?>
+<package format="2">
+  <name>locobot_calibration</name>
+  <version>0.0.1</version>
+  <description>
+    This package contains launch and script files for gathering calibration data and publishing calibrated transforms.
+  </description>
+  <license>Apache 2.0</license>
+  <author email="amurali@andrew.cmu.edu">Adithya Murali</author>
+  <maintainer email="amurali@andrew.cmu.edu">Adithya Murali</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+</package>

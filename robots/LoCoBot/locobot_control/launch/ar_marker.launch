@@ -1,0 +1,20 @@
+<launch>
+    <arg name="marker_size" default="3.00"/>
+    <arg name="max_new_marker_error" default="0.08"/>
+    <arg name="max_track_error" default="0.2"/>
+
+    <arg name="cam_image_topic" default="/camera/depth_registered/points"/>
+    <arg name="cam_info_topic" default="/camera/color/camera_info"/>
+    <arg name="output_frame" default="/camera_link"/>
+
+    <node name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkers" respawn="false" output="screen">
+        <param name="marker_size" type="double" value="$(arg marker_size)"/>
+        <param name="max_new_marker_error" type="double" value="$(arg max_new_marker_error)"/>
+        <param name="max_track_error" type="double" value="$(arg max_track_error)"/>
+        <param name="output_frame" type="string" value="$(arg output_frame)"/>
+
+        <remap from="camera_image" to="$(arg cam_image_topic)"/>
+        <remap from="camera_info" to="$(arg cam_info_topic)"/>
+    </node>
+
+</launch>

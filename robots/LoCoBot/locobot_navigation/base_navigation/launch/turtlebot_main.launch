@@ -1,0 +1,23 @@
+<launch>
+  <!-- Turtlebot -->
+  <arg name="base"              default="kobuki"/>
+  <arg name="simulation"        default="false"/>
+  <arg name="serialport"        default="/dev/kobuki"/>
+
+  <param name="/use_sim_time" value="$(arg simulation)"/>
+
+  
+  <param name="robot/name" value="$(optenv ROBOT turtlebot)"/>
+  <param name="robot/type" value="turtlebot"/>
+
+  <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator" >
+    <rosparam command="load" file="$(find turtlebot_bringup)/param/$(arg base)/diagnostics.yaml" />
+  </node>
+
+  <include file="$(find turtlebot_bringup)/launch/includes/mobile_base.launch.xml">
+    <arg name="base" value="$(arg base)" />
+    <arg name="serialport" value="$(arg serialport)" />
+  </include>
+
+</launch>
+

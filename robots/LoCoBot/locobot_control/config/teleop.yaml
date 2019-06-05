@@ -1,0 +1,59 @@
+# Arm end-effector
+KEY_POS_X : 'w'
+KEY_NEG_X : 's'
+KEY_POS_Y : 'a'
+KEY_NEG_Y : 'd'
+KEY_POS_Z : 'z'
+KEY_NEG_Z : 'x'
+
+# Arm joints 4 and 5
+KEY_POS_J4 : 'h'
+KEY_NEG_J4 : 'j'
+KEY_POS_J5 : 'k'
+KEY_NEG_J5 : 'l'
+
+# Gripper
+KEY_OPEN_GRIPPER : 'n'
+KEY_CLOSE_GRIPPER : 'm'
+
+# Pan-tilt camera
+KEY_POS_PAN : 'u'
+KEY_NEG_PAN : 'i'
+KEY_POS_TILT : 'o'
+KEY_NEG_TILT : 'p'
+
+# Misc/high level actions
+KEY_NOOP : ''
+KEY_RESET : 'r'
+
+# Base control
+
+# Arm control
+DELTA_POS_X : 0.01
+DELTA_NEG_X : -0.01
+DELTA_POS_Y : 0.01
+DELTA_NEG_Y : -0.01
+DELTA_POS_Z : 0.015
+DELTA_NEG_Z : -0.01
+DELTA_ANGLE_4 : 0.1
+DELTA_ANGLE_5 : 0.25
+DELTA_ANGLE_CAMERA : 0.08
+DELTA_POSITION : 0.02
+START_TILT : 0.85
+START_PAN : 0
+COLLISION_Z_THRESHOLD: 0.038
+
+ROSTOPIC_JOINT_STATES : '/joint_states'
+ROSTOPIC_SET_PAN : '/pan/command'
+ROSTOPIC_SET_TILT : '/tilt/command'
+ROSTOPIC_JOINT_COMMAND : '/joint_command'
+ROSTOPIC_SET_JOINT : '/goal_dynamixel_position'
+ROSTOPIC_BASE_COMMAND : '/base/cmd_vel'
+ROSTOPIC_TELEOP : '/cmd_teleop'
+ROSTOPIC_STOP_EXECUTION : '/stop_execution'
+ROSTOPIC_STOP_EXECUTION_J4 : '/stop_execution_j4'
+ROSTOPIC_STOP_EXECUTION_J5 : '/stop_execution_j5'
+ROSTOPIC_HARDWARE_STATUS : '/arm/status'
+ROSTOPIC_SAFETY_STATUS : '/teleop/safety_status'
+
+WAIT_TIME : 0.5

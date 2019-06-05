@@ -1,0 +1,50 @@
+<launch>  
+  <arg name="base"/>
+
+  <!-- Static transform to make camera work in sim -->
+  <node pkg="tf" type="static_transform_publisher" name="cam_transform" args="0 0 0 0 0 0 /camera_link /camera_color_optical_frame 100" />
+
+  <include file="$(find locobot_gazebo)/launch/empty_world.launch">  
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="recording" value="false"/>
+    <arg name="debug" value="false"/>
+    <arg name="base" value="$(arg base)"/>
+  </include>
+
+  <rosparam file="$(find locobot_gazebo)/config/robotic_arm_gazebo_joint_states.yaml" command="load"/>
+
+  <group if="$(eval base =='create')">
+    <param name="robot_description" textfile="$(find locobot_description)/urdf/locobot_lite_description.urdf"/>
+
+    <include file="$(find locobot_lite_moveit_config)/launch/planning_context.launch">
+      <arg name="load_robot_description" value="true"/>
+    </include>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+          args="-file $(find locobot_description)/urdf/locobot_lite_description.urdf -urdf -z 0.05 -model locobot" />
+  </group>
+
+  <group if="$(eval base =='kobuki')">
+    <param name="robot_description" textfile="$(find locobot_description)/urdf/locobot_description.urdf"/>
+
+    <include file="$(find locobot_moveit_config)/launch/planning_context.launch">
+      <arg name="load_robot_description" value="true"/>
+    </include>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+          args="-file $(find locobot_description)/urdf/locobot_description.urdf -urdf -z 0.05 -model locobot" >
+    </node>
+
+    <!-- Velocity muxer -->
+    <node pkg="nodelet" type="nodelet" name="mobile_base_nodelet_manager" args="manager"/>
+    <node pkg="nodelet" type="nodelet" name="cmd_vel_mux"
+          args="load yocs_cmd_vel_mux/CmdVelMuxNodelet mobile_base_nodelet_manager">
+      <param name="yaml_cfg_file" value="$(find turtlebot_bringup)/param/mux.yaml"/>
+      <remap from="cmd_vel_mux/output" to="mobile_base/commands/velocity"/>
+    </node>
+    <!-- Bumper / Cliff to PCD -->
+    <include file="$(find turtlebot_bringup)/launch/includes/kobuki/bumper2pc.launch.xml"/>
+  </group>
+</launch>

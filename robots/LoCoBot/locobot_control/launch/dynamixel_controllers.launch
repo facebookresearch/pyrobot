@@ -1,0 +1,17 @@
+<launch>
+  <arg name="usb_port"                default="/dev/ttyUSB_dyna"/>
+  <arg name="dxl_baud_rate"           default="1000000"/>
+  <arg name="namespace"               default="locobot_controller"/>
+  <arg name="dynamixel_info"          default="$(find locobot_control)/config/dynamixels.yaml"/>
+
+  <param name="dynamixel_info"        value="$(arg dynamixel_info)"/>
+
+  <node name="$(arg namespace)" pkg="locobot_control" type="locobot_controller"
+        required="true" output="screen" args="$(arg usb_port) $(arg dxl_baud_rate)">
+    <rosparam>
+      publish_period: 0.010
+      dxl_read_period: 0.010
+      dxl_write_period: 0.010
+    </rosparam>
+  </node>
+</launch>

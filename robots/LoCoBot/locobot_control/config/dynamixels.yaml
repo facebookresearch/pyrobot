@@ -1,0 +1,58 @@
+# You can find control table of Dynamixel on emanual (http://emanual.robotis.com/#control-table)
+# Control table item has to be set Camel_Case and not included whitespace
+# You are supposed to set at least Dynamixel ID
+arm:
+  joint_1:
+    ID: 1
+    Return_Delay_Time: 0
+    Profile_Acceleration: 40
+    Profile_Velocity: 40
+    Drive_Mode: 0
+  joint_2:
+    ID: 2
+    Return_Delay_Time: 0
+    Profile_Acceleration: 40
+    Profile_Velocity: 40
+    Drive_Mode: 0
+  joint2Dual:
+    ID: 3
+    Return_Delay_Time: 0
+    Profile_Acceleration: 40
+    Profile_Velocity: 40
+    Drive_Mode: 0
+  joint_3:
+    ID: 4
+    Return_Delay_Time: 0
+    Profile_Acceleration: 40
+    Profile_Velocity: 40
+    Drive_Mode: 0
+  joint_4:
+    ID: 5
+    Return_Delay_Time: 0
+    Profile_Acceleration: 40
+    Profile_Velocity: 40
+    Drive_Mode: 0
+  joint_5:
+    ID: 6
+    Return_Delay_Time: 0
+    Profile_Acceleration: 40
+    Profile_Velocity: 40
+    Drive_Mode: 0
+gripper:
+  gripperMotor:
+    ID: 7
+    Return_Delay_Time: 0
+    Drive_Mode: 0
+camera:
+  head_pan_joint:
+    ID: 8
+    Return_Delay_Time: 0
+    Profile_Acceleration: 30
+    Profile_Velocity: 10
+    Drive_Mode: 0
+  head_tilt_joint:
+    ID: 9
+    Return_Delay_Time: 0
+    Profile_Acceleration: 30
+    Profile_Velocity: 10
+    Drive_Mode: 0

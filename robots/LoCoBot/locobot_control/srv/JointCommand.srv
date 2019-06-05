@@ -1,0 +1,7 @@
+# This message is used to send position command to dynamixel
+
+string unit
+uint8 id
+float32 goal_position
+---
+bool result

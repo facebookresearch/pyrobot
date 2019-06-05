@@ -1,0 +1,15 @@
+<launch>
+
+   <!-- CHOMP Plugin for MoveIt! -->
+   <arg name="planning_plugin" value="chomp_interface/CHOMPPlanner" />
+
+   <arg name="start_state_max_bounds_error" value="0.1" />
+
+   <param name="planning_plugin" value="$(arg planning_plugin)" />
+   <param name="start_state_max_bounds_error" value="$(arg start_state_max_bounds_error)" />
+
+   <param name="collision_detector" value="Hybrid" />
+
+   <rosparam command="load" file="$(find locobot_moveit_config)/config/chomp_planning.yaml" />
+
+</launch>

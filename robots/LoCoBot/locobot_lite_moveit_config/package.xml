@@ -1,0 +1,23 @@
+<package>
+  <name>locobot_lite_moveit_config</name>
+  <version>0.0.1</version>
+  <description>
+     An automatically generated package with all the configuration and launch files for using the locobot_description with the MoveIt! Motion Planning Framework
+  </description>
+  <author email="kalyanv@fb.com">Kalyan Vasudev</author>
+  <maintainer email="kalyanv@fb.com">Kalyan Vasudev</maintainer>
+  <license>MIT</license>
+  <url type="website">http://moveit.ros.org/</url>
+  <url type="bugtracker">https://github.com/ros-planning/moveit/issues</url>
+  <url type="repository">https://github.com/ros-planning/moveit</url>
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>moveit_ros_move_group</run_depend>
+  <run_depend>moveit_kinematics</run_depend>
+  <run_depend>moveit_planners_ompl</run_depend>
+  <run_depend>moveit_ros_visualization</run_depend>
+  <run_depend>joint_state_publisher</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
+  <run_depend>xacro</run_depend>
+  <run_depend>locobot_description</run_depend>
+  <build_depend>locobot_description</build_depend>
+</package>

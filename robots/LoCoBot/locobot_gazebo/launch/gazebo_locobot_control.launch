@@ -1,0 +1,19 @@
+<launch>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find locobot_gazebo)/config/control.yaml" command="load"/>
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" args="joint_1_cntrl
+                          joint_2_cntrl
+                          joint_3_cntrl
+                          joint_4_cntrl
+                          joint_5_cntrl
+                          joint_6_cntrl
+                          joint_7_cntrl
+                          pan
+                          tilt
+                          joint_state_controller"/>
+
+</launch>

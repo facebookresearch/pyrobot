@@ -1,0 +1,21 @@
+<?xml version="0.1"?>
+<package format="2">
+  <name>locobot_control</name>
+  <version>0.0.1</version>
+  <description>
+    Low level controllers and interface for LoCoBot.
+  </description>
+  <license>MIT</license>
+  <author email="amurali@andrew.cmu.edu">Adithya Murali</author>
+  <maintainer email="amurali@andrew.cmu.edu">Adithya Murali</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>dynamixel_workbench_msgs</depend>
+  <depend>dynamixel_workbench_toolbox</depend>
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
+  <depend>message_runtime</depend>
+</package>

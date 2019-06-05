@@ -1,0 +1,24 @@
+<launch>
+ <arg name="use_ping"         default="false"/>
+ <arg name="id"               default="1"/>
+
+ <arg name="device_name"      default="/dev/ttyUSB_dyna"/>
+ <arg name="baud_rate"        default="57600"/>
+
+ <arg name="scan_range"       default="10"/>
+
+ <param name="ping"             value="$(arg use_ping)"  type="bool"/>
+ <param name="ping_id"          value="$(arg id)"/>
+
+ <param name="device_name"      value="$(arg device_name)"/>
+ <param name="baud_rate"        value="$(arg baud_rate)"/>
+
+ <param name="scan_range"        value="$(arg scan_range)"/>
+
+ <node name="single_dynamixel_monitor" pkg="dynamixel_workbench_single_manager"
+         type="single_dynamixel_monitor" required="true" output="screen"/>
+
+ <node name="single_dynamixel_controller" pkg="dynamixel_workbench_single_manager"
+         type="single_dynamixel_controller" required="true" output="screen"/>
+ </launch>
+

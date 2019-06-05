@@ -1,0 +1,29 @@
+<?xml version="0.1"?>
+<package format="2">
+  <name>locobot_gazebo</name>
+  <version>0.0.1</version>
+  <description>Simulator for LoCoBot in Gazebo</description>
+  <maintainer email="kalyanv@fb.com">Kalyan Vasudev</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>gazebo_ros</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>gazebo</build_export_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <depend>sensor_msgs</depend>
+  <depend>gazebo_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>actionlib</depend>
+  <depend>actionlib_msgs</depend>
+  <depend>dynamixel_workbench_msgs</depend>
+  <export>
+  </export>
+</package>

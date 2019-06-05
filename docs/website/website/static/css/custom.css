@@ -1,0 +1,93 @@
+/* your custom css */
+
+.text_column {
+	width: 80%;
+	text-align: center;
+	float: center;
+	margin: auto;
+}
+
+.column {
+  float: left;
+  text-align: center;
+  width: 33%;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Videos on the front page */
+/*.index_vid {
+	width: 516px;
+	height: 315px;
+}*/
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+}
+
+@media only screen and (min-width: 1024px) {
+}
+
+@media only screen and (max-width: 1023px) {
+}
+
+@media only screen and (min-width: 1400px) {
+}
+
+@media only screen and (min-width: 1500px) {
+}
+
+/*@media screen and (min-width: 2400px){
+	.index_vid {
+		--width: calc(2400/3.2);
+		width: var(--width);
+		height: calc(var(--width)*0.6);
+	}
+}*/
+
+@media screen and (min-width: 600px){
+	.index_vid {
+		--width: calc(100vw/3.2);
+		width: var(--width);
+		height: calc(var(--width)*0.6);
+	}
+}
+
+@media screen and (max-width: 1000px) {
+  .column {
+    width: 100%;
+  }
+  .index_vid {
+	--width: 400px;
+	width: var(--width);
+	height: calc(var(--width)*0.6);
+  }  
+}
+
+@media screen{
+	.doc_vid {
+		--width: calc(100vw/2.0);
+		width: var(--width);
+		height: calc(var(--width)*0.6);
+		text-align: center;
+  		padding-bottom: 1em;
+	}
+	.doc_img {
+		--width: calc(100vw/2.0);
+		width: var(--width);
+		text-align: center;
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+a {
+  color: #3eb0f7;
+}

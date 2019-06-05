@@ -1,0 +1,55 @@
+# Move base node parameters. For full documentation of the parameters in this file, please see
+#
+#  http://www.ros.org/wiki/move_base
+#
+shutdown_costmaps: false
+
+controller_frequency: 5.0
+controller_patience: 1.0
+
+
+planner_frequency: 1.0
+planner_patience: 1.0
+
+oscillation_timeout: 10.0
+oscillation_distance: 0.2
+
+# local planner - default is trajectory rollout
+base_local_planner:  "base_local_planner/TrajectoryPlannerROS" #"dwa_local_planner/DWAPlannerROS" 
+base_global_planner: "global_planner/GlobalPlanner" #"navfn/NavfnROS" #alternatives: global_planner/GlobalPlanner, carrot_planner/CarrotPlanner
+
+
+#We plan to integrate recovery behaviors for turtlebot but currently those belong to gopher and still have to be adapted.
+## recovery behaviors; we avoid spinning, but we need a fall-back replanning
+#recovery_behavior_enabled: true
+
+#recovery_behaviors:
+  #- name: 'super_conservative_reset1'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  #- name: 'conservative_reset1'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  #- name: 'aggressive_reset1'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  #- name: 'clearing_rotation1'
+    #type: 'rotate_recovery/RotateRecovery'
+  #- name: 'super_conservative_reset2'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  #- name: 'conservative_reset2'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  #- name: 'aggressive_reset2'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  #- name: 'clearing_rotation2'
+    #type: 'rotate_recovery/RotateRecovery'
+
+#super_conservative_reset1:
+  #reset_distance: 3.0
+#conservative_reset1:
+  #reset_distance: 1.5
+#aggressive_reset1:
+  #reset_distance: 0.0
+#super_conservative_reset2:
+  #reset_distance: 3.0
+#conservative_reset2:
+  #reset_distance: 1.5
+#aggressive_reset2:
+  #reset_distance: 0.0

@@ -1,0 +1,6 @@
+static_layer:
+  map_topic: "/occupancy_map"
+  first_map_only: false
+
+inflation_layer:
+  inflation_radius: 0.25

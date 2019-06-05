@@ -1,0 +1,6 @@
+image: blank_map_with_obstacle.pgm
+resolution: 0.01
+origin: [-2.5, -2.5, 0]
+occupied_thresh: 0.65
+free_thresh: 0.195 # Taken from the Willow Garage map in the turtlebot_navigation package
+negate: 0

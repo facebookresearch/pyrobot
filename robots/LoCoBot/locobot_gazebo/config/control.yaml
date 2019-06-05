@@ -1,0 +1,58 @@
+# Publish all joint states -----------------------------------
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 100
+
+# Position Controllers ---------------------------------------
+joint_1_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_1
+  pid: {p: 50.0, i: 1.0, d: 2}
+joint_2_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_2
+  pid: {p: 140.0, i: 30.0, d: 5}
+joint_3_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_3
+  pid: {p: 100.0, i: 0.0, d: 5}
+joint_4_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_4
+  pid: {p: 40.0, i: 2., d: 0.21}
+joint_5_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_5
+  pid: {p: 5.0, i: 0.3, d: 0.1}
+joint_6_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_6
+  pid: {p: 15.0, i: 1.0, d: 0.2}
+joint_7_cntrl:
+  type: effort_controllers/JointPositionController
+  joint: joint_7
+  pid: {p: 15.0, i: 1.0, d: 0.2}
+pan:
+  type: effort_controllers/JointPositionController
+  joint: head_pan_joint
+  pid: {p: 30.0, i: 1.0, d: 0.1}
+tilt:
+  type: effort_controllers/JointPositionController 
+  joint: head_tilt_joint
+  pid: {p: 30.0, i: 1.0, d: 0.1}
+
+# arm_cntrl:
+#   type: "position_controllers/JointTrajectoryController"
+#   joints:
+#     - joint_1
+#     - joint_2 
+#     - joint_3 
+#     - joint_4 
+#     - joint_5
+
+#   gains:
+#     joint_1: {p: 30.0, i: 10.0, d: 0.1}
+#     joint_2: {p: 300.0, i: 1.0, d: 0.1}
+#     joint_3: {p: 300.0, i: 1.0, d: 0.1}
+#     joint_4: {p: 300.0, i: 1.0, d: 0.1}
+#     joint_5: {p: 30.0, i: 10.0, d: 0.1}

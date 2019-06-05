@@ -1,0 +1,6 @@
+BASE:
+  BASE_TYPE: create
+  ROSTOPIC_BUMPER: /bumper
+  ROSTOPIC_CLIFF: /cliff
+  ROSTOPIC_WHEELDROP: /wheeldrop
+  TRACKED_POINT: 30

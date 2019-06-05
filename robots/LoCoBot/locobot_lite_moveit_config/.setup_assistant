@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: locobot_description
+    relative_path: urdf/locobot_lite_description.urdf
+  SRDF:
+    relative_path: config/locobot_lite.srdf
+  CONFIG:
+    author_name: abc
+    author_email: abc@gmail.com
+    generated_timestamp: 1549062143

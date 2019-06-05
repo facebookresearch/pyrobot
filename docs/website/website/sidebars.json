@@ -1,0 +1,20 @@
+{
+  "docs": {
+  	"Getting Started": ["overview", 
+                        "software"],
+    "Examples": ["calibration", 
+                 "navigation", 
+                 "manipulation", 
+                 "demonstrations", 
+                 "pushing", 
+                 "active_camera",
+                 "grasping", 
+                 "sim2real", 
+                 "visual_nav_cmp"],
+    "Help and Support": ["new_robot_support", 
+                         "network", 
+                     	 "contributing",
+                     	 "faq",
+                         "contact"]
+  }
+}

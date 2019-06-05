@@ -1,0 +1,88 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+    <!-- A global light source -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <!-- A ground plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+
+    <model name="box_model">
+      <allow_auto_disable>0</allow_auto_disable>
+      <pose>0.50000 0.000000 0.500000 0.000000 -0.000000 0.000000</pose>
+      <link name="box_body">
+        <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+        <inertial>
+          <pose>0.000000 0.000000 -0.500000 0.000000 -0.000000 0.000000</pose>
+         <!--  <inertia>
+            <ixx>00.000000</ixx>
+            <ixy>0.000000</ixy>
+            <ixz>0.000000</ixz>
+            <iyy>00.000000</iyy>
+            <iyz>0.000000</iyz>
+            <izz>10.000000</izz>
+          </inertia> -->
+          <mass>0.050000</mass>
+        </inertial>
+        <collision name="box_geom">
+          <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.050000 0.050000 0.050000</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.998500</mu>
+                <mu2>0.998500</mu2>
+                <fdir1>0.000000 0.000000 0.000000</fdir1>
+                <slip1>0.000000</slip1>
+                <slip2>0.000000</slip2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0.000000</restitution_coefficient>
+              <threshold>100000.000000</threshold>
+            </bounce>
+            <contact>
+              <ode>
+                <soft_cfm>0.000000</soft_cfm>
+                <soft_erp>0.200000</soft_erp>
+                <kp>100000.000000</kp>
+                <kd>1.000000</kd>
+                <max_vel>100.000000</max_vel>
+                <min_depth>0.001000</min_depth>
+              </ode>
+            </contact>
+          </surface>
+          <laser_retro>0.000000</laser_retro>
+        </collision>
+        <visual name="box_geom_visual">
+          <pose>0.000000 0.000000 0.000000 0.000000 -0.000000 0.000000</pose>
+          <geometry>
+            <box>
+              <size>0.050000 0.050000 0.050000</size>
+            </box>
+          </geometry>
+          <material>
+            <script>Gazebo/Rocky</script>
+          </material>
+          <cast_shadows>1</cast_shadows>
+          <laser_retro>0.000000</laser_retro>
+          <transparency>0.000000</transparency>
+        </visual>
+      <!--   <gravity>0.1</gravity> -->
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <static>0</static>
+    </model>
+
+
+  </world>
+</sdf>

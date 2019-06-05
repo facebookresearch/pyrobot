@@ -1,0 +1,18 @@
+ <launch>
+    <!-- Options: create and kobuki -->
+    <arg name="base" default="kobuki"/> 
+    <param name="base" value="$(arg base)"/>
+
+    <!-- Robot launch files -->
+    <include file="$(find locobot_control)/launch/main.launch">
+        <arg name="use_base" value="false"/>
+        <arg name="use_arm" value="true"/>
+        <arg name="use_camera" value="true"/>
+        <arg name="use_rviz" value="true"/>
+        <arg name="base" value="$(arg base)"/>
+    </include>
+    
+    <!-- Launch AR tracker -->
+    <include file="$(find locobot_calibration)/launch/ar_track_alvar_calibration.launch"/>
+
+</launch>
