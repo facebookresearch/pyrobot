@@ -3,13 +3,16 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import sys
 import PyKDL as kdl
 import numpy as np
 import rospy
 import tf
 import tf_conversions
+import geometry_msgs.msg
 from geometry_msgs.msg import PoseStamped
-
+import moveit_commander
+from moveit_commander import conversions
 
 def get_tf_transform(tf_listener, tgt_frame, src_frame):
     """
@@ -139,3 +142,133 @@ def kdl_frame_to_numpy(frame):
                      [M[1, 0], M[1, 1], M[1, 2], p.y()],
                      [M[2, 0], M[2, 1], M[2, 2], p.z()],
                      [0, 0, 0, 1]])
+
+
+class ObjectHandler(object):
+    '''
+    Use this class to create objects that encapsulate helpful planners.
+    '''
+    def __init__(self):
+
+        moveit_commander.roscpp_initialize(sys.argv)
+
+        self.scene = moveit_commander.PlanningSceneInterface()
+
+    def add_world_object(self, id_name, pose, size):
+        assert type(size) is tuple, 'size should be tuple'
+        assert len(size)==3, 'size should be of length 3'
+        pose = conversions.list_to_pose(pose)
+        pose_stamped = PoseStamped()
+        pose_stamped.header.frame_id = '/base'
+        pose_stamped.pose = pose
+        self.scene.add_box(id_name, pose_stamped, size)
+        rospy.sleep(1.0)
+        self.scene.add_box(id_name, pose_stamped, size)
+
+    def remove_world_object(self, id_name): 
+        self.scene.remove_world_object(id_name)
+        self.scene.remove_world_object(id_name)
+
+    def attach_arm_object(self, link_name, id_name, pose, size):
+        assert type(size) is tuple, 'size should be tuple'
+        assert len(size)==3, 'size should be of length 3'
+        pose = conversions.list_to_pose(pose)
+        pose_stamped = PoseStamped()
+        pose_stamped.header.frame_id = link_name
+        pose_stamped.pose = pose
+        self.scene.attach_box(link_name, id_name, pose_stamped, size)
+        rospy.sleep(1.0)
+        self.scene.attach_box(link_name, id_name, pose_stamped, size)
+
+    def detach_arm_object(self, link_name, id_name, remove_from_world=True):
+        self.scene.remove_attached_object(link_name, id_name)
+        self.scene.remove_attached_object(link_name, id_name)
+        if remove_from_world is True:
+            self.remove_world_object(id_name)
+
+    def remove_all_objects(self):
+        ## get add objects
+        dict_obj = self.scene.get_objects()
+        ## get attach object
+        dict_attach_obj = self.scene.get_attached_objects()
+        ## remove add objects
+        for i in dict_obj.keys():
+            self.remove_world_object(i)
+        ## remove attached objects
+        for i in dict_attach_obj.keys():
+            self.detach_arm_object(dict_attach_obj[i].link_name,i)
+
+    def add_table(self, table_yaml=None):
+        '''
+        This adds a table in the planning scene.
+        table_yaml is a yml file describing the pose and size of the table.
+        '''
+        if table_yaml is not None:
+            import yaml
+            table_d = yaml.load(open(table_yaml, 'r'))
+            self.add_world_object('table', 
+                pose=table_d['pose'], 
+                size=tuple(table_d['size']))
+        else:
+            # Default table.
+            print('Since table_yaml not supplemented, creating default table.')
+            self.add_world_object('table', 
+                pose=[0.8,0.0,-0.23,0.,0.,0.,1.],
+                size=(1.35,2.0,0.1))
+
+    def add_kinect(self, kinect_yaml=None):
+        '''
+        This adds a kinect in the planning scene.
+        kinect_yaml is a yml file describing the pose and size of the table.
+        '''
+        if kinect_yaml is not None:
+            import yaml
+            kinect_d = yaml.load(open(kinect_yaml, 'r'))
+            self.add_world_object('kinect', 
+                pose=kinect_d['pose'], 
+                size=tuple(kinect_d['size']))
+        else:
+            # Default kinect.
+            print('Since kinect_yaml not supplemented, creating default kinect.')
+            self.add_world_object('kinect', 
+                pose=[0., 0.0,0.75,0.,0.,0.,1.], 
+                size=(0.25,0.25,0.3))
+
+    def add_gripper(self, gripper_yaml=None):
+        '''
+        Attaches gripper to right_gripper link.
+        '''
+        if gripper_yaml is not None:
+            import yaml
+            gripper_d = yaml.load(open(gripper_yaml, 'r'))
+            self.attach_arm_object('right_gripper',
+                'gripper', 
+                pose=gripper_d['pose'], 
+                size=tuple(gripper_d['size']))
+        else:
+            # Default gripper.
+            print('Since gripper_yaml not supplemented, creating default gripper.')
+            self.attach_arm_object('right_gripper',
+                'gripper', 
+                pose=[0., 0.0, 0.07,0.,0.,0.,1.], 
+                size=(0.02,0.1,0.07))
+
+    def remove_table(self):
+        '''
+        Removes table object from the planning scene
+        '''
+        self.remove_world_object('table')
+
+    def remove_gripper(self):
+        '''
+        Removes table object from the planning scene
+        '''
+        self.detach_object('gripper')
+        rospy.sleep(0.2)
+        self.detach_object('gripper')
+        rospy.sleep(0.2)
+        self.remove_world_object('gripper')
+        rospy.sleep(0.2)
+        self.remove_world_object('gripper')
+        
+
