@@ -144,7 +144,7 @@ def kdl_frame_to_numpy(frame):
                      [0, 0, 0, 1]])
 
 
-class ObjectHandler(object):
+class MoveitObjectHandler(object):
     '''
     Use this class to create objects that encapsulate helpful planners.
     '''
