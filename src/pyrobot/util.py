@@ -146,15 +146,17 @@ def kdl_frame_to_numpy(frame):
 
 class MoveitObjectHandler(object):
     '''
-    Use this class to create objects that encapsulate helpful planners.
+    Use this class to create objects that reside in moveit environments
     '''
     def __init__(self):
 
         moveit_commander.roscpp_initialize(sys.argv)
-
         self.scene = moveit_commander.PlanningSceneInterface()
 
     def add_world_object(self, id_name, pose, size):
+        '''
+        Adds the particular object to the moveit planning scene
+        '''
         assert type(size) is tuple, 'size should be tuple'
         assert len(size)==3, 'size should be of length 3'
         pose = conversions.list_to_pose(pose)
@@ -165,11 +167,17 @@ class MoveitObjectHandler(object):
         rospy.sleep(1.0)
         self.scene.add_box(id_name, pose_stamped, size)
 
-    def remove_world_object(self, id_name): 
+    def remove_world_object(self, id_name):
+        '''
+        Removes a specified object for the Moveit planning scene
+        ''' 
         self.scene.remove_world_object(id_name)
         self.scene.remove_world_object(id_name)
 
     def attach_arm_object(self, link_name, id_name, pose, size):
+        '''
+        Attaches the specified object to the robot
+        '''
         assert type(size) is tuple, 'size should be tuple'
         assert len(size)==3, 'size should be of length 3'
         pose = conversions.list_to_pose(pose)
@@ -181,12 +189,18 @@ class MoveitObjectHandler(object):
         self.scene.attach_box(link_name, id_name, pose_stamped, size)
 
     def detach_arm_object(self, link_name, id_name, remove_from_world=True):
+        '''
+        Detaches an object earlier attached to the robot
+        '''
         self.scene.remove_attached_object(link_name, id_name)
         self.scene.remove_attached_object(link_name, id_name)
         if remove_from_world is True:
             self.remove_world_object(id_name)
 
     def remove_all_objects(self):
+        '''
+        Removes all the objects in the current Moveit planning scene
+        '''
         ## get add objects
         dict_obj = self.scene.get_objects()
         ## get attach object
