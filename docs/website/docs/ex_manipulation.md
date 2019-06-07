@@ -28,20 +28,19 @@ source ~/pyenv_pyrobot/bin/activate
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Locobot Setup Instructions-->
-LoCoBot's launch file has been run. Note that you have to set `use_arm:=true`.
 
 <!--DOCUSAURUS_CODE_TABS-->
-<!--LoCoBot[Real Robot]-->
+<!--LoCoBot Setup Instructions-->
+LoCoBot's launch file has been run. Note that you have to set `use_arm:=true`.
+
 ```bash
 roslaunch locobot_control main.launch use_arm:=true
 ```
-<!--LoCoBot[Simulator]-->
+
+Similar to the real robot, for LoCoBot gazebo simulator, run the following command,
 ```bash
-roslaunch locobot_control main.launch use_arm:=true use_sim:=true 
+roslaunch locobot_control main.launch use_arm:=true use_sim:=true
 ```
-<!--END_DOCUSAURUS_CODE_TABS--> 
 
 <!--Sawyer Setup Instructions-->
 To install the Sawyer software, please follow the instructions in this [README](https://github.com/facebookresearch/pyrobot/tree/master/robots/sawyer) to install and setup the appropriate sawyer software.
