@@ -223,7 +223,7 @@ class MoveitObjectHandler(object):
                 size=size)
         else:
             # Default table.
-            print('Since table_yaml not supplemented, creating default table.')
+            print('Creating default table.')
             self.add_world_object('table', 
                 pose=[0.8,0.0,-0.23,0.,0.,0.,1.],
                 size=(1.35,2.0,0.1))
@@ -239,7 +239,7 @@ class MoveitObjectHandler(object):
                 size=size)
         else:
             # Default kinect.
-            print('Since kinect_yaml not supplemented, creating default kinect.')
+            print('Creating default kinect.')
             self.add_world_object('kinect', 
                 pose=[0., 0.0,0.75,0.,0.,0.,1.], 
                 size=(0.25,0.25,0.3))
@@ -255,7 +255,7 @@ class MoveitObjectHandler(object):
                 size=size)
         else:
             # Default gripper.
-            print('Since gripper_yaml not supplemented, creating default gripper.')
+            print('Creating default gripper.')
             self.attach_arm_object('right_gripper',
                 'gripper', 
                 pose=[0., 0.0, 0.07,0.,0.,0.,1.], 

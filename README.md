@@ -27,11 +27,13 @@
 * Download the installation script
 
 ```bash
+sudo apt update
 sudo apt-get install curl
 curl --user <github_user_name> 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
 ```
 **TODO** after making the repo public, change the command above into:
 ```bash
+sudo apt update
 sudo apt-get install curl
 curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
 ```

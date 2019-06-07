@@ -45,7 +45,7 @@ wget https://downloadmirror.intel.com/28573/eng/D400_Series_Development_FW_5_11_
 unzip D400_Series_Development_FW_5_11_4.zip
 lsusb #find out the bus and device numbers for realsense camera
 # use the bus and device numbers in the following command (e.g. -b 002 -d 003)
-intel-realsense-dfu -b <bus number> -d <device number> -f -i Signed_Image_UVC_5_11_1_100.bin
+intel-realsense-dfu -b <bus number> -d <device number> -f -i Signed_Image_UVC_5_11_4_0.bin
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
