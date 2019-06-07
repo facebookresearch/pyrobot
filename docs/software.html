@@ -62,11 +62,13 @@
 <li><p>Install <strong>Ubuntu 16.04</strong></p></li>
 <li><p>Download the installation script</p></li>
 </ul>
-<pre><code class="hljs css language-bash">sudo apt-get install curl
+<pre><code class="hljs css language-bash">sudo apt update
+sudo apt-get install curl
 curl --user &lt;github_user_name&gt; <span class="hljs-string">'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh'</span> &gt; locobot_install_all.sh
 </code></pre>
 <p><strong>TODO</strong> after making the repo public, change the command above into:</p>
-<pre><code class="hljs css language-bash">sudo apt-get install curl
+<pre><code class="hljs css language-bash">sudo apt update
+sudo apt-get install curl
 curl <span class="hljs-string">'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh'</span> &gt; locobot_install_all.sh
 </code></pre>
 <ul>
