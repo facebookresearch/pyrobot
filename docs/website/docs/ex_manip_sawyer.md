@@ -4,8 +4,12 @@ title: Running basic tools for manipulation
 sidebar_label: [Basic] Manipulation
 ---
 
-In this example we will run through the basic manipulation tools currently available on PyRobot. 
+In this example we will run through the basic manipulation tools currently available on PyRobot for Sawyer. 
+Here is an example of what one can accoplish through this tutorial
 
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DiaO8GyWyPs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
+</figure>
 
 ## Setup
 
