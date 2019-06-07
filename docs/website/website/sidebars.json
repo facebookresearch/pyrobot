@@ -11,6 +11,7 @@
                  "grasping", 
                  "sim2real", 
                  "visual_nav_cmp"],
+    "Sawyer Examples":["manipulation_sawyer"]
     "Help and Support": ["new_robot_support", 
                          "network", 
                      	 "contributing",
