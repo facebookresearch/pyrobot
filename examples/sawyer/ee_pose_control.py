@@ -22,13 +22,11 @@ def main():
                     {'position': np.array([0.7320, 0.1548, 0.0768]),
                      'orientation': np.array([0.1817, 0.9046, -0.1997, 0.3298])},
                     ]
-    arm_config = {'moveit_planner_type': 'TRRTkConfigDefault'}
     bot = Robot('sawyer',
                 use_arm=True,
                 use_base=False,
                 use_camera=False,
-                use_gripper=True,
-                arm_config=arm_config)
+                use_gripper=True)
     bot.arm.go_home()
     time.sleep(1)
     for pose in target_poses:

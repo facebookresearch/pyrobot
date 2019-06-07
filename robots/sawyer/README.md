@@ -29,11 +29,15 @@ cd ~/ros_ws # or the appropriate catkin workspace in which intera_sdk package is
 
 2. Start the joint trajectory controller
 ```bash
+cd ~/ros_ws
+./src/intera_sdk/intera.sh
 rosrun intera_interface joint_trajectory_action_server.py
 ```
 
 3. Launch MoveIt for Sawyer in a new terminal
 ```bash
+cd ~/ros_ws
+./src/intera_sdk/intera.sh
 roslaunch sawyer_moveit_config sawyer_moveit.launch electric_gripper:=true
 ```
 
