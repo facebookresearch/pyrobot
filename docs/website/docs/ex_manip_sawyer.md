@@ -63,6 +63,12 @@ roslaunch sawyer_moveit_config sawyer_moveit.launch electric_gripper:=true
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
+Finally, make sure that the appropriate python virtual environment has been sourced before running any PyRobot package.
+
+```bash
+source ~/pyenv_pyrobot/bin/activate
+```
+
 ## Basic movements
 
 In your favorite Python command shell run the following to setup the robot object
@@ -91,6 +97,9 @@ robot.arm.set_joint_positions(target_joint, plan=False)
 robot.arm.go_home()
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/TJuXf3VExbE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
 
 ### Joint Velocity Control
 <!--DOCUSAURUS_CODE_TABS-->
@@ -111,6 +120,9 @@ while time.time() - start_time < 35:
     time.sleep(0.01)
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dwi1yAN3-vk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
 
 ### Joint Torque Control
 <!--DOCUSAURUS_CODE_TABS-->
@@ -137,6 +149,9 @@ while True:
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 This script implemented a virtual spring-damper control on the Sawyer manipulator. You can push the manipulator, and it will try to come back to the original pose.
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/TNbv-kO-0gw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
 
 ### End-effector Pose Control
 
@@ -155,9 +170,11 @@ time.sleep(1)
 for pose in target_poses:
     robot.arm.set_ee_pose(plan=True, **pose)
     time.sleep(1)
-robot.arm.go_home()
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/xmaCYCSpGuU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
 
 ### End-effector Cartesian Path Control
 
@@ -179,6 +196,10 @@ time.sleep(1)
 robot.arm.go_home()
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ry3VUU4hXhE" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
+
 
 ### Moveit Planning with a New Obstacle (a Table) Added
 
@@ -209,4 +230,7 @@ for pose in target_poses:
     time.sleep(1)
 robot.arm.go_home()
 ```
-<!--END_DOCUSAURUS_CODE_TABS--> 
+<!--END_DOCUSAURUS_CODE_TABS-->
+<figure class="video_container">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/DiaO8GyWyPs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
+</figure>
