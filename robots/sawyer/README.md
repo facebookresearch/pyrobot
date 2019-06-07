@@ -13,7 +13,8 @@ To set up the gazebo simulator follow the "Sawyer Simulator Installation" instru
 To setup interal shell for the simulator. Run the following command from the root folder of the catkin workspace in which the intera package resides.
 
 ```bash
- ./src/intera_sdk/intera.sh sim
+cd ~/ros_ws
+./src/intera_sdk/intera.sh sim
 ```
 
 To lauch the gazebo simulator, run the following command.
@@ -25,11 +26,15 @@ To lauch the gazebo simulator, run the following command.
 
 1. Start the joint trajectory controller
 ```bash
+cd ~/ros_ws
+./src/intera_sdk/intera.sh
 rosrun intera_interface joint_trajectory_action_server.py
 ```
 
 2. Launch MoveIt for Sawyer in a new terminal
 ```bash
+cd ~/ros_ws
+./src/intera_sdk/intera.sh
 roslaunch sawyer_moveit_config sawyer_moveit.launch electric_gripper:=true
 ```
 

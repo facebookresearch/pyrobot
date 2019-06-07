@@ -153,7 +153,7 @@ class MoveitObjectHandler(object):
         moveit_commander.roscpp_initialize(sys.argv)
         self.scene = moveit_commander.PlanningSceneInterface()
 
-    def add_world_object(self, id_name, pose, size):
+    def add_world_object(self, id_name, pose, size, frame='/base'):
         '''
         Adds the particular object to the moveit planning scene
         '''
@@ -161,7 +161,7 @@ class MoveitObjectHandler(object):
         assert len(size)==3, 'size should be of length 3'
         pose = conversions.list_to_pose(pose)
         pose_stamped = PoseStamped()
-        pose_stamped.header.frame_id = '/base'
+        pose_stamped.header.frame_id = frame
         pose_stamped.pose = pose
         self.scene.add_box(id_name, pose_stamped, size)
         rospy.sleep(1.0)
@@ -212,17 +212,15 @@ class MoveitObjectHandler(object):
         for i in dict_attach_obj.keys():
             self.detach_arm_object(dict_attach_obj[i].link_name,i)
 
-    def add_table(self, table_yaml=None):
+    def add_table(self, pose=None, size=None):
         '''
         This adds a table in the planning scene.
         table_yaml is a yml file describing the pose and size of the table.
         '''
-        if table_yaml is not None:
-            import yaml
-            table_d = yaml.load(open(table_yaml, 'r'))
+        if pose is not None and size is not None:
             self.add_world_object('table', 
-                pose=table_d['pose'], 
-                size=tuple(table_d['size']))
+                pose=pose, 
+                size=size)
         else:
             # Default table.
             print('Since table_yaml not supplemented, creating default table.')
@@ -230,17 +228,15 @@ class MoveitObjectHandler(object):
                 pose=[0.8,0.0,-0.23,0.,0.,0.,1.],
                 size=(1.35,2.0,0.1))
 
-    def add_kinect(self, kinect_yaml=None):
+    def add_kinect(self, pose=None, size=None):
         '''
         This adds a kinect in the planning scene.
         kinect_yaml is a yml file describing the pose and size of the table.
         '''
-        if kinect_yaml is not None:
-            import yaml
-            kinect_d = yaml.load(open(kinect_yaml, 'r'))
+        if pose is not None and size is not None:
             self.add_world_object('kinect', 
-                pose=kinect_d['pose'], 
-                size=tuple(kinect_d['size']))
+                pose=pose, 
+                size=size)
         else:
             # Default kinect.
             print('Since kinect_yaml not supplemented, creating default kinect.')
@@ -248,17 +244,15 @@ class MoveitObjectHandler(object):
                 pose=[0., 0.0,0.75,0.,0.,0.,1.], 
                 size=(0.25,0.25,0.3))
 
-    def add_gripper(self, gripper_yaml=None):
+    def add_gripper(self, pose=None, size=None):
         '''
         Attaches gripper to right_gripper link.
         '''
-        if gripper_yaml is not None:
-            import yaml
-            gripper_d = yaml.load(open(gripper_yaml, 'r'))
+        if pose is not None and size is not None:
             self.attach_arm_object('right_gripper',
-                'gripper', 
-                pose=gripper_d['pose'], 
-                size=tuple(gripper_d['size']))
+                'gripper',  
+                pose=pose, 
+                size=size)
         else:
             # Default gripper.
             print('Since gripper_yaml not supplemented, creating default gripper.')

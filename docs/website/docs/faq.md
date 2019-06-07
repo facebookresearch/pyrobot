@@ -31,9 +31,27 @@ When any one of the arm's dynamixel motors shutsdown, the entire robot controlle
 
 There are several possiblities. 
 * Check if the camera connection is good.
-* You might need to update the realsense firmware. Instructions can be found in Page 8 to Page 9 in this [document](https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Linux-RealSense-D400-DFU-Guide.pdf).
+* You might need to update the realsense firmware. Instructions can be found in Page 8 to Page 9 in this [document](https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Linux-RealSense-D400-DFU-Guide.pdf). Steps are also summarized below.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Update realsense firmware-->
+```bash
+echo 'deb http://realsense-hwpublic.s3.amazonaws.com/Debian/apt-repo xenial main' | sudo tee /etc/apt/sources.list.d/realsense-public.list
+sudo apt-key adv --keyserver keys.gnupg.net --recv-key 6F3EFCDE
+sudo apt-get update
+sudo apt-get install intel-realsense-dfu*
+cd ~/Downloads
+wget https://downloadmirror.intel.com/28573/eng/D400_Series_Development_FW_5_11_4.zip
+unzip D400_Series_Development_FW_5_11_4.zip
+lsusb #find out the bus and device numbers for realsense camera
+# use the bus and device numbers in the following command (e.g. -b 002 -d 003)
+intel-realsense-dfu -b <bus number> -d <device number> -f -i Signed_Image_UVC_5_11_1_100.bin
+```
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
 * You might need to install the latest realsense driver. Instructions can be found [here](https://github.com/IntelRealSense/realsense-ros).
 * If you cannot get the point cloud via `LoCoBotCamera.get_current_pcd`, check if ORB-SLAM2 is running and if it's tracking properly. If the ORB-SLAM2 is lost (because of too few keypoints in the frame) in the first place, point cloud might not be generated.
+
 
 **5. Got timeout error (`timeout exceeded while waiting for service /move_base/GlobalPlanner/make_plan`) when using base?**
 
