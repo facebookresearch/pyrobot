@@ -27,7 +27,10 @@ source ~/pyenv_pyrobot/bin/activate
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
-* The robot's launch file has been run. Note that you have to set `use_arm:=true`.
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Locobot Setup Instructions-->
+LoCoBot's launch file has been run. Note that you have to set `use_arm:=true`.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot[Real Robot]-->
@@ -39,6 +42,44 @@ roslaunch locobot_control main.launch use_arm:=true
 roslaunch locobot_control main.launch use_arm:=true use_sim:=true 
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
+
+<!--Sawyer Setup Instructions-->
+To install the Sawyer software, please follow the instructions in this [README](https://github.com/facebookresearch/pyrobot/tree/master/robots/sawyer) to install and setup the appropriate sawyer software.
+
+Go through the following steps to get the PyRobot code working on Sawyer,
+
+1. Intial setup,
+
+For real robot only,
+```bash
+cd ~/ros_ws # or the appropriate catkin workspace in which intera_sdk package is in
+ ./src/intera_sdk/intera.sh 
+```
+
+For the Gazebo simulator only,
+```bash
+cd ~/ros_ws # or the appropriate catkin workspace in which intera_sdk package is in
+ ./src/intera_sdk/intera.sh sim
+ roslaunch sawyer_gazebo sawyer_world.launch electric_gripper:=true #launch the Gazebo simulagtor
+```
+
+2. Start the joint trajectory controller
+```bash
+rosrun intera_interface joint_trajectory_action_server.py
+```
+
+3. Launch MoveIt for Sawyer in a new terminal
+```bash
+roslaunch sawyer_moveit_config sawyer_moveit.launch electric_gripper:=true
+```
+
+4. Run PyRobot examples in a new terminal
+
+
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
+
+
 
 ## Basic movements
 
