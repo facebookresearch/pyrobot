@@ -20,17 +20,14 @@ This tutorial can also be run using a simulated version of the robot. Before we 
 
 * The appropriate python virtual environment has been sourced before running any PyRobot package.
 
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Sourcing virtual env-->
 ```bash
 source ~/pyenv_pyrobot/bin/activate
 ```
-<!--END_DOCUSAURUS_CODE_TABS--> 
-
 
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot Setup Instructions-->
+
 LoCoBot's launch file has been run. Note that you have to set `use_arm:=true`.
 
 ```bash
@@ -43,6 +40,7 @@ roslaunch locobot_control main.launch use_arm:=true use_sim:=true
 ```
 
 <!--Sawyer Setup Instructions-->
+
 To install the Sawyer software, please follow the instructions in this [README](https://github.com/facebookresearch/pyrobot/tree/master/robots/sawyer) to install and setup the appropriate sawyer software.
 
 Go through the following steps to get the PyRobot code working on Sawyer,
@@ -118,18 +116,36 @@ robot.arm.go_home()
 target_joint = [0.408, 0.721, -0.471, -1.4, 0.920]
 robot.arm.set_joint_positions(target_joint, plan=False)
 ```
-<!--END_DOCUSAURUS_CODE_TABS--> 
-
 `Robot.arm.go_home()` makes the arm to move to its *home* position. Since we are using a 5-joint (DoF, degree-of-freedom) arm on the LoCoBot, the `target_joint` is a 5D vector of desired individual joint angles from the base of the arm to its wrist. For the Sawyer, this would be a 7D vector since the Sawyer has a 7 joint arm. Then finally through the `
 set_joint_positions` method the Robot will move to the desired `target_joint`. The `plan=False` argument means that the robot will not use MoveIt to plan around obstacles (like the base or the arm itself). To plan around obstacles, look at using [MoveIt](#planning-using-moveit).
-
 <figure class="video_container">
   <iframe class="doc_vid" src="https://www.youtube.com/embed/0GKUqgmJuDM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </figure>  
 
+<!--Sawyer-->
+```py
+robot.arm.go_home()
+target_joint = [0.408, 0.721, -0.471, -1.4, 0.920]
+robot.arm.set_joint_positions(target_joint, plan=False)
+```
+`Robot.arm.go_home()` makes the arm to move to its *home* position. Since we are using a 5-joint (DoF, degree-of-freedom) arm on the LoCoBot, the `target_joint` is a 5D vector of desired individual joint angles from the base of the arm to its wrist. For the Sawyer, this would be a 7D vector since the Sawyer has a 7 joint arm. Then finally through the `
+set_joint_positions` method the Robot will move to the desired `target_joint`. The `plan=False` argument means that the robot will not use MoveIt to plan around obstacles (like the base or the arm itself). To plan around obstacles, look at using [MoveIt](#planning-using-moveit).
+<figure class="video_container">
+  <iframe class="doc_vid" src="https://www.youtube.com/embed/0GKUqgmJuDM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>  
+
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
+
+
+
+
 ### End-effector pose control
 
 In this example, we will look at controlling the [end-effector](https://whatis.techtarget.com/definition/end-effector) pose of the arm. A *pose* object has two components: *position* and *rotation*. *Position* is a 3D numpy array representing the desired position. *Orientation* can be a rotation matrix [3x3], euler angles [3,], or quaternion [4,]. 
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--LoCoBot-->
 
 ```py
 import time
@@ -152,6 +168,33 @@ Note that since the LoCoBot only has 5 DoFs, it can only reach target poses that
 <figure class="video_container">
   <iframe class="doc_vid" src="https://www.youtube.com/embed/lzuVGpJnnDY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </figure>
+
+
+<!--Sawyer-->
+
+```py
+import time
+target_poses = [{'position': np.array([0.279, 0.176, 0.217]),
+                 'orientation': np.array([[0.5380200, -0.6650449, 0.5179283],
+                                          [0.4758410, 0.7467951, 0.4646209],
+                                          [-0.6957800, -0.0035238, 0.7182463]])},
+                {'position': np.array([0.339, 0.0116, 0.255]),
+                 'orientation': np.array([0.245, 0.613, -0.202, 0.723])},
+                ]
+robot.arm.go_home()
+
+for pose in target_poses:
+    robot.arm.set_ee_pose(**pose)
+    time.sleep(1)
+```
+
+<figure class="video_container">
+  <iframe class="doc_vid" src="https://www.youtube.com/embed/lzuVGpJnnDY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
+
+
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
 
 ### End-effector Position and Pitch Roll Control
 
@@ -184,6 +227,9 @@ for pose in target_poses:
 
 In this example, we will move the arm in the X,Y,Z coordinates in straight-line paths from the current pose.
 
+<!--DOCUSAURUS_CODE_TABS-->
+<!--LoCoBot-->
+
 ```py
 robot.arm.go_home()
 displacement = np.array([0, 0, -0.15])
@@ -196,6 +242,24 @@ If `plan=False`, it will simply perform linear interpolation along the target st
 <figure class="video_container">
   <iframe class="doc_vid" src="https://www.youtube.com/embed/s030tLu2oZs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </figure>
+
+<!--Sawyer-->
+
+```py
+robot.arm.go_home()
+displacement = np.array([0, 0, -0.15])
+robot.arm.move_ee_xyz(displacement, plan=True)
+```
+If `plan=True`, it will call the internal cartesian path planning in [MoveIt](#planning-using-moveit). 
+
+If `plan=False`, it will simply perform linear interpolation along the target straight line and do inverse kinematics (you can choose whether you want to use the numerical inverse kinematics or analytical inverse kinematics by passing `numerical=True` or `numerical=False`) on each waypoints. Since LoCoBot is a 5-DOF robot, the numerical inverse kinematics sometimes fail to find the solution even though there exists a solution. So analytical inverse kinematics might work better in such cases.
+
+<figure class="video_container">
+  <iframe class="doc_vid" src="https://www.youtube.com/embed/s030tLu2oZs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</figure>
+
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
 
 ### Joint torque control
 
