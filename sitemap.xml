@@ -18,6 +18,7 @@
 <url> <loc>https://www.pyrobot.org/docs/crashing</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/crashing" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/demonstrations</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/demonstrations" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/grasping</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/grasping" /> </url>
+<url> <loc>https://www.pyrobot.org/docs/manipulation_sawyer</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/manipulation_sawyer" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/manipulation</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/manipulation" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/navigation</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/navigation" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/pushing</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/pushing" /> </url>
