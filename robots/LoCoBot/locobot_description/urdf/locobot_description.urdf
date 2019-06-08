@@ -524,7 +524,7 @@
         </collision>
     </link>
     <joint name="cam_mount_joint" type="fixed">
-        <origin rpy="0 0 0" xyz="-0.03751 0 0.1458"/>
+        <origin rpy="0 0 0" xyz="-0.03751 0 0.1331"/>
         <parent link="base_link"/>
         <child link="cam_mount"/>
         <axis xyz="0 0 0"/>
