@@ -193,7 +193,7 @@
         <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <mesh filename="package://locobot_description/meshes/plate_1.STL"/>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
             </geometry>
             <material name="">
                 <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -202,12 +202,12 @@
         <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <mesh filename="package://locobot_description/meshes/plate_1.STL"/>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
             </geometry>
         </collision>
     </link>
     <joint name="plate_1_joint" type="fixed">
-        <origin rpy="0 0 0" xyz="0.0973 0 0.095"/>
+        <origin rpy="0 0 0" xyz="0.0973 0 0.0902375"/>
         <parent link="base_link"/>
         <child link="plate_1"/>
         <axis xyz="0 0 0"/>
@@ -221,7 +221,7 @@
         <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <mesh filename="package://locobot_description/meshes/plate_1.STL"/>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
             </geometry>
             <material name="">
                 <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -230,7 +230,7 @@
         <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-                <mesh filename="package://locobot_description/meshes/plate_1.STL"/>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
             </geometry>
         </collision>
     </link>
@@ -264,7 +264,7 @@
         </collision>
     </link>
     <joint name="arm_base_link_joint" type="fixed">
-        <origin rpy="0 0 0" xyz="0 0 -0.010"/>
+        <origin rpy="0 0 0" xyz="0 0 0.001"/>
         <parent link="plate_2"/>
         <child link="arm_base_link"/>
         <axis xyz="0 0 0"/>
