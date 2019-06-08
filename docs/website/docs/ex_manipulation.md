@@ -184,28 +184,27 @@ roslaunch locobot_control main.launch use_arm:=true torque_control:=true
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
-Then you can use the following command to send torque values to robots. Try to keep the arm in initial condition as shown in the below video, as the behavior will be different for a different configuration. For this example, we are going to apply torque only on joint 3.
+Then you can use the following command to send torque values to robots. Try to keep the arm in initial condition as shown in the below video, as the behavior will be different for a different configuration. For this example, we are going to apply torque only on joint 4. This will move robot joint 4 to the extreme. After completion, 
+the joint will be free again. The torque requirements may vary from robot to robot. So if joint 4 doesn't move using following script, try to apply a higher magnitude of torque.
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot-->
 ```py
+from pyrobot import Robot
+import time
 arm_config = dict(control_mode='torque')
 robot = Robot('locobot', arm_config=arm_config)
 target_torque = 4 * [0]
 
-target_torque[2] = -1.5
+target_torque[3] = -0.45
 robot.arm.set_joint_torques(target_torque)
 time.sleep(2)
 
-target_torque[2] = -0.5
-robot.arm.set_joint_torques(target_torque)
-time.sleep(2)
-
-target_torque[2] = 0.0
+target_torque[3] = 0.0
 robot.arm.set_joint_torques(target_torque)
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 <figure class="video_container">
-  <iframe class="doc_vid" src="https://www.youtube.com/embed/4A85w4VzWN0" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  <iframe class="doc_vid" src="https://www.youtube.com/embed/dIrN-wUGqao" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </figure>
 
 
