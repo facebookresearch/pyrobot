@@ -72,7 +72,10 @@ To move the joints of the robot to a desired joint configuration, run the follow
 <!--LoCoBot-->
 ```py
 robot.arm.go_home()
-target_joint = [0.408, 0.721, -0.471, -1.4, 0.920]
+target_joints = [
+        [0.408, 0.721, -0.471, -1.4, 0.920],
+        [-0.675, 0, 0.23, 1, -0.70]
+    ]
 robot.arm.set_joint_positions(target_joint, plan=False)
 ```
 `Robot.arm.go_home()` makes the arm to move to its *home* position. Since we are using a 5-joint (DoF, degree-of-freedom) arm on the LoCoBot, the `target_joint` is a 5D vector of desired individual joint angles from the base of the arm to its wrist. Then finally through the `
@@ -242,7 +245,10 @@ After this run `set_joint_positions` with the argument `plan=True`.
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot-->
 ```py
-target_joint = [0.408, 0.721, -0.471, -1.4, 0.920]
+target_joints = [
+        [0.408, 0.721, -0.471, -1.4, 0.920],
+        [-0.675, 0, 0.23, 1, -0.70]
+    ]
 robot.arm.go_home()
 robot.arm.set_joint_positions(target_joint, plan=True)
 ```
