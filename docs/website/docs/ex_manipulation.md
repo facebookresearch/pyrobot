@@ -76,7 +76,10 @@ target_joints = [
         [0.408, 0.721, -0.471, -1.4, 0.920],
         [-0.675, 0, 0.23, 1, -0.70]
     ]
-robot.arm.set_joint_positions(target_joint, plan=False)
+for joint in target_joints:
+    bot.arm.set_joint_positions(joint, plan=False)
+    time.sleep(1)
+robot.arm.go_home()
 ```
 `Robot.arm.go_home()` makes the arm to move to its *home* position. Since we are using a 5-joint (DoF, degree-of-freedom) arm on the LoCoBot, the `target_joint` is a 5D vector of desired individual joint angles from the base of the arm to its wrist. Then finally through the `
 set_joint_positions` method the Robot will move to the desired `target_joint`. The `plan=False` argument means that the robot will not use MoveIt to plan around obstacles (like the base or the arm itself). To plan around obstacles, look at using [MoveIt](#planning-using-moveit).
@@ -112,6 +115,7 @@ robot.arm.go_home()
 for pose in target_poses:
     robot.arm.set_ee_pose(**pose)
     time.sleep(1)
+robot.arm.go_home()
 ```
 
 Note that since the LoCoBot only has 5 DoFs, it can only reach target poses that lie in its configuration space. Check the API for more on how to use the method `set_ee_pose`.
@@ -145,6 +149,7 @@ robot.arm.go_home()
 for pose in target_poses:
     robot.arm.set_ee_pose_pitch_roll(**pose)
     time.sleep(1)
+robot.arm.go_home()
 ```
 <figure class="video_container">
 <iframe class="doc_vid" src="https://www.youtube.com/embed/YOYku4IqZBc" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -161,6 +166,7 @@ In this example, we will move the arm in the X,Y,Z coordinates in straight-line 
 robot.arm.go_home()
 displacement = np.array([0, 0, -0.15])
 robot.arm.move_ee_xyz(displacement, plan=True)
+robot.arm.go_home()
 ```
 If `plan=True`, it will call the internal cartesian path planning in [MoveIt](#planning-using-moveit). 
 
@@ -250,7 +256,10 @@ target_joints = [
         [-0.675, 0, 0.23, 1, -0.70]
     ]
 robot.arm.go_home()
-robot.arm.set_joint_positions(target_joint, plan=True)
+for joint in target_joints:
+    bot.arm.set_joint_positions(joint, plan=True)
+    time.sleep(1)
+robot.arm.go_home()
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
