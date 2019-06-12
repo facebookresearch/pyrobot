@@ -79,7 +79,7 @@ Please refer to [pyrobot.org](https://pyrobot.org/) and [locobot.org](http://loc
 
 ## The Team
 
-[Adithya Murali](http://facebookresearch.com), [Tao Chen](https://taochenshh.github.io), [Dhiraj Gandhi](http://www.cs.cmu.edu/~dgandhi/), Kalyan Vasudev, [Lerrel Pinto](http://www.cs.cmu.edu/~lerrelp/), [Saurabh Gupta](http://saurabhg.web.illinois.edu) and [Abhinav Gupta](http://www.cs.cmu.edu/~abhinavg/). We would also like to thank everyone who has helped PyRobot in any way.
+[Adithya Murali](http://adithyamurali.com/), [Tao Chen](https://taochenshh.github.io), [Dhiraj Gandhi](http://www.cs.cmu.edu/~dgandhi/), Kalyan Vasudev, [Lerrel Pinto](http://www.cs.cmu.edu/~lerrelp/), [Saurabh Gupta](http://saurabhg.web.illinois.edu) and [Abhinav Gupta](http://www.cs.cmu.edu/~abhinavg/). We would also like to thank everyone who has helped PyRobot in any way.
 
 ## Future features
 
