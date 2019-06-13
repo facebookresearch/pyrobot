@@ -6,7 +6,7 @@ sidebar_label: Datasets
 
 The following datasets are collected using PyRobot and available for public use.
 
-* Grasping -- *Coming Soon!*
+* [Grasping](https://github.com/lerrel/home_dataset): Collected on an older version of LoCoBot.
 * Stacking -- *Coming Soon!*
 * Pushing  -- *Coming Soon!*
 
