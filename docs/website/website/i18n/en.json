@@ -21,6 +21,10 @@
         "title": "Camera Calibration",
         "sidebar_label": "[Basic] Camera Calibration"
       },
+      "contact": {
+        "title": "Contact",
+        "sidebar_label": "Contact"
+      },
       "contributing": {
         "title": "Contributing to PyRobot",
         "sidebar_label": "Contributing to PyRobot"
@@ -40,6 +44,10 @@
       "grasping": {
         "title": "Running grasping example on your robot",
         "sidebar_label": "[Advanced] Grasping"
+      },
+      "manipulation_sawyer": {
+        "title": "Running basic tools for manipulation",
+        "sidebar_label": "[Basic] Manipulation"
       },
       "manipulation": {
         "title": "Running basic tools for manipulation",
@@ -77,6 +85,10 @@
         "title": "Installing the robot software",
         "sidebar_label": "Install software"
       },
+      "datasets": {
+        "title": "Datasets collected using PyRobot",
+        "sidebar_label": "Datasets"
+      },
       "network": {
         "title": "Networking",
         "sidebar_label": "Networking"
@@ -89,12 +101,14 @@
     "links": {
       "Tutorials": "Tutorials",
       "API": "API",
+      "Datasets": "Datasets",
       "Help": "Help",
       "GitHub": "GitHub"
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Examples": "Examples",
+      "Locobot Examples": "Locobot Examples",
+      "Sawyer Examples": "Sawyer Examples",
       "Help and Support": "Help and Support"
     }
   },

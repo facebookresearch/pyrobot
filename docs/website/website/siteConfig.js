@@ -46,6 +46,7 @@ const siteConfig = {
   headerLinks: [
     {doc: 'overview', label: 'Tutorials'},
     {href: 'https://pyrobot-api.netlify.com', label: 'API'},
+    {doc: 'datasets', label: 'Datasets'},
     {doc: 'faq', label: 'Help'},
     {href: 'https://github.com/facebookresearch/pyrobot', label: 'GitHub'}
     // {blog: true, label: 'Blog'}

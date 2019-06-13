@@ -43,6 +43,9 @@ class Footer extends React.Component {
             <a href={this.docUrl('calibration.html')}>
               Examples
             </a>
+            <a href={this.docUrl('datasets.html')}>
+              Datasets
+            </a>
             <a href={this.docUrl('new_robot_support.html')}>
               Help and Support
             </a>
@@ -50,16 +53,7 @@ class Footer extends React.Component {
           <div>
             <h5>More</h5>
             <a href="https://github.com/facebookresearch/pyrobot">GitHub</a>
-            <a
-              className="github-button"
-              href={this.props.config.repoUrl}
-              data-icon="octicon-star"
-              data-count-href="/facebookresearch/pyrobot/stargazers"
-              data-show-count="true"
-              data-count-aria-label="# stargazers on GitHub"
-              aria-label="Star this project on GitHub">
-              Star
-            </a>
+	    <a class="github-button" href="https://github.com/facebookresearch/pyrobot" data-icon="octicon-star" data-show-count="true" aria-label="Star facebookresearch/pyrobot on GitHub">Star</a>
             <a href={this.docUrl('contact.html')}>
               Contact
             </a>
