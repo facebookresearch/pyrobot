@@ -28,6 +28,7 @@
 <url> <loc>https://www.pyrobot.org/docs/hardware</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/hardware" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/overview</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/overview" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/software</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/software" /> </url>
+<url> <loc>https://www.pyrobot.org/docs/datasets</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/datasets" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/network</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/network" /> </url>
 <url> <loc>https://www.pyrobot.org/docs/new_robot_support</loc> <changefreq>hourly</changefreq> <priority>1.0</priority> <xhtml:link rel="alternate" hreflang="en" href="https://www.pyrobot.org/docs/new_robot_support" /> </url>
 </urlset>
