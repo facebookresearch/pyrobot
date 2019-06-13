@@ -42,6 +42,7 @@ python train.py --exp_name expID01 --valid_goals --save_models
 
 Download pretrained model
 ```bash
+cd ~/low_cost_ws/src/pyrobot/examples/sim2real
 wget -O log.zip https://www.dropbox.com/s/8cttp55odd7e79o/log.zip?dl=0
 unzip log.zip
 rm log.zip
