@@ -92,7 +92,7 @@ We are planning several features, namely:
 ```
 @inproceedings{pyrobot2019,
   title={PyRobot: An Open-source Robotics Framework for Research and Benchmarking},
-  author={Adithyavairavan Murali and Tao Chen and Kalyan Vasudev Alwala and Dhiraj Gandhi and Lerrel Pinto and Saurabh Gupta    and Abhinav Gupta},
+  author={Adithyavairavan Murali and Tao Chen and Kalyan Vasudev Alwala and Dhiraj Gandhi and Lerrel Pinto and Saurabh Gupta and Abhinav Gupta},
   journal={arXiv preprint arXiv:1906.08236}
   year={2019}
 }
