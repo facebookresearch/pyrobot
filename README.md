@@ -89,8 +89,13 @@ We are planning several features, namely:
 * PyRobot interface for [UR5](https://www.universal-robots.com)
 
 ## Citation
-
-**TODO**
-
+```
+@inproceedings{pyrobot2019,
+  title={PyRobot: An Open-source Robotics Framework for Research and Benchmarking},
+  author={Adithyavairavan Murali and Tao Chen and Kalyan Vasudev Alwala and Dhiraj Gandhi and Lerrel Pinto and Saurabh Gupta    and Abhinav Gupta},
+  journal={arXiv preprint arXiv:1906.08236}
+  year={2019}
+}
+```
 ## License
 PyRobot is under MIT license, as found in the LICENSE file.
