@@ -72,8 +72,8 @@ class Robot:
         cfg_path = os.path.join(root_path, 'cfg')
         robot_pool = []
         for f in os.listdir(cfg_path):
-            if '_config.py' in f:
-                robot_pool.append(f.strip('_config.py'))
+            if f.endswith('_config.py'):
+                robot_pool.append(f[:-len('_config.py')])
         root_node = 'pyrobot.'
         self.configs = None
         this_robot = None
