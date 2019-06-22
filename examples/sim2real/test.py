@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (c) Facebook, Inc. and its affiliates.
 
 # This source code is licensed under the MIT license found in the
@@ -41,9 +42,9 @@ def evaluate_policy(policy, eval_episodes=100):
 
     avg_reward /= eval_episodes
 
-    print "---------------------------------------"
-    print "Evaluation over %d episodes: %f" % (eval_episodes, avg_reward)
-    print "---------------------------------------"
+    print("---------------------------------------")
+    print("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
+    print("---------------------------------------")
     return avg_reward
 
 
