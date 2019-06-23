@@ -37,6 +37,8 @@ _BASEC.BASE_CONTROL_RATE = 10
 _BASEC.MAX_ABS_FWD_SPEED = 5.0
 # Maximum rotational velocity for velocity control and ILQR
 _BASEC.MAX_ABS_TURN_SPEED = 2.0
+# Type of planner being used for slam base path planning 'movebase'
+_BASEC.BASE_PLANNER = 'movebase'
 # ROSTOPIC to send movebase (x,ym theta) planner request
 _BASEC.PLAN_TOPIC = '/move_base/GlobalPlanner/make_plan'
 # Index of the point to be tracked on the plan.
