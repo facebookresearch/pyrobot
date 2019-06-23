@@ -1,3 +1,10 @@
+Update:
+Add Husky base
+
+Add Velocity control
+
+
+
 <a href="https://www.pyrobot.org/"><img class="doc_vid" src="docs/website/website/static/img/pyrobot.svg"></a>
 
 [PyRobot](https://www.pyrobot.org/) is a light weight, high-level interface which provides hardware independent APIs for robotic manipulation and navigation. This repository also contains the low-level stack for [LoCoBot](http://locobot.org), a low cost mobile manipulator hardware platform.
@@ -89,13 +96,9 @@ We are planning several features, namely:
 * PyRobot interface for [UR5](https://www.universal-robots.com)
 
 ## Citation
-```
-@inproceedings{pyrobot2019,
-  title={PyRobot: An Open-source Robotics Framework for Research and Benchmarking},
-  author={Adithyavairavan Murali and Tao Chen and Kalyan Vasudev Alwala and Dhiraj Gandhi and Lerrel Pinto and Saurabh Gupta and Abhinav Gupta},
-  journal={arXiv preprint arXiv:1906.08236}
-  year={2019}
-}
-```
+
+**TODO**
+
 ## License
 PyRobot is under MIT license, as found in the LICENSE file.
+# pyrobot
