@@ -46,7 +46,7 @@ sys.path.append(import_dir)
 # -- Project information -----------------------------------------------------
 
 project = u'PyRobot'
-copyright = u'2019, Lerrel Pinto'
+copyright = u'2019, PyRobot'
 author = u'Lerrel Pinto'
 
 # The short X.Y version
