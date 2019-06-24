@@ -16,6 +16,11 @@ n_class = 18
 min_patch_std = 1
 angle_dependence = [0.25, 0.5, 0.25]
 
+try:
+    xrange
+except NameError:
+    xrange = range
+
 
 # Given image, returns image point and theta to grasp
 class Predictors:
