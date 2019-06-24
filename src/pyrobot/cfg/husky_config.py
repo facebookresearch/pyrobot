@@ -13,7 +13,7 @@ _BASEC.BASE_TYPE = 'husky'
 # Rostopic on which the velocity commands to be published
 _BASEC.ROSTOPIC_BASE_COMMAND = '/husky_velocity_controller/cmd_vel'
 # Rostopic on which the wheel-encoder-based odommetry is available
-_BASEC.ROSTOPIC_ODOMETRY = '/husky_velocity_controller/odom'
+_BASEC.ROSTOPIC_ODOMETRY = '/odometry/filtered'
 # Rostopic on which base bumper sensor informations is available
 #_BASEC.ROSTOPIC_BUMPER = '/mobile_base/events/bumper'
 # Rosotopic on which base cliff sensor information is available
@@ -40,7 +40,7 @@ _BASEC.MAX_ABS_TURN_SPEED = 2.0
 # Type of planner being used for slam base path planning 'movebase'
 _BASEC.BASE_PLANNER = 'movebase'
 # ROSTOPIC to send movebase (x,ym theta) planner request
-_BASEC.PLAN_TOPIC = '/move_base/GlobalPlanner/make_plan'
+_BASEC.PLAN_TOPIC = '/move_base/NavfnROS/plan'
 # Index of the point to be tracked on the plan.
 # (used by Proportional and ILQR trajectory tracking)
 _BASEC.TRACKED_POINT = 20

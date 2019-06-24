@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Test Report</title>
+    <style>body {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	min-width: 1200px;
+	color: #999;
+}
+
+h1 {
+	font-size: 24px;
+	color: black;
+}
+
+h2 {
+	font-size: 16px;
+	color: black;
+}
+
+p {
+    color: black;
+}
+
+a {
+	color: #999;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+
+#environment td {
+	padding: 5px;
+	border: 1px solid #E6E6E6;
+}
+
+#environment tr:nth-child(odd) {
+	background-color: #f6f6f6;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed, .passed .col-result {
+	color: green;
+}
+span.skipped, span.xfailed, span.rerun, .skipped .col-result, .xfailed .col-result, .rerun .col-result {
+	color: orange;
+}
+span.error, span.failed, span.xpassed, .error .col-result, .failed .col-result, .xpassed .col-result  {
+	color: red;
+}
+
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+
+#results-table {
+	border: 1px solid #e6e6e6;
+	color: #999;
+	font-size: 12px;
+	width: 100%
+}
+
+#results-table th, #results-table td {
+	padding: 5px;
+	border: 1px solid #E6E6E6;
+	text-align: left
+}
+#results-table th {
+	font-weight: bold
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+
+.log:only-child {
+	height: inherit
+}
+.log {
+	background-color: #e6e6e6;
+	border: 1px solid #e6e6e6;
+	color: black;
+	display: block;
+	font-family: "Courier New", Courier, monospace;
+	height: 230px;
+	overflow-y: scroll;
+	padding: 5px;
+	white-space: pre-wrap
+}
+div.image {
+	border: 1px solid #e6e6e6;
+	float: right;
+	height: 240px;
+	margin-left: 5px;
+	overflow: hidden;
+	width: 320px
+}
+div.image img {
+	width: 320px
+}
+.collapsed {
+	display: none;
+}
+.expander::after {
+	content: " (show details)";
+	color: #BBB;
+	font-style: italic;
+	cursor: pointer;
+}
+.collapser::after {
+	content: " (hide details)";
+	color: #BBB;
+	font-style: italic;
+	cursor: pointer;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+	cursor: pointer;
+}
+
+.sort-icon {
+	font-size: 0px;
+	float: left;
+	margin-right: 5px;
+	margin-top: 5px;
+	/*triangle*/
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+}
+
+.inactive .sort-icon {
+	/*finish triangle*/
+	border-top: 8px solid #E6E6E6;
+}
+
+.asc.active .sort-icon {
+	/*finish triangle*/
+	border-bottom: 8px solid #999;
+}
+
+.desc.active .sort-icon {
+	/*finish triangle*/
+	border-top: 8px solid #999;
+}
+</style></head>
+  <body onLoad="init()">
+    <script>/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+function toArray(iter) {
+    if (iter === null) {
+        return null;
+    }
+    return Array.prototype.slice.call(iter);
+}
+
+function find(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return elem.querySelector(selector);
+}
+
+function find_all(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return toArray(elem.querySelectorAll(selector));
+}
+
+function sort_column(elem) {
+    toggle_sort_states(elem);
+    var colIndex = toArray(elem.parentNode.childNodes).indexOf(elem);
+    var key;
+    if (elem.classList.contains('numeric')) {
+        key = key_num;
+    } else if (elem.classList.contains('result')) {
+        key = key_result;
+    } else {
+        key = key_alpha;
+    }
+    sort_table(elem, key(colIndex));
+}
+
+function show_all_extras() {
+    find_all('.col-result').forEach(show_extras);
+}
+
+function hide_all_extras() {
+    find_all('.col-result').forEach(hide_extras);
+}
+
+function show_extras(colresult_elem) {
+    var extras = colresult_elem.parentNode.nextElementSibling;
+    var expandcollapse = colresult_elem.firstElementChild;
+    extras.classList.remove("collapsed");
+    expandcollapse.classList.remove("expander");
+    expandcollapse.classList.add("collapser");
+}
+
+function hide_extras(colresult_elem) {
+    var extras = colresult_elem.parentNode.nextElementSibling;
+    var expandcollapse = colresult_elem.firstElementChild;
+    extras.classList.add("collapsed");
+    expandcollapse.classList.remove("collapser");
+    expandcollapse.classList.add("expander");
+}
+
+function show_filters() {
+    var filter_items = document.getElementsByClassName('filter');
+    for (var i = 0; i < filter_items.length; i++)
+        filter_items[i].hidden = false;
+}
+
+function add_collapse() {
+    // Add links for show/hide all
+    var resulttable = find('table#results-table');
+    var showhideall = document.createElement("p");
+    showhideall.innerHTML = '<a href="javascript:show_all_extras()">Show all details</a> / ' +
+                            '<a href="javascript:hide_all_extras()">Hide all details</a>';
+    resulttable.parentElement.insertBefore(showhideall, resulttable);
+
+    // Add show/hide link to each result
+    find_all('.col-result').forEach(function(elem) {
+        var collapsed = get_query_parameter('collapsed') || 'Passed';
+        var extras = elem.parentNode.nextElementSibling;
+        var expandcollapse = document.createElement("span");
+        if (collapsed.includes(elem.innerHTML)) {
+            extras.classList.add("collapsed");
+            expandcollapse.classList.add("expander");
+        } else {
+            expandcollapse.classList.add("collapser");
+        }
+        elem.appendChild(expandcollapse);
+
+        elem.addEventListener("click", function(event) {
+            if (event.currentTarget.parentNode.nextElementSibling.classList.contains("collapsed")) {
+                show_extras(event.currentTarget);
+            } else {
+                hide_extras(event.currentTarget);
+            }
+        });
+    })
+}
+
+function get_query_parameter(name) {
+    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function init () {
+    reset_sort_headers();
+
+    add_collapse();
+
+    show_filters();
+
+    toggle_sort_states(find('.initial-sort'));
+
+    find_all('.sortable').forEach(function(elem) {
+        elem.addEventListener("click",
+                              function(event) {
+                                  sort_column(elem);
+                              }, false)
+    });
+
+};
+
+function sort_table(clicked, key_func) {
+    var rows = find_all('.results-table-row');
+    var reversed = !clicked.classList.contains('asc');
+    var sorted_rows = sort(rows, key_func, reversed);
+    /* Whole table is removed here because browsers acts much slower
+     * when appending existing elements.
+     */
+    var thead = document.getElementById("results-table-head");
+    document.getElementById('results-table').remove();
+    var parent = document.createElement("table");
+    parent.id = "results-table";
+    parent.appendChild(thead);
+    sorted_rows.forEach(function(elem) {
+        parent.appendChild(elem);
+    });
+    document.getElementsByTagName("BODY")[0].appendChild(parent);
+}
+
+function sort(items, key_func, reversed) {
+    var sort_array = items.map(function(item, i) {
+        return [key_func(item), i];
+    });
+    var multiplier = reversed ? -1 : 1;
+
+    sort_array.sort(function(a, b) {
+        var key_a = a[0];
+        var key_b = b[0];
+        return multiplier * (key_a >= key_b ? 1 : -1);
+    });
+
+    return sort_array.map(function(item) {
+        var index = item[1];
+        return items[index];
+    });
+}
+
+function key_alpha(col_index) {
+    return function(elem) {
+        return elem.childNodes[1].childNodes[col_index].firstChild.data.toLowerCase();
+    };
+}
+
+function key_num(col_index) {
+    return function(elem) {
+        return parseFloat(elem.childNodes[1].childNodes[col_index].firstChild.data);
+    };
+}
+
+function key_result(col_index) {
+    return function(elem) {
+        var strings = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed',
+                       'Skipped', 'Passed'];
+        return strings.indexOf(elem.childNodes[1].childNodes[col_index].firstChild.data);
+    };
+}
+
+function reset_sort_headers() {
+    find_all('.sort-icon').forEach(function(elem) {
+        elem.parentNode.removeChild(elem);
+    });
+    find_all('.sortable').forEach(function(elem) {
+        var icon = document.createElement("div");
+        icon.className = "sort-icon";
+        icon.textContent = "vvv";
+        elem.insertBefore(icon, elem.firstChild);
+        elem.classList.remove("desc", "active");
+        elem.classList.add("asc", "inactive");
+    });
+}
+
+function toggle_sort_states(elem) {
+    //if active, toggle between asc and desc
+    if (elem.classList.contains('active')) {
+        elem.classList.toggle('asc');
+        elem.classList.toggle('desc');
+    }
+
+    //if inactive, reset all other functions and add ascending active
+    if (elem.classList.contains('inactive')) {
+        reset_sort_headers();
+        elem.classList.remove('inactive');
+        elem.classList.add('active');
+    }
+}
+
+function is_all_rows_hidden(value) {
+  return value.hidden == false;
+}
+
+function filter_table(elem) {
+    var outcome_att = "data-test-result";
+    var outcome = elem.getAttribute(outcome_att);
+    class_outcome = outcome + " results-table-row";
+    var outcome_rows = document.getElementsByClassName(class_outcome);
+
+    for(var i = 0; i < outcome_rows.length; i++){
+        outcome_rows[i].hidden = !elem.checked;
+    }
+
+    var rows = find_all('.results-table-row').filter(is_all_rows_hidden);
+    var all_rows_hidden = rows.length == 0 ? true : false;
+    var not_found_message = document.getElementById("not-found-message");
+    not_found_message.hidden = !all_rows_hidden;
+}
+</script>
+    <h1>basics.html</h1>
+    <p>Report generated on 24-Jun-2019 at 23:55:01 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v1.20.0</p>
+    <h2>Environment</h2>
+    <table id="environment">
+      <tr>
+        <td>Packages</td>
+        <td>{&apos;py&apos;: &apos;1.8.0&apos;, &apos;pytest&apos;: &apos;4.6.3&apos;, &apos;pluggy&apos;: &apos;0.12.0&apos;}</td></tr>
+      <tr>
+        <td>Platform</td>
+        <td>Linux-4.15.0-51-generic-x86_64-with-Ubuntu-16.04-xenial</td></tr>
+      <tr>
+        <td>Plugins</td>
+        <td>{u&apos;cov&apos;: u&apos;2.6.1&apos;, u&apos;html&apos;: u&apos;1.20.0&apos;, u&apos;metadata&apos;: u&apos;1.8.0&apos;}</td></tr>
+      <tr>
+        <td>Python</td>
+        <td>2.7.12</td></tr></table>
+    <h2>Summary</h2>
+    <p>27 tests ran in 121.04 seconds. </p>
+    <p class="filter" hidden="true">(Un)check the boxes to filter the results.</p><input checked="true" class="filter" data-test-result="passed" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="passed">9 passed</span>, <input checked="true" class="filter" data-test-result="skipped" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="skipped">0 skipped</span>, <input checked="true" class="filter" data-test-result="failed" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="failed">18 failed</span>, <input checked="true" class="filter" data-test-result="error" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="error">0 errors</span>, <input checked="true" class="filter" data-test-result="xfailed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="xfailed">0 expected failures</span>, <input checked="true" class="filter" data-test-result="xpassed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="xpassed">0 unexpected passes</span>
+    <h2>Results</h2>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable result initial-sort" col="result">Result</th>
+          <th class="sortable" col="name">Test</th>
+          <th class="sortable numeric" col="duration">Duration</th>
+          <th>Links</th></tr>
+        <tr hidden="true" id="not-found-message">
+          <th colspan="4">No results found. Try to check the filters</th></tr></thead>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_make_robot.py::test_make_robot_base[movebase-ilqr]</td>
+          <td class="col-duration">3.44</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_make_robot_base(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False,use_gripper=False)<br/><br/>test_make_robot.py:22: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_make_robot.py::test_make_robot_base[movebase-proportional]</td>
+          <td class="col-duration">3.03</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'proportional', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_make_robot_base(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False,use_gripper=False)<br/><br/>test_make_robot.py:22: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_make_robot.py::test_make_robot_base[movebase-movebase]</td>
+          <td class="col-duration">3.04</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'movebase', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_make_robot_base(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False,use_gripper=False)<br/><br/>test_make_robot.py:22: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_v[movebase-ilqr]</td>
+          <td class="col-duration">3.03</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_vel_cmd_v(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False)<br/><br/>test_base_velocity_control.py:22: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_v[movebase-proportional]</td>
+          <td class="col-duration">3.03</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'proportional', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_vel_cmd_v(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False)<br/><br/>test_base_velocity_control.py:22: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_v[movebase-movebase]</td>
+          <td class="col-duration">3.04</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'movebase', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_vel_cmd_v(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False)<br/><br/>test_base_velocity_control.py:22: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_w[movebase-ilqr]</td>
+          <td class="col-duration">3.03</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_vel_cmd_w(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False)<br/><br/>test_base_velocity_control.py:36: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_w[movebase-proportional]</td>
+          <td class="col-duration">3.04</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'proportional', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_vel_cmd_w(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False)<br/><br/>test_base_velocity_control.py:36: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_w[movebase-movebase]</td>
+          <td class="col-duration">3.03</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'movebase', base_planner = 'movebase'<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])<br/>    @pytest.mark.parametrize("base_planner", ['movebase', 'none'])<br/>    def test_vel_cmd_w(botname, base_controller, base_planner):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>&gt;                   use_arm=False, use_camera=False)<br/><br/>test_base_velocity_control.py:36: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/core.py:109: in __init__<br/>    self.base = base_class(self.configs, **base_config)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:173: in __init__<br/>    self.planner = MoveBasePlanner(self.configs)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_control_utils.py:256: in __init__<br/>    rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>service = '/move_base/NavfnROS/plan', timeout = 3<br/><br/>    def wait_for_service(service, timeout=None):<br/>        """<br/>        Blocks until service is available. Use this in<br/>        initialization code if your program depends on a<br/>        service already running.<br/>        @param service: name of service<br/>        @type  service: str<br/>        @param timeout: timeout time in seconds, None for no<br/>        timeout. NOTE: timeout=0 is invalid as wait_for_service actually<br/>        contacts the service, so non-blocking behavior is not<br/>        possible. For timeout=0 uses cases, just call the service without<br/>        waiting.<br/>        @type  timeout: double<br/>        @raise ROSException: if specified timeout is exceeded<br/>        @raise ROSInterruptException: if shutdown interrupts wait<br/>        """<br/>        master = rosgraph.Master(rospy.names.get_caller_id())<br/>        def contact_service(resolved_name, timeout=10.0):<br/>            try:<br/>                uri = master.lookupService(resolved_name)<br/>            except rosgraph.MasterException:<br/>                return False<br/>    <br/>            addr = rospy.core.parse_rosrpc_uri(uri)<br/>            if rosgraph.network.use_ipv6():<br/>                s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)<br/>            else:<br/>                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br/>            try:<br/>                # we always want to timeout just in case we're connecting<br/>                # to a down service.<br/>                s.settimeout(timeout)<br/>                logdebug('connecting to ' + str(addr))<br/>                s.connect(addr)<br/>                h = { 'probe' : '1', 'md5sum' : '*',<br/>                      'callerid' : rospy.core.get_caller_id(),<br/>                      'service': resolved_name }<br/>                rosgraph.network.write_ros_handshake_header(s, h)<br/>                return True<br/>            finally:<br/>                if s is not None:<br/>                    s.close()<br/>        if timeout == 0.:<br/>            raise ValueError("timeout must be non-zero")<br/>        resolved_name = rospy.names.resolve_name(service)<br/>        first = False<br/>        if timeout:<br/>            timeout_t = time.time() + timeout<br/>            while not rospy.core.is_shutdown() and time.time() &lt; timeout_t:<br/>                try:<br/>                    if contact_service(resolved_name, timeout_t-time.time()):<br/>                        return<br/>                except KeyboardInterrupt:<br/>                    # re-raise<br/>                    rospy.core.logdebug("wait_for_service: received keyboard interrupt, assuming signals disabled and re-raising")<br/>                    raise<br/>                except: # service not actually up<br/>                    if first:<br/>                        first = False<br/>                        rospy.core.logerr("wait_for_service(%s): failed to contact, will keep trying"%(resolved_name))<br/>                time.sleep(0.3)<br/>            if rospy.core.is_shutdown():<br/>                raise ROSInterruptException("rospy shutdown")<br/>            else:<br/>&gt;               raise ROSException("timeout exceeded while waiting for service %s"%resolved_name)<br/><span class="error">E               ROSException: timeout exceeded while waiting for service /move_base/NavfnROS/plan</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py:143: ROSException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_trajectory_tracking_circle[True-none-ilqr]</td>
+          <td class="col-duration">5.88</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'none', close_loop = True<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True, False])<br/>    def test_trajectory_tracking_circle(botname, base_controller, base_planner, close_loop):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>                    use_arm=False, use_camera=False)<br/>        dt = 1. / bot.configs.BASE.BASE_CONTROL_RATE<br/>        v = bot.configs.BASE.MAX_ABS_FWD_SPEED / 2.<br/>        w = bot.configs.BASE.MAX_ABS_TURN_SPEED / 2.<br/>        r = v / w<br/>        start_state = np.array(bot.base.get_state('odom'))<br/>        states, _ = get_trajectory_circle(start_state, dt, r, v, np.pi)<br/>        bot.base.track_trajectory(states, close_loop=close_loop)<br/>        end_state = np.array(bot.base.get_state('odom'))<br/>        dist = np.linalg.norm(states[-1, :2] - end_state[:2])<br/>&gt;       assert dist &lt; 0.1<br/><span class="error">E       assert 3.009857538869348 &lt; 0.1</span><br/><br/>test_base_controllers.py:50: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_trajectory_tracking_circle[False-none-ilqr]</td>
+          <td class="col-duration">6.14</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'none', close_loop = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True, False])<br/>    def test_trajectory_tracking_circle(botname, base_controller, base_planner, close_loop):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>                    use_arm=False, use_camera=False)<br/>        dt = 1. / bot.configs.BASE.BASE_CONTROL_RATE<br/>        v = bot.configs.BASE.MAX_ABS_FWD_SPEED / 2.<br/>        w = bot.configs.BASE.MAX_ABS_TURN_SPEED / 2.<br/>        r = v / w<br/>        start_state = np.array(bot.base.get_state('odom'))<br/>        states, _ = get_trajectory_circle(start_state, dt, r, v, np.pi)<br/>        bot.base.track_trajectory(states, close_loop=close_loop)<br/>        end_state = np.array(bot.base.get_state('odom'))<br/>        dist = np.linalg.norm(states[-1, :2] - end_state[:2])<br/>&gt;       assert dist &lt; 0.1<br/><span class="error">E       assert 3.151501734261582 &lt; 0.1</span><br/><br/>test_base_controllers.py:50: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_trajectory_tracking_two_circles[True-none-ilqr]</td>
+          <td class="col-duration">9.85</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'none', close_loop = True<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True, False])<br/>    def test_trajectory_tracking_two_circles(botname, base_controller, base_planner, close_loop):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>                    use_arm=False, use_camera=False)<br/>        dt = 1. / bot.configs.BASE.BASE_CONTROL_RATE<br/>        v = bot.configs.BASE.MAX_ABS_FWD_SPEED / 2.<br/>        w = bot.configs.BASE.MAX_ABS_TURN_SPEED / 2.<br/>        r = v / w<br/>        start_state = np.array(bot.base.get_state('odom'))<br/>        states1, _ = get_trajectory_circle(start_state, dt, r, v, np.pi)<br/>        states2, _ = get_trajectory_negcircle(states1[-1, :] * 1, dt, r, v, np.pi)<br/>        states = np.concatenate([states1, states2], 0)<br/>    <br/>        bot.base.track_trajectory(states, close_loop=close_loop)<br/>        end_state = np.array(bot.base.get_state('odom'))<br/>        dist = np.linalg.norm(states[-1, :2] - end_state[:2])<br/>&gt;       assert dist &lt; 0.1<br/><span class="error">E       assert 6.730163626657305 &lt; 0.1</span><br/><br/>test_base_controllers.py:72: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_trajectory_tracking_two_circles[False-none-ilqr]</td>
+          <td class="col-duration">9.71</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', base_controller = 'ilqr', base_planner = 'none', close_loop = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['ilqr'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True, False])<br/>    def test_trajectory_tracking_two_circles(botname, base_controller, base_planner, close_loop):<br/>        bot = Robot(botname, base_config={'base_controller': base_controller,<br/>                                          'base_planner': base_planner},<br/>                    use_arm=False, use_camera=False)<br/>        dt = 1. / bot.configs.BASE.BASE_CONTROL_RATE<br/>        v = bot.configs.BASE.MAX_ABS_FWD_SPEED / 2.<br/>        w = bot.configs.BASE.MAX_ABS_TURN_SPEED / 2.<br/>        r = v / w<br/>        start_state = np.array(bot.base.get_state('odom'))<br/>        states1, _ = get_trajectory_circle(start_state, dt, r, v, np.pi)<br/>        states2, _ = get_trajectory_negcircle(states1[-1, :] * 1, dt, r, v, np.pi)<br/>        states = np.concatenate([states1, states2], 0)<br/>    <br/>        bot.base.track_trajectory(states, close_loop=close_loop)<br/>        end_state = np.array(bot.base.get_state('odom'))<br/>        dist = np.linalg.norm(states[-1, :2] - end_state[:2])<br/>&gt;       assert dist &lt; 0.1<br/><span class="error">E       assert 6.71851990091981 &lt; 0.1</span><br/><br/>test_base_controllers.py:72: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_relative_position_control1[posn0-False-True-none-proportional]</td>
+          <td class="col-duration">2.34</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', posn = array([1., 0., 0.], dtype=float32), base_controller = 'proportional', base_planner = 'none', close_loop = True<br/>smooth = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['proportional'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True])<br/>    @pytest.mark.parametrize("smooth", [False])<br/>    @pytest.mark.parametrize("posn", posns)<br/>    def test_relative_position_control1(botname, posn, base_controller, base_planner, close_loop, smooth):<br/>        _test_relative_position_control(posn, botname, base_controller,<br/>&gt;                                       base_planner, close_loop, smooth, 0.05, 10)<br/><br/>test_base_controllers.py:115: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>test_base_controllers.py:83: in _test_relative_position_control<br/>    bot.base.go_to_relative(posn, use_map=False, close_loop=close_loop, smooth=smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:262: in go_to_relative<br/>    self.go_to_absolute(goal_pos, use_map, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:305: in go_to_absolute<br/>    self.controller.go_to_absolute(xyt_position, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_controllers.py:322: in go_to_absolute<br/>    self.BASE_FRAME, pose_stamped)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:296: in transformPose<br/>    mat44 = self.asMatrix(target_frame, ps.header)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:183: in asMatrix<br/>    translation,rotation = self.lookupTransform(target_frame, hdr.frame_id, hdr.stamp)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:104: in lookupTransform<br/>    msg = self._buffer.lookup_transform(strip_leading_slash(target_frame), strip_leading_slash(source_frame), time)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;tf2_ros.buffer.Buffer object at 0x7f125edca248&gt;, target_frame = 'base_link', source_frame = 'map', time = genpy.Time[0]<br/>timeout = rospy.Duration[0]<br/><br/>    def lookup_transform(self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)):<br/>        """<br/>        Get the transform from the source frame to the target frame.<br/>    <br/>        :param target_frame: Name of the frame to transform into.<br/>        :param source_frame: Name of the input frame.<br/>        :param time: The time at which to get the transform. (0 will get the latest)<br/>        :param timeout: (Optional) Time to wait for the target frame to become available.<br/>        :return: The transform between the frames.<br/>        :rtype: :class:`geometry_msgs.msg.TransformStamped`<br/>        """<br/>    <br/>        self.can_transform(target_frame, source_frame, time, timeout)<br/>&gt;       return self.lookup_transform_core(target_frame, source_frame, time)<br/><span class="error">E       LookupException: "map" passed to lookupTransform argument source_frame does not exist.</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf2_ros/buffer.py:87: LookupException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_relative_position_control1[posn1-False-True-none-proportional]</td>
+          <td class="col-duration">2.35</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', posn = array([0.       , 0.       , 3.1415927], dtype=float32), base_controller = 'proportional', base_planner = 'none'<br/>close_loop = True, smooth = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['proportional'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True])<br/>    @pytest.mark.parametrize("smooth", [False])<br/>    @pytest.mark.parametrize("posn", posns)<br/>    def test_relative_position_control1(botname, posn, base_controller, base_planner, close_loop, smooth):<br/>        _test_relative_position_control(posn, botname, base_controller,<br/>&gt;                                       base_planner, close_loop, smooth, 0.05, 10)<br/><br/>test_base_controllers.py:115: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>test_base_controllers.py:83: in _test_relative_position_control<br/>    bot.base.go_to_relative(posn, use_map=False, close_loop=close_loop, smooth=smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:262: in go_to_relative<br/>    self.go_to_absolute(goal_pos, use_map, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:305: in go_to_absolute<br/>    self.controller.go_to_absolute(xyt_position, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_controllers.py:322: in go_to_absolute<br/>    self.BASE_FRAME, pose_stamped)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:296: in transformPose<br/>    mat44 = self.asMatrix(target_frame, ps.header)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:183: in asMatrix<br/>    translation,rotation = self.lookupTransform(target_frame, hdr.frame_id, hdr.stamp)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:104: in lookupTransform<br/>    msg = self._buffer.lookup_transform(strip_leading_slash(target_frame), strip_leading_slash(source_frame), time)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;tf2_ros.buffer.Buffer object at 0x7f125f2016c8&gt;, target_frame = 'base_link', source_frame = 'map', time = genpy.Time[0]<br/>timeout = rospy.Duration[0]<br/><br/>    def lookup_transform(self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)):<br/>        """<br/>        Get the transform from the source frame to the target frame.<br/>    <br/>        :param target_frame: Name of the frame to transform into.<br/>        :param source_frame: Name of the input frame.<br/>        :param time: The time at which to get the transform. (0 will get the latest)<br/>        :param timeout: (Optional) Time to wait for the target frame to become available.<br/>        :return: The transform between the frames.<br/>        :rtype: :class:`geometry_msgs.msg.TransformStamped`<br/>        """<br/>    <br/>        self.can_transform(target_frame, source_frame, time, timeout)<br/>&gt;       return self.lookup_transform_core(target_frame, source_frame, time)<br/><span class="error">E       LookupException: "map" passed to lookupTransform argument source_frame does not exist.</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf2_ros/buffer.py:87: LookupException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_relative_position_control1[posn2-False-True-none-proportional]</td>
+          <td class="col-duration">2.36</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', posn = array([1.       , 1.       , 1.5707964], dtype=float32), base_controller = 'proportional', base_planner = 'none'<br/>close_loop = True, smooth = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['proportional'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True])<br/>    @pytest.mark.parametrize("smooth", [False])<br/>    @pytest.mark.parametrize("posn", posns)<br/>    def test_relative_position_control1(botname, posn, base_controller, base_planner, close_loop, smooth):<br/>        _test_relative_position_control(posn, botname, base_controller,<br/>&gt;                                       base_planner, close_loop, smooth, 0.05, 10)<br/><br/>test_base_controllers.py:115: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>test_base_controllers.py:83: in _test_relative_position_control<br/>    bot.base.go_to_relative(posn, use_map=False, close_loop=close_loop, smooth=smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:262: in go_to_relative<br/>    self.go_to_absolute(goal_pos, use_map, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:305: in go_to_absolute<br/>    self.controller.go_to_absolute(xyt_position, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_controllers.py:322: in go_to_absolute<br/>    self.BASE_FRAME, pose_stamped)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:296: in transformPose<br/>    mat44 = self.asMatrix(target_frame, ps.header)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:183: in asMatrix<br/>    translation,rotation = self.lookupTransform(target_frame, hdr.frame_id, hdr.stamp)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:104: in lookupTransform<br/>    msg = self._buffer.lookup_transform(strip_leading_slash(target_frame), strip_leading_slash(source_frame), time)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;tf2_ros.buffer.Buffer object at 0x7f125f0e5c20&gt;, target_frame = 'base_link', source_frame = 'map', time = genpy.Time[0]<br/>timeout = rospy.Duration[0]<br/><br/>    def lookup_transform(self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)):<br/>        """<br/>        Get the transform from the source frame to the target frame.<br/>    <br/>        :param target_frame: Name of the frame to transform into.<br/>        :param source_frame: Name of the input frame.<br/>        :param time: The time at which to get the transform. (0 will get the latest)<br/>        :param timeout: (Optional) Time to wait for the target frame to become available.<br/>        :return: The transform between the frames.<br/>        :rtype: :class:`geometry_msgs.msg.TransformStamped`<br/>        """<br/>    <br/>        self.can_transform(target_frame, source_frame, time, timeout)<br/>&gt;       return self.lookup_transform_core(target_frame, source_frame, time)<br/><span class="error">E       LookupException: "map" passed to lookupTransform argument source_frame does not exist.</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf2_ros/buffer.py:87: LookupException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_relative_position_control1[posn3-False-True-none-proportional]</td>
+          <td class="col-duration">2.44</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', posn = array([1., 1., 0.], dtype=float32), base_controller = 'proportional', base_planner = 'none', close_loop = True<br/>smooth = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['proportional'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True])<br/>    @pytest.mark.parametrize("smooth", [False])<br/>    @pytest.mark.parametrize("posn", posns)<br/>    def test_relative_position_control1(botname, posn, base_controller, base_planner, close_loop, smooth):<br/>        _test_relative_position_control(posn, botname, base_controller,<br/>&gt;                                       base_planner, close_loop, smooth, 0.05, 10)<br/><br/>test_base_controllers.py:115: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>test_base_controllers.py:83: in _test_relative_position_control<br/>    bot.base.go_to_relative(posn, use_map=False, close_loop=close_loop, smooth=smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:262: in go_to_relative<br/>    self.go_to_absolute(goal_pos, use_map, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:305: in go_to_absolute<br/>    self.controller.go_to_absolute(xyt_position, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_controllers.py:322: in go_to_absolute<br/>    self.BASE_FRAME, pose_stamped)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:296: in transformPose<br/>    mat44 = self.asMatrix(target_frame, ps.header)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:183: in asMatrix<br/>    translation,rotation = self.lookupTransform(target_frame, hdr.frame_id, hdr.stamp)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:104: in lookupTransform<br/>    msg = self._buffer.lookup_transform(strip_leading_slash(target_frame), strip_leading_slash(source_frame), time)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;tf2_ros.buffer.Buffer object at 0x7f12586a1ea8&gt;, target_frame = 'base_link', source_frame = 'map', time = genpy.Time[0]<br/>timeout = rospy.Duration[0]<br/><br/>    def lookup_transform(self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)):<br/>        """<br/>        Get the transform from the source frame to the target frame.<br/>    <br/>        :param target_frame: Name of the frame to transform into.<br/>        :param source_frame: Name of the input frame.<br/>        :param time: The time at which to get the transform. (0 will get the latest)<br/>        :param timeout: (Optional) Time to wait for the target frame to become available.<br/>        :return: The transform between the frames.<br/>        :rtype: :class:`geometry_msgs.msg.TransformStamped`<br/>        """<br/>    <br/>        self.can_transform(target_frame, source_frame, time, timeout)<br/>&gt;       return self.lookup_transform_core(target_frame, source_frame, time)<br/><span class="error">E       LookupException: "map" passed to lookupTransform argument source_frame does not exist.</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf2_ros/buffer.py:87: LookupException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/husky/test_base_controllers.py::test_relative_position_control1[posn4-False-True-none-proportional]</td>
+          <td class="col-duration">2.40</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'husky', posn = array([-1.,  0.,  0.], dtype=float32), base_controller = 'proportional', base_planner = 'none', close_loop = True<br/>smooth = False<br/><br/>    @pytest.mark.parametrize("base_controller", ['proportional'])<br/>    @pytest.mark.parametrize("base_planner", ['none'])<br/>    @pytest.mark.parametrize("close_loop", [True])<br/>    @pytest.mark.parametrize("smooth", [False])<br/>    @pytest.mark.parametrize("posn", posns)<br/>    def test_relative_position_control1(botname, posn, base_controller, base_planner, close_loop, smooth):<br/>        _test_relative_position_control(posn, botname, base_controller,<br/>&gt;                                       base_planner, close_loop, smooth, 0.05, 10)<br/><br/>test_base_controllers.py:115: <br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/>test_base_controllers.py:83: in _test_relative_position_control<br/>    bot.base.go_to_relative(posn, use_map=False, close_loop=close_loop, smooth=smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:262: in go_to_relative<br/>    self.go_to_absolute(goal_pos, use_map, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base.py:305: in go_to_absolute<br/>    self.controller.go_to_absolute(xyt_position, close_loop, smooth)<br/>../../../pyenv_pyrobot/local/lib/python2.7/site-packages/pyrobot/husky/base_controllers.py:322: in go_to_absolute<br/>    self.BASE_FRAME, pose_stamped)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:296: in transformPose<br/>    mat44 = self.asMatrix(target_frame, ps.header)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:183: in asMatrix<br/>    translation,rotation = self.lookupTransform(target_frame, hdr.frame_id, hdr.stamp)<br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf/listener.py:104: in lookupTransform<br/>    msg = self._buffer.lookup_transform(strip_leading_slash(target_frame), strip_leading_slash(source_frame), time)<br/>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ <br/><br/>self = &lt;tf2_ros.buffer.Buffer object at 0x7f12586c3f38&gt;, target_frame = 'base_link', source_frame = 'map', time = genpy.Time[0]<br/>timeout = rospy.Duration[0]<br/><br/>    def lookup_transform(self, target_frame, source_frame, time, timeout=rospy.Duration(0.0)):<br/>        """<br/>        Get the transform from the source frame to the target frame.<br/>    <br/>        :param target_frame: Name of the frame to transform into.<br/>        :param source_frame: Name of the input frame.<br/>        :param time: The time at which to get the transform. (0 will get the latest)<br/>        :param timeout: (Optional) Time to wait for the target frame to become available.<br/>        :return: The transform between the frames.<br/>        :rtype: :class:`geometry_msgs.msg.TransformStamped`<br/>        """<br/>    <br/>        self.can_transform(target_frame, source_frame, time, timeout)<br/>&gt;       return self.lookup_transform_core(target_frame, source_frame, time)<br/><span class="error">E       LookupException: "map" passed to lookupTransform argument source_frame does not exist.</span><br/><br/>/opt/ros/kinetic/lib/python2.7/dist-packages/tf2_ros/buffer.py:87: LookupException<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_make_robot.py::test_make_robot_base[none-ilqr]</td>
+          <td class="col-duration">2.14</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_make_robot.py::test_make_robot_base[none-proportional]</td>
+          <td class="col-duration">2.16</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rospy.internal:core.py:138 topic[/tf_static] adding connection to [http://localhost:44859/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/tf] adding connection to [http://localhost:44859/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/tf] adding connection to [http://localhost:33873/], count 1
+[32mINFO    [0m rospy.internal:core.py:138 topic[/tf] adding connection to [http://localhost:35397/], count 2</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_make_robot.py::test_make_robot_base[none-movebase]</td>
+          <td class="col-duration">2.23</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_v[none-ilqr]</td>
+          <td class="col-duration">4.52</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_v[none-proportional]</td>
+          <td class="col-duration">4.58</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_v[none-movebase]</td>
+          <td class="col-duration">4.64</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_w[none-ilqr]</td>
+          <td class="col-duration">4.61</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_w[none-proportional]</td>
+          <td class="col-duration">4.67</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/husky/test_base_velocity_control.py::test_vel_cmd_w[none-movebase]</td>
+          <td class="col-duration">4.67</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody></table></body></html>

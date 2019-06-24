@@ -16,7 +16,7 @@ from absl import flags, app
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string('out_dir', None, '')
-flags.DEFINE_bool('nobrowser', False, 'if True, disable showing the coverage '
+flags.DEFINE_bool('nobrowser', True, 'if True, disable showing the coverage '
                                       'result (if exist) in a web browser')
 flags.DEFINE_bool('test_real', False, 'if True, run only subset of tests for real robot')
 
@@ -26,7 +26,7 @@ FNULL = open(os.devnull, 'w')
 def launch_gazebo(args, wait_time=12):
     print('Launching Gazebo ...')
     args = args.split()
-    p = Popen(['roslaunch', 'locobot_control', 'main.launch'] + args,
+    p = Popen(['roslaunch', 'husky_gazebo', 'husky_empty_world.launch'] + args,
               stdin=PIPE, stdout=FNULL, stderr=STDOUT)
     time.sleep(wait_time)
     return p
@@ -79,61 +79,22 @@ def main(_):
         if os.path.exists(FLAGS.out_dir):
             shutil.rmtree(FLAGS.out_dir)
         os.makedirs(FLAGS.out_dir)
+###Test on simulation
+    p = Popen(['rosnode', 'cleanup'])
+    p.wait()
 
     # # Tests that do not need gazebo
-    test_cmds = ['test_pyrobot_classes.py test_base_position_control_inits.py']
-    run_test(test_cmds, 'basic.html')
-
-    if FLAGS.test_real:
-        # TODO: Assume real robot launch file has already been started
-        # - TODO maybe check these nodes have been launched programmatically?
-        print(
-            'Make sure real robot has already been launched: '
-            'roslaunch locobot_control main.launch use_arm:=true use_camera:=true')
-        # TODO: Need to add a simple base velocity control test as well
-        test_cmds = ['test_camera.py test_arm_controls.py']
-        run_test(test_cmds, 'real.html')
-
-    else:
-        p = Popen(['rosnode', 'cleanup'])
-        p.wait()
-
-        # Kobuki base tests. s-gupta: I had to split the following tests into
-        # multiple calls to pytest, and starting gazebo multiple times, in
-        # order for things to work. Ditto for create.
-        args = 'base:=kobuki use_rviz:=false use_sim:=true'
-        kobuki_p = launch_gazebo(args)
-        test_cmds = ['test_make_robots.py test_arm_utils.py test_arm_controls.py'
-                     ' test_camera.py --botname locobot']
-        run_test(test_cmds, 'locobot.html')
-        exit_gazebo(kobuki_p)
+    args = 'base:=husky use_rviz:=false use_sim:=true'
+    args = args.split()
+    husky_p = Popen(['roslaunch', 'husky_gazebo', 'husky_empty_world.launch'] + args)
+    test_cmds = ['test_make_robot.py test_base_velocity_control.py test_base_controllers.py' ' --botname husky']
+    run_test(test_cmds, 'basics.html')
+    exit_gazebo(husky_p)
 
 
 
-        args = 'base:=kobuki use_rviz:=false use_sim:=true'
-        kobuki_p = launch_gazebo(args)
-        test_cmds = ['test_base_velocity_control.py test_base_controllers.py'
-                     ' --botname locobot']
-        run_test(test_cmds, 'locobot-base.html')
-        exit_gazebo(kobuki_p)
-
-        # # Create base tests
-        args = 'base:=create use_rviz:=false use_sim:=true'
-        create_p = launch_gazebo(args)
-        test_cmds = ['test_make_robots.py test_arm_utils.py test_arm_controls.py '
-                     'test_camera.py --botname locobot_lite']
-        run_test(test_cmds, 'locobot-lite.html')
-        exit_gazebo(create_p)
-
-        args = 'base:=create use_rviz:=false use_sim:=true'
-        create_p = launch_gazebo(args)
-        test_cmds = ['test_base_velocity_control.py test_base_controllers.py'
-                     ' --botname locobot_lite']
-        run_test(test_cmds, 'locobot-lite-base.html')
-        exit_gazebo(create_p)
-
-        # # Write put coverage results.
-        gen_html_anno()
+    # # Write put coverage results.
+    gen_html_anno()
 
 
 if __name__ == '__main__':

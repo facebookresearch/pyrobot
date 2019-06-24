@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Test Report</title>
+    <style>body {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	min-width: 1200px;
+	color: #999;
+}
+
+h1 {
+	font-size: 24px;
+	color: black;
+}
+
+h2 {
+	font-size: 16px;
+	color: black;
+}
+
+p {
+    color: black;
+}
+
+a {
+	color: #999;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+
+#environment td {
+	padding: 5px;
+	border: 1px solid #E6E6E6;
+}
+
+#environment tr:nth-child(odd) {
+	background-color: #f6f6f6;
+}
+
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed, .passed .col-result {
+	color: green;
+}
+span.skipped, span.xfailed, span.rerun, .skipped .col-result, .xfailed .col-result, .rerun .col-result {
+	color: orange;
+}
+span.error, span.failed, span.xpassed, .error .col-result, .failed .col-result, .xpassed .col-result  {
+	color: red;
+}
+
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+
+#results-table {
+	border: 1px solid #e6e6e6;
+	color: #999;
+	font-size: 12px;
+	width: 100%
+}
+
+#results-table th, #results-table td {
+	padding: 5px;
+	border: 1px solid #E6E6E6;
+	text-align: left
+}
+#results-table th {
+	font-weight: bold
+}
+
+/*------------------
+ * 2. Extra
+ *------------------*/
+
+.log:only-child {
+	height: inherit
+}
+.log {
+	background-color: #e6e6e6;
+	border: 1px solid #e6e6e6;
+	color: black;
+	display: block;
+	font-family: "Courier New", Courier, monospace;
+	height: 230px;
+	overflow-y: scroll;
+	padding: 5px;
+	white-space: pre-wrap
+}
+div.image {
+	border: 1px solid #e6e6e6;
+	float: right;
+	height: 240px;
+	margin-left: 5px;
+	overflow: hidden;
+	width: 320px
+}
+div.image img {
+	width: 320px
+}
+.collapsed {
+	display: none;
+}
+.expander::after {
+	content: " (show details)";
+	color: #BBB;
+	font-style: italic;
+	cursor: pointer;
+}
+.collapser::after {
+	content: " (hide details)";
+	color: #BBB;
+	font-style: italic;
+	cursor: pointer;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+	cursor: pointer;
+}
+
+.sort-icon {
+	font-size: 0px;
+	float: left;
+	margin-right: 5px;
+	margin-top: 5px;
+	/*triangle*/
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+}
+
+.inactive .sort-icon {
+	/*finish triangle*/
+	border-top: 8px solid #E6E6E6;
+}
+
+.asc.active .sort-icon {
+	/*finish triangle*/
+	border-bottom: 8px solid #999;
+}
+
+.desc.active .sort-icon {
+	/*finish triangle*/
+	border-top: 8px solid #999;
+}
+</style></head>
+  <body onLoad="init()">
+    <script>/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+function toArray(iter) {
+    if (iter === null) {
+        return null;
+    }
+    return Array.prototype.slice.call(iter);
+}
+
+function find(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return elem.querySelector(selector);
+}
+
+function find_all(selector, elem) {
+    if (!elem) {
+        elem = document;
+    }
+    return toArray(elem.querySelectorAll(selector));
+}
+
+function sort_column(elem) {
+    toggle_sort_states(elem);
+    var colIndex = toArray(elem.parentNode.childNodes).indexOf(elem);
+    var key;
+    if (elem.classList.contains('numeric')) {
+        key = key_num;
+    } else if (elem.classList.contains('result')) {
+        key = key_result;
+    } else {
+        key = key_alpha;
+    }
+    sort_table(elem, key(colIndex));
+}
+
+function show_all_extras() {
+    find_all('.col-result').forEach(show_extras);
+}
+
+function hide_all_extras() {
+    find_all('.col-result').forEach(hide_extras);
+}
+
+function show_extras(colresult_elem) {
+    var extras = colresult_elem.parentNode.nextElementSibling;
+    var expandcollapse = colresult_elem.firstElementChild;
+    extras.classList.remove("collapsed");
+    expandcollapse.classList.remove("expander");
+    expandcollapse.classList.add("collapser");
+}
+
+function hide_extras(colresult_elem) {
+    var extras = colresult_elem.parentNode.nextElementSibling;
+    var expandcollapse = colresult_elem.firstElementChild;
+    extras.classList.add("collapsed");
+    expandcollapse.classList.remove("collapser");
+    expandcollapse.classList.add("expander");
+}
+
+function show_filters() {
+    var filter_items = document.getElementsByClassName('filter');
+    for (var i = 0; i < filter_items.length; i++)
+        filter_items[i].hidden = false;
+}
+
+function add_collapse() {
+    // Add links for show/hide all
+    var resulttable = find('table#results-table');
+    var showhideall = document.createElement("p");
+    showhideall.innerHTML = '<a href="javascript:show_all_extras()">Show all details</a> / ' +
+                            '<a href="javascript:hide_all_extras()">Hide all details</a>';
+    resulttable.parentElement.insertBefore(showhideall, resulttable);
+
+    // Add show/hide link to each result
+    find_all('.col-result').forEach(function(elem) {
+        var collapsed = get_query_parameter('collapsed') || 'Passed';
+        var extras = elem.parentNode.nextElementSibling;
+        var expandcollapse = document.createElement("span");
+        if (collapsed.includes(elem.innerHTML)) {
+            extras.classList.add("collapsed");
+            expandcollapse.classList.add("expander");
+        } else {
+            expandcollapse.classList.add("collapser");
+        }
+        elem.appendChild(expandcollapse);
+
+        elem.addEventListener("click", function(event) {
+            if (event.currentTarget.parentNode.nextElementSibling.classList.contains("collapsed")) {
+                show_extras(event.currentTarget);
+            } else {
+                hide_extras(event.currentTarget);
+            }
+        });
+    })
+}
+
+function get_query_parameter(name) {
+    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function init () {
+    reset_sort_headers();
+
+    add_collapse();
+
+    show_filters();
+
+    toggle_sort_states(find('.initial-sort'));
+
+    find_all('.sortable').forEach(function(elem) {
+        elem.addEventListener("click",
+                              function(event) {
+                                  sort_column(elem);
+                              }, false)
+    });
+
+};
+
+function sort_table(clicked, key_func) {
+    var rows = find_all('.results-table-row');
+    var reversed = !clicked.classList.contains('asc');
+    var sorted_rows = sort(rows, key_func, reversed);
+    /* Whole table is removed here because browsers acts much slower
+     * when appending existing elements.
+     */
+    var thead = document.getElementById("results-table-head");
+    document.getElementById('results-table').remove();
+    var parent = document.createElement("table");
+    parent.id = "results-table";
+    parent.appendChild(thead);
+    sorted_rows.forEach(function(elem) {
+        parent.appendChild(elem);
+    });
+    document.getElementsByTagName("BODY")[0].appendChild(parent);
+}
+
+function sort(items, key_func, reversed) {
+    var sort_array = items.map(function(item, i) {
+        return [key_func(item), i];
+    });
+    var multiplier = reversed ? -1 : 1;
+
+    sort_array.sort(function(a, b) {
+        var key_a = a[0];
+        var key_b = b[0];
+        return multiplier * (key_a >= key_b ? 1 : -1);
+    });
+
+    return sort_array.map(function(item) {
+        var index = item[1];
+        return items[index];
+    });
+}
+
+function key_alpha(col_index) {
+    return function(elem) {
+        return elem.childNodes[1].childNodes[col_index].firstChild.data.toLowerCase();
+    };
+}
+
+function key_num(col_index) {
+    return function(elem) {
+        return parseFloat(elem.childNodes[1].childNodes[col_index].firstChild.data);
+    };
+}
+
+function key_result(col_index) {
+    return function(elem) {
+        var strings = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed',
+                       'Skipped', 'Passed'];
+        return strings.indexOf(elem.childNodes[1].childNodes[col_index].firstChild.data);
+    };
+}
+
+function reset_sort_headers() {
+    find_all('.sort-icon').forEach(function(elem) {
+        elem.parentNode.removeChild(elem);
+    });
+    find_all('.sortable').forEach(function(elem) {
+        var icon = document.createElement("div");
+        icon.className = "sort-icon";
+        icon.textContent = "vvv";
+        elem.insertBefore(icon, elem.firstChild);
+        elem.classList.remove("desc", "active");
+        elem.classList.add("asc", "inactive");
+    });
+}
+
+function toggle_sort_states(elem) {
+    //if active, toggle between asc and desc
+    if (elem.classList.contains('active')) {
+        elem.classList.toggle('asc');
+        elem.classList.toggle('desc');
+    }
+
+    //if inactive, reset all other functions and add ascending active
+    if (elem.classList.contains('inactive')) {
+        reset_sort_headers();
+        elem.classList.remove('inactive');
+        elem.classList.add('active');
+    }
+}
+
+function is_all_rows_hidden(value) {
+  return value.hidden == false;
+}
+
+function filter_table(elem) {
+    var outcome_att = "data-test-result";
+    var outcome = elem.getAttribute(outcome_att);
+    class_outcome = outcome + " results-table-row";
+    var outcome_rows = document.getElementsByClassName(class_outcome);
+
+    for(var i = 0; i < outcome_rows.length; i++){
+        outcome_rows[i].hidden = !elem.checked;
+    }
+
+    var rows = find_all('.results-table-row').filter(is_all_rows_hidden);
+    var all_rows_hidden = rows.length == 0 ? true : false;
+    var not_found_message = document.getElementById("not-found-message");
+    not_found_message.hidden = !all_rows_hidden;
+}
+</script>
+    <h1>locobot.html</h1>
+    <p>Report generated on 24-Jun-2019 at 22:47:40 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a> v1.20.0</p>
+    <h2>Environment</h2>
+    <table id="environment">
+      <tr>
+        <td>Packages</td>
+        <td>{&apos;py&apos;: &apos;1.8.0&apos;, &apos;pytest&apos;: &apos;4.6.3&apos;, &apos;pluggy&apos;: &apos;0.12.0&apos;}</td></tr>
+      <tr>
+        <td>Platform</td>
+        <td>Linux-4.15.0-51-generic-x86_64-with-Ubuntu-16.04-xenial</td></tr>
+      <tr>
+        <td>Plugins</td>
+        <td>{u&apos;cov&apos;: u&apos;2.6.1&apos;, u&apos;html&apos;: u&apos;1.20.0&apos;, u&apos;metadata&apos;: u&apos;1.8.0&apos;}</td></tr>
+      <tr>
+        <td>Python</td>
+        <td>2.7.12</td></tr></table>
+    <h2>Summary</h2>
+    <p>24 tests ran in 115.19 seconds. </p>
+    <p class="filter" hidden="true">(Un)check the boxes to filter the results.</p><input checked="true" class="filter" data-test-result="passed" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="passed">17 passed</span>, <input checked="true" class="filter" data-test-result="skipped" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="skipped">0 skipped</span>, <input checked="true" class="filter" data-test-result="failed" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="failed">7 failed</span>, <input checked="true" class="filter" data-test-result="error" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="error">0 errors</span>, <input checked="true" class="filter" data-test-result="xfailed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="xfailed">0 expected failures</span>, <input checked="true" class="filter" data-test-result="xpassed" disabled="true" hidden="true" name="filter_checkbox" onChange="filter_table(this)" type="checkbox"/><span class="xpassed">0 unexpected passes</span>
+    <h2>Results</h2>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable result initial-sort" col="result">Result</th>
+          <th class="sortable" col="name">Test</th>
+          <th class="sortable numeric" col="duration">Duration</th>
+          <th>Links</th></tr>
+        <tr hidden="true" id="not-found-message">
+          <th colspan="4">No results found. Try to check the filters</th></tr></thead>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_make_robots.py::test_bumper_topic_locobase_ilqr_none</td>
+          <td class="col-duration">2.97</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">botname = 'locobot'<br/><br/>    def test_bumper_topic_locobase_ilqr_none(botname):<br/>        bot = test_make_robot_base(botname, 'ilqr', 'none')<br/>        topic_names = [x[0] for x in rospy.get_published_topics()]<br/>&gt;       assert (bot.configs.BASE.ROSTOPIC_BUMPER in topic_names)<br/><span class="error">E       AssertionError: assert '/mobile_base/events/bumper' in ['/map_metadata', '/camera/color/image_raw/compressed', '/move_base/local_costmap/footprint', '/move_base/feedback', '/pan/state', '/place/result', ...]</span><br/><span class="error">E        +  where '/mobile_base/events/bumper' = CfgNode({'MAX_ABS_TURN_SPEED': 0.5, 'BASE_CONTROL_RATE': 10, 'Z_MIN_TRESHOLD_O...LLER': 'ilqr', 'PLAN_TOL': 0.1, 'ROSTOPIC_CLIFF': '/mobile_base/events/cliff'}).ROSTOPIC_BUMPER</span><br/><span class="error">E        +    where CfgNode({'MAX_ABS_TURN_SPEED': 0.5, 'BASE_CONTROL_RATE': 10, 'Z_MIN_TRESHOLD_O...LLER': 'ilqr', 'PLAN_TOL': 0.1, 'ROSTOPIC_CLIFF': '/mobile_base/events/cliff'}) = CfgNode({'HAS_BASE': True, 'HAS_CAMERA': True, 'GRIPPER': CfgNode({'ROSTOPIC_G...mmand', 'CLASS': 'LoCoBotArm', 'ROSSERVICE_JOINT_COMMAND': '/joint_command'})}).BASE</span><br/><span class="error">E        +      where CfgNode({'HAS_BASE': True, 'HAS_CAMERA': True, 'GRIPPER': CfgNode({'ROSTOPIC_G...mmand', 'CLASS': 'LoCoBotArm', 'ROSSERVICE_JOINT_COMMAND': '/joint_command'})}) = &lt;pyrobot.core.Robot instance at 0x7f18d55b94d0&gt;.configs</span><br/><br/>test_make_robots.py:29: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_arm_utils.py::test_get_ee_pose</td>
+          <td class="col-duration">0.41</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">create_robot = &lt;pyrobot.core.Robot instance at 0x7f18d5648dd0&gt;, botname = 'locobot'<br/><br/>    def test_get_ee_pose(create_robot, botname):<br/>        bot = create_robot<br/>        bot.arm.go_home()<br/>        time.sleep(0.4)<br/>        trans, rot, quat = bot.arm.pose_ee<br/>        if 'lite' in botname:<br/>            trans_des = np.array([0.3946, 0.0001, 0.3749]).reshape(3, 1)<br/>    <br/>        else:<br/>            trans_des = np.array([0.4118, 0.0001, 0.3987]).reshape(3, 1)<br/>        rot_des = np.array([[0.9998, 0., 0.018],<br/>                            [-0., 1., -0.0001],<br/>                            [-0.018, 0.0001, 0.9998]])<br/>        quat_des = np.array([0., 0.009, -0., 1.])<br/>        trans_err = np.linalg.norm(trans_des - trans)<br/>        rot_err = np.linalg.norm(rot - rot_des)<br/>        quat_err = np.linalg.norm(quat - quat_des)<br/>&gt;       assert trans_err &lt; 0.005<br/><span class="error">E       assert 0.006278297844911227 &lt; 0.005</span><br/><br/>test_arm_utils.py:40: AssertionError<br/>---------------------------- Captured stdout setup -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+[0m[ INFO] [1561387582.158679958, 26.971000000]: Ready to take commands for planning group arm.[0m
+---------------------------- Captured stderr setup -----------------------------<br/>Unknown attribute: name
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_arm_utils.py::test_compute_fk_position</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">create_robot = &lt;pyrobot.core.Robot instance at 0x7f18d5648dd0&gt;, botname = 'locobot'<br/><br/>    def test_compute_fk_position(create_robot, botname):<br/>        bot = create_robot<br/>        pos, rot = bot.arm.compute_fk_position(np.array([0.1, 0.2, 0.3, 0.4, 0.5]),<br/>                                               bot.arm.configs.ARM.EE_FRAME)<br/>        if 'lite' in botname:<br/>            pos_des = np.array([[0.3821],<br/>                                [0.0304],<br/>                                [0.22]])<br/>    <br/>        else:<br/>            pos_des = np.array([[0.3994],<br/>                                [0.0304],<br/>                                [0.2438]])<br/>        rot_des = np.array([[0.6185, -0.4613, 0.6361],<br/>                            [0.0621, 0.8357, 0.5457],<br/>                            [-0.7833, -0.298, 0.5455]])<br/>        pos_err = np.linalg.norm(pos - pos_des)<br/>        rot_err = np.linalg.norm(rot - rot_des)<br/>&gt;       assert pos_err &lt; 0.001<br/><span class="error">E       assert 0.006199370690071154 &lt; 0.001</span><br/><br/>test_arm_utils.py:76: AssertionError<br/></div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_ee_pose_control[True-position0-orientation0]</td>
+          <td class="col-duration">6.38</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">create_robot = &lt;pyrobot.core.Robot instance at 0x7f18d56a7b48&gt;, position = array([0.279, 0.176, 0.217])<br/>orientation = array([[ 0.53802  , -0.6650449,  0.5179283],<br/>       [ 0.475841 ,  0.7467951,  0.4646209],<br/>       [-0.69578  , -0.0035238,  0.7182463]])<br/>numerical = 'True'<br/><br/>    @pytest.mark.parametrize("position, orientation", [(positions[0],<br/>                                                        orientations[0]),<br/>                                                       (positions[1],<br/>                                                        orientations[1])])<br/>    @pytest.mark.parametrize("numerical", ['True', 'False'])<br/>    def test_ee_pose_control(create_robot, position, orientation, numerical):<br/>        bot = create_robot<br/>        bot.arm.go_home()<br/>        time.sleep(1)<br/>        bot.arm.set_ee_pose(position=position,<br/>                            orientation=orientation,<br/>                            numerical=numerical)<br/>        time.sleep(1)<br/>        trans, rot, quat = bot.arm.pose_ee<br/>        pos_error = np.linalg.norm(position.flatten() - trans.flatten())<br/>        if orientation.size == 4:<br/>            tgt_quat = orientation.flatten()<br/>        elif orientation.size == 3:<br/>            tgt_quat = prutil.euler_to_quat(orientation)<br/>        elif orientation.size == 9:<br/>            tgt_quat = prutil.rot_mat_to_quat(orientation)<br/>        else:<br/>            raise TypeError('Orientation must be in one of the following forms:'<br/>                            'rotation matrix, euler angles, or quaternion')<br/>        quat_diff = tft.quaternion_multiply(tft.quaternion_inverse(tgt_quat), quat)<br/>        rot_similarity = quat_diff[3]<br/>&gt;       assert rot_similarity &gt; 0.98 and pos_error &lt; 0.02<br/><span class="error">E       assert (0.9442949953521772 &gt; 0.98)</span><br/><br/>test_arm_controls.py:68: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387625.862819, 48.780000]: Moveit Motion Planning...
+[INFO] [1561387625.937649, 48.782000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_ee_pose_control[True-position1-orientation1]</td>
+          <td class="col-duration">7.31</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">create_robot = &lt;pyrobot.core.Robot instance at 0x7f18d56a7b48&gt;, position = array([0.339 , 0.0116, 0.255 ])<br/>orientation = array([ 0.245,  0.613, -0.202,  0.723]), numerical = 'True'<br/><br/>    @pytest.mark.parametrize("position, orientation", [(positions[0],<br/>                                                        orientations[0]),<br/>                                                       (positions[1],<br/>                                                        orientations[1])])<br/>    @pytest.mark.parametrize("numerical", ['True', 'False'])<br/>    def test_ee_pose_control(create_robot, position, orientation, numerical):<br/>        bot = create_robot<br/>        bot.arm.go_home()<br/>        time.sleep(1)<br/>        bot.arm.set_ee_pose(position=position,<br/>                            orientation=orientation,<br/>                            numerical=numerical)<br/>        time.sleep(1)<br/>        trans, rot, quat = bot.arm.pose_ee<br/>        pos_error = np.linalg.norm(position.flatten() - trans.flatten())<br/>        if orientation.size == 4:<br/>            tgt_quat = orientation.flatten()<br/>        elif orientation.size == 3:<br/>            tgt_quat = prutil.euler_to_quat(orientation)<br/>        elif orientation.size == 9:<br/>            tgt_quat = prutil.rot_mat_to_quat(orientation)<br/>        else:<br/>            raise TypeError('Orientation must be in one of the following forms:'<br/>                            'rotation matrix, euler angles, or quaternion')<br/>        quat_diff = tft.quaternion_multiply(tft.quaternion_inverse(tgt_quat), quat)<br/>        rot_similarity = quat_diff[3]<br/>&gt;       assert rot_similarity &gt; 0.98 and pos_error &lt; 0.02<br/><span class="error">E       assert (0.8559349980975173 &gt; 0.98)</span><br/><br/>test_arm_controls.py:68: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387632.788494, 52.497000]: Moveit Motion Planning...
+[INFO] [1561387632.855897, 52.502000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_ee_pose_control[False-position0-orientation0]</td>
+          <td class="col-duration">7.28</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">create_robot = &lt;pyrobot.core.Robot instance at 0x7f18d56a7b48&gt;, position = array([0.279, 0.176, 0.217])<br/>orientation = array([[ 0.53802  , -0.6650449,  0.5179283],<br/>       [ 0.475841 ,  0.7467951,  0.4646209],<br/>       [-0.69578  , -0.0035238,  0.7182463]])<br/>numerical = 'False'<br/><br/>    @pytest.mark.parametrize("position, orientation", [(positions[0],<br/>                                                        orientations[0]),<br/>                                                       (positions[1],<br/>                                                        orientations[1])])<br/>    @pytest.mark.parametrize("numerical", ['True', 'False'])<br/>    def test_ee_pose_control(create_robot, position, orientation, numerical):<br/>        bot = create_robot<br/>        bot.arm.go_home()<br/>        time.sleep(1)<br/>        bot.arm.set_ee_pose(position=position,<br/>                            orientation=orientation,<br/>                            numerical=numerical)<br/>        time.sleep(1)<br/>        trans, rot, quat = bot.arm.pose_ee<br/>        pos_error = np.linalg.norm(position.flatten() - trans.flatten())<br/>        if orientation.size == 4:<br/>            tgt_quat = orientation.flatten()<br/>        elif orientation.size == 3:<br/>            tgt_quat = prutil.euler_to_quat(orientation)<br/>        elif orientation.size == 9:<br/>            tgt_quat = prutil.rot_mat_to_quat(orientation)<br/>        else:<br/>            raise TypeError('Orientation must be in one of the following forms:'<br/>                            'rotation matrix, euler angles, or quaternion')<br/>        quat_diff = tft.quaternion_multiply(tft.quaternion_inverse(tgt_quat), quat)<br/>        rot_similarity = quat_diff[3]<br/>&gt;       assert rot_similarity &gt; 0.98 and pos_error &lt; 0.02<br/><span class="error">E       assert (0.9313114366867989 &gt; 0.98)</span><br/><br/>test_arm_controls.py:68: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387640.201511, 56.051000]: Moveit Motion Planning...
+[INFO] [1561387640.577567, 56.051000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="failed results-table-row">
+        <tr>
+          <td class="col-result">Failed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_ee_pose_control[False-position1-orientation1]</td>
+          <td class="col-duration">8.54</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">create_robot = &lt;pyrobot.core.Robot instance at 0x7f18d56a7b48&gt;, position = array([0.339 , 0.0116, 0.255 ])<br/>orientation = array([ 0.245,  0.613, -0.202,  0.723]), numerical = 'False'<br/><br/>    @pytest.mark.parametrize("position, orientation", [(positions[0],<br/>                                                        orientations[0]),<br/>                                                       (positions[1],<br/>                                                        orientations[1])])<br/>    @pytest.mark.parametrize("numerical", ['True', 'False'])<br/>    def test_ee_pose_control(create_robot, position, orientation, numerical):<br/>        bot = create_robot<br/>        bot.arm.go_home()<br/>        time.sleep(1)<br/>        bot.arm.set_ee_pose(position=position,<br/>                            orientation=orientation,<br/>                            numerical=numerical)<br/>        time.sleep(1)<br/>        trans, rot, quat = bot.arm.pose_ee<br/>        pos_error = np.linalg.norm(position.flatten() - trans.flatten())<br/>        if orientation.size == 4:<br/>            tgt_quat = orientation.flatten()<br/>        elif orientation.size == 3:<br/>            tgt_quat = prutil.euler_to_quat(orientation)<br/>        elif orientation.size == 9:<br/>            tgt_quat = prutil.rot_mat_to_quat(orientation)<br/>        else:<br/>            raise TypeError('Orientation must be in one of the following forms:'<br/>                            'rotation matrix, euler angles, or quaternion')<br/>        quat_diff = tft.quaternion_multiply(tft.quaternion_inverse(tgt_quat), quat)<br/>        rot_similarity = quat_diff[3]<br/>&gt;       assert rot_similarity &gt; 0.98 and pos_error &lt; 0.02<br/><span class="error">E       assert (0.830395219275727 &gt; 0.98)</span><br/><br/>test_arm_controls.py:68: AssertionError<br/>----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387648.078234, 59.626000]: Moveit Motion Planning...
+[INFO] [1561387648.179589, 59.627000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_base[movebase-ilqr]</td>
+          <td class="col-duration">5.19</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_base[movebase-proportional]</td>
+          <td class="col-duration">3.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_base[movebase-movebase]</td>
+          <td class="col-duration">2.98</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rospy.internal:core.py:138 topic[/move_base/status] adding connection to [http://localhost:33523/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/move_base/result] adding connection to [http://localhost:33523/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/move_base/feedback] adding connection to [http://localhost:33523/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/move_base/goal] adding connection to [/move_base], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/move_base/cancel] adding connection to [/move_base], count 0</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_base[none-ilqr]</td>
+          <td class="col-duration">2.92</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_base[none-proportional]</td>
+          <td class="col-duration">2.87</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_base[none-movebase]</td>
+          <td class="col-duration">2.97</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_arm[True]</td>
+          <td class="col-duration">6.45</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+[0m[ INFO] [1561387570.228366231]: Loading robot model 'locobot'...[0m
+[0m[ INFO] [1561387570.228435764]: No root/virtual joint specified in SRDF. Assuming fixed joint[0m
+[0m[ INFO] [1561387570.940123417, 20.477000000]: IK Using joint shoulder_link -1.57 1.57[0m
+[0m[ INFO] [1561387570.940213602, 20.477000000]: IK Using joint elbow_link -1.57 1.57[0m
+[0m[ INFO] [1561387570.940241751, 20.477000000]: IK Using joint forearm_link -1.57 1.57[0m
+[0m[ INFO] [1561387570.940264837, 20.477000000]: IK Using joint wrist_link -1.57 1.57[0m
+[0m[ INFO] [1561387570.940285727, 20.477000000]: IK Using joint gripper_link -1.57 1.57[0m
+[0m[ INFO] [1561387570.940329801, 20.477000000]: Looking in common namespaces for param name: arm/position_only_ik[0m
+[0m[ INFO] [1561387570.953861901, 20.486000000]: Looking in common namespaces for param name: arm/solve_type[0m
+[0m[ INFO] [1561387570.958662058, 20.489000000]: Using solve type Speed[0m
+[0m[ INFO] [1561387572.056889337, 21.252000000]: Ready to take commands for planning group arm.[0m
+----------------------------- Captured stderr call -----------------------------<br/>Unknown attribute: name
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rospy.internal:core.py:138 topic[/collision_object] adding connection to [/move_group], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/attached_collision_object] adding connection to [/move_group], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/joint_states] adding connection to [http://localhost:42757/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/camera/color/camera_info] adding connection to [http://localhost:42757/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/camera/color/image_raw] adding connection to [http://localhost:42757/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/camera/aligned_depth_to_color/image_raw] adding connection to [http://localhost:42757/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/goal_dynamixel_position] adding connection to [/locobot_gazebo], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/stop_execution] adding connection to [/locobot_gazebo], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/gripper/state] adding connection to [http://localhost:39591/], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/gripper/open] adding connection to [/locobot_gazebo], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/gripper/close] adding connection to [/locobot_gazebo], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/pan/command] adding connection to [/gazebo], count 0
+[32mINFO    [0m rospy.internal:core.py:138 topic[/tilt/command] adding connection to [/gazebo], count 0</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_make_robots.py::test_make_robot_arm[False]</td>
+          <td class="col-duration">5.12</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+[0m[ INFO] [1561387577.206747654, 24.171000000]: Ready to take commands for planning group arm.[0m
+----------------------------- Captured stderr call -----------------------------<br/>Unknown attribute: name
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_utils.py::test_get_jacobian</td>
+          <td class="col-duration">0.01</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_utils.py::test_compute_fk_velocity</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_utils.py::test_compute_ik[True]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_utils.py::test_compute_ik[False]</td>
+          <td class="col-duration">0.00</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_position_control[True-position0]</td>
+          <td class="col-duration">7.19</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">---------------------------- Captured stdout setup -----------------------------<br/>['husky', 'locobot', 'sawyer', 'turtlebot']
+[0m[ INFO] [1561387588.764169578, 29.970000000]: Ready to take commands for planning group arm.[0m
+---------------------------- Captured stderr setup -----------------------------<br/>Unknown attribute: name
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+Unknown tag: hardwareInterface
+----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387594.993160, 33.150000]: Moveit Motion Planning...
+[INFO] [1561387595.102316, 33.150000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_position_control[True-position1]</td>
+          <td class="col-duration">7.90</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387603.764536, 37.264000]: Moveit Motion Planning...
+[INFO] [1561387603.866020, 37.264000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_position_control[False-position0]</td>
+          <td class="col-duration">7.25</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387611.049217, 40.869000]: Moveit Motion Planning...
+[INFO] [1561387611.139380, 40.869000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_position_control[False-position1]</td>
+          <td class="col-duration">7.32</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="log">----------------------------- Captured stdout call -----------------------------<br/>[INFO] [1561387618.719041, 45.089000]: Moveit Motion Planning...
+[INFO] [1561387618.966719, 45.090000]: Executing...
+------------------------------ Captured log call -------------------------------<br/>[32mINFO    [0m rosout:core.py:953 Moveit Motion Planning...
+[32mINFO    [0m rosout:core.py:976 Executing...</div></td></tr></tbody>
+      <tbody class="passed results-table-row">
+        <tr>
+          <td class="col-result">Passed</td>
+          <td class="col-name">tests/test_arm_controls.py::test_ee_pitch_control[position0-0.5-None-tgt_pos0-tgt_quat0]</td>
+          <td class="col-duration">3.74</td>
+          <td class="col-links"></td></tr>
+        <tr>
+          <td class="extra" colspan="4">
+            <div class="empty log">No log output captured.</div></td></tr></tbody></table></body></html>
