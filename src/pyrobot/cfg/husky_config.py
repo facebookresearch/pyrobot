@@ -10,6 +10,9 @@ _BASEC = _C.BASE
 _BASEC.CLASS = 'HuskyBase'
 # Type of base being used 'kobuki' or 'create'
 _BASEC.BASE_TYPE = 'husky'
+# Type of contrller being used for postion control
+# 'ilqr' or 'proportional' or 'movebase'
+_BASEC.BASE_CONTROLLER = 'ilqr'
 # Rostopic on which the velocity commands to be published
 _BASEC.ROSTOPIC_BASE_COMMAND = '/husky_velocity_controller/cmd_vel'
 # Rostopic on which the wheel-encoder-based odommetry is available
@@ -34,13 +37,13 @@ _BASEC.ROSTOPIC_BASE_ACTION_COMMAND = 'move_base'
 # Rate of control for ILQR
 _BASEC.BASE_CONTROL_RATE = 10
 # Maximum linear for velocity control and ILQR
-_BASEC.MAX_ABS_FWD_SPEED = 5.0
+_BASEC.MAX_ABS_FWD_SPEED = 2.0
 # Maximum rotational velocity for velocity control and ILQR
-_BASEC.MAX_ABS_TURN_SPEED = 2.0
+_BASEC.MAX_ABS_TURN_SPEED = 1.0
 # Type of planner being used for slam base path planning 'movebase'
 _BASEC.BASE_PLANNER = 'movebase'
 # ROSTOPIC to send movebase (x,ym theta) planner request
-_BASEC.PLAN_TOPIC = '/move_base/NavfnROS/plan'
+_BASEC.PLAN_TOPIC = '/move_base/GlobalPlanner/make_plan'
 # Index of the point to be tracked on the plan.
 # (used by Proportional and ILQR trajectory tracking)
 _BASEC.TRACKED_POINT = 20
