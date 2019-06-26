@@ -15,7 +15,8 @@ def botname(request):
 
 
 @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])
-@pytest.mark.parametrize("base_planner", ['movebase', 'none'])
+#@pytest.mark.parametrize("base_planner", ['movebase', 'none'])
+@pytest.mark.parametrize("base_planner", ['none'])
 def test_vel_cmd_v(botname, base_controller, base_planner):
     bot = Robot(botname, base_config={'base_controller': base_controller,
                                       'base_planner': base_planner},
@@ -29,7 +30,8 @@ def test_vel_cmd_v(botname, base_controller, base_planner):
 
 
 @pytest.mark.parametrize("base_controller", ['ilqr', 'proportional', 'movebase'])
-@pytest.mark.parametrize("base_planner", ['movebase', 'none'])
+#@pytest.mark.parametrize("base_planner", ['movebase', 'none'])
+@pytest.mark.parametrize("base_planner", ['none'])
 def test_vel_cmd_w(botname, base_controller, base_planner):
     bot = Robot(botname, base_config={'base_controller': base_controller,
                                       'base_planner': base_planner},
