@@ -45,7 +45,7 @@ const siteConfig = {
   // For no header links in the top nav bar -> headerLinks: [],
   headerLinks: [
     {doc: 'overview', label: 'Tutorials'},
-    {href: 'https://pyrobot-api.netlify.com', label: 'API'},
+    {href: 'https://pyrobot-docs.readthedocs.io/en/latest/#', label: 'API'},
     {doc: 'datasets', label: 'Datasets'},
     {doc: 'faq', label: 'Help'},
     {href: 'https://github.com/facebookresearch/pyrobot', label: 'GitHub'}

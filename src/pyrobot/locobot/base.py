@@ -15,7 +15,13 @@ import tf.transformations
 from ca_msgs.msg import Bumper
 from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent
 from nav_msgs.msg import Odometry
-from orb_slam2_ros.vslam import VisualSLAM
+
+try:
+    from orb_slam2_ros.vslam import VisualSLAM
+    USE_ORB_SLAM2 = True
+except:
+    USE_ORB_SLAM2 = False
+
 from pyrobot.core import Base
 from std_msgs.msg import Empty
 
@@ -132,6 +138,7 @@ class BaseState(BaseSafetyCallbacks):
         self.configs = configs
         self.build_map = build_map
         if self.build_map:
+            assert (USE_ORB_SLAM2), 'Error: Failed to import orb_slam2_ros'
             self.vslam = VisualSLAM(
                 map_img_dir=map_img_dir,
                 cam_pose_tp=self.configs.BASE.VSLAM.ROSTOPIC_CAMERA_POSE,

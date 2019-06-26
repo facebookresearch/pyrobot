@@ -12,7 +12,7 @@ PyRobot is a Python package for benchmarking and running experiments in robot le
 
 Currently we support the following robots: 
 
-- [LoCoBot](http://locobot.org/), a low cost (4,200$) mobile manipulator robot.
+- [LoCoBot](http://locobot.org/), a low cost mobile manipulator robot.
 - [Sawyer](https://www.rethinkrobotics.com/sawyer/), a popular 7DoF manipulator.
 
 If you would like to support your own robot with PyRobot, please follow the instructions [here](help_newrobot.md).

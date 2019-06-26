@@ -1,9 +1,3 @@
-Update:
-Add Husky base
-
-Add Velocity control
-
-
 
 <a href="https://www.pyrobot.org/"><img class="doc_vid" src="docs/website/website/static/img/pyrobot.svg"></a>
 
@@ -40,13 +34,13 @@ curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/L
 
 * Run the script to install everything (ROS, realsense driver, etc.). **Please connect the nuc machine to a realsense camera before running the following commands**.
 ```bash
-chmod +x locobot_install_all.sh 
+chmod +x locobot_install_all.sh
 ./locobot_install_all.sh
 ```
 
 ### Installing just PyRobot
 
-* Install **Ubuntu 16.04** 
+* Install **Ubuntu 16.04**
 
 * Install [ROS kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 
@@ -65,7 +59,7 @@ VIRTUALENV_FOLDER=~/${virtualenv_name}
 virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
 ```
 
-* Install PyRobot 
+* Install PyRobot
 
 ```bash
 cd ~
@@ -77,7 +71,7 @@ cd pyrobot/
 pip install .
 ```
 
-**Warning**: As realsense keeps updating, compatibility issues might occur if you accidentally update 
+**Warning**: As realsense keeps updating, compatibility issues might occur if you accidentally update
 realsense-related packages from `Software Updater` in ubuntu. Therefore, we recommend you not to update
 any libraries related to realsense. Check the list of updates carefully when ubuntu prompts software udpates.
 
@@ -96,9 +90,14 @@ We are planning several features, namely:
 * PyRobot interface for [UR5](https://www.universal-robots.com)
 
 ## Citation
-
-**TODO**
-
+```
+@inproceedings{pyrobot2019,
+  title={PyRobot: An Open-source Robotics Framework for Research and Benchmarking},
+  author={Adithyavairavan Murali and Tao Chen and Kalyan Vasudev Alwala and Dhiraj Gandhi and Lerrel Pinto and Saurabh Gupta and Abhinav Gupta},
+  journal={arXiv preprint arXiv:1906.08236},
+  year={2019}
+}
+```
 ## License
 PyRobot is under MIT license, as found in the LICENSE file.
 # pyrobot
