@@ -3,6 +3,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+from __future__ import print_function
+
 import copy
 import os
 from functools import partial
@@ -325,7 +327,7 @@ class LoCoBotBase(Base):
         """
         start_pos = self.base_state.state.state_f.copy()
         goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
-        self.go_to_absolute(goal_pos, use_map, close_loop, smooth)
+        return self.go_to_absolute(goal_pos, use_map, close_loop, smooth)
 
     def go_to_absolute(
             self,
@@ -353,22 +355,29 @@ class LoCoBotBase(Base):
         """
 
         xyt_position = np.asarray(xyt_position)
-        if use_map:
-            assert (
-                self.build_map), 'Error: Cannot use map without ' \
-                                 'enabling build map feature'
-            if self.base_controller == 'ilqr':
-                goto = partial(
-                    self.go_to_relative,
-                    close_loop=close_loop,
-                    smooth=smooth)
-                self.planner.move_to_goal(xyt_position, goto)
-                return
-            elif self.base_controller == 'proportional':
-                self.planner.move_to_goal(xyt_position, self.controller.goto)
-                return
 
-        self.controller.go_to_absolute(xyt_position, close_loop, smooth)
+        try:
+            if use_map:
+                assert (
+                    self.build_map), 'Error: Cannot use map without ' \
+                                     'enabling build map feature'
+                if self.base_controller == 'ilqr':
+                    goto = partial(
+                        self.go_to_relative,
+                        close_loop=close_loop,
+                        smooth=smooth)
+                    self.planner.move_to_goal(xyt_position, goto)
+                    return
+                elif self.base_controller == 'proportional':
+                    self.planner.move_to_goal(xyt_position, self.controller.goto)
+                    return
+
+            self.controller.go_to_absolute(xyt_position, close_loop, smooth)
+        except AssertionError as error:
+            print(error)
+            return False
+        return True
+
 
     def track_trajectory(self, states, controls=None, close_loop=True):
         """
@@ -388,16 +397,21 @@ class LoCoBotBase(Base):
             rospy.loginfo("The given trajectory is empty")
             return
 
-        if self.base_controller == 'ilqr':
-            self.controller.track_trajectory(states, controls, close_loop)
-        else:
-            plan_idx = 0
+        try:
+            if self.base_controller == 'ilqr':
+                self.controller.track_trajectory(states, controls, close_loop)
+            else:
+                plan_idx = 0
 
-            while True:
-                plan_idx = min(plan_idx, len(states) - 1)
-                point = states[plan_idx]
-                self.controller.go_to_absolute(point, close_loop=close_loop)
+                while True:
+                    plan_idx = min(plan_idx, len(states) - 1)
+                    point = states[plan_idx]
+                    self.controller.go_to_absolute(point, close_loop=close_loop)
 
-                if plan_idx == len(states) - 1:
-                    break
-                plan_idx += self.configs.BASE.TRACKED_POINT
+                    if plan_idx == len(states) - 1:
+                        break
+                    plan_idx += self.configs.BASE.TRACKED_POINT
+        except AssertionError as error:
+            print(error)
+            return False
+        return True
