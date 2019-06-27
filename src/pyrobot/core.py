@@ -186,6 +186,9 @@ class Base(object):
         :type use_map: bool
         :type close_loop: bool
         :type smooth: bool
+
+        :return: True if successful; False otherwise (timeout, etc.)
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -207,6 +210,9 @@ class Base(object):
         :type use_map: bool
         :type close_loop: bool
         :type smooth: bool
+
+        :return: True if successful; False otherwise (timeout, etc.)
+        :rtype: bool
         """
         raise NotImplementedError
 
@@ -222,6 +228,9 @@ class Base(object):
         :type states: list
         :type controls: list
         :type close_loop: bool
+
+        :return: True if successful; False otherwise (timeout, etc.)
+        :rtype: bool
         """
         raise NotImplementedError
 
