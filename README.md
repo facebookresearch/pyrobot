@@ -37,6 +37,12 @@ chmod +x locobot_install_all.sh
 ./locobot_install_all.sh
 ```
 
+If you intend to use LoCoBot only in simulation, run the the installation script with the following command instead,
+```bash
+chmod +x locobot_install_all.sh sim
+./locobot_install_all.sh
+```
+
 ### Installing just PyRobot
 
 * Install **Ubuntu 16.04** 
