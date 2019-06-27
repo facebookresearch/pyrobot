@@ -322,6 +322,9 @@ class LoCoBotBase(Base):
         :type use_map: bool
         :type close_loop: bool
         :type smooth: bool
+
+        :return: True if successful; False otherwise (timeout, etc.)
+        :rtype: bool
         """
         start_pos = self.base_state.state.state_f.copy()
         goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
@@ -350,6 +353,9 @@ class LoCoBotBase(Base):
         :type use_map: bool
         :type close_loop: bool
         :type smooth: bool
+
+        :return: True if successful; False otherwise (timeout, etc.)
+        :rtype: bool
         """
 
         xyt_position = np.asarray(xyt_position)
@@ -382,6 +388,9 @@ class LoCoBotBase(Base):
         :type states: list
         :type controls: list
         :type close_loop: bool
+
+        :return: True if successful; False otherwise (timeout, etc.)
+        :rtype: bool
         """
 
         if len(states) == 0:
