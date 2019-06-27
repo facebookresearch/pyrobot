@@ -86,7 +86,7 @@
         "sidebar_label": "Install software"
       },
       "datasets": {
-        "title": "Datasets collected using PyRobot",
+        "title": "Datasets",
         "sidebar_label": "Datasets"
       },
       "network": {

@@ -18,9 +18,9 @@ from nav_msgs.msg import Odometry
 
 try:
     from orb_slam2_ros.vslam import VisualSLAM
+    USE_ORB_SLAM2 = True
 except:
     USE_ORB_SLAM2 = False
-    pass
 
 from pyrobot.core import Base
 from std_msgs.msg import Empty
