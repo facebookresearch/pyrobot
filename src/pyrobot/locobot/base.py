@@ -382,6 +382,9 @@ class LoCoBotBase(Base):
         except AssertionError as error:
             print(error)
             return False
+        except:
+            print("Unexpected error encountered during positon control!")
+            return False
         return True
 
 
@@ -422,5 +425,8 @@ class LoCoBotBase(Base):
                     plan_idx += self.configs.BASE.TRACKED_POINT
         except AssertionError as error:
             print(error)
+            return False
+        except:
+            print("Unexpected error encountered during trajectory tracking!")
             return False
         return True
