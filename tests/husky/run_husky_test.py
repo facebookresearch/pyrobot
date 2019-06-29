@@ -26,7 +26,7 @@ FNULL = open(os.devnull, 'w')
 def launch_gazebo(args, wait_time=12):
     print('Launching Gazebo ...')
     args = args.split()
-    p = Popen(['roslaunch', 'husky_gazebo', 'husky_empty_world.launch'] + args,
+    p = Popen(['roslaunch', 'husky_empty.launch'] + args,
               stdin=PIPE, stdout=FNULL, stderr=STDOUT)
     time.sleep(wait_time)
     return p
@@ -84,13 +84,26 @@ def main(_):
     p = Popen(['rosnode', 'cleanup'])
     p.wait()
 
-    args = 'base:=husky use_rviz:=false use_sim:=true'
-    args = args.split()
-    husky_p = Popen(['roslaunch', 'husky_gazebo', 'husky_empty_world.launch'] + args)
+    args = 'use_rviz:=false use_sim:=true'
+    husky_p = launch_gazebo(args)
+    # time.sleep(15)
+#    test_cmds = ['test_make_robot.py test_base_velocity_control.py' ' --botname husky']
     test_cmds = ['test_make_robot.py test_base_velocity_control.py' ' --botname husky']
     run_test(test_cmds, 'basics.html')
     exit_gazebo(husky_p)
 
+###Test on simulation planner base
+    # p = Popen(['rosnode', 'cleanup'])
+    # p.wait()
+
+    # args = 'base:=husky use_rviz:=false use_sim:=true'
+    # args = args.split()
+    # husky_p = Popen(['roslaunch', 'husky_gazebo', 'husky_empty_world.launch'] + args)
+#    test_cmds = ['test_make_robot.py test_base_velocity_control.py test_base_controllers.py' ' --botname husky']
+#    test_cmds = ['test_make_robot.py' ' --botname husky']
+
+#    run_test(test_cmds, 'basics.html')
+    # exit_gazebo(husky_p)
 
 
     # # Write put coverage results.
