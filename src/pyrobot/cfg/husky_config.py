@@ -13,16 +13,14 @@ _BASEC.BASE_TYPE = 'husky'
 # Type of contrller being used for postion control
 # 'ilqr' or 'proportional' or 'movebase'
 _BASEC.BASE_CONTROLLER = 'ilqr'
+# Type of planner being used for slam base path planning 'movebase'
+_BASEC.BASE_PLANNER = 'movebase'
 # Rostopic on which the velocity commands to be published
 _BASEC.ROSTOPIC_BASE_COMMAND = '/husky_velocity_controller/cmd_vel'
 # Rostopic on which the wheel-encoder-based odommetry is available
-_BASEC.ROSTOPIC_ODOMETRY = '/odometry/filtered'
-# Rostopic on which base bumper sensor informations is available
-#_BASEC.ROSTOPIC_BUMPER = '/mobile_base/events/bumper'
-# Rosotopic on which base cliff sensor information is available
-#_BASEC.ROSTOPIC_CLIFF = '/mobile_base/events/cliff'
-# Rostopic on whihc the base wheeldrop sensor info is available
-#_BASEC.ROSTOPIC_WHEELDROP = '/mobile_base/events/wheel_drop'
+_BASEC.ROSTOPIC_ODOMETRY = '/odometry/filtered' #With Sensors fusion algorithm (EKF)
+#_BASEC.ROSTOPIC_ODOMETRY = '/husky_velocity_controller/odom' #Raw odometry
+
 
 # Rostopic on which movebase goal to be pusblished
 _BASEC.ROSTOPIC_MOVE_BASE_GOAL = '/move_base_simple/goal'
@@ -37,11 +35,9 @@ _BASEC.ROSTOPIC_BASE_ACTION_COMMAND = 'move_base'
 # Rate of control for ILQR
 _BASEC.BASE_CONTROL_RATE = 10
 # Maximum linear for velocity control and ILQR
-_BASEC.MAX_ABS_FWD_SPEED = 2.0
+_BASEC.MAX_ABS_FWD_SPEED = 10.0
 # Maximum rotational velocity for velocity control and ILQR
-_BASEC.MAX_ABS_TURN_SPEED = 1.0
-# Type of planner being used for slam base path planning 'movebase'
-_BASEC.BASE_PLANNER = 'movebase'
+_BASEC.MAX_ABS_TURN_SPEED = 2.0
 # ROSTOPIC to send movebase (x,ym theta) planner request
 _BASEC.PLAN_TOPIC = '/move_base/GlobalPlanner/make_plan'
 # Index of the point to be tracked on the plan.
@@ -56,7 +52,7 @@ _BASEC.Z_MIN_TRESHOLD_OCC_MAP = 0.1
 # z maximum cut-off height for slam-based costmap computation
 _BASEC.Z_MAX_TRESHOLD_OCC_MAP = 0.8
 # proportional control specific max linear velocity
-_BASEC.MAX_ABS_FWD_SPEED_P_CONTROLLER = 5.0
+_BASEC.MAX_ABS_FWD_SPEED_P_CONTROLLER = 10.0
 # proportional control specific max angular velocity
 _BASEC.MAX_ABS_TURN_SPEED_P_CONTROLLER = 2.0
 
@@ -84,13 +80,13 @@ _BASEC.VSLAM.SUBSAMPLE_PIXS = 1
 _BASEC.VSLAM.OCCUPANCY_MAP_RATE = 0.5
 
 #
-def get_cfg(base_type='kobuki'):
+def get_cfg(base_type='husky'):
     global _C
-    if base_type not in ['kobuki', 'create']:
-        raise ValueError('Unsupported base type: {:s}'.format(base_type))
-    if base_type == 'create':
-        import os
-        dir_path = os.path.dirname(os.path.realpath(__file__))
-        create_env_file = os.path.join(dir_path, 'create_base.yaml')
-        _C.merge_from_file(create_env_file)
+    # if base_type not in ['kobuki', 'create']:
+    #     raise ValueError('Unsupported base type: {:s}'.format(base_type))
+    # if base_type == 'create':
+    #     import os
+    #     dir_path = os.path.dirname(os.path.realpath(__file__))
+    #     create_env_file = os.path.join(dir_path, 'create_base.yaml')
+    #     _C.merge_from_file(create_env_file)
     return _C.clone()
