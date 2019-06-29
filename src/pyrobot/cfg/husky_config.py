@@ -39,7 +39,7 @@ _BASEC.MAX_ABS_FWD_SPEED = 10.0
 # Maximum rotational velocity for velocity control and ILQR
 _BASEC.MAX_ABS_TURN_SPEED = 2.0
 # ROSTOPIC to send movebase (x,ym theta) planner request
-_BASEC.PLAN_TOPIC = '/move_base/GlobalPlanner/make_plan'
+_BASEC.PLAN_TOPIC = '/move_base/make_plan'
 # Index of the point to be tracked on the plan.
 # (used by Proportional and ILQR trajectory tracking)
 _BASEC.TRACKED_POINT = 20
