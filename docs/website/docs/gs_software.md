@@ -55,7 +55,7 @@ cd ~
 mkdir -p low_cost_ws/src
 cd ~/low_cost_ws/src
 source ~/${virtualenv_name}/bin/activate
-git clone https://github.com/facebookresearch/pyrobot.git
+git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
 cd pyrobot
 pip install .
 ```
