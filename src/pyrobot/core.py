@@ -74,7 +74,6 @@ class Robot:
         for f in os.listdir(cfg_path):
             if f.endswith('_config.py'):
                 robot_pool.append(f[:-len('_config.py')])
-        print(robot_pool)
         root_node = 'pyrobot.'
         self.configs = None
         this_robot = None

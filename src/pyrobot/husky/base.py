@@ -15,7 +15,17 @@ import tf.transformations
 from ca_msgs.msg import Bumper
 from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent
 from nav_msgs.msg import Odometry
-from orb_slam2_ros.vslam import VisualSLAM
+
+try:
+    from orb_slam2_ros.vslam import VisualSLAM
+    USE_ORB_SLAM2 = True
+except:
+    USE_ORB_SLAM2 = False
+
+from pyrobot.core import Base
+from std_msgs.msg import Empty
+
+
 from pyrobot.core import Base
 from std_msgs.msg import Empty
 
