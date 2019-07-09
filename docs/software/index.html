@@ -96,7 +96,7 @@ virtualenv --system-site-packages -p python2.7 <span class="hljs-variable">$VIRT
 mkdir -p low_cost_ws/src
 <span class="hljs-built_in">cd</span> ~/low_cost_ws/src
 <span class="hljs-built_in">source</span> ~/<span class="hljs-variable">${virtualenv_name}</span>/bin/activate
-git <span class="hljs-built_in">clone</span> https://github.com/facebookresearch/pyrobot.git
+git <span class="hljs-built_in">clone</span> --recurse-submodules https://github.com/facebookresearch/pyrobot.git
 <span class="hljs-built_in">cd</span> pyrobot
 pip install .
 </code></pre>
