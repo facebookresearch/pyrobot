@@ -87,8 +87,8 @@ def main(_):
     args = 'use_rviz:=false use_sim:=true'
     husky_p = launch_gazebo(args)
     # time.sleep(15)
+    test_cmds = ['test_base_controllers.py' ' --botname husky']
 #    test_cmds = ['test_make_robot.py test_base_velocity_control.py' ' --botname husky']
-    test_cmds = ['test_make_robot.py test_base_velocity_control.py' ' --botname husky']
     run_test(test_cmds, 'basics.html')
     exit_gazebo(husky_p)
 
