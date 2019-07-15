@@ -31,13 +31,16 @@ sudo apt-get install curl
 curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
 ```
 
-* Run the script to install everything (ROS, realsense driver, etc.). **Please connect the nuc machine to a realsense camera before running the following commands**.
+* Run the script to install everything (ROS, realsense driver, etc.). 
+
+If you want to use real LoCoBot robot, please run the following command:
+**Please connect the nuc machine to a realsense camera before running the following commands**.
 ```bash
 chmod +x locobot_install_all.sh 
 ./locobot_install_all.sh
 ```
 
-If you intend to use LoCoBot only in simulation, run the the installation script with the following command instead,
+If you want to use simulated LoCoBot in Gazebo only, please run the following commands instead:
 ```bash
 chmod +x locobot_install_all.sh sim
 ./locobot_install_all.sh
