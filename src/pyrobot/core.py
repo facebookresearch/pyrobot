@@ -23,7 +23,7 @@ from kdl_parser_py.urdf import treeFromParam
 from sensor_msgs.msg import JointState
 from trac_ik_python import trac_ik
 
-import util as prutil
+import pyrobot.utils.util as prutil
 
 
 class Robot:
