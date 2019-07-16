@@ -11,7 +11,7 @@ from copy import deepcopy
 
 import message_filters
 import numpy as np
-import pyrobot.util as prutil
+import pyrobot.utils.util as prutil
 import rospy
 from cv_bridge import CvBridge, CvBridgeError
 from pyrobot.core import Camera

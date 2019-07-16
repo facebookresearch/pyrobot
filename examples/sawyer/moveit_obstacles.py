@@ -8,7 +8,7 @@ Example for commanding robot with position control using moveit planner
 """
 
 from pyrobot import Robot
-from pyrobot.util import MoveitObjectHandler
+from pyrobot.utils.util import MoveitObjectHandler
 import time
 import numpy as np
 
