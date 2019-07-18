@@ -687,8 +687,8 @@ class Arm(object):
                                  ' initialized, did you pass '
                                  'in use_moveit=True?')
             
-            cur_pos, cur_ori, cur_quat = 
-                    self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+            ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+            cur_pos, cur_ori, cur_quat = ee_pose
             cur_pos = np.array(cur_pos).reshape(-1, 1)
             cur_quat = np.array(cur_quat)
 
@@ -716,8 +716,9 @@ class Arm(object):
             if result is False:
                 return False
             
-            cur_pos, cur_ori, cur_quat = 
-                    self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+            ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+            cur_pos, cur_ori, cur_quat = ee_pose
+                    
             cur_pos = np.array(cur_pos).reshape(-1, 1)
 
             success = True
