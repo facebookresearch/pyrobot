@@ -16,6 +16,9 @@ _ARMC.ROSSERVICE_JOINT_COMMAND = '/joint_command'
 _ARMC.ROSTOPIC_STOP_EXECUTION = '/stop_execution'
 # topic name to do torque control on LoCoBot
 _ARMC.ROSTOPIC_TORQUE_COMMAND = '/torque_command'
+# Arm Joint Names (Consistent with moveit group)
+_ARMC.JOINT_NAMES = ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5"]
+
 
 _CAMERAC = _C.CAMERA
 # CAMERA class name
