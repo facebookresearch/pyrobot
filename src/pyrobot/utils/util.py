@@ -8,7 +8,7 @@ import sys
 import numpy as np
 import rospy
 import tf
-import tf_conversions
+#import tf_conversions
 import geometry_msgs.msg
 from geometry_msgs.msg import PoseStamped
 import moveit_commander
@@ -45,24 +45,24 @@ def get_tf_transform(tf_listener, tgt_frame, src_frame):
     return trans, quat
 
 
-def transform_to_ros_pose(trans, quat, frame):
-    """
-    Converts transformation (translation, quaternion) into ROS PoseStamped
+# def transform_to_ros_pose(trans, quat, frame):
+#     """
+#     Converts transformation (translation, quaternion) into ROS PoseStamped
 
-    :param trans: translation (x,y,z)
-    :param quat: rotation as a quaternion (x,y,z,w)
-    :param frame: reference frame of pose
-    :type trans: tuple (of floats)
-    :type quat: tuple (of floats)
-    :type frame: string
+#     :param trans: translation (x,y,z)
+#     :param quat: rotation as a quaternion (x,y,z,w)
+#     :param frame: reference frame of pose
+#     :type trans: tuple (of floats)
+#     :type quat: tuple (of floats)
+#     :type frame: string
 
-    :returns: pose
-    :rtype: ROS geometry_msgs/PoseStamped
-    """
-    pose = PoseStamped()
-    pose.pose = tf_conversions.Pose(trans, quat)
-    pose.header.frame_id = frame
-    return pose
+#     :returns: pose
+#     :rtype: ROS geometry_msgs/PoseStamped
+#     """
+#     pose = PoseStamped()
+#     pose.pose = tf_conversions.Pose(trans, quat)
+#     pose.header.frame_id = frame
+#     return pose
 
 
 def quat_to_rot_mat(quat):
