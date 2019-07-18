@@ -35,7 +35,8 @@ import rospy
 import actionlib
 from tf.listener import TransformListener
 from geometry_msgs.msg import *
-from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes, GetCartesianPath, ExecuteTrajectory
+from moveit_msgs.srv import GetCartesianPath
+from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes, ExecuteTrajectoryAction
 from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, OrientationConstraint, BoundingVolume
 from shape_msgs.msg import SolidPrimitive
 
@@ -68,7 +69,7 @@ class MoveGroupInterface(object):
         self._action = actionlib.SimpleActionClient('move_group', # TODO, change this to config
                                                     MoveGroupAction)
         self._traj_action = actionlib.SimpleActionClient('execute_trajectory', # TODO: change this to config
-                                                    ExecuteTrajectory)
+                                                    ExecuteTrajectoryAction)
 
         self._cart_service =  rospy.ServiceProxy(cart_srv, GetCartesianPath)
 
@@ -320,7 +321,7 @@ class MoveGroupInterface(object):
 
         if start_state is None:
             req.start_state.is_diff = True
-        except KeyError:
+        else:
             req.start_state = start_state
 
         if link_name is not None:
@@ -336,7 +337,7 @@ class MoveGroupInterface(object):
         rospy.loginfo('Executing Cartesian Plan...')
         
         # 13. send Trajectory
-        action_req = ExecuteTrajectory()
+        action_req = ExecuteTrajectoryAction()
         action_req.trajectory  = result.solution
         self._traj_action.send_goal(action_req)
         if wait:
