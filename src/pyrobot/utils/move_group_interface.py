@@ -1,3 +1,9 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+
 # Copyright 2011-2014, Michael Ferguson
 # All rights reserved.
 #
@@ -29,9 +35,23 @@ import rospy
 import actionlib
 from tf.listener import TransformListener
 from geometry_msgs.msg import *
-from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal
+from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes, GetCartesianPath, ExecuteTrajectory
 from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, OrientationConstraint, BoundingVolume
 from shape_msgs.msg import SolidPrimitive
+
+moveit_error_dict = {}
+for name in MoveItErrorCodes.__dict__.keys():
+    if not name[:1] == '_':
+        code = MoveItErrorCodes.__dict__[name]
+        moveit_error_dict[code] = name
+
+def processResult(result):
+
+    if result.error_code is 1:
+        return True
+
+    rospy.loginfo("Moveit Failed with error code: " + str(moveit_error_dict[result.error_code.val]))
+    return False
 
 
 ## @brief Pure python interface to move_group action
@@ -42,11 +62,16 @@ class MoveGroupInterface(object):
     ## @param frame Name of the fixed frame in which planning happens
     ## @param listener A TF listener instance (optional, will create a new one if None)
     ## @param plan_only Should we only plan, but not execute?
-    def __init__(self, group, frame, listener=None, plan_only=False):
+    def __init__(self, group, frame, cart_srv, listener=None, plan_only=False):
         self._group = group
         self._fixed_frame = frame
-        self._action = actionlib.SimpleActionClient('move_group',
+        self._action = actionlib.SimpleActionClient('move_group', # TODO, change this to config
                                                     MoveGroupAction)
+        self._traj_action = actionlib.SimpleActionClient('execute_trajectory', # TODO: change this to config
+                                                    ExecuteTrajectory)
+
+        self._cart_service =  rospy.ServiceProxy(cart_srv, GetCartesianPath)
+
         self._action.wait_for_server()
         if listener == None:
             self._listener = TransformListener()
@@ -153,9 +178,11 @@ class MoveGroupInterface(object):
         self._action.send_goal(g)
         if wait:
             self._action.wait_for_result()
-            return self._action.get_result()
+            result = self._action.get_result()
+            return processResult(result)
         else:
-            return None
+            rospy.loginfo('Failed while waiting for action result.')
+            return False
 
     ## @brief Move the arm, based on a goal pose_stamped for the end effector.
     def moveToPose(self,
@@ -263,9 +290,62 @@ class MoveGroupInterface(object):
         self._action.send_goal(g)
         if wait:
             self._action.wait_for_result()
-            return self._action.get_result()
+            result = self._action.get_result()
+            return processResult(result)
         else:
-            return None
+            rospy.loginfo('Failed while waiting for action result.')
+            return False
+
+
+    def followCartesian(self, 
+                        way_points, 
+                        way_point_frame,
+                        max_step, 
+                        jump_threshold=0,
+                        link_name=None,  #usually it is Gripper Frame
+                        start_state=None, #of type moveit robotstate
+                        avoid_collisions=True):
+
+
+
+        req = GetCartesianPath()
+        req.header.stamp = rospy.Time.now() 
+        req.header.frame_id = way_point_frame
+
+        req.group_name = self._group
+        req.waypoints = way_points
+        req.max_step = max_step
+        req.jump_threshold = jump_threshold
+        req.avoid_collisions = avoid_collisions
+
+        if start_state is None:
+            req.start_state.is_diff = True
+        except KeyError:
+            req.start_state = start_state
+
+        if link_name is not None:
+            req.link_name = link_name
+
+        result = self._cart_service(req)
+        rospy.loginfo("Cartesian plan for %f fraction of path", result.fraction)
+
+        if len(result.solution.joint_trajectory.points) < 1:
+            rospy.logwarn('No motion plan found. No execution attempted')
+            return False
+
+        rospy.loginfo('Executing Cartesian Plan...')
+        
+        # 13. send Trajectory
+        action_req = ExecuteTrajectory()
+        action_req.trajectory  = result.solution
+        self._traj_action.send_goal(action_req)
+        if wait:
+            self._traj_action.wait_for_result()
+            result = self._traj_action.get_result()
+            return processResult(result)
+        else:
+            rospy.logerr('Failed while waiting for action result.')
+            return False
 
     ## @brief Sets the planner_id used for all future planning requests.
     ## @param planner_id The string for the planner id, set to None to clear

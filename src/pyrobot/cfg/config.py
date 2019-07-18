@@ -42,6 +42,8 @@ _C.ARM.ROSTOPIC_JOINT_STATES = '/joint_states'
 # topic name to set joint position/velocity/torque
 _C.ARM.ROSTOPIC_SET_JOINT = '/goal_dynamixel_position'
 
+_C.ARM.ROSSRV_CART_PATH = '/compute_cartesian_path'
+
 _C.CAMERA = CN()
 
 _C.BASE = CN()
