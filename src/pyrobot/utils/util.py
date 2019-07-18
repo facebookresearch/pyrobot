@@ -4,7 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import sys
-import PyKDL as kdl
+#import PyKDL as kdl
 import numpy as np
 import rospy
 import tf
@@ -108,40 +108,40 @@ def rot_mat_to_quat(rot):
     return tf.transformations.quaternion_from_matrix(R)
 
 
-def kdl_array_to_numpy(kdl_data):
-    np_array = np.zeros((kdl_data.rows(), kdl_data.columns()))
-    for i in range(kdl_data.rows()):
-        for j in range(kdl_data.columns()):
-            np_array[i, j] = kdl_data[i, j]
-    return np_array
+# def kdl_array_to_numpy(kdl_data):
+#     np_array = np.zeros((kdl_data.rows(), kdl_data.columns()))
+#     for i in range(kdl_data.rows()):
+#         for j in range(kdl_data.columns()):
+#             np_array[i, j] = kdl_data[i, j]
+#     return np_array
 
 
-def joints_to_kdl(joint_values):
-    """
-    Convert the numpy array into KDL data format
+# def joints_to_kdl(joint_values):
+#     """
+#     Convert the numpy array into KDL data format
 
-    :param joint_values: values for the joints
-    :return: kdl data type
-    """
-    num_jts = joint_values.size
-    kdl_array = kdl.JntArray(num_jts)
-    for idx in range(num_jts):
-        kdl_array[idx] = joint_values[idx]
-    return kdl_array
+#     :param joint_values: values for the joints
+#     :return: kdl data type
+#     """
+#     num_jts = joint_values.size
+#     kdl_array = kdl.JntArray(num_jts)
+#     for idx in range(num_jts):
+#         kdl_array[idx] = joint_values[idx]
+#     return kdl_array
 
 
-def kdl_frame_to_numpy(frame):
-    """
-    Convert KDL Frame data into numpy array
-    :param frame: data of KDL Frame
-    :return: transformation matrix in numpy [4x4]
-    """
-    p = frame.p
-    M = frame.M
-    return np.array([[M[0, 0], M[0, 1], M[0, 2], p.x()],
-                     [M[1, 0], M[1, 1], M[1, 2], p.y()],
-                     [M[2, 0], M[2, 1], M[2, 2], p.z()],
-                     [0, 0, 0, 1]])
+# def kdl_frame_to_numpy(frame):
+#     """
+#     Convert KDL Frame data into numpy array
+#     :param frame: data of KDL Frame
+#     :return: transformation matrix in numpy [4x4]
+#     """
+#     p = frame.p
+#     M = frame.M
+#     return np.array([[M[0, 0], M[0, 1], M[0, 2], p.x()],
+#                      [M[1, 0], M[1, 1], M[1, 2], p.y()],
+#                      [M[2, 0], M[2, 1], M[2, 2], p.z()],
+#                      [0, 0, 0, 1]])
 
 
 class MoveitObjectHandler(object):
