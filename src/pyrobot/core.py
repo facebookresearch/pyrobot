@@ -13,13 +13,13 @@ import threading
 import time
 from abc import ABCMeta, abstractmethod
 
-import PyKDL as kdl
+#import PyKDL as kdl
+#from kdl_parser_py.urdf import treeFromParam
 
 import numpy as np
 import rospy
 import tf
 from geometry_msgs.msg import Twist, Pose
-from kdl_parser_py.urdf import treeFromParam
 from sensor_msgs.msg import JointState
 from trac_ik_python import trac_ik
 
@@ -328,16 +328,17 @@ class Arm(object):
             self.ana_ik_solver = analytical_ik(configs.ARM.ARM_BASE_FRAME,
                                                configs.ARM.EE_FRAME)
 
-        _, self.urdf_tree = treeFromParam(robot_description)
-        self.urdf_chain = self.urdf_tree.getChain(configs.ARM.ARM_BASE_FRAME,
-                                                  configs.ARM.EE_FRAME)
         self.arm_joint_names = self.configs.ARM.JOINT_NAMES
-        #self.arm_link_names = self._get_kdl_link_names()
-        self.arm_dof = len(self.arm_joint_names)
 
-        self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
-        self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
-        self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
+        # _, self.urdf_tree = treeFromParam(robot_description)
+        # self.urdf_chain = self.urdf_tree.getChain(configs.ARM.ARM_BASE_FRAME,
+        #                                           configs.ARM.EE_FRAME)
+        #self.arm_link_names = self._get_kdl_link_names()
+        # self.arm_dof = len(self.arm_joint_names)
+
+        # self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
+        # self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
+        # self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
 
         # Subscribers
         self._joint_angles = dict()
@@ -881,28 +882,28 @@ class Arm(object):
 
 # Start ??????????????????????????????????????????????????????????????????????????????????
 
-    def _get_kdl_link_names(self):
-        num_links = self.urdf_chain.getNrOfSegments()
-        link_names = []
-        for i in range(num_links):
-            link_names.append(self.urdf_chain.getSegment(i).getName())
-        return copy.deepcopy(link_names)
+    # def _get_kdl_link_names(self):
+    #     num_links = self.urdf_chain.getNrOfSegments()
+    #     link_names = []
+    #     for i in range(num_links):
+    #         link_names.append(self.urdf_chain.getSegment(i).getName())
+    #     return copy.deepcopy(link_names)
 
-    def _get_kdl_joint_names(self):
-        num_links = self.urdf_chain.getNrOfSegments()
-        num_joints = self.urdf_chain.getNrOfJoints()
-        joint_names = []
-        for i in range(num_links):
-            link = self.urdf_chain.getSegment(i)
-            joint = link.getJoint()
-            joint_type = joint.getType()
-            # JointType definition: [RotAxis,RotX,RotY,RotZ,TransAxis,
-            #                        TransX,TransY,TransZ,None]
-            if joint_type > 1:
-                continue
-            joint_names.append(joint.getName())
-        assert num_joints == len(joint_names)
-        return copy.deepcopy(joint_names)
+    # def _get_kdl_joint_names(self):
+    #     num_links = self.urdf_chain.getNrOfSegments()
+    #     num_joints = self.urdf_chain.getNrOfJoints()
+    #     joint_names = []
+    #     for i in range(num_links):
+    #         link = self.urdf_chain.getSegment(i)
+    #         joint = link.getJoint()
+    #         joint_type = joint.getType()
+    #         # JointType definition: [RotAxis,RotX,RotY,RotZ,TransAxis,
+    #         #                        TransX,TransY,TransZ,None]
+    #         if joint_type > 1:
+    #             continue
+    #         joint_names.append(joint.getName())
+    #     assert num_joints == len(joint_names)
+    #     return copy.deepcopy(joint_names)
 
 # Start ??????????????????????????????????????????????????????????????????????????????????
 
