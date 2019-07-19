@@ -822,7 +822,7 @@ class Arm(object):
             qinit = qinit.flatten().tolist()
         if numerical:
             pose_stamped = PoseStamped()
-            pose_stamped.header.frame_id = frame
+            pose_stamped.header.frame_id = self.configs.ARM.ARM_BASE_FRAME
             pose_stamped.pose.position.x = position[0]
             pose_stamped.pose.position.y = position[1]
             pose_stamped.pose.position.z = position[2]
