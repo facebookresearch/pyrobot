@@ -5,7 +5,7 @@
 
 from yacs.config import CfgNode as CN
 
-from config import get_cfg_defaults
+from pyrobot.cfg.config import get_cfg_defaults
 
 _C = get_cfg_defaults()
 

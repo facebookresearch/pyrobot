@@ -19,13 +19,12 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import rospy
 import tf
-from geometry_msgs.msg import Twist, Pose
+from geometry_msgs.msg import Twist, Pose, PoseStamped
 from sensor_msgs.msg import JointState
-from trac_ik_python import trac_ik
 
 import pyrobot.utils.util as prutil
 
-import pyrobot.utils.move_group_interface as MoveGroup
+from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
 
 class Robot:
     """
@@ -40,7 +39,7 @@ class Robot:
                  robot_name,
                  use_arm=True,
                  use_base=True,
-                 use_camera=True,
+                 use_camera=False, #TODO Kalyan enable camera by default back!
                  use_gripper=True,
                  arm_config={},
                  base_config={},
@@ -303,6 +302,7 @@ class Arm(object):
     def __init__(self,
                  configs,
                  moveit_planner='ESTkConfigDefault',
+                 planning_time=30,
                  analytical_ik=None,
                  use_moveit=True):
         """
@@ -321,6 +321,7 @@ class Arm(object):
         """
         self.configs = configs
         self.moveit_planner = moveit_planner
+        self.planning_time = planning_time
         self.moveit_group = None
         self.use_moveit = use_moveit
 
@@ -328,26 +329,13 @@ class Arm(object):
         self.tf_listener = tf.TransformListener()
         if self.use_moveit:
             self._init_moveit()
-        robot_description = self.configs.ARM.ARM_ROBOT_DSP_PARAM_NAME
-        urdf_string = rospy.get_param(robot_description)
-        self.num_ik_solver = trac_ik.IK(configs.ARM.ARM_BASE_FRAME,
-                                        configs.ARM.EE_FRAME,
-                                        urdf_string=urdf_string)
+
         if analytical_ik is not None:
             self.ana_ik_solver = analytical_ik(configs.ARM.ARM_BASE_FRAME,
                                                configs.ARM.EE_FRAME)
 
         self.arm_joint_names = self.configs.ARM.JOINT_NAMES
-
-        # _, self.urdf_tree = treeFromParam(robot_description)
-        # self.urdf_chain = self.urdf_tree.getChain(configs.ARM.ARM_BASE_FRAME,
-        #                                           configs.ARM.EE_FRAME)
-        #self.arm_link_names = self._get_kdl_link_names()
-        # self.arm_dof = len(self.arm_joint_names)
-
-        # self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
-        # self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
-        # self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
+        self.arm_dof = len(self.arm_joint_names)
 
         # Subscribers
         self._joint_angles = dict()
@@ -718,7 +706,7 @@ class Arm(object):
             
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
             cur_pos, cur_ori, cur_quat = ee_pose
-                    
+
             cur_pos = np.array(cur_pos).reshape(-1, 1)
 
             success = True
@@ -729,83 +717,70 @@ class Arm(object):
                 success = False
             return success
 
-    # def get_jacobian(self, joint_angles):
-    #     """
-    #     Return the geometric jacobian on the given joint angles.
-    #     Refer to P112 in "Robotics: Modeling, Planning, and Control"
+    def compute_fk_position(self, joint_positions, des_frame):
+        """
+        Given joint angles, compute the pose of desired_frame with respect
+        to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame
+        must be in self.arm_link_names
 
-    #     :param joint_angles: joint_angles
-    #     :type joint_angles: list or flattened np.ndarray
-    #     :return: jacobian
-    #     :rtype: np.ndarray
-    #     """
-    #     q = kdl.JntArray(self.urdf_chain.getNrOfJoints())
-    #     for i in range(q.rows()):
-    #         q[i] = joint_angles[i]
-    #     jac = kdl.Jacobian(self.urdf_chain.getNrOfJoints())
-    #     fg = self.jac_solver.JntToJac(q, jac)
-    #     assert fg == 0, 'KDL JntToJac error!'
-    #     jac_np = prutil.kdl_array_to_numpy(jac)
-    #     return jac_np
+        :param joint_positions: joint angles
+        :param des_frame: desired frame
+        :type joint_positions: np.ndarray
+        :type des_frame: string
+        :return: translational vector and rotational matrix
+        :rtype: np.ndarray, np.ndarray
+        """
+        joint_positions = joint_positions.flatten()
+        assert joint_positions.size == self.arm_dof
+        
+        joint_state = JointState()
+        joint_state.name = self.arm_joint_names
+        joint_state.position = joint_positions
 
-    # def compute_fk_position(self, joint_positions, des_frame):
-    #     """
-    #     Given joint angles, compute the pose of desired_frame with respect
-    #     to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame
-    #     must be in self.arm_link_names
+        pose_stamped = self.moveit_group.get_fk(joint_state)
 
-    #     :param joint_positions: joint angles
-    #     :param des_frame: desired frame
-    #     :type joint_positions: np.ndarray
-    #     :type des_frame: string
-    #     :return: translational vector and rotational matrix
-    #     :rtype: np.ndarray, np.ndarray
-    #     """
-    #     joint_positions = joint_positions.flatten()
-    #     assert joint_positions.size == self.arm_dof
-    #     kdl_jnt_angles = prutil.joints_to_kdl(joint_positions)
+        pos = [pose_stamped.pose.position.x, \
+               pose_stamped.pose.position.y, \
+               pose_stamped.pose.position.z]
+        pos = np.asarray(pos)
 
-    #     kdl_end_frame = kdl.Frame()
-    #     idx = self.arm_link_names.index(des_frame) + 1
-    #     fg = self.fk_solver_pos.JntToCart(kdl_jnt_angles,
-    #                                       kdl_end_frame,
-    #                                       idx)
-    #     assert fg == 0, 'KDL Pos JntToCart error!'
-    #     pose = prutil.kdl_frame_to_numpy(kdl_end_frame)
-    #     pos = pose[:3, 3].reshape(-1, 1)
-    #     rot = pose[:3, :3]
-    #     return pos, rot
+        quat = [pose_stamped.pose.orientation.x,\
+                pose_stamped.pose.orientation.y,\
+                pose_stamped.pose.orientation.z,\
+                pose_stamped.pose.orientation.w]
+        rot = prutil.quat_to_rot_mat(quat)
+        return pos, rot
 
-    # def compute_fk_velocity(self, joint_positions,
-    #                         joint_velocities, des_frame):
-    #     """
-    #     Given joint_positions and joint velocities,
-    #     compute the velocities of des_frame with respect
-    #     to the base frame
+    def get_jacobian(self, joint_angles):
+        """
+        Return the geometric jacobian on the given joint angles.
+        Refer to P112 in "Robotics: Modeling, Planning, and Control"
 
-    #     :param joint_positions: joint positions
-    #     :param joint_velocities: joint velocities
-    #     :param des_frame: end frame
-    #     :type joint_positions: np.ndarray
-    #     :type joint_velocities: np.ndarray
-    #     :type des_frame: string
-    #     :return: translational and rotational
-    #              velocities (vx, vy, vz, wx, wy, wz)
-    #     :rtype: np.ndarray
-    #     """
-    #     kdl_end_frame = kdl.FrameVel()
-    #     kdl_jnt_angles = prutil.joints_to_kdl(joint_positions)
-    #     kdl_jnt_vels = prutil.joints_to_kdl(joint_velocities)
-    #     kdl_jnt_qvels = kdl.JntArrayVel(kdl_jnt_angles, kdl_jnt_vels)
-    #     idx = self.arm_link_names.index(des_frame) + 1
-    #     fg = self.fk_solver_vel.JntToCart(kdl_jnt_qvels,
-    #                                       kdl_end_frame,
-    #                                       idx)
-    #     assert fg == 0, 'KDL Vel JntToCart error!'
+        :param joint_angles: joint_angles
+        :type joint_angles: list or flattened np.ndarray
+        :return: jacobian
+        :rtype: np.ndarray
+        """
+        raise NotImplementedError
 
-    #     end_twist = kdl_end_frame.GetTwist()
-    #     return np.array([end_twist[0], end_twist[1], end_twist[2],
-    #                      end_twist[3], end_twist[4], end_twist[5]])
+    def compute_fk_velocity(self, joint_positions,
+                            joint_velocities, des_frame):
+        """
+        Given joint_positions and joint velocities,
+        compute the velocities of des_frame with respect
+        to the base frame
+
+        :param joint_positions: joint positions
+        :param joint_velocities: joint velocities
+        :param des_frame: end frame
+        :type joint_positions: np.ndarray
+        :type joint_velocities: np.ndarray
+        :type des_frame: string
+        :return: translational and rotational
+                 velocities (vx, vy, vz, wx, wy, wz)
+        :rtype: np.ndarray
+        """
+        raise NotImplementedError
 
     def compute_ik(self, position, orientation, qinit=None, numerical=True):
         """
@@ -855,22 +830,32 @@ class Arm(object):
         elif isinstance(qinit, np.ndarray):
             qinit = qinit.flatten().tolist()
         if numerical:
-            pos_tol = self.configs.ARM.IK_POSITION_TOLERANCE
-            ori_tol = self.configs.ARM.IK_ORIENTATION_TOLERANCE
-            joint_positions = self.num_ik_solver.get_ik(qinit,
-                                                        position[0],
-                                                        position[1],
-                                                        position[2],
-                                                        ori_x,
-                                                        ori_y,
-                                                        ori_z,
-                                                        ori_w,
-                                                        pos_tol,
-                                                        pos_tol,
-                                                        pos_tol,
-                                                        ori_tol,
-                                                        ori_tol,
-                                                        ori_tol)
+            pose_stamped = PoseStamped()
+            pose_stamped.header.frame_id = frame
+            pose_stamped.pose.position.x = position[0]
+            pose_stamped.pose.position.y = position[1]
+            pose_stamped.pose.position.z = position[2]
+            pose_stamped.pose.orientation.x = ori_x
+            pose_stamped.pose.orientation.y = ori_y
+            pose_stamped.pose.orientation.z = ori_z
+            pose_stamped.pose.orientation.w = ori_w
+
+            joint_state = self.moveit_group.get_ik(pose_stamped, 
+                                                    use_cur_seed=True)
+            if joint_state is None:
+                joint_positions = None
+            else:
+                joint_ang_dict = dict()
+                for idx, name in enumerate(joint_state.name):
+                    if name in self.arm_joint_names and \
+                                idx < len(joint_state.position):
+                        joint_ang_dict[name] = \
+                                joint_state.position[idx]
+                joint_positions = []
+                for name in self.arm_joint_names:
+                    joint_positions.append( joint_ang_dict[name])
+
+                joint_positions = np.asarray(joint_positions)
         else:
             if not hasattr(self, 'ana_ik_solver'):
                 raise TypeError('Analytical solver not provided, '
@@ -959,11 +944,14 @@ class Arm(object):
         self.moveit_group = MoveGroup(
                                 self.configs.ARM.MOVEGROUP_NAME,
                                 self.configs.ARM.ARM_BASE_FRAME,
+                                self.configs.ARM.EE_FRAME,
                                 self.configs.ARM.ROSSRV_CART_PATH,
                                 listener=self.tf_listener,
                                 plan_only=False)
 
         self.moveit_group.setPlannerId(self.moveit_planner)
+        self.moveit_group.setPlanningTime(self.planning_time)
+        self.moveit_group._init_kinematics(self.configs.ARM.ROSTOPIC_JOINT_STATES)
 
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()
