@@ -16,10 +16,10 @@ from numpy import sign
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
 
-from base_control_utils import TrajectoryTracker, position_control_init_fn, \
+from pyrobot.locobot.base_control_utils import TrajectoryTracker, position_control_init_fn, \
     _get_absolute_pose
-from base_control_utils import build_pose_msg
-from bicycle_model import BicycleSystem
+from pyrobot.locobot.base_control_utils import build_pose_msg
+from pyrobot.locobot.bicycle_model import BicycleSystem
 
 # if robot rotates by this much amount, then we considered that its moving
 # at that speed
