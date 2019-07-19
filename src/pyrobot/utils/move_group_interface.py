@@ -38,7 +38,8 @@ from geometry_msgs.msg import *
 from moveit_msgs.srv import GetCartesianPath, GetCartesianPathRequest, GetCartesianPathResponse, \
                             GetPositionIK, GetPositionIKRequest, GetPositionIKResponse,\
                             GetPositionFK, GetPositionFKRequest, GetPositionFKResponse
-from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes, ExecuteTrajectoryAction
+from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes,\
+                            ExecuteTrajectoryAction, ExecuteTrajectoryGoal
 from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, OrientationConstraint, BoundingVolume
 from shape_msgs.msg import SolidPrimitive
 from sensor_msgs.msg import JointState
@@ -172,13 +173,13 @@ class MoveGroupInterface(object):
                 rospy.logwarn("Waiting for a /joint_states message...")
                 rospy.sleep(0.1)
 
-            resp = self.get_ik(pose_stamped=pose_stamped, seed=self.cur_joint_st)
+            resp = self._get_ik(pose_stamped=pose_stamped, seed=self.cur_joint_st)
         else:
-            resp = self.get_ik(pose_stamped=pose_stamped, seed=None)
+            resp = self._get_ik(pose_stamped=pose_stamped, seed=None)
 
         if resp is None or resp.error_code is -31: #-31 is NO IK solution
             return None
-        return resp.robot_state.joint_state
+        return resp.solution.joint_state
 
 
 
@@ -455,7 +456,7 @@ class MoveGroupInterface(object):
 
 
 
-        req = GetCartesianPath()
+        req = GetCartesianPathRequest()
         req.header.stamp = rospy.Time.now() 
         req.header.frame_id = way_point_frame
 
@@ -483,14 +484,14 @@ class MoveGroupInterface(object):
         rospy.loginfo('Executing Cartesian Plan...')
         
         # 13. send Trajectory
-        action_req = ExecuteTrajectoryAction()
+        action_req = ExecuteTrajectoryGoal()
         action_req.trajectory  = result.solution
         self._traj_action.send_goal(action_req)
-        if wait:
+        try:
             self._traj_action.wait_for_result()
             result = self._traj_action.get_result()
             return processResult(result)
-        else:
+        except:
             rospy.logerr('Failed while waiting for action result.')
             return False
 
