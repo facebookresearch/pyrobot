@@ -25,6 +25,7 @@ from sensor_msgs.msg import JointState
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
+from python3_bridge.srv import *
 
 class Robot:
     """
@@ -347,6 +348,13 @@ class Arm(object):
         # Publishers
         self.joint_pub = None
         self._setup_joint_pub()
+
+        # Services
+        self._ik_service = rospy.ServiceProxy('pyrobot_ik', IkCommand)
+        try:
+            self._ik_service.wait_for_service(timeout=3)
+        except:
+            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!") 
 
     @abstractmethod
     def go_home(self):
@@ -717,7 +725,7 @@ class Arm(object):
                 success = False
             return success
 
-    def compute_fk_position(self, joint_positions, des_frame):
+    def compute_fk_position(self, joint_positions, des_frame): #TODO kalyan: change it to include des_frame
         """
         Given joint angles, compute the pose of desired_frame with respect
         to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame
@@ -737,7 +745,11 @@ class Arm(object):
         joint_state.name = self.arm_joint_names
         joint_state.position = joint_positions
 
-        pose_stamped = self.moveit_group.get_fk(joint_state)
+        pose_stamped = self.moveit_group.get_fk(joint_state, fk_link=des_frame)
+
+        if pose_stamped is None:
+            rospy.logerr("Failed to perform FK for the given link!s")
+            return None
 
         pos = [pose_stamped.pose.position.x, \
                pose_stamped.pose.position.y, \
@@ -830,32 +842,24 @@ class Arm(object):
         elif isinstance(qinit, np.ndarray):
             qinit = qinit.flatten().tolist()
         if numerical:
-            pose_stamped = PoseStamped()
-            pose_stamped.header.frame_id = self.configs.ARM.ARM_BASE_FRAME
-            pose_stamped.pose.position.x = position[0]
-            pose_stamped.pose.position.y = position[1]
-            pose_stamped.pose.position.z = position[2]
-            pose_stamped.pose.orientation.x = ori_x
-            pose_stamped.pose.orientation.y = ori_y
-            pose_stamped.pose.orientation.z = ori_z
-            pose_stamped.pose.orientation.w = ori_w
+            pos_tol = self.configs.ARM.IK_POSITION_TOLERANCE
+            ori_tol = self.configs.ARM.IK_ORIENTATION_TOLERANCE
 
-            joint_state = self.moveit_group.get_ik(pose_stamped, 
-                                                    use_cur_seed=True)
-            if joint_state is None:
+            req = IkCommandRequest()
+            req.init_joint_positions = qnit
+            req.pose = [position[0], position[1], position[2],
+                        ori_x, ori_y, ori_z, ori_w]
+            req.tolerance = 3 * [pos+tol] + 3 * [ori_tol]
+
+            try:
+                resp = self._ik_service(req)
+            except rospy.ServiceException, e:
+                rospy.logerr("IK Service call failed: %s"%e)
+
+            if !resp.success:
                 joint_positions = None
             else:
-                joint_ang_dict = dict()
-                for idx, name in enumerate(joint_state.name):
-                    if name in self.arm_joint_names and \
-                                idx < len(joint_state.position):
-                        joint_ang_dict[name] = \
-                                joint_state.position[idx]
-                joint_positions = []
-                for name in self.arm_joint_names:
-                    joint_positions.append( joint_ang_dict[name])
-
-                joint_positions = np.asarray(joint_positions)
+                joint_positions = resp.joint_positions
         else:
             if not hasattr(self, 'ana_ik_solver'):
                 raise TypeError('Analytical solver not provided, '
@@ -873,34 +877,8 @@ class Arm(object):
                                                             ori_w)
         if joint_positions is None:
             return None
+        print (joint_positions)
         return np.array(joint_positions)
-
-# Start ??????????????????????????????????????????????????????????????????????????????????
-
-    # def _get_kdl_link_names(self):
-    #     num_links = self.urdf_chain.getNrOfSegments()
-    #     link_names = []
-    #     for i in range(num_links):
-    #         link_names.append(self.urdf_chain.getSegment(i).getName())
-    #     return copy.deepcopy(link_names)
-
-    # def _get_kdl_joint_names(self):
-    #     num_links = self.urdf_chain.getNrOfSegments()
-    #     num_joints = self.urdf_chain.getNrOfJoints()
-    #     joint_names = []
-    #     for i in range(num_links):
-    #         link = self.urdf_chain.getSegment(i)
-    #         joint = link.getJoint()
-    #         joint_type = joint.getType()
-    #         # JointType definition: [RotAxis,RotX,RotY,RotZ,TransAxis,
-    #         #                        TransX,TransY,TransZ,None]
-    #         if joint_type > 1:
-    #             continue
-    #         joint_names.append(joint.getName())
-    #     assert num_joints == len(joint_names)
-    #     return copy.deepcopy(joint_names)
-
-# Start ??????????????????????????????????????????????????????????????????????????????????
 
     def _callback_joint_states(self, msg):
         """

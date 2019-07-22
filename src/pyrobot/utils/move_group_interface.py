@@ -52,7 +52,7 @@ for name in MoveItErrorCodes.__dict__.keys():
 
 def processResult(result):
 
-    if result.error_code is 1:
+    if result.error_code.val == 1:
         return True
 
     rospy.loginfo("Moveit Failed with error code: " + str(moveit_error_dict[result.error_code.val]))
@@ -111,7 +111,7 @@ class MoveGroupInterface(object):
                                        queue_size=1)
 
         ## Forward Kinematics
-        self.fk_srv = rospy.ServiceProxy('/compute_fk', #TODO kalyan change this to config
+        self._fk_srv = rospy.ServiceProxy('/compute_fk', #TODO kalyan change this to config
                                          GetPositionFK)
         try:
             self._fk_srv.wait_for_service(timeout=3)
@@ -163,6 +163,8 @@ class MoveGroupInterface(object):
             resp = self._fk_srv.call(req)
             if resp is not None and len(resp.pose_stamped) >= 1:
                 return resp.pose_stamped[0]
+            else:
+                return None
         except rospy.ServiceException as e:
             rospy.logerr("FK Service exception: " + str(e))
             return None
@@ -172,12 +174,18 @@ class MoveGroupInterface(object):
             while not rospy.is_shutdown() and self.cur_joint_st is None:
                 rospy.logwarn("Waiting for a /joint_states message...")
                 rospy.sleep(0.1)
-
             resp = self._get_ik(pose_stamped=pose_stamped, seed=self.cur_joint_st)
         else:
             resp = self._get_ik(pose_stamped=pose_stamped, seed=None)
 
-        if resp is None or resp.error_code is -31: #-31 is NO IK solution
+        # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        # print(resp.error_code.val)
+        # print(resp.error_code.val == -31)
+        # print(resp is None)
+
+        # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        if resp is None or resp.error_code.val == -31: #-31 is NO IK solution
+            rospy.logwarn("IK failed to find a valid solution!")
             return None
         return resp.solution.joint_state
 
@@ -214,12 +222,21 @@ class MoveGroupInterface(object):
         req.ik_request.timeout = rospy.Duration(ik_timeout)
         req.ik_request.attempts = ik_attempts
         req.ik_request.avoid_collisions = avoid_collisions
+        #req.ik_request.ik_link_name = self._gripper_frame
 
+        
+        #req.ik_request.robot_state.is_diff = True
         if seed is not None:
             req.ik_request.robot_state.joint_state = seed
-
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print(req)
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         try:
             resp = self._ik_srv.call(req)
+
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print(resp)
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             return resp
         except rospy.ServiceException as e:
             rospy.logerr("IK Service exception: " + str(e))
