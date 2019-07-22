@@ -59,11 +59,6 @@ def processResult(result):
     return False
 
 
-
-
-
-
-
 class MoveGroupInterface(object):
 
     
@@ -177,19 +172,10 @@ class MoveGroupInterface(object):
             resp = self._get_ik(pose_stamped=pose_stamped, seed=self.cur_joint_st)
         else:
             resp = self._get_ik(pose_stamped=pose_stamped, seed=None)
-
-        # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        # print(resp.error_code.val)
-        # print(resp.error_code.val == -31)
-        # print(resp is None)
-
-        # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         if resp is None or resp.error_code.val == -31: #-31 is NO IK solution
             rospy.logwarn("IK failed to find a valid solution!")
             return None
         return resp.solution.joint_state
-
-
 
     def _get_ik(self, 
                 pose_stamped,
@@ -228,23 +214,12 @@ class MoveGroupInterface(object):
         #req.ik_request.robot_state.is_diff = True
         if seed is not None:
             req.ik_request.robot_state.joint_state = seed
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        print(req)
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         try:
             resp = self._ik_srv.call(req)
-
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            print(resp)
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             return resp
         except rospy.ServiceException as e:
             rospy.logerr("IK Service exception: " + str(e))
             return None
-
-
-
-
 
     def get_move_action(self):
         return self._action

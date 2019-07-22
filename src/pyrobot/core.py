@@ -25,7 +25,7 @@ from sensor_msgs.msg import JointState
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from python3_bridge.srv import *
+from pyrobot_bridge.srv import *
 
 class Robot:
     """
@@ -908,8 +908,6 @@ class Arm(object):
         """
         Initialize moveit and setup move_group object
         """
-        ## TODO Kalyan check this!
-
         self.moveit_group = MoveGroup(
                                 self.configs.ARM.MOVEGROUP_NAME,
                                 self.configs.ARM.ARM_BASE_FRAME,
@@ -920,7 +918,6 @@ class Arm(object):
 
         self.moveit_group.setPlannerId(self.moveit_planner)
         self.moveit_group.setPlanningTime(self.planning_time)
-        self.moveit_group._init_kinematics(self.configs.ARM.ROSTOPIC_JOINT_STATES)
 
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()
