@@ -837,17 +837,17 @@ class Arm(object):
             ori_tol = self.configs.ARM.IK_ORIENTATION_TOLERANCE
 
             req = IkCommandRequest()
-            req.init_joint_positions = qnit
+            req.init_joint_positions = qinit
             req.pose = [position[0], position[1], position[2],
                         ori_x, ori_y, ori_z, ori_w]
-            req.tolerance = 3 * [pos+tol] + 3 * [ori_tol]
+            req.tolerance = 3 * [pos_tol] + 3 * [ori_tol]
 
             try:
                 resp = self._ik_service(req)
-            except rospy.ServiceException, e:
-                rospy.logerr("IK Service call failed: %s"%e)
+            except:
+                rospy.logerr("IK Service call failed")
 
-            if !resp.success:
+            if not resp.success:
                 joint_positions = None
             else:
                 joint_positions = resp.joint_positions

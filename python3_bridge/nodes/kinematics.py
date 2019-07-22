@@ -2,25 +2,15 @@
 
 from __future__ import print_function
 
-import copy
-import importlib
-import os
-import sys
-import threading
-import time
-from abc import ABCMeta, abstractmethod
+
 
 import PyKDL as kdl
-import moveit_commander
 import numpy as np
 import rospy
-import tf
 from geometry_msgs.msg import Twist
 from kdl_parser_py.urdf import treeFromParam
 from sensor_msgs.msg import JointState
 from trac_ik_python import trac_ik
-
-import util as prutil
 
 from python3_bridge.srv import *
 
@@ -48,11 +38,11 @@ class Kinematics(object):
 										urdf_string=urdf_string)
 
 		_, self.urdf_tree = treeFromParam(robot_description)
-		self.urdf_chain = self.urdf_tree.getChain(configs.ARM.ARM_BASE_FRAME,
-		                                          configs.ARM.EE_FRAME)
-		self.arm_joint_names = self._get_kdl_joint_names()
-		self.arm_link_names = self._get_kdl_link_names()
-		self.arm_dof = len(self.arm_joint_names)
+		self.urdf_chain = self.urdf_tree.getChain('base_link',  #todo: change this to rosparam
+		                                          'gripper_link')  #todo: change this to rosparam
+		#self.arm_joint_names = self._get_kdl_joint_names()
+		#self.arm_link_names = self._get_kdl_link_names()
+		self.arm_dof = 5#len(self.arm_joint_names)
 
 		self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
 		self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
@@ -62,13 +52,14 @@ class Kinematics(object):
 
 	def ik_server(self, req):
 
-		if !self.init_done:
+		if not self.init_done:
 			self._init_kinematics()
+			self.init_done = True
 
 		resp = IkCommandResponse()
 
 		if len(req.pose) < 7 or len(req.tolerance) < 6 \
-			or len(req.init_joint_positions) != len(self.arm_joint_names) :
+			or len(req.init_joint_positions) != self.arm_dof :
 			resp.success = False
 			rospy.logerr("Incorrect IK service request. Please fix it.")
 			return resp 
@@ -115,7 +106,7 @@ class Kinematics(object):
 
    #      if !self.init_done:
 			# self._init_kinematics()
-			
+
    #      joint_positions = joint_positions.flatten()
    #      assert joint_positions.size == self.arm_dof
    #      kdl_jnt_angles = prutil.joints_to_kdl(joint_positions)
