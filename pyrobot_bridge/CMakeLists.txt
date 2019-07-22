@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(python3_bridge)
+project(pyrobot_bridge)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -125,7 +125,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/python3_bridge.cpp
+#   src/${PROJECT_NAME}/pyrobot_bridge.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -136,7 +136,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/python3_bridge_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/pyrobot_bridge_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -195,7 +195,7 @@ install(PROGRAMS nodes/kinematics.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATIO
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_python3_bridge.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_pyrobot_bridge.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
