@@ -8,7 +8,13 @@ Example to show how to read images from the camera.
 """
 from __future__ import print_function
 
-import cv2
+import sys
+ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+if ros_path in sys.path:
+    sys.path.remove(ros_path)
+    import cv2
+sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
+
 import numpy as np
 from pyrobot import Robot
 
