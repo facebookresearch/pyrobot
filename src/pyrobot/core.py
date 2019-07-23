@@ -40,7 +40,7 @@ class Robot:
                  robot_name,
                  use_arm=True,
                  use_base=True,
-                 use_camera=False, #TODO Kalyan enable camera by default back!
+                 use_camera=True, #TODO Kalyan enable camera by default back!
                  use_gripper=True,
                  arm_config={},
                  base_config={},
