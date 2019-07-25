@@ -20,26 +20,26 @@ wheel encoders is perfect. This example is based on code released with
 ### Setup
 This assumes that you have followed instructions for installing `PyRobot` API.
 1. Launch Robot in a terminal
-```bash
-# Launch the robot using the following launch command.
-roslaunch locobot_control main.launch use_base:=true use_camera:=true \
-    use_arm:=false use_sim:=false base:=kobuki use_rviz:=false
-```
+    ```bash
+    # Launch the robot using the following launch command.
+    roslaunch locobot_control main.launch use_base:=true use_camera:=true \
+        use_arm:=false use_sim:=false base:=kobuki use_rviz:=false
+    ```
 
 2. Install additional dependencies (Open a new terminal)
 
-```bash
-source ~/pyenv_pyrobot/bin/activate
-cd ~/low_cost_ws/src/pyrobot/examples/visual_nav_cmp/
-pip install -r requirements.txt
-```
+    ```bash
+    source ~/pyenv_pyrobot/bin/activate
+    cd ~/low_cost_ws/src/pyrobot/examples/visual_nav_cmp/
+    pip install -r requirements.txt
+    ```
 
 3. Get pre-trained models
 
-```bash
-wget https://www.dropbox.com/s/vw7aqmitsm3kas0/model.tgz?dl=0 -O model.tgz
-tar -xf model.tgz
-```
+    ```bash
+    wget https://www.dropbox.com/s/vw7aqmitsm3kas0/model.tgz?dl=0 -O model.tgz
+    tar -xf model.tgz
+    ```
 
 ### Test Setup
 Confirm that tensorflow is properly setup, by running the following command.
@@ -57,22 +57,22 @@ python run_cmp.py --goal_x 1.2 --goal_y 0.0 --goal_t 0. --botname locobot
 Videos for some successful demo runs (at 10x speed).
 1. Go forward `4m`: `python run_cmp.py --goal_x 4.0 --goal_y 0.0 --goal_t 0. --compensate`.
 
-   <img class="doc_img" src="https://thumbs.gfycat.com/NextEssentialGordonsetter-size_restricted.gif"> 
+   <img class="doc_img" src="https://thumbs.gfycat.com/NextEssentialGordonsetter-size_restricted.gif">
 
 2. Go forward `4m`: `python run_cmp.py --goal_x 4.0 --goal_y 0.0 --goal_t 0. --compensate`.
-   
-   <img class="doc_img" src="https://thumbs.gfycat.com/FinishedWeirdCockerspaniel-size_restricted.gif"> 
+
+   <img class="doc_img" src="https://thumbs.gfycat.com/FinishedWeirdCockerspaniel-size_restricted.gif">
 
 3. Go forward `2m`, left `2.4m`: `python run_cmp.py --goal_x 2.0 --goal_y 2.4 --goal_t 0. --compensate`.
 
-   <img class="doc_img" src="https://thumbs.gfycat.com/PreciousMajorFeline-size_restricted.gif"> 
+   <img class="doc_img" src="https://thumbs.gfycat.com/PreciousMajorFeline-size_restricted.gif">
 
 4. Go forward `3.2m`: `python run_cmp.py --goal_x 3.2 --goal_y 0.0 --goal_t 0. --compensate`.
 
-   <img class="doc_img" src="https://thumbs.gfycat.com/SpiffyClassicArabianhorse-size_restricted.gif"> 
+   <img class="doc_img" src="https://thumbs.gfycat.com/SpiffyClassicArabianhorse-size_restricted.gif">
 
 
-### References 
+### References
 1. [Cognitive Mapping and Planning for Visual
 Navigation](https://arxiv.org/pdf/1702.03920.pdf). IJCV 2019. Saurabh Gupta,
 Varun Tolani James Davidson, Sergey Levine, Rahul Sukthankar, and Jitendra
