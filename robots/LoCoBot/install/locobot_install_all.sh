@@ -133,6 +133,7 @@ echo "source ~/camera_ws/devel/setup.bash" >> ~/.bashrc
 source ~/camera_ws/devel/setup.bash
 
 
+
 # STEP 5 - Setup catkin workspace
 echo "Setting up robot software..."
 LOCOBOT_FOLDER=~/low_cost_ws
@@ -143,8 +144,20 @@ if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
 fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
-	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
+	git clone --recurse-submodules https://github.com/kalyanvasudev/pyrobot.git
+	cd pyrobot
+	git checkout -b python3
+	cd
 fi
+
+
+# STEP 6 - Install PyRobot
+cd $LOCOBOT_FOLDER/src/pyrobot
+chmod +x install_pyrobot.sh
+source install_pyrobot.sh
+virtualenv_name="pyenv_pyrobot"
+source ~/${virtualenv_name}/bin/activate
+
 cd $LOCOBOT_FOLDER
 rosdep update 
 rosdep install --from-paths src -i -y
@@ -163,7 +176,7 @@ echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 source $LOCOBOT_FOLDER/devel/setup.bash
 
 
-# STEP 6 - Dependencies and config for calibration
+# STEP 7 - Dependencies and config for calibration
 chmod +x src/pyrobot/robots/LoCoBot/locobot_navigation/orb_slam2_ros/scripts/gen_cfg.py
 rosrun orb_slam2_ros gen_cfg.py
 HIDDEN_FOLDER=~/.robot
@@ -171,20 +184,7 @@ if [ ! -d "$HIDDEN_FOLDER" ]; then
 	mkdir ~/.robot
 	cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
 fi
-
-
-# STEP 7 - Make a virtual env to install other dependencies (with pip)
-virtualenv_name="pyenv_pyrobot"
-VIRTUALENV_FOLDER=~/${virtualenv_name}
-if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-	virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
-	source ~/${virtualenv_name}/bin/activate
-	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	pip install --ignore-installed -r requirements.txt
-	cd $LOCOBOT_FOLDER/src/pyrobot/
-	pip install .
-	deactivate
-fi
+deactivate
 
 
 
