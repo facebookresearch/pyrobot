@@ -144,6 +144,7 @@ if [ $INSTALL_TYPE == "full" ]; then
 	source ~/camera_ws/devel/setup.bash
 fi
 
+
 # STEP 5 - Setup catkin workspace
 echo "Setting up robot software..."
 LOCOBOT_FOLDER=~/low_cost_ws
@@ -154,8 +155,20 @@ if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
 fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
-	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
+	git clone --recurse-submodules https://github.com/kalyanvasudev/pyrobot.git
+	cd pyrobot
+	git checkout -b python3
+	cd
 fi
+
+
+# STEP 6 - Install PyRobot
+cd $LOCOBOT_FOLDER/src/pyrobot
+chmod +x install_pyrobot.sh
+source install_pyrobot.sh
+virtualenv_name="pyenv_pyrobot"
+source ~/${virtualenv_name}/bin/activate
+
 cd $LOCOBOT_FOLDER
 rosdep update 
 rosdep install --from-paths src -i -y
@@ -199,7 +212,6 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	pip install .
 	deactivate
 fi
-
 
 
 # STEP 8 - Setup udev rules
