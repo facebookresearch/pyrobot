@@ -1,4 +1,5 @@
 
+#!/usr/bin/env bash
 # STEP 7 - Make a virtual env to install other dependencies (with pip)
 virtualenv_name="pyenv_pyrobot"
 VIRTUALENV_FOLDER=~/${virtualenv_name}
