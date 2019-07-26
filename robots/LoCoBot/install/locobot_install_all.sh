@@ -106,31 +106,7 @@ if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok inst
 	sudo apt-get -y install librealsense2-dbg=${version}
 fi
 
-# STEP 4B: Install realsense2 SDK from source (in a separate catkin workspace)
-CAMERA_FOLDER=~/camera_ws
-if [ ! -d "$CAMERA_FOLDER/src" ]; then
-	mkdir -p $CAMERA_FOLDER/src
-	cd $CAMERA_FOLDER/src/
-	catkin_init_workspace
-fi
-if [ ! -d "$CAMERA_FOLDER/src/realsense" ]; then
-	cd $CAMERA_FOLDER/src/
-	git clone https://github.com/intel-ros/realsense.git
-	cd realsense
-	git checkout a036d81bcc6890658104a8de1cba24538effd6e3
-fi
-if [ -d "$CAMERA_FOLDER/devel" ]; then
-	rm -rf $CAMERA_FOLDER/devel
-fi
-if [ -d "$CAMERA_FOLDER/build" ]; then
-	rm -rf $CAMERA_FOLDER/build
-fi
-cd $CAMERA_FOLDER
-catkin_make clean
-catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
-catkin_make install
-echo "source ~/camera_ws/devel/setup.bash" >> ~/.bashrc
-source ~/camera_ws/devel/setup.bash
+
 
 
 
@@ -146,7 +122,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
 	git clone --recurse-submodules https://github.com/kalyanvasudev/pyrobot.git
 	cd pyrobot
-	git checkout -b python3
+	git checkout python3
 	cd
 fi
 
@@ -184,6 +160,33 @@ if [ ! -d "$HIDDEN_FOLDER" ]; then
 	mkdir ~/.robot
 	cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
 fi
+
+# STEP 4B: Install realsense2 SDK from source (in a separate catkin workspace)
+CAMERA_FOLDER=~/camera_ws
+if [ ! -d "$CAMERA_FOLDER/src" ]; then
+	mkdir -p $CAMERA_FOLDER/src
+	cd $CAMERA_FOLDER/src/
+	catkin_init_workspace
+fi
+if [ ! -d "$CAMERA_FOLDER/src/realsense" ]; then
+	cd $CAMERA_FOLDER/src/
+	git clone https://github.com/intel-ros/realsense.git
+	cd realsense
+	git checkout a036d81bcc6890658104a8de1cba24538effd6e3
+fi
+if [ -d "$CAMERA_FOLDER/devel" ]; then
+	rm -rf $CAMERA_FOLDER/devel
+fi
+if [ -d "$CAMERA_FOLDER/build" ]; then
+	rm -rf $CAMERA_FOLDER/build
+fi
+cd $CAMERA_FOLDER
+catkin_make clean
+catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
+catkin_make install
+echo "source ~/camera_ws/devel/setup.bash" >> ~/.bashrc
+source ~/camera_ws/devel/setup.bash
+
 deactivate
 
 
