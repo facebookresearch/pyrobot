@@ -157,7 +157,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
 	git clone --recurse-submodules https://github.com/kalyanvasudev/pyrobot.git
 	cd pyrobot
-	git checkout -b python3
+	git checkout python3
 	cd
 fi
 
@@ -199,6 +199,7 @@ if [ $INSTALL_TYPE == "full" ]; then
 		cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
 	fi
 fi
+
 
 # STEP 7 - Make a virtual env to install other dependencies (with pip)
 virtualenv_name="pyenv_pyrobot"
