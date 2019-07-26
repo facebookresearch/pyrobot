@@ -20,7 +20,6 @@ PYROBOT_PYTHON3_WS=~/pyrobot_catkin_ws
 if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	mkdir -p $PYROBOT_PYTHON3_WS/src
 	cd $PYROBOT_PYTHON3_WS/src
-	$PYROBOT_PYTHON3_WS/src
 
 	#clone tf
 	git clone https://github.com/ros/geometry
