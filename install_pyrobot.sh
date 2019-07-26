@@ -6,7 +6,7 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
 	source ~/${virtualenv_name}/bin/activate
 	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	pip install --ignore-installed -r requirements.txt
+	pip3 install --ignore-installed -r requirements.txt
 	cd $LOCOBOT_FOLDER/src/pyrobot/
 	pip install .
 	deactivate
