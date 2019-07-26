@@ -50,7 +50,8 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	
 	# Build
 	catkin_make
-
-	echo "source $$PYROBOT_PYTHON3_WS/devel/setup.bash" >> ~/.bashrc
+	
+	source $PYROBOT_PYTHON3_WS/devel/setup.bash
+	echo "source $PYROBOT_PYTHON3_WS/devel/setup.bash" >> ~/.bashrc
 fi
 deactivate
