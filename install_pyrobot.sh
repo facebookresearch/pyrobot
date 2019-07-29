@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # STEP 7 - Make a virtual env to install other dependencies (with pip)
-virtualenv_name="pyenv_pyrobot"
+virtualenv_name="pyenv_pyrobot_python3"
 VIRTUALENV_FOLDER=~/${virtualenv_name}
 if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
@@ -51,7 +51,6 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	# Build
 	catkin_make
 	
-	source $PYROBOT_PYTHON3_WS/devel/setup.bash
-	echo "source $PYROBOT_PYTHON3_WS/devel/setup.bash" >> ~/.bashrc
+	echo "alias load_pyrobot3_env='source ~/$VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
 fi
 deactivate
