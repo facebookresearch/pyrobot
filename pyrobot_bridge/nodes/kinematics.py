@@ -12,7 +12,7 @@ from kdl_parser_py.urdf import treeFromParam
 from sensor_msgs.msg import JointState
 from trac_ik_python import trac_ik
 
-from python3_bridge.srv import *
+from pyrobot_bridge.srv import *
 
 
 class Kinematics(object):
