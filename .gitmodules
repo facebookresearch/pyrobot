@@ -1,6 +1,9 @@
 [submodule "robots/LoCoBot/thirdparty/create_autonomy"]
 	path = robots/LoCoBot/thirdparty/create_autonomy
 	url = https://github.com/AutonomyLab/create_autonomy
+[submodule "robots/LoCoBot/thirdparty/dynamixel-workbench"]	
+	path = robots/LoCoBot/thirdparty/dynamixel-workbench	
+	url = https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
 [submodule "robots/LoCoBot/thirdparty/DynamixelSDK"]
 	path = robots/LoCoBot/thirdparty/DynamixelSDK
 	url = https://github.com/ROBOTIS-GIT/DynamixelSDK.git
