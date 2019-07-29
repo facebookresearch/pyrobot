@@ -8,6 +8,7 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	#cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
 	pip3 install --ignore-installed -r requirements.txt
 	sudo apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml
+	sudo apt-get install python3-tk
 	pip install catkin_pkg pyyaml empy rospkg numpy
 	cd $LOCOBOT_FOLDER/src/pyrobot/
 	pip install .
@@ -25,7 +26,7 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 
 	#clone tf
 	git clone https://github.com/ros/geometry
-	git clone https://github.com/ros/geometry2
+	git clone -b indigo-devel https://github.com/ros/geometry2
 	
 	# Clone cv_bridge src
 	git clone https://github.com/ros-perception/vision_opencv.git
