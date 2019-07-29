@@ -174,9 +174,15 @@ void GazeboInteface::goalJointPositionCallback(const sensor_msgs::JointState::Co
 }
 
 void GazeboInteface::recordArmJoints(const sensor_msgs::JointState::ConstPtr & msg) {
-    for (int index = 0; index < 7; ++index)
-        arm_state[index] = msg->position.at(index + 2); //the index of arm joints starts at 2
-    //ROS_INFO("Recording joint Angles!");
+    int msgSize = msg->position.size();
+    if (msgSize == 9) {
+        for (int index = 0; index < 7; ++index)
+            arm_state[index] = msg->position.at(index + 2); //the index of arm joints starts at 2
+    } else if (msgSize == 2) {
+        // wheel joint states
+    } else {
+        ROS_INFO("Invalid joint state, aborted");
+    }
 }
 
 void GazeboInteface::stopExecution(const std_msgs::Empty & msg) {
