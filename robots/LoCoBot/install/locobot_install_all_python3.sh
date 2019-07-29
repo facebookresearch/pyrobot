@@ -132,22 +132,9 @@ catkin_make install
 echo "source ~/camera_ws/devel/setup.bash" >> ~/.bashrc
 source ~/camera_ws/devel/setup.bash
 
-# STEP 5A - Install PyRobot
-virtualenv_name="pyenv_pyrobot_python3"
-VIRTUALENV_FOLDER=~/${virtualenv_name}
-if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
-	source ~/${virtualenv_name}/bin/activate
-	#cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	pip3 install --ignore-installed -r requirements.txt
-	cd $LOCOBOT_FOLDER/src/pyrobot/
-	pip install .
-	deactivate
-fi
 
 
 # STEP 6 - Setup catkin workspace
-source ~/${virtualenv_name}/bin/activate
 echo "Setting up robot software..."
 LOCOBOT_FOLDER=~/low_cost_ws
 if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
@@ -161,6 +148,22 @@ git clone --recurse-submodules https://github.com/kalyanvasudev/pyrobot.git
 cd pyrobot
 git checkout python3
 cd
+fi
+
+# STEP 5A - Install PyRobot
+virtualenv_name="pyenv_pyrobot_python3"
+VIRTUALENV_FOLDER=~/${virtualenv_name}
+if [ ! -d "$VIRTUALENV_FOLDER" ]; then
+	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
+	source ~/${virtualenv_name}/bin/activate
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	pip3 install --ignore-installed -r requirements.txt
+	sudo apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml
+	sudo apt-get install python3-tk
+	pip install catkin_pkg pyyaml empy rospkg numpy
+	cd $LOCOBOT_FOLDER/src/pyrobot/
+	pip install .
+	deactivate
 fi
 
 cd $LOCOBOT_FOLDER
@@ -187,14 +190,13 @@ chmod +x install_pyrobot.sh
 source install_pyrobot.sh
 
 # STEP 7 - Dependencies and config for calibration
-chmod +x src/pyrobot/robots/LoCoBot/locobot_navigation/orb_slam2_ros/scripts/gen_cfg.py
+chmod +x $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_navigation/orb_slam2_ros/scripts/gen_cfg.py
 rosrun orb_slam2_ros gen_cfg.py
 HIDDEN_FOLDER=~/.robot
 if [ ! -d "$HIDDEN_FOLDER" ]; then
 mkdir ~/.robot
 cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
 fi
-deactivate
 
 
 # STEP 8 - Setup udev rules
