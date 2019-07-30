@@ -3,12 +3,14 @@
 virtualenv_name="pyenv_pyrobot_python3"
 VIRTUALENV_FOLDER=~/${virtualenv_name}
 if [ ! -d "$VIRTUALENV_FOLDER" ]; then
+	sudo apt-get -y install python-virtualenv
 	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
 	source ~/${virtualenv_name}/bin/activate
 	#cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
 	pip3 install --ignore-installed -r requirements.txt
 	sudo apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml
 	sudo apt-get install python3-tk
+	sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
 	pip install catkin_pkg pyyaml empy rospkg numpy
 	cd $LOCOBOT_FOLDER/src/pyrobot/
 	pip install .
