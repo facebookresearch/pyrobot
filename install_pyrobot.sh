@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# STEP 7 - Make a virtual env to install other dependencies (with pip)
+
+# Make a virtual env to install other dependencies (with pip)
 virtualenv_name="pyenv_pyrobot_python3"
 VIRTUALENV_FOLDER=~/${virtualenv_name}
 if [ ! -d "$VIRTUALENV_FOLDER" ]; then
@@ -35,7 +36,7 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 
 	#ros_comm TODO: Remove this when the pull request gets approved
 	git clone -b patch-1 https://github.com/kalyanvasudev/ros_comm.git
-
+	
 	cd ..
 	
 	# Install all the python 3 dependencies

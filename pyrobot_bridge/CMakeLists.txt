@@ -62,6 +62,7 @@ catkin_python_setup()
 add_service_files(
   FILES
   IkCommand.srv
+  FkCommand.srv
 )
 
 ## Generate actions in the 'action' folder
