@@ -1,0 +1,9 @@
+# This message is used to send position command to dynamixel
+
+float64[] joint_angles
+string end_frame
+
+---
+bool success # 1 if success
+float64[] pos
+float64[] quat

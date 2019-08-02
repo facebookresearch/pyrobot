@@ -13,9 +13,6 @@ import threading
 import time
 from abc import ABCMeta, abstractmethod
 
-#import PyKDL as kdl
-#from kdl_parser_py.urdf import treeFromParam
-
 import numpy as np
 import rospy
 import tf
@@ -336,16 +333,27 @@ class Arm(object):
         rospy.Subscriber(configs.ARM.ROSTOPIC_JOINT_STATES, JointState,
                          self._callback_joint_states)
 
+        # Ros-Params
+        rospy.set_param('pyrobot/base_link', configs.ARM.ARM_BASE_FRAME)
+        rospy.set_param('pyrobot/gripper_link', configs.ARM.EE_FRAME)
+        rospy.set_param('pyrobot/robot_description', configs.ARM.ARM_ROBOT_DSP_PARAM_NAME)
+
         # Publishers
         self.joint_pub = None
         self._setup_joint_pub()
 
         # Services
-        self._ik_service = rospy.ServiceProxy('pyrobot_ik', IkCommand)
+        self._ik_service = rospy.ServiceProxy('pyrobot/ik', IkCommand)
         try:
             self._ik_service.wait_for_service(timeout=3)
         except:
-            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!") 
+            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")
+
+        self._fk_service = rospy.ServiceProxy('pyrobot/fk', FkCommand)
+        try:
+            self._fk_service.wait_for_service(timeout=3)
+        except:
+            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")  
 
     @abstractmethod
     def go_home(self):
@@ -730,28 +738,22 @@ class Arm(object):
         :rtype: np.ndarray, np.ndarray
         """
         joint_positions = joint_positions.flatten()
-        assert joint_positions.size == self.arm_dof
-        
-        joint_state = JointState()
-        joint_state.name = self.arm_joint_names
-        joint_state.position = joint_positions
 
-        pose_stamped = self.moveit_group.get_fk(joint_state, fk_link=des_frame)
+        req = FkCommandRequest()
+        req.joint_angles = list(joint_positions)
+        req.end_frame = des_frame
+        try:
+            resp = self._fk_service(req)
+        except:
+            rospy.logerr("FK Service call failed")
+            resp = FkCommandResponse()
+            resp.success = False
 
-        if pose_stamped is None:
-            rospy.logerr("Failed to perform FK for the given link!s")
+        if not resp.success:
             return None
 
-        pos = [pose_stamped.pose.position.x, \
-               pose_stamped.pose.position.y, \
-               pose_stamped.pose.position.z]
-        pos = np.asarray(pos)
-
-        quat = [pose_stamped.pose.orientation.x,\
-                pose_stamped.pose.orientation.y,\
-                pose_stamped.pose.orientation.z,\
-                pose_stamped.pose.orientation.w]
-        rot = prutil.quat_to_rot_mat(quat)
+        pos = np.asarray(resp.pos)
+        rot = prutil.quat_to_rot_mat(resp.quat)
         return pos, rot
 
     def get_jacobian(self, joint_angles):
@@ -846,6 +848,8 @@ class Arm(object):
                 resp = self._ik_service(req)
             except:
                 rospy.logerr("IK Service call failed")
+                resp = IkCommandResponse()
+                resp.success = False
 
             if not resp.success:
                 joint_positions = None
