@@ -941,6 +941,7 @@
             <odometryTopic>odom</odometryTopic> 
             <odometryFrame>odom</odometryFrame> 
             <robotBaseFrame>base_footprint</robotBaseFrame> 
+            <publishWheelJointState>true</publishWheelJointState>
         </plugin>   
         <plugin filename="libgazebo_ros_p3d.so" name="p3d_base_controller"> 
             <alwaysOn>true</alwaysOn>   

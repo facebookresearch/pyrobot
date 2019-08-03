@@ -26,17 +26,19 @@
 * Install **Ubuntu 16.04**
 
 * Download the installation script
-```bash
-sudo apt update
-sudo apt-get install curl
-curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
-```
+  ```bash
+  sudo apt update
+  sudo apt-get install curl
+  curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
+  ```
 
 * Run the script to install everything (ROS, realsense driver, etc.). **Please connect the nuc machine to a realsense camera before running the following commands**.
-```bash
-chmod +x locobot_install_all.sh
-./locobot_install_all.sh
-```
+
+  ```bash
+  chmod +x locobot_install_all.sh
+  ./locobot_install_all.sh
+  ```
+
 
 ### Installing just PyRobot
 
@@ -46,30 +48,32 @@ chmod +x locobot_install_all.sh
 
 * Install KDL
 
-```bash
-sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
-```
+  ```bash
+  sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
+  ```
 
 * Install Python virtual environment
 
-```bash
-sudo apt-get -y install python-virtualenv
-virtualenv_name="pyenv_pyrobot"
-VIRTUALENV_FOLDER=~/${virtualenv_name}
-virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
-```
+
+  ```bash
+  sudo apt-get -y install python-virtualenv
+  virtualenv_name="pyenv_pyrobot"
+  VIRTUALENV_FOLDER=~/${virtualenv_name}
+  virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
+  ```
 
 * Install PyRobot
 
-```bash
-cd ~
-mkdir -p low_cost_ws/src
-cd ~/low_cost_ws/src
-source ~/${virtualenv_name}/bin/activate
-git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
-cd pyrobot/
-pip install .
-```
+  ```bash
+  cd ~
+  mkdir -p low_cost_ws/src
+  cd ~/low_cost_ws/src
+  source ~/${virtualenv_name}/bin/activate
+  git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
+  cd pyrobot/
+  pip install .
+  ```
+
 
 **Warning**: As realsense keeps updating, compatibility issues might occur if you accidentally update
 realsense-related packages from `Software Updater` in ubuntu. Therefore, we recommend you not to update
@@ -91,7 +95,7 @@ We are planning several features, namely:
 
 ## Citation
 ```
-@inproceedings{pyrobot2019,
+@article{pyrobot2019,
   title={PyRobot: An Open-source Robotics Framework for Research and Benchmarking},
   author={Adithyavairavan Murali and Tao Chen and Kalyan Vasudev Alwala and Dhiraj Gandhi and Lerrel Pinto and Saurabh Gupta and Abhinav Gupta},
   journal={arXiv preprint arXiv:1906.08236},
