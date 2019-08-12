@@ -51,6 +51,7 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	cd ../../
 	
 	# Build
+	sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so
 	catkin_make
 	
 	echo "alias load_pyrobot3_env='source $VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
