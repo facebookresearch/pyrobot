@@ -50,8 +50,12 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	git checkout 1.12.8 # Usually this is the version!
 	cd ../../
 	
+	#symlink - https://github.com/ros-perception/vision_opencv/issues/196
+	sym_link=/usr/lib/x86_64-linux-gnu/libboost_python3.so
+	if [ -L ${sym_link} ] ; then
+		sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so
+	fi
 	# Build
-	sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so
 	catkin_make
 	
 	echo "alias load_pyrobot3_env='source $VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
