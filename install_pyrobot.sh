@@ -10,7 +10,8 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	sudo apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml
 	sudo apt-get install python3-tk
 	sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
-	pip install catkin_pkg pyyaml empy rospkg numpy
+	pip install catkin_pkg pyyaml empy rospkg
+	python -m pip install --upgrade numpy
 	pip3 install --ignore-installed -r requirements.txt
 	cd $LOCOBOT_FOLDER/src/pyrobot/
 	pip install .
