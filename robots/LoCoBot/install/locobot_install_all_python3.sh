@@ -157,11 +157,11 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
 	source ~/${virtualenv_name}/bin/activate
 	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	python3 -m pip install --upgrade bezier
-	pip3 install --ignore-installed -r requirements.txt
 	sudo apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml
 	sudo apt-get install python3-tk
-	pip install catkin_pkg pyyaml empy rospkg numpy
+	pip3 install --ignore-installed -r requirements.txt
+	pip install catkin_pkg pyyaml empy rospkg
+	python3 -m pip install --upgrade numpy bezier
 	cd $LOCOBOT_FOLDER/src/pyrobot/
 	pip install .
 	deactivate

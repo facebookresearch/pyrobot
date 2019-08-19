@@ -7,12 +7,11 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	sudo apt-get -y install python-virtualenv
 	virtualenv -p /usr/bin/python3 $VIRTUALENV_FOLDER
 	source ~/${virtualenv_name}/bin/activate
-	#cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	pip3 install --ignore-installed -r requirements.txt
 	sudo apt-get install python-catkin-tools python3-dev python3-catkin-pkg-modules python3-numpy python3-yaml
 	sudo apt-get install python3-tk
 	sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
 	pip install catkin_pkg pyyaml empy rospkg numpy
+	pip3 install --ignore-installed -r requirements.txt
 	cd $LOCOBOT_FOLDER/src/pyrobot/
 	pip install .
 	deactivate
@@ -51,9 +50,9 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	cd ../../
 	
 	#symlink - https://github.com/ros-perception/vision_opencv/issues/196
-	sym_link=/usr/lib/x86_64-linux-gnu/libboost_python3.so
-	if [ -L ${sym_link} ] ; then
-		sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so
+	my_link=/usr/lib/x86_64-linux-gnu/libboost_python3.so
+	if [ ! -L ${my_link} ] ; then
+	   sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so
 	fi
 	# Build
 	catkin_make
@@ -61,3 +60,4 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	echo "alias load_pyrobot3_env='source $VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
 fi
 deactivate
+
