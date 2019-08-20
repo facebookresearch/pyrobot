@@ -97,6 +97,8 @@ _BASEC.Z_MAX_TRESHOLD_OCC_MAP = 0.8
 _BASEC.MAX_ABS_FWD_SPEED_P_CONTROLLER = 0.5
 # proportional control specific max angular velocity
 _BASEC.MAX_ABS_TURN_SPEED_P_CONTROLLER = 1
+# proportional control specific ignore translation treshold
+_BASEC.TRANSLATION_TRESHOLD = 0.01
 
 _BASEC.VSLAM = CN()
 # topic name of the camera pose
