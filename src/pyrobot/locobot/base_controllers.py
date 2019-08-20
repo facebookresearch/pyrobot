@@ -74,6 +74,7 @@ class ProportionalControl:
 
         self.rot_max_vel = self.configs.BASE.MAX_ABS_TURN_SPEED_P_CONTROLLER
         self.lin_max_vel = self.configs.BASE.MAX_ABS_FWD_SPEED_P_CONTROLLER
+        self.translation_treshold = self.configs.BASE.TRANSLATION_TRESHOLD
 
         # threshold between which if error lies, we think of task being don
         self.rot_error_thr = ROT_ERR_THR
@@ -260,6 +261,10 @@ class ProportionalControl:
         x = xyt_position[0]
         y = xyt_position[1]
         rot = xyt_position[2]
+
+        if (sqrt(x*x + y*y) < self.translation_treshold):
+            self._step_angle(rot)
+            return True
 
         theta_1 = atan2(y, x)
         dist = sqrt(x ** 2 + y ** 2)
