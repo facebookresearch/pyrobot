@@ -318,12 +318,9 @@ class MoveGroupInterface(object):
                         start_state=None, #of type moveit robotstate
                         avoid_collisions=True):
 
-
-
         req = GetCartesianPathRequest()
         req.header.stamp = rospy.Time.now() 
         req.header.frame_id = way_point_frame
-
         req.group_name = self._group
         req.waypoints = way_points
         req.max_step = max_step
