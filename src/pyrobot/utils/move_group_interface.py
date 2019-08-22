@@ -3,7 +3,6 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-
 # Copyright 2011-2014, Michael Ferguson
 # All rights reserved.
 #
@@ -91,136 +90,9 @@ class MoveGroupInterface(object):
             self._listener = listener
         self.plan_only = plan_only
 
-        # TODO KALYAN, figureout a way to set these!
         self.planner_id = None
         self.planning_time = 15.0
         
-        
-
-    def _init_kinematics(self, joint_state_topic):
-
-        self.cur_joint_st = None
-        self.js_sub = rospy.Subscriber(joint_state_topic,
-                                       JointState,
-                                       self._js_cb,
-                                       queue_size=1)
-
-        ## Forward Kinematics
-        self._fk_srv = rospy.ServiceProxy('/compute_fk', #TODO kalyan change this to config
-                                         GetPositionFK)
-        try:
-            self._fk_srv.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Forward Kinematics Service!!") 
-
-        ## Inverse Kinematics
-        self.ik_attempts = 0
-        self.ik_timeout = 1.0
-        self.avoid_collisions=False
-
-        self._ik_srv = rospy.ServiceProxy('/compute_ik', # TODO kalyan change this to config
-                                         GetPositionIK)
-        try:
-            self._ik_srv.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")         
-
-
-    def _js_cb(self, msg):
-        self.cur_joint_st = msg
-
-
-    def get_current_fk(self):
-        while not rospy.is_shutdown() and self.cur_joint_st is None:
-            rospy.logwarn("Waiting for a /joint_states message...")
-            rospy.sleep(0.1)
-        return self.get_fk(self.cur_joint_st)
-
-    def get_fk(self, joint_state, fk_link=None, frame_id=None):
-        """
-        Do an FK call to with.
-        :param sensor_msgs/JointState joint_state: JointState message
-            containing the full state of the robot.
-        :param str or None fk_link: link to compute the forward kinematics for.
-        :param str or None frame_id: Frame in which pose is returned.
-        """
-        if fk_link is None:
-            fk_link = self._gripper_frame
-
-        if frame_id is None:
-            frame_id = self._fixed_frame
-
-        req = GetPositionFKRequest()
-        req.header.frame_id = frame_id
-        req.fk_link_names = [fk_link]
-        req.robot_state.joint_state = joint_state
-        try:
-            resp = self._fk_srv.call(req)
-            if resp is not None and len(resp.pose_stamped) >= 1:
-                return resp.pose_stamped[0]
-            else:
-                return None
-        except rospy.ServiceException as e:
-            rospy.logerr("FK Service exception: " + str(e))
-            return None
-
-    def get_ik(self, pose_stamped, use_cur_seed=False):
-        if use_cur_seed is True:
-            while not rospy.is_shutdown() and self.cur_joint_st is None:
-                rospy.logwarn("Waiting for a /joint_states message...")
-                rospy.sleep(0.1)
-            resp = self._get_ik(pose_stamped=pose_stamped, seed=self.cur_joint_st)
-        else:
-            resp = self._get_ik(pose_stamped=pose_stamped, seed=None)
-        if resp is None or resp.error_code.val == -31: #-31 is NO IK solution
-            rospy.logwarn("IK failed to find a valid solution!")
-            return None
-        return resp.solution.joint_state
-
-    def _get_ik(self, 
-                pose_stamped,
-                seed=None,
-                group=None,
-                ik_timeout=None,
-                ik_attempts=None,
-                avoid_collisions=None):
-        """
-        Do an IK call to pose_stamped pose.
-        :param geometry_msgs/PoseStamped pose_stamped: The 3D pose
-            (with header.frame_id)
-            to which compute the IK.
-        :param str group: The MoveIt! group.
-        :param float ik_timeout: The timeout for the IK call.
-        :param int ik_attemps: The maximum # of attemps for the IK.
-        :param bool avoid_collisions: If to compute collision aware IK.
-        """
-        if group is None:
-            group = self._group
-        if ik_timeout is None:
-            ik_timeout = self.ik_timeout
-        if ik_attempts is None:
-            ik_attempts = self.ik_attempts
-        if avoid_collisions is None:
-            avoid_collisions = self.avoid_collisions
-        req = GetPositionIKRequest()
-        req.ik_request.group_name = group
-        req.ik_request.pose_stamped = pose_stamped
-        req.ik_request.timeout = rospy.Duration(ik_timeout)
-        req.ik_request.attempts = ik_attempts
-        req.ik_request.avoid_collisions = avoid_collisions
-        #req.ik_request.ik_link_name = self._gripper_frame
-
-        
-        #req.ik_request.robot_state.is_diff = True
-        if seed is not None:
-            req.ik_request.robot_state.joint_state = seed
-        try:
-            resp = self._ik_srv.call(req)
-            return resp
-        except rospy.ServiceException as e:
-            rospy.logerr("IK Service exception: " + str(e))
-            return None
-
     def get_move_action(self):
         return self._action
 
