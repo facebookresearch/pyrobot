@@ -133,9 +133,9 @@ class PlanningSceneInterface(object):
 
     ## @brief Make a mesh collision object
     ## @param name Name of the object
-    ## @param pose A geometry_msgs/Pose for the object
+    ## @param pos A pose stamped object pose message
     ## @param filename The mesh file to load
-    def makeMesh(self, name, pose, filename):
+    def makeMesh(self, name, ps, filename):
         if not use_pyassimp:
             rospy.logerr('pyassimp is broken on your platform, cannot load meshes')
             return
@@ -162,10 +162,10 @@ class PlanningSceneInterface(object):
 
         o = CollisionObject()
         o.header.stamp = rospy.Time.now()
-        o.header.frame_id = self._fixed_frame
+        o.header.frame_id = ps.header.frame_id
         o.id = name
         o.meshes.append(mesh)
-        o.mesh_poses.append(pose)
+        o.mesh_poses.append(ps.pose)
         o.operation = o.ADD
         return o
 
@@ -173,13 +173,13 @@ class PlanningSceneInterface(object):
     ## @param name Name of the object
     ## @param solid The solid primitive to add
     ## @param pose A geometry_msgs/Pose for the object
-    def makeSolidPrimitive(self, name, solid, pose):
+    def makeSolidPrimitive(self, name, solid, ps):
         o = CollisionObject()
         o.header.stamp = rospy.Time.now()
-        o.header.frame_id = self._fixed_frame
+        o.header.frame_id = ps.header.frame_id
         o.id = name
         o.primitives.append(solid)
-        o.primitive_poses.append(pose)
+        o.primitive_poses.append(ps.pose)
         o.operation = o.ADD
         return o
 
@@ -198,22 +198,22 @@ class PlanningSceneInterface(object):
 
     ## @brief Insert a mesh into the planning scene
     ## @param name Name of the object
-    ## @param pose A geometry_msgs/Pose for the object
+    ## @param ps A pose stamped message for the object
     ## @param filename The mesh file to load
     ## @param use_service If true, update will be sent via apply service
-    def addMesh(self, name, pose, filename, use_service=True):
-        o = self.makeMesh(name, pose, filename)
+    def addMesh(self, name, ps, filename, use_service=True):
+        o = self.makeMesh(name, ps, filename)
         self._objects[name] = o
         self.sendUpdate(o, None, use_service)
 
     ## @brief Attach a mesh into the planning scene
     ## @param name Name of the object
-    ## @param pose A geometry_msgs/Pose for the object
+    ## @param ps A pose stamped message for the object
     ## @param filename The mesh file to load
     ## @param use_service If true, update will be sent via apply service
-    def attachMesh(self, name, pose, filename, link_name, touch_links=None,
+    def attachMesh(self, name, ps, filename, link_name, touch_links=None,
                    detach_posture=None, weight=0.0, use_service=True):
-        o = self.makeMesh(name, pose, filename)
+        o = self.makeMesh(name, ps, filename)
         o.header.frame_id = link_name
         a = self.makeAttached(link_name, o, touch_links, detach_posture,
                               weight)
@@ -222,26 +222,19 @@ class PlanningSceneInterface(object):
 
     ## @brief Insert a solid primitive into planning scene
     ## @param use_service If true, update will be sent via apply service
-    def addSolidPrimitive(self, name, solid, pose, use_service=True):
-        o = self.makeSolidPrimitive(name, solid, pose)
+    def addSolidPrimitive(self, name, solid, ps, use_service=True):
+        o = self.makeSolidPrimitive(name, solid, ps)
         self._objects[name] = o
         self.sendUpdate(o, None, use_service)
 
     ## @brief Insert new cylinder into planning scene
     ## @param use_service If true, update will be sent via apply service
-    def addCylinder(self, name, height, radius, x, y, z, use_service=True):
+    def addCylinder(self, name, height, radius, ps, use_service=True):
         s = SolidPrimitive()
         s.dimensions = [height, radius]
         s.type = s.CYLINDER
 
-        ps = PoseStamped()
-        ps.header.frame_id = self._fixed_frame
-        ps.pose.position.x = x
-        ps.pose.position.y = y
-        ps.pose.position.z = z
-        ps.pose.orientation.w = 1.0
-
-        self.addSolidPrimitive(name, s, ps.pose, use_service)
+        self.addSolidPrimitive(name, s, ps, use_service)
 
     ## @brief Insert new box into planning scene
     ## @param name Name of the object
@@ -252,19 +245,12 @@ class PlanningSceneInterface(object):
     ## @param y The y position in link_name frame
     ## @param z The z position in link_name frame
     ## @param use_service If true, update will be sent via apply service
-    def addBox(self, name, size_x, size_y, size_z, x, y, z, use_service=True):
+    def addBox(self, size_x, size_y, size_z, ps, use_service=True):
         s = SolidPrimitive()
         s.dimensions = [size_x, size_y, size_z]
         s.type = s.BOX
 
-        ps = PoseStamped()
-        ps.header.frame_id = self._fixed_frame
-        ps.pose.position.x = x
-        ps.pose.position.y = y
-        ps.pose.position.z = z
-        ps.pose.orientation.w = 1.0
-
-        self.addSolidPrimitive(name, s, ps.pose, use_service)
+        self.addSolidPrimitive(name, s, ps, use_service)
 
     ## @brief Attach a box into the planning scene
     ## @param name Name of the object
@@ -277,7 +263,7 @@ class PlanningSceneInterface(object):
     ## @param link_name Name of link to attach this object to
     ## @param touch_links Names of robot links that can touch this object
     ## @param use_service If true, update will be sent via apply service
-    def attachBox(self, name, size_x, size_y, size_z, x, y, z, link_name,
+    def attachBox(self, name, size_x, size_y, size_z, pose, link_name,
                   touch_links=None, detach_posture=None, weight=0.0,
                   use_service=True):
         s = SolidPrimitive()
@@ -285,10 +271,13 @@ class PlanningSceneInterface(object):
         s.type = s.BOX
 
         p = Pose()
-        p.position.x = x
-        p.position.y = y
-        p.position.z = z
-        p.orientation.w = 1.0
+        p.position.x = pose[0]
+        p.position.y = pose[1]
+        p.position.z = pose[2]
+        p.orientation.x = pose[3]
+        p.orientation.y = pose[4]
+        p.orientation.z = pose[5]
+        p.orientation.w = pose[6]
         o = self.makeSolidPrimitive(name, s, p)
         o.header.frame_id = link_name
         a = self.makeAttached(link_name, o, touch_links, detach_posture, weight)
