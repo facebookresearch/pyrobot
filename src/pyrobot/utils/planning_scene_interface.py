@@ -246,7 +246,7 @@ class PlanningSceneInterface(object):
     ## @param y The y position in link_name frame
     ## @param z The z position in link_name frame
     ## @param use_service If true, update will be sent via apply service
-    def addBox(self, size_x, size_y, size_z, ps, use_service=True):
+    def addBox(self, name, size_x, size_y, size_z, ps, use_service=True):
         s = SolidPrimitive()
         s.dimensions = [size_x, size_y, size_z]
         s.type = s.BOX
