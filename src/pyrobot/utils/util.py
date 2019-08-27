@@ -8,7 +8,7 @@ import numpy as np
 import rospy
 import tf
 import geometry_msgs.msg
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Pose
 import pyrobot.utils.planning_scene_interface
 
 
