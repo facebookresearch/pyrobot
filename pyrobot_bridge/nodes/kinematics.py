@@ -112,7 +112,7 @@ class Kinematics(object):
 
 		if joint_positions is None:
 			resp.success = False
-			rosp.logwarn("Failed to find find an IK solution.")
+			rospy.logwarn("Failed to find find an IK solution.")
 			return resp 
 
 		resp.joint_positions = joint_positions
