@@ -31,7 +31,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import thread, copy
+import copy
+import _thread as thread
 import rospy
 
 try:
@@ -57,11 +58,11 @@ from shape_msgs.msg import MeshTriangle, Mesh, SolidPrimitive, Plane
 class PlanningSceneInterface(object):
     def __init__(self, frame, ns='', init_from_service=True):
         # ns must be a string
-        if not isinstance(ns, basestring):
-            rospy.logerr('Namespace must be a string!')
-            ns = ''
-        elif not ns.endswith('/'):
-            ns += '/'
+        # if not isinstance(ns, basestring):
+        #     rospy.logerr('Namespace must be a string!')
+        #     ns = ''
+        # elif not ns.endswith('/'):
+        #     ns += '/'
 
         self._fixed_frame = frame
 

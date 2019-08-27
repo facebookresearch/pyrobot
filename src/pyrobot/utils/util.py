@@ -11,6 +11,29 @@ import geometry_msgs.msg
 from geometry_msgs.msg import PoseStamped
 import pyrobot.utils.planning_scene_interface
 
+
+
+def list_to_pose(pose_list):
+    pose_msg = Pose()
+    if len(pose_list) == 7:
+        pose_msg.position.x = pose_list[0]
+        pose_msg.position.y = pose_list[1]
+        pose_msg.position.z = pose_list[2]
+        pose_msg.orientation.x = pose_list[3]
+        pose_msg.orientation.y = pose_list[4]
+        pose_msg.orientation.z = pose_list[5]
+        pose_msg.orientation.w = pose_list[6]
+    elif len(pose_list) == 6: 
+        pose_msg.position.x = pose_list[0]
+        pose_msg.position.y = pose_list[1]
+        pose_msg.position.z = pose_list[2]
+        q = tf.transformations.quaternion_from_euler(pose_list[3], pose_list[4], pose_list[5])
+        pose_msg.orientation.x = q[0]
+        pose_msg.orientation.y = q[1]
+        pose_msg.orientation.z = q[2]
+        pose_msg.orientation.w = q[3]
+    return pose_msg
+
 def get_tf_transform(tf_listener, tgt_frame, src_frame):
     """
     Uses ROS TF to lookup the current transform from tgt_frame to src_frame,
@@ -119,7 +142,7 @@ class MoveitObjectHandler(object):
         assert not id_name in self.scene_objects, 'Object with the same name already exists!'
         self.scene_objects.append(id_name)
 
-        pose = conversions.list_to_pose(pose)
+        pose = list_to_pose(pose)
         pose_stamped = PoseStamped()
         pose_stamped.header.frame_id = frame
         pose_stamped.pose = pose
