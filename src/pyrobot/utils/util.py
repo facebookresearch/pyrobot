@@ -9,7 +9,7 @@ import rospy
 import tf
 import geometry_msgs.msg
 from geometry_msgs.msg import PoseStamped, Pose
-import pyrobot.utils.planning_scene_interface
+from pyrobot.utils.planning_scene_interface import PlanningSceneInterface
 
 
 
@@ -123,7 +123,7 @@ class MoveitObjectHandler(object):
 
         
 
-    def add_world_object(self, id_name, pose, size, frame='/base'):
+    def add_world_object(self, id_name, pose, size, frame='/base_link'):
         '''
         Adds the particular BOX TYPE objects to the moveit planning scene
         
