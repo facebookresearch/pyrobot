@@ -28,7 +28,7 @@
   ```bash
   sudo apt update
   sudo apt-get install curl
-  curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all_python3.sh' > locobot_install_all_python3.sh
+  curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
   ```
 
 * Run the script to install everything (ROS, realsense driver, etc.). 
@@ -38,7 +38,6 @@ If you want to use real LoCoBot robot, please run the following command:
   ```bash
   chmod +x locobot_install_all.sh 
   ./locobot_install_all.sh
-
   ```
 
 If you want to use simulated LoCoBot in Gazebo only, please run the following commands instead:
@@ -53,13 +52,31 @@ If you want to use simulated LoCoBot in Gazebo only, please run the following co
 
 * Install [ROS kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 
-* Download the PyRobot repository and install it by running the following commands,
+* Install KDL
 
   ```bash
-  git clone -b python3 --recurse-submodules https://github.com/facebookresearch/pyrobot.git
-  cd pyrobot
-  chmod +x install_pyrobot.sh
-  ./install_pyrobot.sh
+  sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
+  ```
+
+* Install Python virtual environment
+
+  ```bash
+  sudo apt-get -y install python-virtualenv
+  virtualenv_name="pyenv_pyrobot"
+  VIRTUALENV_FOLDER=~/${virtualenv_name}
+  virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
+  ```
+
+* Install PyRobot
+
+  ```bash
+  cd ~
+  mkdir -p low_cost_ws/src
+  cd ~/low_cost_ws/src
+  source ~/${virtualenv_name}/bin/activate
+  git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
+  cd pyrobot/
+  pip install .
   ```
 
 **Warning**: As realsense keeps updating, compatibility issues might occur if you accidentally update
