@@ -18,7 +18,6 @@ if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 	deactivate
 fi
 
-
 source ~/${virtualenv_name}/bin/activate
 echo "Setting up PyRobot Catkin Ws..."
 PYROBOT_PYTHON3_WS=~/pyrobot_catkin_ws
@@ -61,4 +60,3 @@ if [ ! -d "$PYROBOT_PYTHON3_WS/src" ]; then
 	echo "alias load_pyrobot3_env='source $VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
 fi
 deactivate
-
