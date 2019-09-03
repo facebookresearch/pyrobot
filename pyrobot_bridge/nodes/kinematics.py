@@ -9,12 +9,11 @@
 
 from __future__ import print_function
 
-
-
 import PyKDL as kdl
 import numpy as np
 import copy
 import rospy
+
 import tf
 from geometry_msgs.msg import Twist
 from kdl_parser_py.urdf import treeFromParam
@@ -28,12 +27,10 @@ class Kinematics(object):
 	"""docstring for Kinematics"""
 	def __init__(self):
 		self.init_done = False
-		
 		rospy.init_node('pyrobot_kinematics')
+		
 		self.ik_srv = rospy.Service('pyrobot/ik', IkCommand, self.ik_server)
 		self.fk_srv = rospy.Service('pyrobot/fk', FkCommand, self.fk_server)
-
-
 		rospy.spin()
 
 	def _init_kinematics(self):
@@ -140,7 +137,6 @@ class Kinematics(object):
 		R[:3, :3] = rot
 		return tf.transformations.quaternion_from_matrix(R)
 
-
 	def joints_to_kdl(self, joint_values):
 		"""
 		Convert the numpy array into KDL data format
@@ -152,8 +148,6 @@ class Kinematics(object):
 		for idx in range(num_jts):
 			kdl_array[idx] = joint_values[idx]
 		return kdl_array
-
-
 
 	def fk_server(self, req):
 		"""
@@ -167,7 +161,6 @@ class Kinematics(object):
 		:return: translational vector and rotational matrix
 		:rtype: np.ndarray, np.ndarray
 		"""
-
 		if not self.init_done:
 			self._init_kinematics()
 			self.init_done = True
@@ -201,8 +194,6 @@ class Kinematics(object):
 		resp.quat = list(self.rot_mat_to_quat(pose[:3, :3]))
 		resp.success = True
 		return resp
-
-
 
 if __name__ == "__main__":
     server = Kinematics()
