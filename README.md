@@ -33,7 +33,6 @@
 
 * Run the script to install everything (ROS, realsense driver, etc.). 
 
-<<<<<<< c9521712c11f2cb795c738abfec7716f587f0bfa
 If you want to use real LoCoBot robot, please run the following command:
 **Please connect the nuc machine to a realsense camera before running the following commands**.
   ```bash
@@ -43,23 +42,9 @@ If you want to use real LoCoBot robot, please run the following command:
 
 If you want to use simulated LoCoBot in Gazebo only, please run the following commands instead:
   ```bash
-  chmod +x locobot_install_all.sh sim
-  ./locobot_install_all.sh
+  chmod +x locobot_install_all.sh
+  ./locobot_install_all.sh sim
   ```
-=======
-If you want to use real LoCoBot robot, please run the following commands:
-**Please connect the nuc machine to a realsense camera before running the following commands**.
-```bash
-chmod +x locobot_install_all.sh 
-./locobot_install_all.sh
-```
-
-If you want to use simulated LoCoBot in Gazebo only, please run the following commands instead:
-```bash
-chmod +x locobot_install_all.sh sim
-./locobot_install_all.sh
-```
->>>>>>> Added sim install locobot instructions
 
 ### Installing just PyRobot
 
