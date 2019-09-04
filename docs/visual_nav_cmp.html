@@ -70,25 +70,21 @@ wheel encoders is perfect. This example is based on code released with
 <h3><a class="anchor" aria-hidden="true" id="setup"></a><a href="#setup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setup</h3>
 <p>This assumes that you have followed instructions for installing <code>PyRobot</code> API.</p>
 <ol>
-<li>Launch Robot in a terminal</li>
-</ol>
+<li><p>Launch Robot in a terminal</p>
 <pre><code class="hljs css language-bash"><span class="hljs-comment"># Launch the robot using the following launch command.</span>
 roslaunch locobot_control main.launch use_base:=<span class="hljs-literal">true</span> use_camera:=<span class="hljs-literal">true</span> \
     use_arm:=<span class="hljs-literal">false</span> use_sim:=<span class="hljs-literal">false</span> base:=kobuki use_rviz:=<span class="hljs-literal">false</span>
-</code></pre>
-<ol start="2">
-<li>Install additional dependencies (Open a new terminal)</li>
-</ol>
+</code></pre></li>
+<li><p>Install additional dependencies (Open a new terminal)</p>
 <pre><code class="hljs css language-bash"><span class="hljs-built_in">source</span> ~/pyenv_pyrobot/bin/activate
 <span class="hljs-built_in">cd</span> ~/low_cost_ws/src/pyrobot/examples/visual_nav_cmp/
 pip install -r requirements.txt
-</code></pre>
-<ol start="3">
-<li>Get pre-trained models</li>
-</ol>
+</code></pre></li>
+<li><p>Get pre-trained models</p>
 <pre><code class="hljs css language-bash">wget https://www.dropbox.com/s/vw7aqmitsm3kas0/model.tgz?dl=0 -O model.tgz
 tar -xf model.tgz
-</code></pre>
+</code></pre></li>
+</ol>
 <h3><a class="anchor" aria-hidden="true" id="test-setup"></a><a href="#test-setup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Test Setup</h3>
 <p>Confirm that tensorflow is properly setup, by running the following command.</p>
 <pre><code class="hljs css language-bash">pytest test_cmp.py
