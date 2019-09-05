@@ -33,8 +33,8 @@ def test_get_images(create_robot):
     bot = create_robot
     rgb_img = bot.camera.get_rgb()
     depth_img = bot.camera.get_depth()
-    assert rgb_img is not None
     assert depth_img is not None
+    assert rgb_img is not None
     rgb_img, depth_img = bot.camera.get_rgb_depth()
     assert rgb_img is not None
     assert depth_img is not None

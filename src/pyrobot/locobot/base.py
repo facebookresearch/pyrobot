@@ -27,9 +27,9 @@ except:
 from pyrobot.core import Base
 from std_msgs.msg import Empty
 
-from base_control_utils import MoveBasePlanner, _get_absolute_pose
-from base_controllers import ProportionalControl, ILQRControl, MoveBaseControl
-from bicycle_model import wrap_theta
+from pyrobot.locobot.base_control_utils import MoveBasePlanner, _get_absolute_pose
+from pyrobot.locobot.base_controllers import ProportionalControl, ILQRControl, MoveBaseControl
+from pyrobot.locobot.bicycle_model import wrap_theta
 
 
 class BaseSafetyCallbacks(object):

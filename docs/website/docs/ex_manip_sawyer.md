@@ -212,7 +212,7 @@ You can manually add obstacle to the MoveIt planning scene so that MoveIt will m
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Moveit with Obstacles-->
 ```py
-from pyrobot.util import MoveitObjectHandler
+from pyrobot.utils.util import MoveitObjectHandler
 obstacle_handler = MoveitObjectHandler()
 # Add a table
 # position and orientation (quaternion: x, y, z, w) of the table

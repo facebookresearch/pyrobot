@@ -7,7 +7,7 @@ import pytest
 import time
 
 import numpy as np
-import pyrobot.util as prutil
+import pyrobot.utils.util as prutil
 import tf.transformations as tft
 from pyrobot import Robot
 
