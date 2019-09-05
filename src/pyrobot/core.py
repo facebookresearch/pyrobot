@@ -37,7 +37,7 @@ class Robot:
                  robot_name,
                  use_arm=True,
                  use_base=True,
-                 use_camera=True, #TODO Kalyan enable camera by default back!
+                 use_camera=True,
                  use_gripper=True,
                  arm_config={},
                  base_config={},
@@ -345,7 +345,8 @@ class Arm(object):
         # Ros-Params
         rospy.set_param('pyrobot/base_link', configs.ARM.ARM_BASE_FRAME)
         rospy.set_param('pyrobot/gripper_link', configs.ARM.EE_FRAME)
-        rospy.set_param('pyrobot/robot_description', configs.ARM.ARM_ROBOT_DSP_PARAM_NAME)
+        rospy.set_param('pyrobot/robot_description', 
+                        configs.ARM.ARM_ROBOT_DSP_PARAM_NAME)
 
         # Publishers
         self.joint_pub = None
@@ -561,8 +562,6 @@ class Arm(object):
                 positions = positions.tolist()
 
             rospy.loginfo('Moveit Motion Planning...')
-            # TODO kalyan, check self.arm_joint_names!,
-            # TODO kalyan , check if result follows proper true or false or plan itself!
             result = self.moveit_group.moveToJointPosition(
                         self.arm_joint_names,
                         positions,
@@ -733,7 +732,7 @@ class Arm(object):
                 success = False
             return success
 
-    def compute_fk_position(self, joint_positions, des_frame): #TODO kalyan: change it to include des_frame
+    def compute_fk_position(self, joint_positions, des_frame):
         """
         Given joint angles, compute the pose of desired_frame with respect
         to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame

@@ -34,12 +34,14 @@ import rospy
 import actionlib
 from tf.listener import TransformListener
 from geometry_msgs.msg import *
-from moveit_msgs.srv import GetCartesianPath, GetCartesianPathRequest, GetCartesianPathResponse, \
-                            GetPositionIK, GetPositionIKRequest, GetPositionIKResponse,\
+from moveit_msgs.srv import GetCartesianPath, GetCartesianPathRequest, \
+                            GetCartesianPathResponse, GetPositionIK, \
+                            GetPositionIKRequest, GetPositionIKResponse,\
                             GetPositionFK, GetPositionFKRequest, GetPositionFKResponse
 from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes,\
                             ExecuteTrajectoryAction, ExecuteTrajectoryGoal
-from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, OrientationConstraint, BoundingVolume
+from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, \
+                            OrientationConstraint, BoundingVolume
 from shape_msgs.msg import SolidPrimitive
 from sensor_msgs.msg import JointState
 
@@ -50,17 +52,23 @@ for name in MoveItErrorCodes.__dict__.keys():
         moveit_error_dict[code] = name
 
 def processResult(result):
-
+    '''
+    This functions runs through the moveit error
+    codes and logs the type of error encountered.
+    '''
     if result.error_code.val == 1:
         return True
-
-    rospy.loginfo("Moveit Failed with error code: " + str(moveit_error_dict[result.error_code.val]))
+    rospy.loginfo("Moveit Failed with error code: " \
+            + str(moveit_error_dict[result.error_code.val]))
     return False
 
 
 class MoveGroupInterface(object):
-
-    
+    '''
+    This class lets you interface with the movegroup node. It provides
+    the ability to execute the specified trajectory on the robot by
+    communicating to the movegroup node using services.
+    '''
     def __init__(self, 
                 group, 
                 fixed_frame,
@@ -72,9 +80,9 @@ class MoveGroupInterface(object):
         self._group = group
         self._fixed_frame = fixed_frame
         self._gripper_frame = gripper_frame # a.k.a end-effector frame
-        self._action = actionlib.SimpleActionClient('move_group', # TODO, change this to config
+        self._action = actionlib.SimpleActionClient('move_group', 
                                                     MoveGroupAction)
-        self._traj_action = actionlib.SimpleActionClient('execute_trajectory', # TODO: change this to config
+        self._traj_action = actionlib.SimpleActionClient('execute_trajectory',
                                                     ExecuteTrajectoryAction)
         self._cart_service =  rospy.ServiceProxy(cart_srv, GetCartesianPath)
         try:
@@ -96,13 +104,28 @@ class MoveGroupInterface(object):
     def get_move_action(self):
         return self._action
 
-    ## @brief Move the arm to set of joint position goals
     def moveToJointPosition(self,
                             joints,
                             positions,
                             tolerance=0.01,
                             wait=True,
                             **kwargs):
+        '''
+        Move the arm to set of joint position goals
+
+        :param joints: joint names for which the target position
+                is specified.
+        :param positions: target joint positions
+        :param tolerance: allowed tolerance in the final joint positions.
+        :param wait: if enabled, makes the fuctions wait until the
+            target joint position is reached
+
+        :type joints: list of string element type
+        :type positions: list of float element type
+        :type tolerance: float
+        :type wait: bool
+        '''
+
         # Check arguments
         supported_args = ("max_velocity_scaling_factor",
                           "planner_id",
@@ -196,13 +219,31 @@ class MoveGroupInterface(object):
             rospy.loginfo('Failed while waiting for action result.')
             return False
 
-    ## @brief Move the arm, based on a goal pose_stamped for the end effector.
+    
     def moveToPose(self,
                    pose_stamped,
                    gripper_frame,
                    tolerance=0.01,
                    wait=True,
                    **kwargs):
+
+        '''
+        Move the arm, based on a goal pose_stamped for the end effector.
+
+        :param pose_stamped: target pose to which we want to move
+                            specified link to
+        :param gripper_frame: frame/link which we want to move 
+                            to the specified target.
+        :param tolerance: allowed tolerance in the final joint positions.
+        :param wait: if enabled, makes the fuctions wait until the
+            target joint position is reached
+
+        :type pose_stamped: ros message object of type PoseStamped
+        :type gripper_frame: string
+        :type tolerance: float
+        :type wait: bool
+        '''
+
         # Check arguments
         supported_args = ("max_velocity_scaling_factor",
                           "planner_id",
@@ -317,7 +358,29 @@ class MoveGroupInterface(object):
                         link_name=None,  #usually it is Gripper Frame
                         start_state=None, #of type moveit robotstate
                         avoid_collisions=True):
+        '''
+        Movegroup-based cartesian path Control.
 
+        :param way_points: waypoints that the robot needs to track
+        :param way_point_frame: the frame in which the waypoints are given.
+        :param max_step: resolution (m) of the interpolation
+                        on the cartesian path
+        :param jump_treshold: a distance in joint space that, if exceeded between 
+                    consecutive points, is interpreted as a jump in IK solutions.
+        :param link_name: frame or link name for which cartesian trajectory 
+                        should be followed
+        :param start_state: robot start state of cartesian trajectory
+        :param avoid_collisions: if enabled, produces collision free cartesian
+                                path
+
+        :type way_points: list of ros message objests of type "Pose"
+        :type way_point_frame: string
+        :type max_step: float
+        :type jump_threshold: float
+        :type link_name: string
+        :type start_state: moveit_msgs/RobotState
+        :type avoid_collisions: bool
+        '''
         req = GetCartesianPathRequest()
         req.header.stamp = rospy.Time.now() 
         req.header.frame_id = way_point_frame
@@ -356,11 +419,15 @@ class MoveGroupInterface(object):
             rospy.logerr('Failed while waiting for action result.')
             return False
 
-    ## @brief Sets the planner_id used for all future planning requests.
-    ## @param planner_id The string for the planner id, set to None to clear
     def setPlannerId(self, planner_id):
+        '''
+        Sets the planner_id used for all future planning requests.
+        :param planner_id: The string for the planner id, set to None to clear
+        '''
         self.planner_id = str(planner_id)
 
-    ## @brief Set default planning time to be used for future planning request.
     def setPlanningTime(self, time):
+        '''
+        Set default planning time to be used for future planning request.
+        '''
         self.planning_time = time

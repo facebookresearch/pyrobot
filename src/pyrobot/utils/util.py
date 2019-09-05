@@ -27,7 +27,10 @@ def list_to_pose(pose_list):
         pose_msg.position.x = pose_list[0]
         pose_msg.position.y = pose_list[1]
         pose_msg.position.z = pose_list[2]
-        q = tf.transformations.quaternion_from_euler(pose_list[3], pose_list[4], pose_list[5])
+        q = tf.transformations.quaternion_from_euler(
+                                            pose_list[3],
+                                            pose_list[4], 
+                                            pose_list[5])
         pose_msg.orientation.x = q[0]
         pose_msg.orientation.y = q[1]
         pose_msg.orientation.z = q[2]
@@ -115,14 +118,10 @@ class MoveitObjectHandler(object):
         '''
         Constructor of the MoveitObjectHandler class.
         '''
-
         self.planning_scene_interface = PlanningSceneInterface(frame)
         self.scene_objects = []
         self.attached_objects = []
         
-
-        
-
     def add_world_object(self, id_name, pose, size, frame='/base_link'):
         '''
         Adds the particular BOX TYPE objects to the moveit planning scene
@@ -139,7 +138,8 @@ class MoveitObjectHandler(object):
         '''
         assert type(size) is tuple, 'size should be tuple'
         assert len(size)==3, 'size should be of length 3'
-        assert not id_name in self.scene_objects, 'Object with the same name already exists!'
+        assert not id_name in self.scene_objects, \
+                                'Object with the same name already exists!'
         self.scene_objects.append(id_name)
 
         pose = list_to_pose(pose)
@@ -149,7 +149,6 @@ class MoveitObjectHandler(object):
 
         self.planning_scene_interface.addBox(id_name, size[0], size[1], 
                                              size[2], pose_stamped)
-
 
     def remove_world_object(self, id_name):
         '''
@@ -180,7 +179,8 @@ class MoveitObjectHandler(object):
         '''
         assert type(size) is tuple, 'size should be tuple'
         assert len(size)==3, 'size should be of length 3'
-        assert not id_name in self.attached_objects, 'Object with the same name already exists!'
+        assert not id_name in self.attached_objects, \
+                                'Object with the same name already exists!'
         self.scene_objects.append(id_name)
         self.attached_objects.append(id_name)
 
@@ -272,7 +272,7 @@ class MoveitObjectHandler(object):
         Attaches gripper object to 'gripper' link.
         
         :param pose: pose of the object
-        :parma size: size of the object
+        :param size: size of the object
         
         
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
