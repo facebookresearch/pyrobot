@@ -195,7 +195,7 @@ class PlanningSceneInterface(object):
 
         :param name: Name of the object
         :param solid: The solid primitive to add
-        :param pose: A geometry_msgs/Pose for the object
+        :param ps: pose stamped msg containing the object's pose
         '''
         o = CollisionObject()
         o.header.stamp = rospy.Time.now()
@@ -224,7 +224,7 @@ class PlanningSceneInterface(object):
     def addMesh(self, name, ps, filename, use_service=True):
         '''
         Insert a mesh into the planning scene
-        
+
         :param name: Name of the object
         :param ps: A pose stamped message for the object
         :param filename: The mesh file to load
@@ -305,6 +305,7 @@ class PlanningSceneInterface(object):
         :param x: The x position in link_name frame
         :param y: The y position in link_name frame
         :param z: The z position in link_name frame
+        :param pose: pose msg containing the pose of the object
         :param link_name: Name of link to attach this object to
         :param touch_links: Names of robot links that can touch this object
         :param use_service: If true, update will be sent via apply service
@@ -327,18 +328,11 @@ class PlanningSceneInterface(object):
         self._attached_objects[name] = a
         self.sendUpdate(None, a, use_service)
 
-    def addCube(self, name, size, x, y, z, use_service=True):
-        '''
-        Insert new cube to planning scene
-
-        :param use_service: If true, update will be sent via apply service
-        '''
-        self.addBox(name, size, size, size, x, y, z, use_service)
-
     def removeCollisionObject(self, name, use_service=True):
         '''
         Removes an object from the scene
-
+        
+        :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         '''
         o = CollisionObject()
@@ -358,7 +352,8 @@ class PlanningSceneInterface(object):
     def removeAttachedObject(self, name, use_service=True):
         '''
         Removes an attached object. 
-
+        
+        :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         '''
         o = AttachedCollisionObject()
