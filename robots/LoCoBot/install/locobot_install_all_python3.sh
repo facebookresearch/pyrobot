@@ -136,7 +136,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
 fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
-	git clone --recurse-submodules https://github.com/kalyanvasudev/pyrobot.git
+	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
 	cd pyrobot
 	git checkout python3
 fi
