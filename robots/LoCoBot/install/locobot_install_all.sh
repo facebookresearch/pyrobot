@@ -37,7 +37,6 @@ fi
 echo "$INSTALL_TYPE installation type is chosen for LoCoBot."
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
 
-exit 1 # Exit script after printing help
 trap "exit" INT TERM ERR
 trap "kill 0" EXIT
 echo -e "\e[1;33m ******************************************* \e[0m"
