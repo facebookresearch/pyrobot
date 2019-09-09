@@ -1,4 +1,43 @@
 #!/usr/bin/env bash
+
+helpFunction()
+{
+   echo ""
+   echo -e "\t-t Decides the type of installation. Available Options: full or sim_only"
+   echo -e "\t-p Decides the python version for pyRobot. Available Options: 2 or 3"
+   exit 1 # Exit script after printing help
+}
+
+while getopts "t:p:" opt
+do
+   case "$opt" in
+      t ) INSTALL_TYPE="$OPTARG" ;;
+      p ) PYTHON_VERSION="$OPTARG" ;;
+      ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
+   esac
+done
+
+# Print helpFunction in case parameters are empty
+if [ -z "$INSTALL_TYPE" ] || [ -z "$PYTHON_VERSION" ]; then
+   echo "Some or all of the parameters are empty";
+   helpFunction
+fi
+
+# Check if the parameters are valid
+if [ $INSTALL_TYPE != "full" ] && [ $INSTALL_TYPE != "sim_only" ]; then
+	echo "Invalid Installation type";
+   helpFunction
+fi
+
+if [ $PYTHON_VERSION != "2" ] && [ $PYTHON_VERSION != "3" ]; then
+	echo "Invalid Python version type";
+   helpFunction
+fi
+
+echo "$INSTALL_TYPE installation type is chosen for LoCoBot."
+echo "Python $PYTHON_VERSION chosen for pyRobot installation."
+
+exit 1 # Exit script after printing help
 trap "exit" INT TERM ERR
 trap "kill 0" EXIT
 echo -e "\e[1;33m ******************************************* \e[0m"
@@ -25,16 +64,6 @@ if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok inst
         sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
 fi
 
-if [ -z "$1" ]; then
-	echo "Full Installation Option Chosen"
-	INSTALL_TYPE="full"
-elif [ "$1" == "sim" ]; then
-	echo "Sim-only Installation Option Chosen"
-	INSTALL_TYPE="sim_only"
-else 
-	echo "Invalid commandline argument"
-	exit 1
-fi
 
 # STEP 1 - Install basic dependencies
 declare -a package_names=(
@@ -155,6 +184,10 @@ fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
 	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
+	if [ $PYTHON_VERSION == "3" ]; then
+		cd pyrobot
+		git checkout python3
+	fi
 fi
 cd $LOCOBOT_FOLDER
 rosdep update 
@@ -188,19 +221,24 @@ if [ $INSTALL_TYPE == "full" ]; then
 fi
 
 # STEP 7 - Make a virtual env to install other dependencies (with pip)
-virtualenv_name="pyenv_pyrobot"
-VIRTUALENV_FOLDER=~/${virtualenv_name}
-if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-	virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
-	source ~/${virtualenv_name}/bin/activate
-	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	pip install --ignore-installed -r requirements.txt
-	cd $LOCOBOT_FOLDER/src/pyrobot/
-	pip install .
-	deactivate
+if [ $PYTHON_VERSION == "2" ]; then
+	virtualenv_name="pyenv_pyrobot"
+	VIRTUALENV_FOLDER=~/${virtualenv_name}
+	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
+		virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
+		source ~/${virtualenv_name}/bin/activate
+		cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+		pip install --ignore-installed -r requirements.txt
+		cd $LOCOBOT_FOLDER/src/pyrobot/
+		pip install .
+		deactivate
+	fi
 fi
-
-
+if [ $PYTHON_VERSION == "3" ]; then
+	cd $LOCOBOT_FOLDER/src/pyrobot
+	chmod +x install_pyrobot.sh
+	source install_pyrobot.sh
+fi
 
 # STEP 8 - Setup udev rules
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
