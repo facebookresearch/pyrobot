@@ -20,18 +20,24 @@ curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/L
 
 * Run the script to install everything (ROS, realsense driver, etc.). 
 
-If you want to use real LoCoBot robot, please run the following commands:
+If you want to use real LoCoBot robot, please run the following command:
 **Please connect the nuc machine to a realsense camera before running the following commands**.
-```bash
-chmod +x locobot_install_all.sh 
-./locobot_install_all.sh
-```
+  ```bash
+  #-t Decides the type of installation. Available Options: full or sim_only
+  #-p Decides the python version for pyRobot. Available Options: 2 or 3
+  chmod +x locobot_install_all.sh -t full -p 2
+  ./locobot_install_all.sh
+  ```
 
 If you want to use simulated LoCoBot in Gazebo only, please run the following commands instead:
-```bash
-chmod +x locobot_install_all.sh
-./locobot_install_all.sh sim
-```
+  ```bash
+  #-t Decides the type of installation. Available Options: full or sim_only
+  #-p Decides the python version for pyRobot. Available Options: 2 or 3
+  chmod +x locobot_install_all.sh -t sim_only -p 2
+  ./locobot_install_all.sh sim
+  ```
+
+**Note**: To install Python 3 compatible PyRobot, modify ```-p 2``` to ```-p 3``` in the above commands.
 
 ## Installing just PyRobot
 
