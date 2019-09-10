@@ -989,6 +989,7 @@ class Arm(object):
         start_time = time.time()
         vel_zero_times = 0
         # wait 10s in worse case
+        success = False
         for i in range(int(10 / self.configs.ARM.WAIT_MIN_TIME)):
             cmd(joint_vals)
             res = self._angle_error_is_small(joint_vals)
