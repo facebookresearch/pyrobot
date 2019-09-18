@@ -192,10 +192,8 @@ cd $LOCOBOT_FOLDER
 rosdep update 
 rosdep install --from-paths src -i -y
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
-if [ $INSTALL_TYPE == "full" ]; then
-	chmod +x install_orb_slam2.sh
-	source install_orb_slam2.sh
-fi
+chmod +x install_orb_slam2.sh
+source install_orb_slam2.sh
 cd $LOCOBOT_FOLDER
 if [ -d "$LOCOBOT_FOLDER/devel" ]; then
 	rm -rf $LOCOBOT_FOLDER/devel
