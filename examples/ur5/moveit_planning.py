@@ -18,12 +18,12 @@ def main():
         [-0.341, -0.384, -0.018, 1.533, -0.977, -1.492, -1.084]
     ]
 
-    config = dict(moveit_planner_type='ESTkConfigDefault')
-    bot = Robot('sawyer',
+    config = dict(moveit_planner='ESTkConfigDefault')
+    bot = Robot('ur5',
                 use_arm=True,
                 use_base=False,
                 use_camera=False,
-                use_gripper=True,
+                use_gripper=False,
                 arm_config=config)
     bot.arm.go_home()
 

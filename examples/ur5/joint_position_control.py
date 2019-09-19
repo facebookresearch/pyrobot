@@ -18,16 +18,16 @@ def main():
         [-0.341, -0.384, -0.018, 1.533, -0.977, -1.492, -1.084]
     ]
 
-    bot = Robot('sawyer',
+    bot = Robot('ur5',
                 use_arm=True,
                 use_base=False,
                 use_camera=False,
-                use_gripper=True)
+                use_gripper=False)
     bot.arm.go_home()
 
     time.sleep(1)
     for joint in target_joints:
-        bot.arm.set_joint_positions(joint, plan=False)
+        bot.arm.set_joint_positions(joint, plan=True)
         time.sleep(1)
 
     bot.arm.go_home()

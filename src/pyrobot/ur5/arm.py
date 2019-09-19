@@ -36,7 +36,7 @@ class UR5Arm(Arm):
         """
         Commands robot to home position
         """
-        self.set_joint_positions(np.zeros(self.arm_dof), plan=False)
+        self.set_joint_positions(np.zeros(self.arm_dof), plan=True)
 
     def move_to_neutral(self):
         """
@@ -45,7 +45,7 @@ class UR5Arm(Arm):
 
         # TODO: Change it to some better neutral position
         neutral_pos = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        self.set_joint_positions(neutral_pos, plan=False)
+        self.set_joint_positions(neutral_pos, plan=True)
 
     def _setup_joint_pub(self):
         rospy.loginfo("Setting up the joint publishers")

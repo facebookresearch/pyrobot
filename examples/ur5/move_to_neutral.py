@@ -13,11 +13,11 @@ from pyrobot import Robot
 
 
 def main():
-    bot = Robot('sawyer',
+    bot = Robot('ur5',
                 use_arm=True,
                 use_base=False,
                 use_camera=False,
-                use_gripper=True)
+                use_gripper=False)
     bot.arm.go_home()
     time.sleep(1)
     bot.arm.move_to_neutral()

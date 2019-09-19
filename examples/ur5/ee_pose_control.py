@@ -38,3 +38,36 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+import time
+
+from pyrobot import Robot
+
+import numpy as np
+
+def main():
+    bot = Robot('ur5',
+                use_arm=True,
+                use_base=False,
+                use_camera=False,
+                use_gripper=False)
+    bot.arm.go_home()
+    time.sleep(1)
+    bot.arm.move_to_neutral()
+    time.sleep(1)
+    bot.arm.go_home()
+    
+    angles = [0.1, 0.0, 0.0, 0.0, 0.0, 0.5]
+    bot.arm.set_joint_positions(angles, plan=True)
+    time.sleep(1)
+
+    angles = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    print(bot.arm.compute_fk_position(angles, 'ee_link'))
+
+    dis = np.array([ -0.5, 0.0, 0.2])
+    bot.arm.move_ee_xyz(displacement=dis, plan=True)
+
+if __name__ == "__main__":
+    main()

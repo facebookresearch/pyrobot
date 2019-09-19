@@ -700,6 +700,8 @@ class Arm(object):
             moveit_waypoints = []
             wpose = Pose()
             for i in range(waypoints.shape[1]):
+                if i < 1:
+                    continue
                 wpose.position.x = waypoints[0, i]
                 wpose.position.y = waypoints[1, i]
                 wpose.position.z = waypoints[2, i]
