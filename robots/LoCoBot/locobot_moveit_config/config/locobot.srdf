@@ -41,6 +41,7 @@
     <disable_collisions link1="ar_tag" link2="wheel_right_link" reason="Never" />
     <disable_collisions link1="ar_tag" link2="wrist_link" reason="Never" />
     <disable_collisions link1="arm_base_link" link2="base_link" reason="Default" />
+    <disable_collisions link1="arm_base_link" link2="battery_link" reason="Default" />
     <disable_collisions link1="arm_base_link" link2="cam_mount" reason="Never" />
     <disable_collisions link1="arm_base_link" link2="camera_link" reason="Never" />
     <disable_collisions link1="arm_base_link" link2="caster_back_link" reason="Never" />
@@ -53,6 +54,7 @@
     <disable_collisions link1="arm_base_link" link2="shoulder_link" reason="Adjacent" />
     <disable_collisions link1="arm_base_link" link2="wheel_left_link" reason="Never" />
     <disable_collisions link1="arm_base_link" link2="wheel_right_link" reason="Never" />
+    <disable_collisions link1="base_link" link2="battery_link" reason="Default" />
     <disable_collisions link1="base_link" link2="cam_mount" reason="Adjacent" />
     <disable_collisions link1="base_link" link2="camera_link" reason="Never" />
     <disable_collisions link1="base_link" link2="caster_back_link" reason="Adjacent" />
@@ -65,6 +67,19 @@
     <disable_collisions link1="base_link" link2="shoulder_link" reason="Never" />
     <disable_collisions link1="base_link" link2="wheel_left_link" reason="Adjacent" />
     <disable_collisions link1="base_link" link2="wheel_right_link" reason="Adjacent" />
+    <disable_collisions link1="battery_link" link2="cam_mount" reason="Never" />
+    <disable_collisions link1="battery_link" link2="camera_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="caster_back_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="caster_front_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="elbow_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="forearm_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="head_pan_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="head_tilt_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="plate_1" reason="Never" />
+    <disable_collisions link1="battery_link" link2="plate_2" reason="Adjacent" />
+    <disable_collisions link1="battery_link" link2="shoulder_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="wheel_left_link" reason="Never" />
+    <disable_collisions link1="battery_link" link2="wheel_right_link" reason="Never" />
     <disable_collisions link1="cam_mount" link2="caster_back_link" reason="Never" />
     <disable_collisions link1="cam_mount" link2="caster_front_link" reason="Never" />
     <disable_collisions link1="cam_mount" link2="head_pan_link" reason="Adjacent" />
@@ -85,6 +100,8 @@
     <disable_collisions link1="camera_link" link2="wheel_right_link" reason="Never" />
     <disable_collisions link1="caster_back_link" link2="caster_front_link" reason="Never" />
     <disable_collisions link1="caster_back_link" link2="elbow_link" reason="Never" />
+    <disable_collisions link1="caster_back_link" link2="finger_l" reason="Never" />
+    <disable_collisions link1="caster_back_link" link2="finger_r" reason="Never" />
     <disable_collisions link1="caster_back_link" link2="forearm_link" reason="Never" />
     <disable_collisions link1="caster_back_link" link2="gripper_link" reason="Never" />
     <disable_collisions link1="caster_back_link" link2="head_pan_link" reason="Never" />
@@ -118,6 +135,7 @@
     <disable_collisions link1="finger_l" link2="wrist_link" reason="Never" />
     <disable_collisions link1="finger_r" link2="forearm_link" reason="Never" />
     <disable_collisions link1="finger_r" link2="gripper_link" reason="Adjacent" />
+    <disable_collisions link1="finger_r" link2="head_pan_link" reason="Never" />
     <disable_collisions link1="finger_r" link2="wrist_link" reason="Never" />
     <disable_collisions link1="forearm_link" link2="gripper_link" reason="Never" />
     <disable_collisions link1="forearm_link" link2="wheel_left_link" reason="Never" />
