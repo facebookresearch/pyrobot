@@ -7,7 +7,6 @@
 import numpy as np
 import rospy
 
-from intera_interface import CHECK_VERSION
 from pyrobot.core import Arm
 
 
