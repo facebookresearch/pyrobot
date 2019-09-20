@@ -15,19 +15,23 @@ from pyrobot import Robot
 def main():
     # Example poses
     # orientation can be either rotation matrix or quaternion
-    target_poses = [{'position': np.array([0.8219, 0.0239, 0.0996]),
-                     'orientation': np.array([[-0.3656171, 0.6683861, 0.6477531],
-                                              [0.9298826, 0.2319989, 0.2854731],
-                                              [0.0405283, 0.7067082, -0.7063434]])},
-                    {'position': np.array([0.7320, 0.1548, 0.0768]),
-                     'orientation': np.array([0.1817, 0.9046, -0.1997, 0.3298])},
+    target_poses = [
+                    # {'position': np.array([-0.34716743,  0.38294711,  0.84603496]),
+                    #  'orientation': np.array([[-9.37140311e-01,  2.12233539e-01, -2.76992711e-01],
+                    #                          [-3.48952046e-01, -5.71587633e-01,  7.42643957e-01],
+                    #                          [-7.11652547e-04,  7.92618763e-01,  6.09717140e-01]])},
+                     {'position': np.array([-0.38293327,  0.5077687 ,  0.72630546]),
+                      'orientation': np.array([[-0.88077548, -0.45764594, -0.12163366],
+                                              [-0.14853923,  0.02311451,  0.98863634],
+                                              [-0.44963391,  0.88883402, -0.08833707]])},
                     ]
     bot = Robot('ur5',
                 use_arm=True,
                 use_base=False,
                 use_camera=False,
                 use_gripper=False)
-    bot.arm.go_home()
+    #bot.arm.go_home()
+    bot.arm.move_to_neutral()
     time.sleep(1)
     for pose in target_poses:
         bot.arm.set_ee_pose(plan=True, **pose)
@@ -35,39 +39,12 @@ def main():
 
     bot.arm.go_home()
 
-
-if __name__ == "__main__":
-    main()
-
-
-
-import time
-
-from pyrobot import Robot
-
-import numpy as np
-
-def main():
-    bot = Robot('ur5',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=False)
-    bot.arm.go_home()
-    time.sleep(1)
-    bot.arm.move_to_neutral()
-    time.sleep(1)
-    bot.arm.go_home()
-    
-    angles = [0.1, 0.0, 0.0, 0.0, 0.0, 0.5]
-    bot.arm.set_joint_positions(angles, plan=True)
-    time.sleep(1)
-
-    angles = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    #Forward Kinematics Example
+    angles = np.array([ 1.9278, -0.9005, -0.002,  -1.0271, -0.5009,  0.5031])
     print(bot.arm.compute_fk_position(angles, 'ee_link'))
 
-    dis = np.array([ -0.5, 0.0, 0.2])
-    bot.arm.move_ee_xyz(displacement=dis, plan=True)
+
+
 
 if __name__ == "__main__":
     main()
