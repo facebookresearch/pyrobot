@@ -24,27 +24,30 @@ def main():
     obstacle_handler = MoveitObjectHandler()
     # Add a table
     # position and orientation (quaternion: x, y, z, w) of the table
-    pose=[0.0,0.0,-0.3,0.,0.,0.,1.] # base_link frame
+    pose=[0.0,0.0,-0.2,0.,0.,0.,1.] # base_link frame
     # size of the table (x, y, z)
-    size=(2.0,2.0,0.2)
+    size=(2.0,2.0,0.1)
+    obstacle_handler.planning_scene_interface.clear()
     obstacle_handler.add_table(pose, size)
-
 
     plan = True
     bot.arm.move_to_neutral()
     time.sleep(1)
-    displacement = np.array([-0.5, 0, 0.2])
-    bot.arm.move_ee_xyz(displacement, plan=plan)
-    time.sleep(1)
+    displacement = np.array([-0.35, 0.0, 0.0])
+    bot.arm.move_ee_xyz(displacement, plan=plan, eef_step=0.009)
+    #time.sleep(1)
     print (bot.arm.get_joint_angles())
-    displacement = np.array([0.0, 0.0, 0.35])
-    bot.arm.move_ee_xyz(displacement, plan=plan)
+    displacement = np.array([0.0, 0, 0.25])
+    bot.arm.move_ee_xyz(displacement, plan=plan, eef_step=0.009)
     time.sleep(1)
-    displacement = np.array([0.0, 0.35, 0.0])
-    bot.arm.move_ee_xyz(displacement, plan=plan)
+    displacement = np.array([0.0, 0.25, 0.0])
+    bot.arm.move_ee_xyz(displacement, plan=plan, eef_step=0.009)
     time.sleep(1)
+
     bot.arm.go_home()
 
+    # clear all the obstacles from the scene
+    obstacle_handler.planning_scene_interface.clear()
 
 if __name__ == "__main__":
     main()

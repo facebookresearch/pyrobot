@@ -18,18 +18,18 @@ def main():
                 use_arm=True,
                 use_base=False,
                 use_camera=False,
-                use_gripper=True)
+                use_gripper=False)
     plan = True
     bot.arm.move_to_neutral()
     time.sleep(1)
-    displacement = np.array([-0.35, 0, 0.0])
+    displacement = np.array([0.0, 0.0, 0.15])
     bot.arm.move_ee_xyz(displacement, plan=plan)
     time.sleep(1)
     print (bot.arm.get_joint_angles())
-    displacement = np.array([0.0, 0.0, 0.35])
+    displacement = np.array([0.1, 0, 0.0])
     bot.arm.move_ee_xyz(displacement, plan=plan)
     time.sleep(1)
-    displacement = np.array([0.0, 0.35, 0.0])
+    displacement = np.array([0.0, 0.25, 0.0])
     bot.arm.move_ee_xyz(displacement, plan=plan)
     time.sleep(1)
     bot.arm.go_home()
