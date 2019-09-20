@@ -16,10 +16,6 @@ def main():
     # Example poses
     # orientation can be either rotation matrix or quaternion
     target_poses = [
-                    # {'position': np.array([-0.34716743,  0.38294711,  0.84603496]),
-                    #  'orientation': np.array([[-9.37140311e-01,  2.12233539e-01, -2.76992711e-01],
-                    #                          [-3.48952046e-01, -5.71587633e-01,  7.42643957e-01],
-                    #                          [-7.11652547e-04,  7.92618763e-01,  6.09717140e-01]])},
                      {'position': np.array([-0.38293327,  0.5077687 ,  0.72630546]),
                       'orientation': np.array([[-0.88077548, -0.45764594, -0.12163366],
                                               [-0.14853923,  0.02311451,  0.98863634],
@@ -30,7 +26,7 @@ def main():
                 use_base=False,
                 use_camera=False,
                 use_gripper=False)
-    #bot.arm.go_home()
+    
     bot.arm.move_to_neutral()
     time.sleep(1)
     for pose in target_poses:
