@@ -44,7 +44,7 @@ class UR5Arm(Arm):
         """
 
         # TODO: Change it to some better neutral position
-        neutral_pos = [ 1.9278, -0.9005, -0.002,  -1.0271, -0.0009,  0.0031]
+        neutral_pos = [-0.002, -0.9005, 1.9278, -1.0271, -0.0009,  0.0031]
         self.set_joint_positions(neutral_pos, plan=True)
 
     def _setup_joint_pub(self):

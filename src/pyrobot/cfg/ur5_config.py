@@ -17,7 +17,7 @@ _ARMC.MOVEGROUP_NAME = 'manipulator'
 _ARMC.ARM_BASE_FRAME = 'base_link'
 _ARMC.EE_FRAME = 'ee_link'
 _ARMC.ROSTOPIC_JOINT_STATES = '/joint_states'
-_ARMC.JOINT_NAMES = ["elbow_joint", "shoulder_lift_joint", "shoulder_pan_joint", "wrist_1_joint", "wrist_2_joint",
+_ARMC.JOINT_NAMES = ["shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint",
   "wrist_3_joint"]
 
 _ARMC.ARM_MAX_JOINT_VELOCITY = 0.6
