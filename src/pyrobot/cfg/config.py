@@ -15,6 +15,8 @@ _C.HAS_BASE = True
 _C.HAS_CAMERA = True
 # whether the robot has a gripper or not
 _C.HAS_GRIPPER = True
+# whether the robot has a common shared class among all components
+_C.HAS_COMMON = False
 
 _C.ARM = CN()
 # ARM class name
@@ -49,6 +51,8 @@ _C.CAMERA = CN()
 _C.BASE = CN()
 
 _C.GRIPPER = CN()
+
+_C.COMMON = CN()
 
 
 def get_cfg_defaults():
