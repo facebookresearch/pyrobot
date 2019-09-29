@@ -73,7 +73,7 @@ def make_cfg(SIM):
             "turn_right", habitat_sim.agent.ActuationSpec(amount=10.0)
         ),
     }
-
+    sim_cfg.default_agent_id = SIM.DEFAULT_AGENT_ID
     # # override action space to no-op to test physics
     # if sim_cfg.enable_physics:
     #     agent_cfg.action_space = {

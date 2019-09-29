@@ -8,9 +8,17 @@ import habitat_sim
 
 class HabitatSim(object):
 	"""Class that interfaces with Habitat sim"""
-	def __init__(self, arg):
-		super(HabitatSim, self).__init__()
-		self.arg = arg
+	def __init__(self, config): #TODO: extend the arguments of constructor
+		self.sim_config = config.SIMULATOR
+		self.sim = habitat_sim.Simulator(make_cfg(self.sim_config))
+
+	def get_agents():
+		''' Return a list of anget objects'''
+		return self.sim.agents
+
+	def get_sensors():
+		'''Returns a dictionary of sensorid's and sensors'''
+		return self.sim._sensors
 
 	def hi(self):
 		print('#################################')
