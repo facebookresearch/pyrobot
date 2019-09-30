@@ -41,15 +41,17 @@ _COMMONC.NAME = 'simulator'
 # Class type to assign to 'simulator' variable
 _COMMONC.CLASS = 'HabitatSim'
 
+_C.COMMON.SIMULATOR = CN()
 
 # Contains all of the simulator config
-_SIMULATORC = CN()
+_SIMULATORC = _C.COMMON.SIMULATOR
 
 _SIMULATORC.PHYSICS = False
 
 _SIMULATORC.DEFAULT_AGENT_ID = 0
 
-#_SIMULATORC.PHYSICS_CONFIG_FILE = None
+_SIMULATORC.SCENE_ID = "none"
+_SIMULATORC.PHYSICS_CONFIG_FILE = "none"
 
 # Contains the config of all the agents in simulation
 _SIMULATORC.AGENT = CN()

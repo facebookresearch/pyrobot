@@ -16,21 +16,21 @@ sys.path.append(ros_path)
 from cv_bridge import CvBridge, CvBridgeError
 
 
-class SimpleCamera(object):
+class SimpleCamera(Camera):
 	"""docstring for SimpleCamera"""
 	def __init__(self, configs, simulator):
-		super(SimpleCamera, self).__init__(configs, simulator)
-		self.sim = simulator
+		super(SimpleCamera, self).__init__(configs)
+		self.sim = simulator.sim
 
-	def get_rgb():
+	def get_rgb(self):
 		observations = self.sim.get_sensor_observations()
 		return observations["rgb"]
 
-	def get_depth():
+	def get_depth(self):
 		observations = self.sim.get_sensor_observations()
 		return observations["depth"]
 		
-	def get_rgb_depth():
+	def get_rgb_depth(self):
 		observations = self.sim.get_sensor_observations()
 		return  observations["rgb"], observations["depth"]
 

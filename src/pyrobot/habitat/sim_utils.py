@@ -13,7 +13,7 @@ import habitat_sim.bindings as hsim
 def make_cfg(SIM):
     sim_cfg = hsim.SimulatorConfiguration()
     
-    if SIM.SCENE_ID is None:
+    if SIM.SCENE_ID == "none":
         SIM.SCENE_ID = "data/scene_datasets/habitat-test-scenes/skokloster-castle.glb"
     sim_cfg.scene.id = SIM.SCENE_ID
 
@@ -41,21 +41,20 @@ def make_cfg(SIM):
     # create sensor specifications
     sensor_specs = []
     for sensor_uuid, sensor_params in sensors.items():
-        if settings[sensor_uuid]:
-            sensor_spec = hsim.SensorSpec()
-            sensor_spec.uuid = sensor_uuid
-            sensor_spec.sensor_type = sensor_params["sensor_type"]
-            sensor_spec.resolution = sensor_params["resolution"]
-            sensor_spec.position = sensor_params["position"]
-            sensor_spec.gpu2gpu_transfer = False # Todo: Move this to config
-            
-            print("==== Initialized Sensor Spec: =====")
-            print("Sensor uuid: ", sensor_spec.uuid)
-            print("Sensor type: ", sensor_spec.sensor_type)
-            print("Sensor position: ", sensor_spec.position)
-            print("===================================")
+        sensor_spec = hsim.SensorSpec()
+        sensor_spec.uuid = sensor_uuid
+        sensor_spec.sensor_type = sensor_params["sensor_type"]
+        sensor_spec.resolution = sensor_params["resolution"]
+        sensor_spec.position = sensor_params["position"]
+        sensor_spec.gpu2gpu_transfer = False # Todo: Move this to config
+        
+        print("==== Initialized Sensor Spec: =====")
+        print("Sensor uuid: ", sensor_spec.uuid)
+        print("Sensor type: ", sensor_spec.sensor_type)
+        print("Sensor position: ", sensor_spec.position)
+        print("===================================")
 
-            sensor_specs.append(sensor_spec)
+        sensor_specs.append(sensor_spec)
 
     # create agent specifications
     # TODO: Accomodate more agents

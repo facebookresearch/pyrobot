@@ -1,13 +1,12 @@
 import numpy as np
 import pyrobot.utils.util as prutil
-from pyrobot.core import Base
+
 
 
 class SimpleBase(object):
 	"""docstring for SimpleBase"""
 	def __init__(self, configs, simulator):
-		super(SimpleBase, self).__init__(configs, simulator)
-		self.sim = simulator
+		self.sim = simulator.sim
 
 	def execute_action(self, action):
 		# actions = "turn_right" or "turn_left" or "move_forward"
