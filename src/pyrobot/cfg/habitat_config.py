@@ -27,12 +27,12 @@ _C.HAS_COMMON = True
 # Camera specific setting
 _CAMERAC = _C.CAMERA
 # CAMERA class name
-_CAMERAC.CLASS = 'SimpleCamera'
+_CAMERAC.CLASS = 'LoCoBotCamera'
 
 # Base specific settings
 _BASEC = _C.BASE
 # BASE class name
-_BASEC.CLASS = 'SimpleBase'
+_BASEC.CLASS = 'LoCoBotBase'
 
 
 _COMMONC = _C.COMMON
@@ -71,8 +71,8 @@ _SIMULATORC.AGENT.SENSORS.TYPES = ["COLOR", "DEPTH"]
 
 # x, y, z and roll pitch yaw w.r.t to agent in meters and radians
 # TODO: Check if these units are consistant with Habitat-sim
-_SIMULATORC.AGENT.SENSORS.POSES = [[ 0.0, 0.0, 1.50, 0.0, 0.0, 0.0],
-								   [ 0.0, 0.0, 1.50, 0.0, 0.0, 0.0]]
+_SIMULATORC.AGENT.SENSORS.POSES = [[ 0.0, 0.6, 0.0, 0.0, 0.0, 0.0],
+								   [ 0.0, 0.6, 0.0, 0.0, 0.0, 0.0]]
 # Height and Widhth in Pixels
 _SIMULATORC.AGENT.SENSORS.RESOLUTIONS =  [[512, 512], [512, 512]]
 

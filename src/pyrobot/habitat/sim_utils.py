@@ -63,7 +63,7 @@ def make_cfg(SIM):
     # TODO: Move agent actions to config
     agent_cfg.action_space = {
         "move_forward": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=0.25)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=1.0)
         ),
         "turn_left": habitat_sim.agent.ActionSpec(
             "turn_left", habitat_sim.agent.ActuationSpec(amount=10.0)
