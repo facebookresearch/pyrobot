@@ -56,17 +56,22 @@ class UrArm(Arm):
         return self._collision_state
 
     def _setup_joint_pub(self):
-        # TODO: raise error
-        pass
+        raise NotImplementedError
     
     def _pub_joint_positions(self, positions):
-        # TODO: raise error
-        pass
+        """
+        TODO: Figure out way to set joint angles 
+        """
+        raise NotImplementedError
 
     def _pub_joint_velocities(self, velocities):
-        # TODO: raise error
-        pass
+        """
+        TODO: Figure out way to set velocity
+        """
+        raise NotImplementedError
 
     def _pub_joint_torques(self, torques):
-        # TODO: raise error
-        pass
+        """
+        UR doesnt allow to set torque on joints
+        """
+        raise NotImplementedError
