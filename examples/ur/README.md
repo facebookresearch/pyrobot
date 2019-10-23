@@ -7,6 +7,7 @@ Instructions are specifically for `UR-e` arm running `5.4` software version
 ## Getting started
 Install ros package for UR-e arm
 ```
+sudo apt-get install ros-kinetic-universal-robots
 mkdir -p ~/ur_ws/src
 cd ~/ur_ws/src
 git clone -b kinetic_ur_5_4 https://github.com/AdmiralWall/ur_modern_driver.git
@@ -41,18 +42,28 @@ After robot is powered on properly, screen will look like this
 In the following commands replace `X` with the robot `eg. [3_e, 5_e, 10_e]
 `
 1. Connect to robot
+* Real Robot
 ```bash
 roslaunch ur_modern_driver urX_bringup_joint_limited.launch robot_ip:=IP_OF_THE_ROBOT use_lowbandwidth_trajectory_follower:=true
 ```
+* Simulator
+```
+roslaunch ur_gazebo urX.launch
+```
 
 2. Launch MoveIt for robot in a new terminal
+* Real Robot
 ```bash
-roslaunch urX_e_moveit_config ur5_e_moveit_planning_execution.launch
+roslaunch urX_moveit_config urX_moveit_planning_execution.launch
+```
+* Simulator
+```
+roslaunch urX_moveit_config ur_moveit_planning_execution.launch sim:=true
 ```
 
 3. Launch RViz with a configuration including the MoveIt! 
 ```bash
-roslaunch ur5_e_moveit_config moveit_rviz.launch config:=true
+roslaunch urX_moveit_config moveit_rviz.launch config:=true
 ```
 
 4. Run PyRobot examples in a new terminal
