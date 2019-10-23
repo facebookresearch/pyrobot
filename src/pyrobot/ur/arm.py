@@ -56,7 +56,10 @@ class UrArm(Arm):
         return self._collision_state
 
     def _setup_joint_pub(self):
-        raise NotImplementedError
+        """
+        It should raise raise NotImplementedError, however it has been explicitly called in in core.py
+        """
+        pass
     
     def _pub_joint_positions(self, positions):
         """

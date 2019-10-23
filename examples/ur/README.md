@@ -2,7 +2,7 @@
 # Examples for using PyRobot API to control UR-e arm
 
 ## Note
-Instructions are specifically for `UR-e` arm running `5.4` software version
+Fore real robot, instructions are specifically for `UR-e` arm running `5.4` software version
 
 ## Getting started
 Install ros package for UR-e arm
@@ -39,7 +39,7 @@ After robot is powered on properly, screen will look like this
 ![image](https://drive.google.com/uc?export=view&id=1KNX6PZJetZsPCPGaLvwHhs8wEfVUlBBC)
 
 ## Running the examples
-In the following commands replace `X` with the robot `eg. [3_e, 5_e, 10_e]
+In the following commands replace `X` with the robot `eg. for real robot - [3_e, 5_e, 10_e], for simulator - [3, 5, 10]
 `
 1. Connect to robot
 * Real Robot
@@ -48,7 +48,7 @@ roslaunch ur_modern_driver urX_bringup_joint_limited.launch robot_ip:=IP_OF_THE_
 ```
 * Simulator
 ```
-roslaunch ur_gazebo urX.launch
+roslaunch ur_gazebo urX_bringup_joint_limited.launch
 ```
 
 2. Launch MoveIt for robot in a new terminal
@@ -58,7 +58,7 @@ roslaunch urX_moveit_config urX_moveit_planning_execution.launch
 ```
 * Simulator
 ```
-roslaunch urX_moveit_config ur_moveit_planning_execution.launch sim:=true
+roslaunch urX_moveit_config urX_moveit_planning_execution.launch sim:=true
 ```
 
 3. Launch RViz with a configuration including the MoveIt! 
