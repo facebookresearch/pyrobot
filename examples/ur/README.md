@@ -2,7 +2,7 @@
 # Examples for using PyRobot API to control UR-e arm
 
 ## Note
-Instructions are specifically for UR-e arm running 5.4 software version
+Instructions are specifically for `UR-e` arm running `5.4` software version
 
 ## Getting started
 Install ros package for UR-e arm
@@ -18,10 +18,24 @@ echo "source ~/ur_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## Setting up the robot
-```
-Need to add steps here
-```
+## Setting up the real robot
+1. Power on the robot from UR control panel (its 3 step process)
+
+On the main screen press `Power off` button on bottom left corner 
+![image](https://drive.google.com/uc?export=view&id=1Wsd7lUug2NkAwbeKBT--u6oxg1_-KF4Y)
+
+On the next screen press `ON` button
+![image](https://drive.google.com/uc?export=view&id=1ZFs3g0JPkGlD1fP3Cyyd1lHTvrlDML8S)
+
+On the next screen press `Start` button
+![image](https://drive.google.com/uc?export=view&id=1Joo-v_vk2NiS_SCzzpBNNr8uZnrZwVQI)
+
+After robot is powered on properly, screen will look like this
+![image](https://drive.google.com/uc?export=view&id=110rn_BMLznj3QFXsrfLO3NTwPFZUapXZ)
+
+2. Toggle Control to `Remote`. 
+
+![image](https://drive.google.com/uc?export=view&id=1KNX6PZJetZsPCPGaLvwHhs8wEfVUlBBC)
 
 ## Running the examples
 In the following commands replace `X` with the robot `eg. [3_e, 5_e, 10_e]
@@ -46,3 +60,7 @@ roslaunch ur5_e_moveit_config moveit_rviz.launch config:=true
 source ~/pyenv_pyrobot/bin/activate
 python move_to_neutral.py
 ```
+
+## Things Missing
+1. Velocity Control
+2. Torque Control
