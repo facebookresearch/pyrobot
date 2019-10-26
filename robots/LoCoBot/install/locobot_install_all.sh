@@ -216,28 +216,31 @@ fi
 
 # STEP 7 - Make a virtual env to install other dependencies (with pip)
 if [ $PYTHON_VERSION == "2" ]; then
-	virtualenv_name="pyenv_pyrobot"
-	VIRTUALENV_FOLDER=~/${virtualenv_name}
-	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-		virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
-		source ~/${virtualenv_name}/bin/activate
-		cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-		pip install --ignore-installed -r requirements.txt
-		cd $LOCOBOT_FOLDER/src/pyrobot/
-		pip install .
-		
-		cd $LOCOBOT_FOLDER
-		catkin_make
-		echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
-		source $LOCOBOT_FOLDER/devel/setup.bash
-		
-		deactivate
-	fi
+	cd $LOCOBOT_FOLDER/src/pyrobot
+	chmod +x install_pyrobot.sh
+	source install_pyrobot.sh  -p 2
+	
+	virtualenv_name="pyenv_pyrobot_python2"
+	source ~/${virtualenv_name}/bin/activate
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	pip install --ignore-installed -r requirements_python2.txt
+	
+	cd $LOCOBOT_FOLDER
+	catkin_make
+	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
+	source $LOCOBOT_FOLDER/devel/setup.bash
+	deactivate
 fi
 if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER/src/pyrobot
 	chmod +x install_pyrobot.sh
-	source install_pyrobot.sh
+	source install_pyrobot.sh  -p 3
+
+	virtualenv_name="pyenv_pyrobot_python3"
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	source ~/${virtualenv_name}/bin/activate
+	pip3 install --ignore-installed -r requirements_python3.txt
+	deactivate
 fi
 
 # STEP 8 - Setup udev rules
