@@ -201,10 +201,11 @@ fi
 if [ -d "$LOCOBOT_FOLDER/build" ]; then
 	rm -rf $LOCOBOT_FOLDER/build
 fi
-catkin_make
-echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
-source $LOCOBOT_FOLDER/devel/setup.bash
-
+if [ $PYTHON_VERSION == "3" ]; then
+	catkin_make
+	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
+	source $LOCOBOT_FOLDER/devel/setup.bash
+fi
 
 if [ $INSTALL_TYPE == "full" ]; then
 	# STEP 6 - Dependencies and config for calibration
@@ -228,6 +229,12 @@ if [ $PYTHON_VERSION == "2" ]; then
 		pip install --ignore-installed -r requirements.txt
 		cd $LOCOBOT_FOLDER/src/pyrobot/
 		pip install .
+		
+		cd $LOCOBOT_FOLDER
+		catkin_make
+		echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
+		source $LOCOBOT_FOLDER/devel/setup.bash
+		
 		deactivate
 	fi
 fi
