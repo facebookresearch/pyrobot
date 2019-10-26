@@ -13,7 +13,7 @@ from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from nav_msgs.srv import GetPlan
 
-from bicycle_model import wrap_theta, Foo, BicycleSystem
+from pyrobot.locobot.bicycle_model import wrap_theta, Foo, BicycleSystem
 
 ANGLE_THRESH = 0.05
 
@@ -258,7 +258,7 @@ class MoveBasePlanner:
             self.plan_srv = rospy.ServiceProxy(
                 self.configs.BASE.PLAN_TOPIC, GetPlan)
         except rospy.ServiceException:
-            rospy.loginfo(
+            rospy.logerr(
                 "Timed out waiting for the planning service. \
                     Make sure build_map in script and \
                            use_map in roslauch are set to the same value")

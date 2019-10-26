@@ -101,7 +101,7 @@ def main(_):
         # Kobuki base tests. s-gupta: I had to split the following tests into
         # multiple calls to pytest, and starting gazebo multiple times, in
         # order for things to work. Ditto for create.
-        args = 'base:=kobuki use_rviz:=false use_sim:=true'
+        args = 'base:=kobuki use_rviz:=false use_sim:=true use_arm:=true'
         kobuki_p = launch_gazebo(args)
         test_cmds = ['test_make_robots.py test_arm_utils.py test_arm_controls.py'
                      ' test_camera.py --botname locobot']

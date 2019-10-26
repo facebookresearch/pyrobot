@@ -4,15 +4,38 @@
 # LICENSE file in the root directory of this source tree.
 
 import sys
-import PyKDL as kdl
 import numpy as np
 import rospy
 import tf
-import tf_conversions
 import geometry_msgs.msg
-from geometry_msgs.msg import PoseStamped
-import moveit_commander
-from moveit_commander import conversions
+from geometry_msgs.msg import PoseStamped, Pose
+from pyrobot.utils.planning_scene_interface import PlanningSceneInterface
+
+
+
+def list_to_pose(pose_list):
+    pose_msg = Pose()
+    if len(pose_list) == 7:
+        pose_msg.position.x = pose_list[0]
+        pose_msg.position.y = pose_list[1]
+        pose_msg.position.z = pose_list[2]
+        pose_msg.orientation.x = pose_list[3]
+        pose_msg.orientation.y = pose_list[4]
+        pose_msg.orientation.z = pose_list[5]
+        pose_msg.orientation.w = pose_list[6]
+    elif len(pose_list) == 6: 
+        pose_msg.position.x = pose_list[0]
+        pose_msg.position.y = pose_list[1]
+        pose_msg.position.z = pose_list[2]
+        q = tf.transformations.quaternion_from_euler(
+                                            pose_list[3],
+                                            pose_list[4], 
+                                            pose_list[5])
+        pose_msg.orientation.x = q[0]
+        pose_msg.orientation.y = q[1]
+        pose_msg.orientation.z = q[2]
+        pose_msg.orientation.w = q[3]
+    return pose_msg
 
 def get_tf_transform(tf_listener, tgt_frame, src_frame):
     """
@@ -43,27 +66,6 @@ def get_tf_transform(tf_listener, tgt_frame, src_frame):
         raise RuntimeError('Cannot fetch the transform from'
                            ' {0:s} to {1:s}'.format(tgt_frame, src_frame))
     return trans, quat
-
-
-def transform_to_ros_pose(trans, quat, frame):
-    """
-    Converts transformation (translation, quaternion) into ROS PoseStamped
-
-    :param trans: translation (x,y,z)
-    :param quat: rotation as a quaternion (x,y,z,w)
-    :param frame: reference frame of pose
-    :type trans: tuple (of floats)
-    :type quat: tuple (of floats)
-    :type frame: string
-
-    :returns: pose
-    :rtype: ROS geometry_msgs/PoseStamped
-    """
-    pose = PoseStamped()
-    pose.pose = tf_conversions.Pose(trans, quat)
-    pose.header.frame_id = frame
-    return pose
-
 
 def quat_to_rot_mat(quat):
     """
@@ -108,56 +110,21 @@ def rot_mat_to_quat(rot):
     return tf.transformations.quaternion_from_matrix(R)
 
 
-def kdl_array_to_numpy(kdl_data):
-    np_array = np.zeros((kdl_data.rows(), kdl_data.columns()))
-    for i in range(kdl_data.rows()):
-        for j in range(kdl_data.columns()):
-            np_array[i, j] = kdl_data[i, j]
-    return np_array
-
-
-def joints_to_kdl(joint_values):
-    """
-    Convert the numpy array into KDL data format
-
-    :param joint_values: values for the joints
-    :return: kdl data type
-    """
-    num_jts = joint_values.size
-    kdl_array = kdl.JntArray(num_jts)
-    for idx in range(num_jts):
-        kdl_array[idx] = joint_values[idx]
-    return kdl_array
-
-
-def kdl_frame_to_numpy(frame):
-    """
-    Convert KDL Frame data into numpy array
-    :param frame: data of KDL Frame
-    :return: transformation matrix in numpy [4x4]
-    """
-    p = frame.p
-    M = frame.M
-    return np.array([[M[0, 0], M[0, 1], M[0, 2], p.x()],
-                     [M[1, 0], M[1, 1], M[1, 2], p.y()],
-                     [M[2, 0], M[2, 1], M[2, 2], p.z()],
-                     [0, 0, 0, 1]])
-
-
 class MoveitObjectHandler(object):
     '''
     Use this class to create objects that reside in moveit environments
     '''
-    def __init__(self):
+    def __init__(self, frame='/base_link'):
         '''
         Constructor of the MoveitObjectHandler class.
         '''
-        moveit_commander.roscpp_initialize(sys.argv)
-        self.scene = moveit_commander.PlanningSceneInterface()
-
-    def add_world_object(self, id_name, pose, size, frame='/base'):
+        self.planning_scene_interface = PlanningSceneInterface(frame)
+        self.scene_objects = []
+        self.attached_objects = []
+        
+    def add_world_object(self, id_name, pose, size, frame='/base_link'):
         '''
-        Adds the particular object to the moveit planning scene
+        Adds the particular BOX TYPE objects to the moveit planning scene
         
         :param id_name: unique id that object should be labeled with
         :param pose: pose of the object
@@ -171,13 +138,17 @@ class MoveitObjectHandler(object):
         '''
         assert type(size) is tuple, 'size should be tuple'
         assert len(size)==3, 'size should be of length 3'
-        pose = conversions.list_to_pose(pose)
+        assert not id_name in self.scene_objects, \
+                                'Object with the same name already exists!'
+        self.scene_objects.append(id_name)
+
+        pose = list_to_pose(pose)
         pose_stamped = PoseStamped()
         pose_stamped.header.frame_id = frame
         pose_stamped.pose = pose
-        self.scene.add_box(id_name, pose_stamped, size)
-        rospy.sleep(1.0)
-        self.scene.add_box(id_name, pose_stamped, size)
+
+        self.planning_scene_interface.addBox(id_name, size[0], size[1], 
+                                             size[2], pose_stamped)
 
     def remove_world_object(self, id_name):
         '''
@@ -187,12 +158,13 @@ class MoveitObjectHandler(object):
         :type frame: string
 
         ''' 
-        self.scene.remove_world_object(id_name)
-        self.scene.remove_world_object(id_name)
+        assert id_name in self.scene_objects, 'Incorrect object name!'
+        self.scene_objects.remove(id_name)
+        self.planning_scene_interface.removeCollisionObject(id_name)
 
     def attach_arm_object(self, link_name, id_name, pose, size):
         '''
-        Attaches the specified object to the robot
+        Attaches the specified Box type object to the robot
 
         :param link_name: name of the link to which the bject 
                           should be attached
@@ -207,13 +179,13 @@ class MoveitObjectHandler(object):
         '''
         assert type(size) is tuple, 'size should be tuple'
         assert len(size)==3, 'size should be of length 3'
-        pose = conversions.list_to_pose(pose)
-        pose_stamped = PoseStamped()
-        pose_stamped.header.frame_id = link_name
-        pose_stamped.pose = pose
-        self.scene.attach_box(link_name, id_name, pose_stamped, size)
-        rospy.sleep(1.0)
-        self.scene.attach_box(link_name, id_name, pose_stamped, size)
+        assert not id_name in self.attached_objects, \
+                                'Object with the same name already exists!'
+        self.scene_objects.append(id_name)
+        self.attached_objects.append(id_name)
+
+        self.planning_scene_interface.attachBox(id_name, size[0], size[1], size[2],
+                                                pose, link_name)        
 
     def detach_arm_object(self, link_name, id_name, remove_from_world=True):
         '''
@@ -229,8 +201,10 @@ class MoveitObjectHandler(object):
         :type id_name: string
         :type remove_from_world: bool
         '''
-        self.scene.remove_attached_object(link_name, id_name)
-        self.scene.remove_attached_object(link_name, id_name)
+        assert id_name in self.attached_objects, 'Incorrect object name!'
+        self.planning_scene_interface.remove_attached_object(link_name, id_name)
+        self.attached_objects.remove(id_name)
+
         if remove_from_world is True:
             self.remove_world_object(id_name)
 
@@ -298,7 +272,7 @@ class MoveitObjectHandler(object):
         Attaches gripper object to 'gripper' link.
         
         :param pose: pose of the object
-        :parma size: size of the object
+        :param size: size of the object
         
         
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)

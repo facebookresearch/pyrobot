@@ -19,7 +19,7 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import OccupancyGrid
 from orb_slam2_ros.msg import Traj
 
-from pcdlib import PointCloudProcessor
+from orb_slam2_ros.pcdlib import PointCloudProcessor
 
 
 class VisualSLAM(object):

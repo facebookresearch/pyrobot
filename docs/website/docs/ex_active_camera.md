@@ -14,21 +14,21 @@ Here is a demo video showing what one can accomplish through this tutorial.
 
 * Make sure robot is turned ON
 
-* Start the python virtual environment
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Source virtual env-->
-```bash
-source ~/pyenv_pyrobot/bin/activate
-```
-<!--END_DOCUSAURUS_CODE_TABS--> 
-
 * Launch the robot driver
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Launch driver-->
 ```bash
 roslaunch locobot_control main.launch use_camera:=true
+```
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
+* Start the python virtual environment
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Source virtual env-->
+```bash
+load_pyrobot_env
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 

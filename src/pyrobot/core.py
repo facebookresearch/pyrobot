@@ -13,18 +13,16 @@ import threading
 import time
 from abc import ABCMeta, abstractmethod
 
-import PyKDL as kdl
-import moveit_commander
 import numpy as np
 import rospy
 import tf
-from geometry_msgs.msg import Twist
-from kdl_parser_py.urdf import treeFromParam
+from geometry_msgs.msg import Twist, Pose, PoseStamped
 from sensor_msgs.msg import JointState
-from trac_ik_python import trac_ik
 
-import util as prutil
+import pyrobot.utils.util as prutil
 
+from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
+from pyrobot_bridge.srv import *
 
 class Robot:
     """
@@ -302,6 +300,7 @@ class Arm(object):
     def __init__(self,
                  configs,
                  moveit_planner='ESTkConfigDefault',
+                 planning_time=30,
                  analytical_ik=None,
                  use_moveit=True):
         """
@@ -320,33 +319,21 @@ class Arm(object):
         """
         self.configs = configs
         self.moveit_planner = moveit_planner
+        self.planning_time = planning_time
         self.moveit_group = None
-        self.scene = None
         self.use_moveit = use_moveit
 
         self.joint_state_lock = threading.RLock()
         self.tf_listener = tf.TransformListener()
         if self.use_moveit:
             self._init_moveit()
-        robot_description = self.configs.ARM.ARM_ROBOT_DSP_PARAM_NAME
-        urdf_string = rospy.get_param(robot_description)
-        self.num_ik_solver = trac_ik.IK(configs.ARM.ARM_BASE_FRAME,
-                                        configs.ARM.EE_FRAME,
-                                        urdf_string=urdf_string)
+
         if analytical_ik is not None:
             self.ana_ik_solver = analytical_ik(configs.ARM.ARM_BASE_FRAME,
                                                configs.ARM.EE_FRAME)
 
-        _, self.urdf_tree = treeFromParam(robot_description)
-        self.urdf_chain = self.urdf_tree.getChain(configs.ARM.ARM_BASE_FRAME,
-                                                  configs.ARM.EE_FRAME)
-        self.arm_joint_names = self._get_kdl_joint_names()
-        self.arm_link_names = self._get_kdl_link_names()
+        self.arm_joint_names = self.configs.ARM.JOINT_NAMES
         self.arm_dof = len(self.arm_joint_names)
-
-        self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
-        self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
-        self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
 
         # Subscribers
         self._joint_angles = dict()
@@ -355,9 +342,28 @@ class Arm(object):
         rospy.Subscriber(configs.ARM.ROSTOPIC_JOINT_STATES, JointState,
                          self._callback_joint_states)
 
+        # Ros-Params
+        rospy.set_param('pyrobot/base_link', configs.ARM.ARM_BASE_FRAME)
+        rospy.set_param('pyrobot/gripper_link', configs.ARM.EE_FRAME)
+        rospy.set_param('pyrobot/robot_description', 
+                        configs.ARM.ARM_ROBOT_DSP_PARAM_NAME)
+
         # Publishers
         self.joint_pub = None
         self._setup_joint_pub()
+
+        # Services
+        self._ik_service = rospy.ServiceProxy('pyrobot/ik', IkCommand)
+        try:
+            self._ik_service.wait_for_service(timeout=3)
+        except:
+            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")
+
+        self._fk_service = rospy.ServiceProxy('pyrobot/fk', FkCommand)
+        try:
+            self._fk_service.wait_for_service(timeout=3)
+        except:
+            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")  
 
     @abstractmethod
     def go_home(self):
@@ -549,8 +555,17 @@ class Arm(object):
         if isinstance(positions, np.ndarray):
             positions = positions.flatten().tolist()
         if plan:
-            moveit_plan = self._compute_plan(positions)
-            result = self._execute_plan(moveit_plan, wait=wait)
+            if not self.use_moveit:
+                raise ValueError('Moveit is not initialized, '
+                                 'did you pass in use_moveit=True?')
+            if isinstance(positions, np.ndarray):
+                positions = positions.tolist()
+
+            rospy.loginfo('Moveit Motion Planning...')
+            result = self.moveit_group.moveToJointPosition(
+                        self.arm_joint_names,
+                        positions,
+                        wait=wait)
         else:
             self._pub_joint_positions(positions)
             if wait:
@@ -674,20 +689,16 @@ class Arm(object):
                 raise ValueError('Using plan=True when moveit is not'
                                  ' initialized, did you pass '
                                  'in use_moveit=True?')
-            # ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
-            # cur_pos, cur_ori, cur_quat = ee_pose
-            cur_pose = self.moveit_group.get_current_pose()
-            cur_pos = np.array([cur_pose.pose.position.x,
-                                cur_pose.pose.position.y,
-                                cur_pose.pose.position.z]).reshape(-1, 1)
-            cur_quat = np.array([cur_pose.pose.orientation.x,
-                                 cur_pose.pose.orientation.y,
-                                 cur_pose.pose.orientation.z,
-                                 cur_pose.pose.orientation.w])
+            
+            ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+            cur_pos, cur_ori, cur_quat = ee_pose
+            cur_pos = np.array(cur_pos).reshape(-1, 1)
+            cur_quat = np.array(cur_quat)
+
             waypoints_sp = np.linspace(0, path_len, num_pts)
             waypoints = cur_pos + waypoints_sp / path_len * displacement
             moveit_waypoints = []
-            wpose = self.moveit_group.get_current_pose().pose
+            wpose = Pose()
             for i in range(waypoints.shape[1]):
                 wpose.position.x = waypoints[0, i]
                 wpose.position.y = waypoints[1, i]
@@ -697,15 +708,22 @@ class Arm(object):
                 wpose.orientation.z = cur_quat[2]
                 wpose.orientation.w = cur_quat[3]
                 moveit_waypoints.append(copy.deepcopy(wpose))
-            (plan, fraction) = self.moveit_group.compute_cartesian_path(
-                moveit_waypoints,  # waypoints to follow
-                eef_step,  # eef_step
-                0.0)  # jump_threshold
-            self._execute_plan(plan, wait=True)
-            cur_pose = self.moveit_group.get_current_pose()
-            cur_pos = np.array([cur_pose.pose.position.x,
-                                cur_pose.pose.position.y,
-                                cur_pose.pose.position.z]).reshape(-1, 1)
+
+
+            result = self.moveit_group.followCartesian(
+                way_points=moveit_waypoints,  # waypoints to follow
+                way_point_frame=self.configs.ARM.ARM_BASE_FRAME,
+                max_step=eef_step,  # eef_step
+                jump_threshold=0.0)  # jump_threshold
+            
+            if result is False:
+                return False
+            
+            ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+            cur_pos, cur_ori, cur_quat = ee_pose
+
+            cur_pos = np.array(cur_pos).reshape(-1, 1)
+
             success = True
             diff = cur_pos.flatten() - waypoints[:, -1].flatten()
             error = np.linalg.norm(diff)
@@ -713,25 +731,6 @@ class Arm(object):
                 rospy.logerr('Move end effector along xyz failed!')
                 success = False
             return success
-
-    def get_jacobian(self, joint_angles):
-        """
-        Return the geometric jacobian on the given joint angles.
-        Refer to P112 in "Robotics: Modeling, Planning, and Control"
-
-        :param joint_angles: joint_angles
-        :type joint_angles: list or flattened np.ndarray
-        :return: jacobian
-        :rtype: np.ndarray
-        """
-        q = kdl.JntArray(self.urdf_chain.getNrOfJoints())
-        for i in range(q.rows()):
-            q[i] = joint_angles[i]
-        jac = kdl.Jacobian(self.urdf_chain.getNrOfJoints())
-        fg = self.jac_solver.JntToJac(q, jac)
-        assert fg == 0, 'KDL JntToJac error!'
-        jac_np = prutil.kdl_array_to_numpy(jac)
-        return jac_np
 
     def compute_fk_position(self, joint_positions, des_frame):
         """
@@ -747,19 +746,35 @@ class Arm(object):
         :rtype: np.ndarray, np.ndarray
         """
         joint_positions = joint_positions.flatten()
-        assert joint_positions.size == self.arm_dof
-        kdl_jnt_angles = prutil.joints_to_kdl(joint_positions)
 
-        kdl_end_frame = kdl.Frame()
-        idx = self.arm_link_names.index(des_frame) + 1
-        fg = self.fk_solver_pos.JntToCart(kdl_jnt_angles,
-                                          kdl_end_frame,
-                                          idx)
-        assert fg == 0, 'KDL Pos JntToCart error!'
-        pose = prutil.kdl_frame_to_numpy(kdl_end_frame)
-        pos = pose[:3, 3].reshape(-1, 1)
-        rot = pose[:3, :3]
+        req = FkCommandRequest()
+        req.joint_angles = list(joint_positions)
+        req.end_frame = des_frame
+        try:
+            resp = self._fk_service(req)
+        except:
+            rospy.logerr("FK Service call failed")
+            resp = FkCommandResponse()
+            resp.success = False
+
+        if not resp.success:
+            return None
+
+        pos = np.asarray(resp.pos)
+        rot = prutil.quat_to_rot_mat(resp.quat)
         return pos, rot
+
+    def get_jacobian(self, joint_angles):
+        """
+        Return the geometric jacobian on the given joint angles.
+        Refer to P112 in "Robotics: Modeling, Planning, and Control"
+
+        :param joint_angles: joint_angles
+        :type joint_angles: list or flattened np.ndarray
+        :return: jacobian
+        :rtype: np.ndarray
+        """
+        raise NotImplementedError
 
     def compute_fk_velocity(self, joint_positions,
                             joint_velocities, des_frame):
@@ -778,19 +793,7 @@ class Arm(object):
                  velocities (vx, vy, vz, wx, wy, wz)
         :rtype: np.ndarray
         """
-        kdl_end_frame = kdl.FrameVel()
-        kdl_jnt_angles = prutil.joints_to_kdl(joint_positions)
-        kdl_jnt_vels = prutil.joints_to_kdl(joint_velocities)
-        kdl_jnt_qvels = kdl.JntArrayVel(kdl_jnt_angles, kdl_jnt_vels)
-        idx = self.arm_link_names.index(des_frame) + 1
-        fg = self.fk_solver_vel.JntToCart(kdl_jnt_qvels,
-                                          kdl_end_frame,
-                                          idx)
-        assert fg == 0, 'KDL Vel JntToCart error!'
-
-        end_twist = kdl_end_frame.GetTwist()
-        return np.array([end_twist[0], end_twist[1], end_twist[2],
-                         end_twist[3], end_twist[4], end_twist[5]])
+        raise NotImplementedError
 
     def compute_ik(self, position, orientation, qinit=None, numerical=True):
         """
@@ -842,20 +845,24 @@ class Arm(object):
         if numerical:
             pos_tol = self.configs.ARM.IK_POSITION_TOLERANCE
             ori_tol = self.configs.ARM.IK_ORIENTATION_TOLERANCE
-            joint_positions = self.num_ik_solver.get_ik(qinit,
-                                                        position[0],
-                                                        position[1],
-                                                        position[2],
-                                                        ori_x,
-                                                        ori_y,
-                                                        ori_z,
-                                                        ori_w,
-                                                        pos_tol,
-                                                        pos_tol,
-                                                        pos_tol,
-                                                        ori_tol,
-                                                        ori_tol,
-                                                        ori_tol)
+
+            req = IkCommandRequest()
+            req.init_joint_positions = qinit
+            req.pose = [position[0], position[1], position[2],
+                        ori_x, ori_y, ori_z, ori_w]
+            req.tolerance = 3 * [pos_tol] + 3 * [ori_tol]
+
+            try:
+                resp = self._ik_service(req)
+            except:
+                rospy.logerr("IK Service call failed")
+                resp = IkCommandResponse()
+                resp.success = False
+
+            if not resp.success:
+                joint_positions = None
+            else:
+                joint_positions = resp.joint_positions
         else:
             if not hasattr(self, 'ana_ik_solver'):
                 raise TypeError('Analytical solver not provided, '
@@ -873,30 +880,8 @@ class Arm(object):
                                                             ori_w)
         if joint_positions is None:
             return None
+        print (joint_positions)
         return np.array(joint_positions)
-
-    def _get_kdl_link_names(self):
-        num_links = self.urdf_chain.getNrOfSegments()
-        link_names = []
-        for i in range(num_links):
-            link_names.append(self.urdf_chain.getSegment(i).getName())
-        return copy.deepcopy(link_names)
-
-    def _get_kdl_joint_names(self):
-        num_links = self.urdf_chain.getNrOfSegments()
-        num_joints = self.urdf_chain.getNrOfJoints()
-        joint_names = []
-        for i in range(num_links):
-            link = self.urdf_chain.getSegment(i)
-            joint = link.getJoint()
-            joint_type = joint.getType()
-            # JointType definition: [RotAxis,RotX,RotY,RotZ,TransAxis,
-            #                        TransX,TransY,TransZ,None]
-            if joint_type > 1:
-                continue
-            joint_names.append(joint.getName())
-        assert num_joints == len(joint_names)
-        return copy.deepcopy(joint_names)
 
     def _callback_joint_states(self, msg):
         """
@@ -935,55 +920,16 @@ class Arm(object):
         """
         Initialize moveit and setup move_group object
         """
-        moveit_commander.roscpp_initialize(sys.argv)
-        mg_name = self.configs.ARM.MOVEGROUP_NAME
-        self.moveit_group = moveit_commander.MoveGroupCommander(mg_name)
-        self.moveit_group.set_planner_id(self.moveit_planner)
-        self.scene = moveit_commander.PlanningSceneInterface()
+        self.moveit_group = MoveGroup(
+                                self.configs.ARM.MOVEGROUP_NAME,
+                                self.configs.ARM.ARM_BASE_FRAME,
+                                self.configs.ARM.EE_FRAME,
+                                self.configs.ARM.ROSSRV_CART_PATH,
+                                listener=self.tf_listener,
+                                plan_only=False)
 
-    def _compute_plan(self, target_joint):
-        """
-        Computes motion plan to achieve desired target_joint
-
-        :param target_joint: list of length #of joints, angles in radians
-        :type target_joint: np.ndarray
-
-        :return: Computed motion plan
-        :rtype: moveit_msgs.msg.RobotTrajectory
-        """
-        # TODO Check if target_joint is valid
-        if not self.use_moveit:
-            raise ValueError('Moveit is not initialized, '
-                             'did you pass in use_moveit=True?')
-        if isinstance(target_joint, np.ndarray):
-            target_joint = target_joint.tolist()
-        self.moveit_group.set_joint_value_target(target_joint)
-        rospy.loginfo('Moveit Motion Planning...')
-        return self.moveit_group.plan()
-
-    def _execute_plan(self, plan, wait=True):
-        """
-        Executes plan on arm controller
-
-        :param plan: motion plan to execute
-        :param wait: True if blocking call and will return after
-                     target_joint is achieved, False otherwise
-        :type plan: moveit_msgs.msg.RobotTrajectory
-        :type wait: bool
-
-        :return: True if arm executed plan, False otherwise
-        :rtype: bool
-        """
-        result = False
-        if not self.use_moveit:
-            raise ValueError('Moveit is not initialized, '
-                             'did you pass in use_moveit=True?')
-        if len(plan.joint_trajectory.points) < 1:
-            rospy.logwarn('No motion plan found. No execution attempted')
-        else:
-            rospy.loginfo('Executing...')
-            result = self.moveit_group.execute(plan, wait=wait)
-        return result
+        self.moveit_group.setPlannerId(self.moveit_planner)
+        self.moveit_group.setPlanningTime(self.planning_time)
 
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()

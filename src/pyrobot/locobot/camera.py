@@ -11,15 +11,23 @@ from copy import deepcopy
 
 import message_filters
 import numpy as np
-import pyrobot.util as prutil
+import pyrobot.utils.util as prutil
 import rospy
-from cv_bridge import CvBridge, CvBridgeError
+
 from pyrobot.core import Camera
 from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 from tf import TransformListener
+
+import sys
+ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+if ros_path in sys.path:
+    sys.path.remove(ros_path)
+    import cv2
+sys.path.append(ros_path)
+from cv_bridge import CvBridge, CvBridgeError
 
 
 def constrain_within_range(value, MIN, MAX):
