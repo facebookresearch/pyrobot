@@ -18,13 +18,6 @@ This tutorial can also be run using a simulated version of the robot. Before we 
 
 * The robot arm is switched ON. With the LoCoBot this is done by connecting the power supply and USB to the arm.
 
-* The appropriate python virtual environment has been sourced before running any PyRobot package.
-
-```bash
-source ~/pyenv_pyrobot/bin/activate
-```
-
-
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot Setup Instructions-->
 
@@ -42,6 +35,11 @@ roslaunch locobot_control main.launch use_arm:=true use_sim:=true
 
 
 
+* The appropriate python virtual environment has been sourced before running any PyRobot package.
+
+```bash
+load_pyrobot_env
+```
 
 ## Basic movements
 

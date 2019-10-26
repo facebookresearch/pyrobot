@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 helpFunction()
 {
    echo ""
@@ -28,6 +27,8 @@ if [ $PYTHON_VERSION != "2" ] && [ $PYTHON_VERSION != "3" ]; then
 fi
 
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
+sudo apt-get -y install python-virtualenv
+sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
 
 if [ $PYTHON_VERSION == "2" ]; then
 	virtualenv_name="pyenv_pyrobot_python2"
@@ -37,7 +38,7 @@ if [ $PYTHON_VERSION == "2" ]; then
 		source ~/${virtualenv_name}/bin/activate
 		pip install .
 		deactivate
-		echo "alias load_pyrobot2_env='source $VIRTUALENV_FOLDER/bin/activate '" >> ~/.bashrc
+		echo "alias load_pyrobot_env='source $VIRTUALENV_FOLDER/bin/activate '" >> ~/.bashrc
 	fi
 fi
 
@@ -97,7 +98,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 		# Build
 		catkin_make
 		
-		echo "alias load_pyrobot3_env='source $VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
+		echo "alias load_pyrobot_env='source $VIRTUALENV_FOLDER/bin/activate && source $PYROBOT_PYTHON3_WS/devel/setup.bash'" >> ~/.bashrc
 	fi
 	deactivate
 fi

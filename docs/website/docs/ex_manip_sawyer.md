@@ -11,12 +11,13 @@ Here is an example of what one can accoplish through this tutorial
 <iframe width="560" height="315" src="https://www.youtube.com/embed/DiaO8GyWyPs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
 </figure>
 
+**Note** This tutorial is tested to work only with Python2.7 version on PyRobot
+
 ## Setup
 
 To install the Sawyer software, please follow the instructions in this [README](https://github.com/facebookresearch/pyrobot/tree/master/robots/sawyer) to install and setup the appropriate sawyer software.
 
 Go through the following steps to get the PyRobot code working on Sawyer.
-
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Real Sawyer Robot-->
@@ -67,10 +68,16 @@ roslaunch sawyer_moveit_config sawyer_moveit.launch electric_gripper:=true
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
+In a new terminal,
+```bash
+load_pyrobot_env
+rosrun pyrobot_bridge kinematics.py
+```
+
 Finally, make sure that the appropriate python virtual environment has been sourced before running any PyRobot package.
 
 ```bash
-source ~/pyenv_pyrobot/bin/activate
+load_pyrobot_env
 ```
 
 ## Basic movements
