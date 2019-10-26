@@ -16,7 +16,7 @@ do
 done
 
 # Print helpFunction in case parameters are empty
-if [ -z "$INSTALL_TYPE" ]; then
+if [ -z "$PYTHON_VERSION" ]; then
    echo "Please select a python version";
    helpFunction
 fi
