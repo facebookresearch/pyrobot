@@ -4,6 +4,8 @@ title: Cognitive Mapping and Planning
 sidebar_label: [Advanced] Visual Navigation (CMP)
 ---
 
+**Note** This tutorial is tested to work only with Python2.7 version on PyRobot
+
 This example deploys visual navigation policies trained in Cognitive Mapping
 and Planning paper [[1](#references)] onto [LoCoBot](http://locobot.org) using
 [TensorFlow](https://www.tensorflow.org/). These policies were trained in

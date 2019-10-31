@@ -32,7 +32,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import copy
-import _thread as thread
+import sys
+if (sys.version_info > (3, 0)):
+    # Python 3 code in this block
+    import _thread as thread
+else:
+    # Python 2 code in this block
+    import thread
+
+
 import rospy
 
 try:

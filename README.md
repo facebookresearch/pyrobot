@@ -58,21 +58,6 @@ If you want to use simulated LoCoBot in Gazebo only, please run the following co
 
 * Install [ROS kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 
-* Install KDL
-
-  ```bash
-  sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
-  ```
-
-* Install Python virtual environment
-
-  ```bash
-  sudo apt-get -y install python-virtualenv
-  virtualenv_name="pyenv_pyrobot"
-  VIRTUALENV_FOLDER=~/${virtualenv_name}
-  virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
-  ```
-
 * Install PyRobot
 
   ```bash
@@ -82,7 +67,8 @@ If you want to use simulated LoCoBot in Gazebo only, please run the following co
   source ~/${virtualenv_name}/bin/activate
   git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
   cd pyrobot/
-  pip install .
+  chmod +x install_pyrobot.sh
+  ./install_pyrobot.sh -p 2  #For python3, modify the argumet to -p 3 
   ```
 
 **Warning**: As realsense keeps updating, compatibility issues might occur if you accidentally update
