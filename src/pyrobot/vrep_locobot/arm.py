@@ -1,0 +1,142 @@
+import numpy as np
+import math
+import pyrobot.utils.util as prutil
+import rospy
+import quaternion
+from tf.transformations import euler_from_quaternion, euler_from_matrix
+
+from pyrep.robots.mobiles.nonholonomic_base import NonHolonomicBase
+from pyrep.errors import ConfigurationPathError
+from pyrep.robots.arms.arm import Arm
+
+class LoCoBotArm(object):
+	"""docstring for SimpleBase"""
+	def __init__(self, configs, simulator):
+		self.configs = configs
+		self.sim = simulator.sim
+		self.arm = Arm(0, 'LoCoBotArm', 5)
+
+	def get_full_state(self):
+		# Returns habitat_sim.agent.AgentState
+		# temp_state = self.agent.get_state()
+		# temp_state.position = habUtils.quat_rotate_vector(self._fix_transform().inverse(), temp_state.position)
+		# temp_state.rotation = self._fix_transform() * temp_state.rotation
+		return self.agent.get_state()
+
+	@property
+	def in_collision(self):
+		return self.base.assess_collision()
+
+	def get_state(self):
+		# Returns (x, y, yaw)
+		pose = self.base.get_2d_pose()
+		return (pose[0], pose[1], pose[2])
+
+	def stop(self):
+		raise NotImplementedError("Veclocity control is not supported in V-Rep Sim!!")
+
+	def set_vel(self, fwd_speed, turn_speed, exe_time=1):
+		raise NotImplementedError("Veclocity control is not supported in V-Rep Sim!!")
+
+
+	def go_to_relative(self, xyt_position, use_map=None, close_loop=True, smooth=False):
+		"""
+		Moves the robot to the robot to given
+		goal state relative to its initial pose.
+
+		:param xyt_position: The  relative goal state of the form (x,y,t)
+		:param use_map: When set to "True", ensures that controler is
+		                using only free space on the map to move the robot.
+		:param close_loop: When set to "True", ensures that controler is
+		                   operating in open loop by
+		                   taking account of odometry.
+		:param smooth: When set to "True", ensures that the motion
+		               leading to the goal is a smooth one.
+
+		:type xyt_position: list
+		:type use_map: bool
+		:type close_loop: bool
+		:type smooth: bool
+
+		:return: True if successful; False otherwise (timeout, etc.)
+		:rtype: bool
+		"""
+
+		(cur_x, cur_y, cur_yaw) = self.get_state()
+		abs_x = cur_x + xyt_position[0]
+		abs_y = cur_y + xyt_position[1]
+		abs_yaw = cur_yaw + xyt_position[2]
+		return self.go_to_absolute(abs_x, abs_y, abs_yaw, use_map, close_loop, smooth)
+
+
+	def go_to_absolute(self, xyt_position, use_map=None, close_loop=True, smooth=False):
+		"""
+		Moves the robot to the robot to given goal state in the world frame.
+
+		:param xyt_position: The goal state of the form (x,y,t)
+		                     in the world (map) frame.
+		:param use_map: When set to "True", ensures that controler is using
+		                only free space on the map to move the robot.
+		:param close_loop: When set to "True", ensures that controler is
+		                   operating in open loop by
+		                   taking account of odometry.
+		:param smooth: When set to "True", ensures that the motion
+		               leading to the goal is a smooth one.
+
+		:type xyt_position: list
+		:type use_map: bool
+		:type close_loop: bool
+		:type smooth: bool
+
+		:return: True if successful; False otherwise (timeout, etc.)
+		:rtype: bool
+		"""
+		if use_map is None:
+			use_map = smooth
+		try:
+			if use_map != smooth:
+				raise NotImplementedError("Use map feature only works when smooth is enables")
+			if not close_loop:
+				raise NotImplementedError("Open loop execution is not possible in V-rep at the moment.")
+		except Exception as error:
+			print(error)
+			return False
+
+		position = [xyt_position[0], xyt_position[1]]
+
+		try: 
+			if smooth:
+				base_path = self.base.get_nonlinear_path(position, xyt_position[2])
+				else:
+				base_path = self.base.get_linear_path(position, xyt_position[2])
+		except ConfigurationPathError as error:
+			print(error)
+			return False
+	
+
+		done = False
+		while not done:
+			done = base_path.step()
+			self.sim.step()
+    	self.sim.step()
+
+		return True
+
+
+	def track_trajectory(self, states, controls, close_loop):
+		"""
+		State trajectory that the robot should track.
+
+		:param states: sequence of (x,y,t) states that the robot should track.
+		:param controls: optionally specify control sequence as well.
+		:param close_loop: whether to close loop on the
+		                   computed control sequence or not.
+
+		:type states: list
+		:type controls: list
+		:type close_loop: bool
+
+		:return: True if successful; False otherwise (timeout, etc.)
+		:rtype: bool
+		"""
+		raise NotImplementedError
