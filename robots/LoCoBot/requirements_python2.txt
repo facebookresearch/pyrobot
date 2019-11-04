@@ -2,7 +2,7 @@ numpy==1.16.0
 scipy==1.2.0
 matplotlib==2.2.3
 ipython==5.8.0
-Pillow==5.4.1
+Pillow==6.2.0
 https://download.pytorch.org/whl/cpu/torch-1.0.0-cp27-cp27mu-linux_x86_64.whl
 torchvision==0.2.1
 opencv-python==4.0.0.21
