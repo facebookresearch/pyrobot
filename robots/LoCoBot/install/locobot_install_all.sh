@@ -197,7 +197,7 @@ fi
 if [ -d "$LOCOBOT_FOLDER/build" ]; then
 	rm -rf $LOCOBOT_FOLDER/build
 fi
-# STEP 7A - Make a virtual env to install other dependencies (with pip)
+# STEP 6 - Make a virtual env to install other dependencies (with pip)
 if [ $PYTHON_VERSION == "2" ]; then
 	cd $LOCOBOT_FOLDER/src/pyrobot
 	chmod +x install_pyrobot.sh
@@ -215,24 +215,11 @@ if [ $PYTHON_VERSION == "2" ]; then
 	deactivate
 fi
 if [ $PYTHON_VERSION == "3" ]; then
+	cd $LOCOBOT_FOLDER
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash
-fi
-cd $LOCOBOT_FOLDER
-if [ $INSTALL_TYPE == "full" ]; then
-	# STEP 6 - Dependencies and config for calibration
-	chmod +x src/pyrobot/robots/LoCoBot/locobot_navigation/orb_slam2_ros/scripts/gen_cfg.py
-	rosrun orb_slam2_ros gen_cfg.py
-	HIDDEN_FOLDER=~/.robot
-	if [ ! -d "$HIDDEN_FOLDER" ]; then
-		mkdir ~/.robot
-		cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
-	fi
-fi
-
-# STEP 7B - Make a virtual env to install other dependencies (with pip)
-if [ $PYTHON_VERSION == "3" ]; then
+	
 	cd $LOCOBOT_FOLDER/src/pyrobot
 	chmod +x install_pyrobot.sh
 	source install_pyrobot.sh  -p 3
@@ -244,16 +231,28 @@ if [ $PYTHON_VERSION == "3" ]; then
 	deactivate
 fi
 
-# STEP 8 - Setup udev rules
-cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-sudo cp thirdparty/udev_rules/*.rules /etc/udev/rules.d
-sudo service udev reload
-sudo service udev restart
-sudo udevadm trigger
-sudo usermod -a -G dialout $USER
+
+if [ $INSTALL_TYPE == "full" ]; then
+	# STEP 7 - Dependencies and config for calibration
+	cd $LOCOBOT_FOLDER
+	chmod +x src/pyrobot/robots/LoCoBot/locobot_navigation/orb_slam2_ros/scripts/gen_cfg.py
+	rosrun orb_slam2_ros gen_cfg.py
+	HIDDEN_FOLDER=~/.robot
+	if [ ! -d "$HIDDEN_FOLDER" ]; then
+		mkdir ~/.robot
+		cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
+	fi
+	
+	# STEP 8 - Setup udev rules
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	sudo cp thirdparty/udev_rules/*.rules /etc/udev/rules.d
+	sudo service udev reload
+	sudo service udev restart
+	sudo udevadm trigger
+	sudo usermod -a -G dialout $USER
+fi
 
 end_time="$(date -u +%s)"
-
 elapsed="$(($end_time-$start_time))"
 
 echo "Installation complete, took $elapsed seconds in total"
