@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import cv2
+import logging
 import torch
 
 from test import Tester
