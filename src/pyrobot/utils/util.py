@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import sys
+import logging
 import numpy as np
 import rospy
 import tf
@@ -240,7 +240,7 @@ class MoveitObjectHandler(object):
                 size=size)
         else:
             # Default table.
-            print('Creating default table.')
+            logging.info('Creating default table.')
             self.add_world_object('table', 
                 pose=[0.8,0.0,-0.23,0.,0.,0.,1.],
                 size=(1.35,2.0,0.1))
@@ -262,7 +262,7 @@ class MoveitObjectHandler(object):
                 size=size)
         else:
             # Default kinect.
-            print('Creating default kinect.')
+            logging.info('Creating default kinect.')
             self.add_world_object('kinect', 
                 pose=[0., 0.0,0.75,0.,0.,0.,1.], 
                 size=(0.25,0.25,0.3))
@@ -285,7 +285,7 @@ class MoveitObjectHandler(object):
                 size=size)
         else:
             # Default gripper.
-            print('Creating default gripper.')
+            logging.info('Creating default gripper.')
             self.attach_arm_object('right_gripper',
                 'gripper', 
                 pose=[0., 0.0, 0.07,0.,0.,0.,1.], 

@@ -6,6 +6,7 @@
 
 import argparse
 import copy
+import logging
 import os
 import pickle
 import time
@@ -74,8 +75,8 @@ class Trainer(object):
                 metrics[phase][metric] = []
 
         for epoch in range(num_epochs):
-            print('Epoch {}/{}'.format(epoch, num_epochs - 1))
-            print('-' * 10)
+            logging.info('Epoch {}/{}'.format(epoch, num_epochs - 1))
+            logging.info('-' * 10)
             for phase in phases:
                 if phase == 'train':
                     dataloader = self.train_dataloader
@@ -95,7 +96,7 @@ class Trainer(object):
                 for batch_id, sample_batched in enumerate(dataloader):
                     sample_batched = self.make_cuda_batch(sample_batched)
                     if batch_id % 5 == 0:
-                        print('[{}] Epoch: {}, Batch: {}/{}'.format(phase, epoch, batch_id + 1, n_cycles))
+                        logging.info('[{}] Epoch: {}, Batch: {}/{}'.format(phase, epoch, batch_id + 1, n_cycles))
                     inputs, labels = sample_batched['image'], sample_batched['label']
                     outputs = self.model(x=inputs)
                     loss = self.criterion(outputs, labels)
@@ -115,11 +116,11 @@ class Trainer(object):
                 epoch_acc = running_accuracy / n_cycles
                 metrics[phase]['loss'].append(epoch_loss)
                 metrics[phase]['accuracy'].append(epoch_acc)
-                print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+                logging.info('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
                 writer.add_scalar('{}/Loss'.format(phase), epoch_loss, epoch)
                 writer.add_scalar('{}/Accuracy'.format(phase), epoch_acc, epoch)
                 if phase == 'test' and epoch_acc > best_acc:
-                    print('NEW BEST MODEL FOUND!!')
+                    logging.info('NEW BEST MODEL FOUND!!')
                     best_acc = epoch_acc
                     best_model_wts = copy.deepcopy(self.model.state_dict())
             if epoch % save_every == 0 and epoch > 0:

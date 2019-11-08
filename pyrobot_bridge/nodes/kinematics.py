@@ -9,6 +9,8 @@
 
 from __future__ import print_function
 
+import logging
+
 import PyKDL as kdl
 import numpy as np
 import copy
@@ -89,7 +91,7 @@ class Kinematics(object):
 		if len(req.pose) < 7 or len(req.tolerance) < 6 \
 			or len(req.init_joint_positions) != self.arm_dof :
 			resp.success = False
-			rospy.logerr("Incorrect IK service request. Please fix it.")
+			logging.error("Incorrect IK service request. Please fix it.")
 			return resp 
 
 		joint_positions = self.num_ik_solver.get_ik(req.init_joint_positions,
@@ -109,7 +111,7 @@ class Kinematics(object):
 
 		if joint_positions is None:
 			resp.success = False
-			rospy.logwarn("Failed to find find an IK solution.")
+			logging.warning("Failed to find find an IK solution.")
 			return resp 
 
 		resp.joint_positions = joint_positions
@@ -170,7 +172,7 @@ class Kinematics(object):
 		joint_positions = np.asarray(req.joint_angles).flatten()
 		des_frame = req.end_frame
 		if joint_positions.size != self.arm_dof:
-			rospy.logerr('Forward Kinenatics: Invalid length of joint angles!')
+			logging.error('Forward Kinenatics: Invalid length of joint angles!')
 			resp.success = False
 			return resp
 
@@ -184,7 +186,7 @@ class Kinematics(object):
 										  idx)
 
 		if fg < 0:
-		 	rospy.logerr('Forward Kinenatics: KDL Pos JntToCart error!')
+		 	logging.error('Forward Kinenatics: KDL Pos JntToCart error!')
 			resp.success = False
 			return resp
 

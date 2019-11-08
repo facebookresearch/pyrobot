@@ -9,6 +9,7 @@
 Class definition for GraspModel
 '''
 import errno
+import logging
 import os
 import os.path
 import time
@@ -42,7 +43,7 @@ def download_if_not_present(model_path, url):
             except OSError as exc:  # Guard against race condition
                 if exc.errno != errno.EEXIST:
                     raise
-        print('GRASP MODEL NOT FOUND! DOWNLOADING IT!')
+        logging.warning('GRASP MODEL NOT FOUND! DOWNLOADING IT!')
         os.system('wget {} -O {}'.format(url, model_path))
 
 
@@ -139,10 +140,10 @@ class GraspModel(object):
         else:
             self._batch_size = nsamples
             self._nbatches = 1
-        print('Loading grasp model')
+        logging.info('Loading grasp model')
         st_time = time.time()
         self.grasp_obj = GraspTorchObj(model_path)
-        print('Time taken to load model: {}s'.format(time.time() - st_time))
+        logging.info('Time taken to load model: {}s'.format(time.time() - st_time))
         self.patchsize = patchsize
         self.n_importance = n_importance
         self.n_sen = n_sen
@@ -164,7 +165,7 @@ class GraspModel(object):
         :rtype: tuple
         """
         start_time = time.time()
-        rospy.loginfo('Running TORCH-GRASPING!')
+        logging.info('Running TORCH-GRASPING!')
 
         # First round of forward pass
         result = self._predict_image(I, self._nbatches, self._batch_size)
@@ -242,7 +243,7 @@ class GraspModel(object):
                                      selected_grasp[1],
                                      theta_choice_ind,
                                      int(self.patchsize))
-        rospy.loginfo('Grasp prediction took: {} (s)'
+        logging.info('Grasp prediction took: {} (s)'
                       ''.format(time.time() - start_time))
         return selected_grasp
 
@@ -268,7 +269,7 @@ class GraspModel(object):
         predictions = []
         patch_Hs = []
         patch_Ws = []
-        rospy.loginfo('Torch grasp_model: Predicting on samples')
+        logging.info('Torch grasp_model: Predicting on samples')
         for _ in range(nbs):
             P.graspNet_grasp(patch_size=gsize, num_samples=bs)
             predictions.append(P.norm_vals)

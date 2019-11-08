@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import torch
 import torch.utils.model_zoo as model_zoo
 from torch import nn
@@ -22,7 +23,7 @@ class IfullRobHWNet(ResNet):
         if pretrained_resnet18:
             self.load_from_pretrained_resnet18()
         if fixed_feature:
-            print('FIXING RESNET PARAMETERS')
+            logging.info('FIXING RESNET PARAMETERS')
             for param in self.parameters():
                 param.requires_grad = False
         num_ftrs = self.fc.in_features
@@ -77,5 +78,5 @@ class IfullRobHWNet(ResNet):
         return x
 
     def load_from_pretrained_resnet18(self):
-        print('Loading pretrained resnet18')
+        logging.info('Loading pretrained resnet18')
         self.load_state_dict(model_zoo.load_url(model_urls['resnet18']))

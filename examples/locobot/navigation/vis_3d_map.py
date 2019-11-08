@@ -5,6 +5,7 @@
 
 from __future__ import print_function
 
+import logging
 import signal
 import sys
 import time
@@ -14,7 +15,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    logging.warning('Exit')
     sys.exit(0)
 
 
@@ -48,7 +49,7 @@ def main():
             time.sleep(0.1)
         end_time = time.time()
         process_time = end_time - start_time
-        print("Updating every {0:.2f}s".format(process_time))
+        logging.info("Updating every {0:.2f}s".format(process_time))
 
 
 if __name__ == "__main__":

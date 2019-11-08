@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import numpy as np
 import rospy
 from locobot_control.analytic_ik import AnalyticInverseKinematics as AIK
@@ -41,7 +42,7 @@ class LoCoBotArm(Arm):
         use_sim = rospy.get_param('use_sim', False)
         use_arm = use_arm or use_sim
         if not use_arm:
-            rospy.logwarn('Neither use_arm, nor use_sim, is not set to '
+            logging.warning('Neither use_arm, nor use_sim, is not set to '
                           'True when the LoCoBot driver is launched.'
                           'You may not be able to command the '
                           'arm correctly using PyRobot!!!')
@@ -87,7 +88,7 @@ class LoCoBotArm(Arm):
             return self.torque_cmd_srv(
                 'newt', joint_id_dict[joint_name], value)
         else:
-            rospy.logerr(
+            logging.error(
                 "{} joint name provided, it should be one of this {}".format(
                     joint_name, sorted(joint_id_dict.keys())))
             return False
@@ -143,7 +144,7 @@ class LoCoBotArm(Arm):
             for index, value in enumerate(torques):
                 self.set_joint_torque(joint_id_list[index], value)
         else:
-            rospy.logerr("It is expecting input of type list of length 4")
+            logging.error("It is expecting input of type list of length 4")
 
     def go_home(self, plan=False):
         """

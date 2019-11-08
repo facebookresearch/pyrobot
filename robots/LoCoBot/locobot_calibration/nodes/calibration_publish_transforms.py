@@ -9,10 +9,11 @@
 Publishes the calibrated camera and other misc transforms
 """
 
-import sys
+import logging
 import os
 import json
 import rospy
+import sys
 import tf
 
 DEFAULT_CONFIG_FNAME = 'default.json'
@@ -38,22 +39,22 @@ class CalibrationTransformPublisher(object):
             if os.path.exists(get_abs_path(CALIBRATED_CONFIG_FNAME)):
                 file_name = CALIBRATED_CONFIG_FNAME
             else:
-                rospy.logerr('Using default camera calibration')
-                rospy.logerr('For better performance, calibrate your system.')
+                logging.error('Using default camera calibration')
+                logging.error('For better performance, calibrate your system.')
                 file_name = DEFAULT_CONFIG_FNAME
         file_path = get_abs_path(file_name)
         if os.path.exists(file_path):
-            rospy.loginfo('Loading transforms from {:}'.format(file_path))
+            logging.info('Loading transforms from {:}'.format(file_path))
             with open(file_path, 'r') as f:
                 params = json.load(f)
             self.params = params
-            rospy.logwarn('Will publish: ')
+            logging.warning('Will publish: ')
             for t in self.params.values():
-                rospy.logwarn('  {} to {}'.format(t['from'], t['to']))
+                logging.warning('  {} to {}'.format(t['from'], t['to']))
             self.br = tf.TransformBroadcaster()
             self.publish_transforms()
         else:
-            rospy.logerr(
+            logging.error(
                 'Unable to find calibration config file {}'.format(file_path))
             sys.exit(0)
 

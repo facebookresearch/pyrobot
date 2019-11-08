@@ -7,6 +7,7 @@ import time
 from math import atan2, cos, sin, pi, radians, degrees, sqrt
 
 import actionlib
+import logging
 import rospy
 import copy
 from actionlib_msgs.msg import GoalStatusArray, GoalID
@@ -93,7 +94,7 @@ class ProportionalControl:
         self.ctrl_pub.publish(cmd)
 
     def stop(self):
-        rospy.loginfo("Stopping base!")
+        logging.info("Stopping base!")
         self._cmd_vel(lin_vel=0.0, rot_vel=0.0)
         self.bot_base.should_stop = False
 
@@ -124,7 +125,7 @@ class ProportionalControl:
 
                 if self.bot_base.should_stop:
                     if not self.ignore_collisions:
-                        rospy.loginfo(
+                        logging.info(
                             "curr error = {} degrees".format(
                                 degrees(cur_error)))
                         self.stop()
@@ -133,8 +134,8 @@ class ProportionalControl:
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.rot_error_thr:
-                    rospy.loginfo("Reached goal")
-                    rospy.loginfo(
+                    logging.info("Reached goal")
+                    logging.info(
                         "curr_error = {} degrees".format(
                             degrees(cur_error)))
                     self._cmd_vel(rot_vel=0.0)
@@ -198,7 +199,7 @@ class ProportionalControl:
 
                 if self.bot_base.should_stop:
                     if not self.ignore_collisions:
-                        rospy.loginfo(
+                        logging.info(
                             "curr error = {} meters".format(cur_error))
                         self.stop()
                         ret_val = False
@@ -206,8 +207,8 @@ class ProportionalControl:
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.dist_error_thr:
-                    rospy.loginfo("Reached goal")
-                    rospy.loginfo("curr error = {} meters".format(cur_error))
+                    logging.info("Reached goal")
+                    logging.info("curr error = {} meters".format(cur_error))
                     self._cmd_vel(lin_vel=0.0)
                     break
 
@@ -216,7 +217,7 @@ class ProportionalControl:
                         cur_error - init_err) > self.lin_move_thr:
                     got_min_vel = True
                     min_vel = abs(cmd_vel)
-                    # rospy.loginfo("min vel = ", min_vel)
+                    # logging.info("min vel = ", min_vel)
 
                 # doing the linear increse part
                 if cur_error / init_err > 0.6:
@@ -257,7 +258,7 @@ class ProportionalControl:
         """
         if xyt_position is None:
             xyt_position = [0., 0., 0.]
-        rospy.loginfo('BASE goto, cmd: {}'.format(xyt_position))
+        logging.info('BASE goto, cmd: {}'.format(xyt_position))
         x = xyt_position[0]
         y = xyt_position[1]
         rot = xyt_position[2]
@@ -476,23 +477,23 @@ class MoveBaseControl(object):
         goal.target_pose = build_pose_msg(x, y, theta, frame)
         goal.target_pose.header.stamp = rospy.Time.now()
 
-        rospy.loginfo("Waiting for the server")
+        logging.info("Waiting for the server")
         self.move_base_sac.wait_for_server()
 
-        rospy.loginfo("Sending the goal")
+        logging.info("Sending the goal")
         self.move_base_sac.send_goal(goal)
 
         rospy.sleep(0.1)
-        rospy.loginfo("Waiting for the Result")
+        logging.info("Waiting for the Result")
         while True:
             assert (
                     self.execution_status is not 4), \
                 "move_base failed to find a valid plan to goal"
             if self.execution_status is 3:
-                rospy.loginfo("Base reached the goal state")
+                logging.info("Base reached the goal state")
                 return
             if self.base_state.should_stop:
-                rospy.loginfo(
+                logging.info(
                     "Base asked to stop. Cancelling goal sent to move_base.")
                 self.cancel_goal()
                 return

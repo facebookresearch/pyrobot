@@ -6,6 +6,7 @@
 from __future__ import print_function
 
 import copy
+import logging
 import os
 from functools import partial
 from os.path import expanduser
@@ -74,24 +75,24 @@ class BaseSafetyCallbacks(object):
                   data.is_light_right
         if bumped or to_bump:
             if self.bumper is False:
-                rospy.loginfo("Bumper Detected")
+                logging.info("Bumper Detected")
             self.should_stop = True
             self.bumper = True
         else:
             self.bumper = False
 
     def cliff_callback(self, data):
-        rospy.loginfo("Cliff Detected")
+        logging.info("Cliff Detected")
         self.should_stop = True
         self.cliff = True
 
     def wheeldrop_callback(self, data):
-        rospy.loginfo("Drop the contact")
+        logging.info("Drop the contact")
         self.should_stop = True
         self.wheel_drop = True
 
     def bumper_callback_kobuki(self, date):
-        rospy.loginfo("Bumper Detected")
+        logging.info("Bumper Detected")
         self.bumper = True
         self.should_stop = True
 
@@ -213,7 +214,7 @@ class LoCoBotBase(Base):
             'use_base', False) or rospy.get_param(
             'use_sim', False)
         if not use_base:
-            rospy.logwarn(
+            logging.warning(
                 'Neither use_base, nor use_sim, is not set to True '
                 'when the LoCoBot driver is launched. '
                 'You may not be able to command the base '
@@ -263,7 +264,7 @@ class LoCoBotBase(Base):
         
 
     def clean_shutdown(self):
-        rospy.loginfo("Stop LoCoBot Base")
+        logging.info("Stop LoCoBot Base")
         if self.base_controller == 'movebase':
             self.controller.cancel_goal()
         self.stop()
@@ -380,10 +381,10 @@ class LoCoBotBase(Base):
 
             self.controller.go_to_absolute(xyt_position, close_loop, smooth)
         except AssertionError as error:
-            print(error)
+            logging.exception(error)
             return False
         except:
-            print("Unexpected error encountered during positon control!")
+            logging.exception("Unexpected error encountered during positon control!")
             return False
         return True
 
@@ -406,7 +407,7 @@ class LoCoBotBase(Base):
         """
 
         if len(states) == 0:
-            rospy.loginfo("The given trajectory is empty")
+            logging.info("The given trajectory is empty")
             return
 
         try:
@@ -424,9 +425,9 @@ class LoCoBotBase(Base):
                         break
                     plan_idx += self.configs.BASE.TRACKED_POINT
         except AssertionError as error:
-            print(error)
+            logging.exception(error)
             return False
         except:
-            print("Unexpected error encountered during trajectory tracking!")
+            logging.exception("Unexpected error encountered during trajectory tracking!")
             return False
         return True

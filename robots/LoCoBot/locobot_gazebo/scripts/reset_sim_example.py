@@ -10,6 +10,7 @@ import numpy as np
 import rospy
 
 import argparse, copy, sys, select, signal, termios, tty, time
+import logging
 import rospy, moveit_commander, tf, tf_conversions
 import numpy as np
 
@@ -104,16 +105,16 @@ class GazeboInterface():
 		self.unpause_sim()
 
 if __name__ == "__main__":
-	
+	logging.basicConfig(level=logging.INFO)
 	server = GazeboInterface()
 
 	rospy.sleep(2)	
 	# set all the angles to zero
-	print ("setting the provided joint angles...")
+	logging.info("setting the provided joint angles...")
 	server.set_robot(np.zeros(9))
 
 	rospy.sleep(2)
 
 	#reset simulation
-	print("Resetting the simulation...")
+	logging.info("Resetting the simulation...")
 	server.reset_robot()

@@ -5,6 +5,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import os
 import shutil
 import time
@@ -24,7 +25,7 @@ FNULL = open(os.devnull, 'w')
 
 
 def launch_gazebo(args, wait_time=12):
-    print('Launching Gazebo ...')
+    logging.info('Launching Gazebo ...')
     args = args.split()
     p = Popen(['roslaunch', 'locobot_control', 'main.launch'] + args,
               stdin=PIPE, stdout=FNULL, stderr=STDOUT)
@@ -53,25 +54,26 @@ def gen_html_anno(show_in_browser=True):
         p.wait()
         if show_in_browser and not FLAGS.nobrowser:
             webbrowser.open(os.path.join(cov_dir, 'index.html'))
-        print('Coverage report generation done!')
+        logging.info('Coverage report generation done!')
 
 
 def exit_gazebo(gp):
     gp.terminate()
-    print('Exiting Gazebo...')
+    logging.info('Exiting Gazebo...')
     gp.wait()
     # # `rosnode cleanup` will give error: ERROR: Unable to communicate with master!
     # # if the gazebo is already shutdown correctly
     # # so this error is expected!
     p = Popen(['rosnode', 'cleanup'])
     p.wait()
-    print('Gazebo exit successfully!')
+    logging.info('Gazebo exit successfully!')
 
 
 def main(_):
     # # delete old coverage reports
     # # all the coverage reports generated below
     # # will be appended
+    logging.basicConfig(level=logging.INFO)
     cov_file = '.coverage'
     if os.path.exists(cov_file):
         os.remove(cov_file)

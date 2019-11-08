@@ -6,6 +6,7 @@
 from __future__ import print_function
 
 import argparse
+import logging
 import signal
 import sys
 import time
@@ -17,7 +18,7 @@ from sklearn.cluster import DBSCAN
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    logging.info('Exit')
     sys.exit(0)
 
 
@@ -60,7 +61,7 @@ def draw_segments(pts, labels, core_samples_mask):
     useful_labels = []
     colors = [plt.cm.Spectral(each)
               for each in np.linspace(0, 1, len(unique_labels))]
-    print('Estimated number of clusters: %d' % n_clusters_)
+    logging.info('Estimated number of clusters: %d' % n_clusters_)
     for k, col in zip(unique_labels, colors):
         if k == -1:
             # Black used for noise.
@@ -69,7 +70,7 @@ def draw_segments(pts, labels, core_samples_mask):
         class_member_mask = (labels == k)
 
         xy = pts[class_member_mask & core_samples_mask]
-        print('Label:[%d]   # of pts:%d' % (k, xy.shape[0]))
+        logging.info('Label:[%d]   # of pts:%d' % (k, xy.shape[0]))
         if xy.shape[0] > num_threshold:
             useful_labels.append(k)
         plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
@@ -79,7 +80,7 @@ def draw_segments(pts, labels, core_samples_mask):
         plt.xlabel('Y axis of the base link')
         plt.ylabel('X axis of the base link')
     plt.savefig('seg_pts.png')
-    print('Number of clusters after filtering:', len(useful_labels))
+    logging.info('Number of clusters after filtering:', len(useful_labels))
     return useful_labels
 
 
@@ -118,7 +119,7 @@ def push(bot, z_lowest=0.01, gripper_length=0.10):
     useful_labelset = draw_segments(X, labels, core_samples_mask)
     start_pt, mid_pt, center = sample_pt(pts, labels, useful_labelset,
                                          gripper_length=gripper_length)
-    print("Going to: ", start_pt.tolist())
+    logging.info("Going to: ", start_pt.tolist())
     result = bot.arm.set_ee_pose_pitch_roll(position=start_pt,
                                             pitch=np.pi / 2,
                                             roll=0,

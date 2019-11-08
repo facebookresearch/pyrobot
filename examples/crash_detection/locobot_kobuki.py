@@ -22,11 +22,13 @@ from crash_utils.test import Tester
 sys.modules['model'] = model
 
 from pyrobot import Robot
-import os
+
+import argparse
 import errno
+import logging
+import os
 import time
 import torch
-import argparse
 
 DEFAULT_PAN_TILT = [0, -0.]
 MODEL_URL = 'https://www.dropbox.com/s/dr4npkwz9j6c9rk/checkpoint.pth.bst?dl=0'
@@ -53,7 +55,7 @@ def download_if_not_present(model_path, url):
             except OSError as exc:  # Guard against race condition
                 if exc.errno != errno.EEXIST:
                     raise
-        print('CRASH MODEL NOT FOUND! DOWNLOADING IT!')
+        logging.warning('CRASH MODEL NOT FOUND! DOWNLOADING IT!')
         os.system('wget {} -O {}'.format(url, model_path))
 
 
@@ -69,7 +71,7 @@ def go_straight(bot, vel=STRAIGHT_VELOCITY, t=TIME_STEP):
     :type vel: float
     :type t: float
     """
-    print('Straight!!')
+    logging.info('Straight!!')
     bot.base.set_vel(vel, 0., t)
 
 
@@ -85,7 +87,7 @@ def turn_left(bot, vel=TURNING_VELOCITY, t=TIME_STEP):
     :type vel: float
     :type t: float
     """
-    print('Left!!')
+    logging.info('Left!!')
     bot.base.set_vel(0., vel, t)
 
 
@@ -101,7 +103,7 @@ def turn_right(bot, vel=TURNING_VELOCITY, t=TIME_STEP):
     :type vel: float
     :type t: float
     """
-    print('Right!!')
+    logging.info('Right!!')
     bot.base.set_vel(0., -vel, t)
 
 
@@ -114,7 +116,7 @@ def main(args):
         import cv2
     bot = Robot('locobot', base_config={'base_planner':'none'})
     bot.camera.reset()
-    print("Setting pan: {}, tilt: {}".format(*DEFAULT_PAN_TILT))
+    logging.info("Setting pan: {}, tilt: {}".format(*DEFAULT_PAN_TILT))
     bot.camera.set_pan_tilt(*DEFAULT_PAN_TILT, wait=True)
 
     model_path = os.path.join(args.save_dir, 'crash_model.pth')
@@ -128,7 +130,7 @@ def main(args):
         start_time = time.time()
         rgb, _ = bot.camera.get_rgb_depth()
         evals = evaluator.test(rgb)
-        print(evals)
+        logging.info(evals)
         if evals[3] > STRAIGHT_THRESHOLD:
             hist = 'straight'
             go_straight(bot)
@@ -151,7 +153,7 @@ def main(args):
             cv2.imshow('image', evaluator.image)
             cv2.waitKey(10)
         if time.time() - control_start >= args.n_secs:
-            print('Time limit exceeded')
+            logging.warning('Time limit exceeded')
             break
 
 

@@ -9,6 +9,7 @@
 Run the following to start camera and ar tracker:
 roslaunch robot_calibration calibration.launch
 """
+import logging
 import os
 import pickle
 import rospkg
@@ -51,7 +52,7 @@ ARM_POSES = [
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    logging.info('Exit')
     sys.exit(0)
 
 
@@ -118,7 +119,7 @@ class CameraCalibration():
                   otherwise False
         :rtype: boolean
         """
-        rospy.loginfo('Planning to pose {}'.format(pose))
+        logging.info('Planning to pose {}'.format(pose))
         result = self.bot.arm.set_joint_positions(pose, plan=False)
         return result
 
@@ -167,7 +168,7 @@ class CameraCalibration():
         #   tm = tfx.compose_matrix(translate=t[0], angles=t[1])
         #   TMcum = np.dot(TMs[i], TMcum)
         #   eye = np.dot(tm, np.linalg.inv(TMcum))
-        #   print(eye-np.eye(4,4))
+        #   logging.info(eye-np.eye(4,4))
         # assert(np.allclose(eye-np.eye(4,4), np.zeros((4,4)), atol=1e-2))
         return chain, Ts, TMs
 
@@ -300,7 +301,7 @@ class CameraCalibration():
 
 def main(_):
     mkdir_if_missing(FLAGS.data_dir)
-    rospy.loginfo('Storing data in directory: %s', FLAGS.data_dir)
+    logging.info('Storing data in directory: %s', FLAGS.data_dir)
     calibrator = CameraCalibration(FLAGS.botname)
     calibrator.collect_data(FLAGS.data_dir)
 

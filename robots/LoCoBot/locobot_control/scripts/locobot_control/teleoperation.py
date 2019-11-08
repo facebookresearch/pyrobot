@@ -9,6 +9,7 @@
 Client and server for keyboard teleoperation
 """
 import copy
+import logging
 import os
 import sys
 import termios
@@ -136,7 +137,7 @@ class RobotTeleoperationServer():
         self.update_alpha()
         self.trans, _, _ = self.bot.arm.pose_ee
 
-        rospy.loginfo('Teleop server ready to accept requests...')
+        logging.info('Teleop server ready to accept requests...')
 
     def _callback_cmd_vel(self, data):
         self.cmd = data.data
@@ -196,7 +197,7 @@ class RobotTeleoperationServer():
 
         # check the shoulder angle
         if self.bot.arm.get_joint_angle('joint_1') < -0.6:
-            rospy.logerr(
+            logging.error(
                 'Possible risk of collision with camera mount when moving back')
             self.safety_status_pub.publish(False)
             return False
@@ -204,7 +205,7 @@ class RobotTeleoperationServer():
         # check if end effector is too close to the floor
         if self.pose_fingertip[0][-1] < self.cfg['COLLISION_Z_THRESHOLD'] and not key == self.cfg[
             'KEY_POS_Z']:
-            rospy.logerr('Possible risk of collision with floor')
+            logging.error('Possible risk of collision with floor')
             self.safety_status_pub.publish(False)
             return False
 
@@ -261,7 +262,7 @@ class RobotTeleoperationServer():
             delta = np.zeros(3)
 
             if not self.status:
-                rospy.logerr('Arm has been shutdown, '
+                logging.error('Arm has been shutdown, '
                              'there is some error, check logs')
                 self.exit()
 
@@ -326,12 +327,12 @@ class RobotTeleoperationServer():
                     if key_int == 0:
                         self.move_joint_individual(5, False)
                 else:
-                    print('Pressed invalid key: {}'.format(key))
+                    log.warning('Pressed invalid key: {}'.format(key))
             self.cmd_prev = copy.deepcopy(key)
             self.cmd = None
 
     def exit(self):
-        rospy.loginfo('Exiting...')
+        logging.info('Exiting...')
         sys.exit(0)
 
     def signal_handler(self, sig, frame):
@@ -377,5 +378,5 @@ class KeyboardTeleoperationClient():
                 self.pub.publish(cmd)
 
     def exit(self):
-        rospy.loginfo('Exiting...')
+        logging.info('Exiting...')
         sys.exit(0)

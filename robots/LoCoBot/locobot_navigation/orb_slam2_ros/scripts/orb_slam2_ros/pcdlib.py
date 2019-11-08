@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import logging
 import os
 import rospkg
 import threading
@@ -222,7 +223,7 @@ class PointCloudProcessor:
         """
         self.lock.acquire()
         if len(self.extrinsic_mats) < 1:
-            rospy.loginfo('No camera trajectory data is received,\n'
+            logging.info('No camera trajectory data is received,\n'
                           'Please check if ORB-SLAM2 is running properly.')
             return None, None
         num_frames = 0
@@ -233,8 +234,8 @@ class PointCloudProcessor:
             num_frames += 1
             pcd_in_cam, rgb = self.pcd_pool_in_cam[KFid]
             num_pts += pcd_in_cam.shape[1]
-        # rospy.loginfo('Number of frames to be stitched: %d' % num_frames)
-        # rospy.loginfo('Number of points: %d' % num_pts)
+        # logging.info('Number of frames to be stitched: %d' % num_frames)
+        # logging.info('Number of points: %d' % num_pts)
         all_pts = np.zeros((num_pts, 3))
         all_colors = np.zeros((num_pts, 3))
         cur_id = 0

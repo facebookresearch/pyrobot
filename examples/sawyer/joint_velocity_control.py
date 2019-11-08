@@ -7,6 +7,7 @@
 Example for commanding robot with velocity control
 """
 
+import logging
 import math
 import signal
 import sys
@@ -16,7 +17,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    logging.warning('Exit')
     sys.exit(0)
 
 

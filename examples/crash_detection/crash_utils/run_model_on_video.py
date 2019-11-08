@@ -24,9 +24,9 @@ while (cap.isOpened()):
     ret, frame = cap.read()
     if ret == True:
         outs = E.test(frame)
-        print(outs)
+        logging.info(outs)
         frame_outs = outs * 720
-        print(frame_outs)
+        logging.info(frame_outs)
         cv2.line(frame, (320, 0), (320, int(frame_outs[1])), (0, 255, 0), 10)
         cv2.line(frame, (640, 0), (640, int(frame_outs[0])), (0, 255, 0), 10)
         cv2.line(frame, (960, 0), (960, int(frame_outs[2])), (0, 255, 0), 10)

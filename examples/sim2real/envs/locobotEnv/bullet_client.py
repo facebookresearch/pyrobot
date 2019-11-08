@@ -15,6 +15,7 @@
 
 import functools
 import inspect
+import logging
 
 import pybullet
 
@@ -26,7 +27,7 @@ class BulletClient(object):
         """Create a simulation and connect to it."""
         self._client = pybullet.connect(pybullet.SHARED_MEMORY)
         if (self._client < 0):
-            print("options=", options)
+            logging.info("options=", options)
             self._client = pybullet.connect(connection_mode, options=options)
         self._shapes = {}
 

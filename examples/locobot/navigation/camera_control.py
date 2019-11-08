@@ -9,6 +9,7 @@ Example for controlling pan-tilt active camera system and get image data
 from __future__ import print_function
 
 import cv2
+import logging
 from pyrobot import Robot
 
 if __name__ == "__main__":
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 
     camera_poses = [[0, 0.7], [0.4, 0.4], [0.4, -0.4], [-0.4, 0.4], [-0.4, -0.4]]
     for pose in camera_poses:
-        print("Setting pan: {}, tilt: {}".format(pose[0], pose[1]))
+        logging.info("Setting pan: {}, tilt: {}".format(pose[0], pose[1]))
         bot.camera.set_pan_tilt(pose[0], pose[1], wait=True)
         rgb = bot.camera.get_rgb()
         depth = bot.camera.get_depth()

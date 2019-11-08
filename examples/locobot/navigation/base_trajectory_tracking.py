@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import os
 import time
 
@@ -58,7 +59,7 @@ def main(_):
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         file_name = os.path.join(save_dir, file_name)
-        rospy.loginfo('Wrote run data to %s.', file_name)
+        logging.info('Wrote run data to %s.', file_name)
         bot.base.controller.plot_plan_execution(file_name)
     bot.base.stop()
 

@@ -5,6 +5,7 @@
 # *******************************************************************************
 import argparse
 import copy
+import logging
 import time
 
 import matplotlib.pyplot as plt
@@ -13,6 +14,7 @@ from pyrobot import Robot
 
 
 def main(args):
+    logging.basicConfig(level=logging.INFO)
     joint_name = 'joint_%d' % args.joint_id
     bot = Robot('locobot')
     bot.arm.go_home()
@@ -30,7 +32,7 @@ def main(args):
         angles.append(copy.deepcopy(actual_angle))
         time.sleep(sleep_time)
     times = np.arange(len(angles)) * sleep_time
-    print('error:', np.mean(angles[-10]) - angle)
+    logging.info("error: %f" % (np.mean(angles[-10]) - angle))
     plt.plot(times, angles)
     plt.show()
 

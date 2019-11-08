@@ -7,6 +7,7 @@
 # https://github.com/sfujim/TD3
 
 import argparse
+import logging
 import os
 import sys
 
@@ -31,13 +32,14 @@ def evaluate_policy(policy, eval_episodes=100):
 
     avg_reward /= eval_episodes
 
-    print("---------------------------------------")
-    print("Evaluation over {} episodes: {}".format(eval_episodes, avg_reward))
-    print("---------------------------------------")
+    logging.info("---------------------------------------")
+    logging.info("Evaluation over {} episodes: {}".format(eval_episodes, avg_reward))
+    logging.info("---------------------------------------")
     return avg_reward
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--exp_name", type=str)  # Place to store log
@@ -113,7 +115,7 @@ if __name__ == "__main__":
     while total_timesteps < args.max_timesteps:
         if done:
             if total_timesteps != 0:
-                print("Total T: {} Episode Num: {} Episode T: {} Reward: {}".format(total_timesteps, episode_num,
+                logging.info("Total T: {} Episode Num: {} Episode T: {} Reward: {}".format(total_timesteps, episode_num,
                                                                                     episode_timesteps, episode_reward))
                 policy.train(replay_buffer, episode_timesteps, args.batch_size, args.discount, args.tau,
                              args.policy_noise, args.noise_clip, args.policy_freq)

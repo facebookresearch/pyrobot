@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import bezier
+import logging
 import numpy as np
 import rospy
 import tf
@@ -258,7 +259,7 @@ class MoveBasePlanner:
             self.plan_srv = rospy.ServiceProxy(
                 self.configs.BASE.PLAN_TOPIC, GetPlan)
         except rospy.ServiceException:
-            rospy.logerr(
+            logging.error(
                 "Timed out waiting for the planning service. \
                     Make sure build_map in script and \
                            use_map in roslauch are set to the same value")
@@ -329,7 +330,7 @@ class MoveBasePlanner:
         """
         plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
         if not plan_status:
-            rospy.loginfo("Failed to find a valid plan!")
+            logging.info("Failed to find a valid plan!")
             return
 
         if len(plan) < self.point_idx:
@@ -345,7 +346,7 @@ class MoveBasePlanner:
             plan, plan_status = self.get_plan_absolute(
                 goal[0], goal[1], goal[2])
             if not plan_status:
-                rospy.loginfo("Failed to find a valid plan!")
+                logging.info("Failed to find a valid plan!")
                 return
 
             if len(plan) < self.point_idx:
@@ -361,7 +362,7 @@ class MoveBasePlanner:
 
         g_angle, g_distance = self._compute_relative_ang_dist(goal)
 
-        rospy.loginfo("Adujusting Orientation at goal..{}.".format(g_angle))
+        logging.info("Adujusting Orientation at goal..{}.".format(g_angle))
 
         pose_stamped = build_pose_msg(
             goal[0], goal[1], goal[2], self.MAP_FRAME)

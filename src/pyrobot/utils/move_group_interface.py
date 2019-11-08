@@ -30,8 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import rospy
+import logging
 import actionlib
+import rospy
+
 from tf.listener import TransformListener
 from geometry_msgs.msg import *
 from moveit_msgs.srv import GetCartesianPath, GetCartesianPathRequest, \
@@ -58,7 +60,7 @@ def processResult(result):
     '''
     if result.error_code.val == 1:
         return True
-    rospy.loginfo("Moveit Failed with error code: " \
+    logging.info("Moveit Failed with error code: " \
             + str(moveit_error_dict[result.error_code.val]))
     return False
 
@@ -88,7 +90,7 @@ class MoveGroupInterface(object):
         try:
             self._cart_service.wait_for_service(timeout=3)
         except:
-            rospy.logerr("Timeout waiting for Cartesian Planning Service!!") 
+            logging.error("Timeout waiting for Cartesian Planning Service!!")
         
 
         self._action.wait_for_server()
@@ -135,7 +137,7 @@ class MoveGroupInterface(object):
                           "start_state")
         for arg in kwargs.keys():
             if not arg in supported_args:
-                rospy.loginfo("moveToJointPosition: unsupported argument: %s",
+                logging.info("moveToJointPosition: unsupported argument: %s",
                               arg)
 
         # Create goal
@@ -216,7 +218,7 @@ class MoveGroupInterface(object):
             result = self._action.get_result()
             return processResult(result)
         else:
-            rospy.loginfo('Failed while waiting for action result.')
+            logging.info('Failed while waiting for action result.')
             return False
 
     
@@ -252,7 +254,7 @@ class MoveGroupInterface(object):
                           "start_state")
         for arg in kwargs.keys():
             if not arg in supported_args:
-                rospy.loginfo("moveToPose: unsupported argument: %s",
+                logging.info("moveToPose: unsupported argument: %s",
                               arg)
 
         # Create goal
@@ -346,7 +348,7 @@ class MoveGroupInterface(object):
             result = self._action.get_result()
             return processResult(result)
         else:
-            rospy.loginfo('Failed while waiting for action result.')
+            logging.info('Failed while waiting for action result.')
             return False
 
 
@@ -399,13 +401,13 @@ class MoveGroupInterface(object):
             req.link_name = link_name
 
         result = self._cart_service(req)
-        rospy.loginfo("Cartesian plan for %f fraction of path", result.fraction)
+        logging.info("Cartesian plan for %f fraction of path", result.fraction)
 
         if len(result.solution.joint_trajectory.points) < 1:
-            rospy.logwarn('No motion plan found. No execution attempted')
+            logging.warning('No motion plan found. No execution attempted')
             return False
 
-        rospy.loginfo('Executing Cartesian Plan...')
+        logging.info('Executing Cartesian Plan...')
         
         # 13. send Trajectory
         action_req = ExecuteTrajectoryGoal()
@@ -416,7 +418,7 @@ class MoveGroupInterface(object):
             result = self._traj_action.get_result()
             return processResult(result)
         except:
-            rospy.logerr('Failed while waiting for action result.')
+            logging.error('Failed while waiting for action result.')
             return False
 
     def setPlannerId(self, planner_id):

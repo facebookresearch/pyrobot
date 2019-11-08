@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import logging
 import signal
 import sys
 import time
@@ -14,7 +15,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    logging.info('Exit')
     sys.exit(0)
 
 

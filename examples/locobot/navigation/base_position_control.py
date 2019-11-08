@@ -3,11 +3,11 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import os
 import time
 
 import numpy as np
-import rospy
 from absl import flags, app
 from pyrobot import Robot
 
@@ -42,7 +42,7 @@ def main(_):
         if not os.path.exists(tmp_dir):
             os.makedirs(tmp_dir)
         file_name = os.path.join(tmp_dir, file_name)
-        rospy.loginfo('Trajectory saved to %s.', file_name)
+        logging.info('Trajectory saved to %s.', file_name)
         bot.base.controller.plot_plan_execution(file_name)
 
     bot.base.stop()

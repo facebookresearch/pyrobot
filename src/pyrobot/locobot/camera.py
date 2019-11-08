@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+import logging
 import rospkg
 import threading
 import yaml
@@ -92,7 +93,7 @@ class SimpleCamera(Camera):
             self.rgb_img = self.rgb_img[:, :, ::-1]
             self.depth_img = self.cv_bridge.imgmsg_to_cv2(depth, "passthrough")
         except CvBridgeError as e:
-            rospy.logerr(e)
+            logging.exception(e)
         self.camera_img_lock.release()
 
     def _camera_info_callback(self, msg):
@@ -281,7 +282,7 @@ class LoCoBotCamera(SimpleCamera):
         use_sim = rospy.get_param('use_sim', False)
         use_camera = use_camera or use_sim
         if not use_camera:
-            rospy.logwarn('Neither use_camera, nor use_sim, is not set'
+            logging.warning('Neither use_camera, nor use_sim, is not set'
                           ' to True when the LoCoBot driver is launched.'
                           'You may not be able to command the camera'
                           ' correctly using PyRobot!!!')

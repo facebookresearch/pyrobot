@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import os
 import time
 
@@ -43,7 +44,7 @@ def main(_):
         if not os.path.exists(tmp_dir):
             os.makedirs(tmp_dir)
         file_name = os.path.join(tmp_dir, file_name)
-        print('Trajectory saved to:', file_name)
+        logging.info('Trajectory saved to:', file_name)
         bot.base.plot_plan_execution(file_name)
     bot.base.stop()
 

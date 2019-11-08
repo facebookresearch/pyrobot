@@ -3,12 +3,12 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import logging
 import os
 import time
 
 import cv2
 import numpy as np
-import rospy
 from absl import flags, app
 from pyrobot import Robot
 
@@ -78,22 +78,23 @@ def main(_):
     # axis. Thus, we appropriately transform the goal before feeding into CMP.
     # CMP also assumes a grid world, where the size of the grid is 40cm. Thus,
     # we snap the goal to the nearest grid location.
-    rospy.loginfo('Loading CMP policy and model.')
+    logging.basicConfig(level=logging.INFO)
+    logging.info('Loading CMP policy and model.')
     cmp_runner = CMPRunner(FLAGS.model_path)
 
     goal = [-np.round(FLAGS.goal_y * 100. / 40.) * 40.,
             np.round(FLAGS.goal_x * 100. / 40.) * 40.,
             np.round(FLAGS.goal_t / np.pi * 2.) * np.pi / 2. + np.pi / 2.]
-    rospy.loginfo('Goal in CMP coordinate frame: %s', str(goal))
+    logging.info('Goal in CMP coordinate frame: %s', str(goal))
     cmp_runner.set_new_goal(goal)
 
-    rospy.loginfo('Making robot')
+    logging.info('Making robot')
     bot = Robot(FLAGS.botname, base_config={'base_controller': 'ilqr',
                                             'base_planner': 'none'})
     logdir = None
     if FLAGS.logdir is not None:
         logdir = os.path.join(FLAGS.logdir, get_time_str())
-        rospy.loginfo('Logging images and actions to %s.', logdir)
+        logging.info('Logging images and actions to %s.', logdir)
         if not os.path.exists(logdir):
             os.makedirs(logdir)
 
@@ -129,10 +130,10 @@ def main(_):
             posn = action_relative_offset[model_action]
 
         posn_str = ['{:0.3f}'.format(x) for x in posn]
-        rospy.loginfo('CMP action: %s, relative_posn: %s',
+        logging.info('CMP action: %s, relative_posn: %s',
                       action_strings[model_action], ', '.join(posn_str))
         if model_action == 0:
-            rospy.loginfo('Goal achieved')
+            logging.info('Goal achieved')
             break
         bot.base.go_to_relative(posn, use_map=False,
                                 close_loop=True, smooth=False)

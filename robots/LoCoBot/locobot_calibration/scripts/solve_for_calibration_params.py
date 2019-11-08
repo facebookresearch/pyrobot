@@ -12,6 +12,7 @@ reprojection error problem using pytorch. See README.md for details.
 
 from __future__ import print_function
 import cv2
+import logging
 import os
 import pickle
 import numpy as np
@@ -238,7 +239,7 @@ def optimize(vars_to_optimize, ar_tag_points, rgb_quat, rgb_trans, ar_quat,
     matrices."""
 
     optimizer = optim.Adam(vars_to_optimize, lr=0.01)
-    print('Beginning optimization.')
+    logging.info('Beginning optimization.')
     # optimizer = optim.SGD(vars_to_optimize, lr=0.01, momentum=0.9)
     for i in range(optimizer_opts['n_iters']):
         # zero the parameter gradients
@@ -268,12 +269,11 @@ def optimize(vars_to_optimize, ar_tag_points, rgb_quat, rgb_trans, ar_quat,
                    'inlier px threshold: {:0.3f}, '
             str_ = str_.format(i, n_inliers, total_pts, err.detach().numpy(),
                                np.mean(np_err_all), robust_err_threshold)
-            print(str_)
+            logging.info(str_)
             for v in vars_to_optimize:
-                print('  ' + str(v.detach().numpy()))
+                logging.info('  ' + str(v.detach().numpy()))
     str_ = 'Optimization Finished. Final Loss: {:0.3f}.'
-    print(str_.format(err.detach().numpy()))
-    print('')
+    logging.info(str_.format(err.detach().numpy()))
 
 def setup_camera_arm_solver(dt, imgs, mask, pts_2d, to_optimize_trans,
                             to_optimize_quat, optimizer_opts,
@@ -393,7 +393,7 @@ def setup_camera_arm_solver(dt, imgs, mask, pts_2d, to_optimize_trans,
                 out[t]['quat'] = quat
             out[t]['from'] = _from
             out[t]['to'] = _to
-        print('Writing calibration parameters to {:s}.'.format(
+        logging.info('Writing calibration parameters to {:s}.'.format(
               calibration_output_file))
         with open(calibration_output_file, 'w') as f:
             json.dump(out, f, sort_keys=True, indent=4, separators=(',', ': '))
@@ -490,11 +490,11 @@ def setup_camera_solver(dt, imgs, mask, pts_2d, to_optimize_trans=[],
             err.backward()
             optimizer.step()
             if np.mod(i, 1000) == 0:
-                print(err.detach().numpy())
-                print(err_all.detach().numpy())
+                logging.info(err.detach().numpy())
+                logging.info(err_all.detach().numpy())
                 for v in vars_to_optimize:
-                    print(v.detach().numpy())
-        print(err.detach().numpy())
+                    logging.info(v.detach().numpy())
+        logging.info(err.detach().numpy())
 
     # Use gradient descent from pytorch to solve this problem.
     vars_pts = [_pts_3d]
@@ -593,17 +593,17 @@ def main(_):
         FLAGS.calibration_output_file = os.path.join(FLAGS.data_dir, 
                                                      'calibrated.json')
     if os.path.exists(FLAGS.calibration_output_file) and not FLAGS.overwrite:
-        print("""Calibration file already exists, please specify --overwrite to
+        logging.error("""Calibration file already exists, please specify --overwrite to
             overwrite it with new calibration parameters""")
         sys.exit()
 
     optimizer_opts = {'min_inlier_fraction': FLAGS.min_inlier_fraction,
                       'inlier_pixel_threshold': FLAGS.inlier_pixel_threshold,
                       'n_iters': FLAGS.n_iters}
-    print('optimizer_opts: ', optimizer_opts)
-    print('')
-    print('transforms to otpimize: ', FLAGS.to_optimize)
-    print('')
+    logging.info('optimizer_opts: ', optimizer_opts)
+    logging.info('')
+    logging.info('transforms to otpimize: ', FLAGS.to_optimize)
+    logging.info('')
     dir_name = FLAGS.data_dir
 
     tag_detect_dir_name = os.path.join(dir_name, 'tag_detect')

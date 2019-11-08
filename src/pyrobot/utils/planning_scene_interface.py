@@ -32,6 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import copy
+import logging
 import sys
 if (sys.version_info > (3, 0)):
     # Python 3 code in this block
@@ -77,7 +78,7 @@ class PlanningSceneInterface(object):
         '''
         # ns must be a string
         # if not isinstance(ns, basestring):
-        #     rospy.logerr('Namespace must be a string!')
+        #     logging.error('Namespace must be a string!')
         #     ns = ''
         # elif not ns.endswith('/'):
         #     ns += '/'
@@ -103,7 +104,7 @@ class PlanningSceneInterface(object):
 
         # get the initial planning scene
         if init_from_service:
-            rospy.loginfo('Waiting for get_planning_scene')
+            logging.info('Waiting for get_planning_scene')
             rospy.wait_for_service(ns + 'get_planning_scene')
             self._service = rospy.ServiceProxy(ns + 'get_planning_scene',
                                                GetPlanningScene)
@@ -116,7 +117,7 @@ class PlanningSceneInterface(object):
                 scene = self._service(req)
                 self.sceneCb(scene.scene, initial=True)
             except rospy.ServiceException as e:
-                rospy.logerr('Failed to get initial planning scene, results may be wonky: %s', e)
+                logging.error('Failed to get initial planning scene, results may be wonky: %s', e)
 
         # subscribe to planning scene
         rospy.Subscriber(ns + 'move_group/monitored_planning_scene',
@@ -142,7 +143,7 @@ class PlanningSceneInterface(object):
         if use_service:
             resp = self._apply_service.call(ps)
             if not resp.success:
-                rospy.logerr("Could not apply planning scene diff.")
+                logging.error("Could not apply planning scene diff.")
         else:
             self._scene_pub.publish(ps)
 
@@ -165,11 +166,11 @@ class PlanningSceneInterface(object):
         :param filename: The mesh file to load
         '''
         if not use_pyassimp:
-            rospy.logerr('pyassimp is broken on your platform, cannot load meshes')
+            logging.error('pyassimp is broken on your platform, cannot load meshes')
             return
         scene = pyassimp.load(filename)
         if not scene.meshes:
-            rospy.logerr('Unable to load mesh')
+            logging.error('Unable to load mesh')
             return
 
         mesh = Mesh()
@@ -386,7 +387,7 @@ class PlanningSceneInterface(object):
             try:
                 if obj.operation == obj.ADD:
                     self._collision.append(obj.id)
-                    rospy.logdebug('ObjectManager: Added Collision Obj "%s"',
+                    logging.debug('ObjectManager: Added Collision Obj "%s"',
                                    obj.id)
                     if initial:
                         # this is our initial planning scene, hold onto each object
@@ -394,13 +395,13 @@ class PlanningSceneInterface(object):
                 elif obj.operation == obj.REMOVE:
                     self._collision.remove(obj.id)
                     self._removed.pop(obj.id, None)
-                    rospy.logdebug('ObjectManager: Removed Collision Obj "%s"',
+                    logging.debug('ObjectManager: Removed Collision Obj "%s"',
                                    obj.id)
             except ValueError:
                 pass
         self._attached = list()
         for obj in msg.robot_state.attached_collision_objects:
-            rospy.logdebug('ObjectManager: attached collision Obj "%s"',
+            logging.debug('ObjectManager: attached collision Obj "%s"',
                            obj.object.id)
             self._attached.append(obj.object.id)
             if initial:
@@ -438,31 +439,31 @@ class PlanningSceneInterface(object):
             for name in self._collision:
                 if name in self._removed.keys():
                     # should be removed, is not
-                    rospy.logwarn('ObjectManager: %s not removed yet', name)
+                    logging.warning('ObjectManager: %s not removed yet', name)
                     self.removeCollisionObject(name, False)
                     sync = False
             for name in self._attached:
                 if name in self._attached_removed.keys():
                     # should be removed, is not
-                    rospy.logwarn('ObjectManager: Attached object name: %s not removed yet', name)
+                    logging.warning('ObjectManager: Attached object name: %s not removed yet', name)
                     self.removeAttachedObject(name, False)
                     sync = False
             # add missing objects
             for name in self._objects.keys():
                 if name not in self._collision + self._attached:
-                    rospy.logwarn('ObjectManager: %s not added yet', name)
+                    logging.warning('ObjectManager: %s not added yet', name)
                     self.sendUpdate(self._objects[name], None, False)
                     sync = False
             for name in self._attached_objects.keys():
                 if name not in self._attached:
-                    rospy.logwarn('ObjectManager: %s not attached yet', name)
+                    logging.warning('ObjectManager: %s not attached yet', name)
                     self.sendUpdate(None, self._attached_objects[name], False)
                     sync = False
             # timeout
             if rospy.Time.now() - t > rospy.Duration(max_time):
-                rospy.logerr('ObjectManager: sync timed out.')
+                logging.error('ObjectManager: sync timed out.')
                 break
-            rospy.logdebug('ObjectManager: waiting for sync.')
+            logging.debug('ObjectManager: waiting for sync.')
             rospy.sleep(0.1)
 
     def setColor(self, name, r, g, b, a=0.9):
@@ -487,5 +488,5 @@ class PlanningSceneInterface(object):
             p.object_colors.append(color)
         resp = self._apply_service.call(p)
         if not resp.success:
-            rospy.logerr("Could not update colors through service, using topic instead.")
+            logging.error("Could not update colors through service, using topic instead.")
             self._scene_pub.publish(p)

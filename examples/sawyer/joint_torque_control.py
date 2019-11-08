@@ -7,6 +7,7 @@
 Example for commanding robot with torque control (based on intera examples)
 """
 
+import logging
 import signal
 import sys
 import time
@@ -16,7 +17,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    logging.warning('Exit')
     sys.exit(0)
 
 

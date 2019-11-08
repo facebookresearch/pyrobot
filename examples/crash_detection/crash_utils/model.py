@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-
+import logging
 import torch
 import torch.utils.model_zoo as model_zoo
 from torch import nn
@@ -47,5 +47,5 @@ class CrashDetectorNet(ResNet):
         return x
 
     def load_from_pretrained_resnet18(self):
-        print('Loading pretrained resnet18')
+        logging.info('Loading pretrained resnet18')
         self.load_state_dict(model_zoo.load_url(model_urls['resnet18']))

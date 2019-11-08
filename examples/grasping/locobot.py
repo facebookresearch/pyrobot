@@ -13,6 +13,7 @@ Follow the associated README for installation instructions.
 
 import argparse
 import copy
+import logging
 import signal
 import sys
 import time
@@ -128,7 +129,7 @@ class Grasper(object):
         assert len(pt) == 2
         cur_depth = self._process_depth()
         z = self._get_z_mean(cur_depth, [pt[0], pt[1]])
-        rospy.loginfo('depth of point is : {}'.format(z))
+        logging.info('depth of point is : {}'.format(z))
         if z == 0.:
             raise RuntimeError
         if norm_z is not None:
@@ -136,7 +137,7 @@ class Grasper(object):
         u = pt[1]
         v = pt[0]
         P = copy.deepcopy(self.robot.camera.camera_P)
-        rospy.loginfo('P is: {}'.format(P))
+        logging.info('P is: {}'.format(P))
         P_n = np.zeros((3, 3))
         P_n[:, :2] = P[:, :2]
         P_n[:, 2] = P[:, 3] + P[:, 2] * z
@@ -148,20 +149,20 @@ class Grasper(object):
 
     def _convert_frames(self, pt):
         assert len(pt) == 3
-        rospy.loginfo('Point to convert: {}'.format(pt))
+        logging.info('Point to convert: {}'.format(pt))
         ps = PointStamped()
         ps.header.frame_id = KINECT_FRAME
         ps.point.x, ps.point.y, ps.point.z = pt
         base_ps = self._transform_listener.transformPoint(BASE_FRAME, ps)
-        rospy.loginfo(
+        logging.info(
             'transform : {}'.format(self._transform_listener.lookupTransform(BASE_FRAME, KINECT_FRAME, rospy.Time(0))))
         base_pt = np.array([base_ps.point.x, base_ps.point.y, base_ps.point.z])
-        rospy.loginfo('Base point to convert: {}'.format(base_pt))
+        logging.info('Base point to convert: {}'.format(base_pt))
         return base_pt
 
     def get_3D(self, pt, z_norm=None):
         temp_p = self._get_3D_camera(pt, z_norm)
-        rospy.loginfo('temp_p: {}'.format(temp_p))
+        logging.info('temp_p: {}'.format(temp_p))
         base_pt = self._convert_frames(temp_p)
         return base_pt
 
@@ -182,7 +183,7 @@ class Grasper(object):
         img = img[dims[0][0]:dims[0][1], dims[1][0]:dims[1][1]]
         # selected_grasp = [183, 221, -1.5707963267948966, 1.0422693]
         selected_grasp = list(self.grasp_model.predict(img))
-        rospy.loginfo('Pixel grasp: {}'.format(selected_grasp))
+        logging.info('Pixel grasp: {}'.format(selected_grasp))
         img_grasp = copy.deepcopy(selected_grasp)
         selected_grasp[0] += dims[0][0]
         selected_grasp[1] += dims[1][0]
@@ -213,29 +214,29 @@ class Grasper(object):
         grasp_position = [grasp_pose[0], grasp_pose[1], self.grasp_height]
         # grasp_pose = Pose(Point(*grasp_position), self.grasp_Q)
 
-        rospy.loginfo('Going to pre-grasp pose:\n\n {} \n'.format(pregrasp_position))
+        logging.info('Going to pre-grasp pose:\n\n {} \n'.format(pregrasp_position))
         result = self.set_pose(pregrasp_position, roll=grasp_angle)
         if not result:
             return False
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Going to grasp pose:\n\n {} \n'.format(grasp_position))
+        logging.info('Going to grasp pose:\n\n {} \n'.format(grasp_position))
         result = self.set_pose(grasp_position, roll=grasp_angle)
         if not result:
             return False
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Closing gripper')
+        logging.info('Closing gripper')
         self.robot.gripper.close()
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Going to pre-grasp pose')
+        logging.info('Going to pre-grasp pose')
         result = self.set_pose(pregrasp_position, roll=grasp_angle)
         if not result:
             return False
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Opening gripper')
+        logging.info('Opening gripper')
         self.robot.gripper.open()
         return True
         time.sleep(self._sleep_time)
@@ -294,7 +295,7 @@ class Grasper(object):
         Graceful exit.
         """
 
-        rospy.loginfo('Exiting...')
+        logging.info('Exiting...')
         self.reset()
         sys.exit(0)
 
@@ -313,13 +314,13 @@ def main(args):
     grasper = Grasper(n_samples=args.n_samples, patch_size=args.patch_size)
     signal.signal(signal.SIGINT, grasper.signal_handler)
     for i in range(args.n_grasps):
-        rospy.loginfo('Grasp attempt #{}'.format(i + 1))
+        logging.info('Grasp attempt #{}'.format(i + 1))
         success = grasper.reset()
         if not success:
-            rospy.logerr('Arm reset failed')
+            logging.error('Arm reset failed')
             continue
         grasp_pose = grasper.compute_grasp(display_grasp=args.no_visualize)
-        print('\n\n Grasp Pose: \n\n {} \n\n'.format(grasp_pose))
+        logging.info('\n\n Grasp Pose: \n\n {} \n\n'.format(grasp_pose))
         grasper.grasp(grasp_pose)
 
 

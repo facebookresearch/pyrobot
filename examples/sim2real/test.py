@@ -8,6 +8,7 @@ from __future__ import print_function
 # https://github.com/sfujim/TD3
 
 import argparse
+import logging
 import os
 import sys
 
@@ -30,26 +31,26 @@ def evaluate_policy(policy, eval_episodes=100):
             obs, reward, done, _ = env.step(action)
             avg_reward += reward
             step_count += 1
-            print("step_count = {}".format(step_count))
+            logging.info("step_count = {}".format(step_count))
 
-        print("----------")
-        print("Eposide ended")
+        logging.info("----------")
+        logging.info("Eposide ended")
         if done:
-            print("Arm is within {} m to goal".format(0.01))
+            logging.info("Arm is within {} m to goal".format(0.01))
         else:
-            print("Arm is within {} m to goal".format(-reward))
-        print("----------")
+            logging.info("Arm is within {} m to goal".format(-reward))
+        logging.info("----------")
 
     avg_reward /= eval_episodes
 
-    print("---------------------------------------")
-    print("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
-    print("---------------------------------------")
+    logging.info("---------------------------------------")
+    logging.info("Evaluation over %d episodes: %f" % (eval_episodes, avg_reward))
+    logging.info("---------------------------------------")
     return avg_reward
 
 
 if __name__ == "__main__":
-
+    logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument("--env_name", default="LocoBotEnv-v0")  # OpenAI gym environment name
     parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds

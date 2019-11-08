@@ -6,6 +6,7 @@
 import argparse
 
 import cv2
+import logging
 import torch
 from IPython import embed
 from PIL import Image
@@ -39,7 +40,7 @@ class Tester(object):
         diff = h - des_h
         half_diff = int(diff / 2.0)
         image = image[half_diff:-half_diff - 1]
-        print('New Shape:{}'.format(image.shape))
+        logging.info('New Shape:{}'.format(image.shape))
         image = cv2.resize(image, (640, 290))
         self.image = image
         I = Image.fromarray(image.astype('uint8'), 'RGB')

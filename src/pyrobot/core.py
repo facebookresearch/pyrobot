@@ -7,8 +7,8 @@ from __future__ import print_function
 
 import copy
 import importlib
+import logging
 import os
-import sys
 import threading
 import time
 from abc import ABCMeta, abstractmethod
@@ -92,7 +92,7 @@ class Robot:
         try:
             rospy.init_node('pyrobot', anonymous=True)
         except rospy.exceptions.ROSException:
-            rospy.logwarn('ROS node [pyrobot] has already been initialized')
+            logging.warning('ROS node [pyrobot] has already been initialized')
 
         root_node += this_robot
         root_node += '.'
@@ -357,13 +357,13 @@ class Arm(object):
         try:
             self._ik_service.wait_for_service(timeout=3)
         except:
-            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")
+            logging.error("Timeout waiting for Inverse Kinematics Service!!")
 
         self._fk_service = rospy.ServiceProxy('pyrobot/fk', FkCommand)
         try:
             self._fk_service.wait_for_service(timeout=3)
         except:
-            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")  
+            logging.error("Timeout waiting for Forward Kinematics Service!!")
 
     @abstractmethod
     def go_home(self):
@@ -481,7 +481,7 @@ class Arm(object):
             try:
                 joint_torques.append(self.get_joint_torque(joint))
             except (ValueError, IndexError):
-                rospy.loginfo('Torque value for joint '
+                logging.info('Torque value for joint '
                               '[%s] not available!' % joint)
         joint_torques = np.array(joint_torques).flatten()
         self.joint_state_lock.release()
@@ -561,7 +561,7 @@ class Arm(object):
             if isinstance(positions, np.ndarray):
                 positions = positions.tolist()
 
-            rospy.loginfo('Moveit Motion Planning...')
+            logging.info('Moveit Motion Planning...')
             result = self.moveit_group.moveToJointPosition(
                         self.arm_joint_names,
                         positions,
@@ -624,7 +624,7 @@ class Arm(object):
                                           numerical=numerical)
         result = False
         if joint_positions is None:
-            rospy.logerr('No IK solution found; check if target_pose is valid')
+            logging.error('No IK solution found; check if target_pose is valid')
         else:
             result = self.set_joint_positions(joint_positions,
                                               plan=plan, wait=wait)
@@ -673,7 +673,7 @@ class Arm(object):
                                                   qinit=qinit,
                                                   numerical=numerical)
                 if joint_positions is None:
-                    rospy.logerr('No IK solution found; '
+                    logging.error('No IK solution found; '
                                  'check if target_pose is valid')
                     return False
                 way_joint_positions.append(copy.deepcopy(joint_positions))
@@ -728,7 +728,7 @@ class Arm(object):
             diff = cur_pos.flatten() - waypoints[:, -1].flatten()
             error = np.linalg.norm(diff)
             if error > self.configs.ARM.MAX_EE_ERROR:
-                rospy.logerr('Move end effector along xyz failed!')
+                logging.error('Move end effector along xyz failed!')
                 success = False
             return success
 
@@ -753,7 +753,7 @@ class Arm(object):
         try:
             resp = self._fk_service(req)
         except:
-            rospy.logerr("FK Service call failed")
+            logging.error("FK Service call failed")
             resp = FkCommandResponse()
             resp.success = False
 
@@ -855,7 +855,7 @@ class Arm(object):
             try:
                 resp = self._ik_service(req)
             except:
-                rospy.logerr("IK Service call failed")
+                logging.error("IK Service call failed")
                 resp = IkCommandResponse()
                 resp.success = False
 
