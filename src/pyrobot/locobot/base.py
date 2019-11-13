@@ -70,7 +70,7 @@ class BaseSafetyCallbacks(object):
             s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_WHEELDROP,
                                  WheelDropEvent, self.wheeldrop_callback)
             self.subscribers.append(s)
-            self.pub = rospy.Publisher('bump', String, queue_size=10)
+            self.pub = rospy.Publisher('bump', Bool, queue_size=10)
             s = rospy.Subscriber('bump', Bool, self.reset_bumper_callback)
             self.subscribers.append(s)
 
