@@ -9,6 +9,8 @@ import copy
 import os
 from functools import partial
 from os.path import expanduser
+import time
+import threading
 
 import numpy as np
 import rospy
@@ -17,6 +19,7 @@ import tf.transformations
 from ca_msgs.msg import Bumper
 from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Bool
 
 try:
     from orb_slam2_ros.vslam import VisualSLAM
@@ -45,6 +48,7 @@ class BaseSafetyCallbacks(object):
         self.cliff = False
         self.wheel_drop = False
         self.subscribers = []
+        self.lock = threading.RLock()
 
         if base == 'create':
             s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_BUMPER, Bumper,
@@ -65,6 +69,9 @@ class BaseSafetyCallbacks(object):
             self.subscribers.append(s)
             s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_WHEELDROP,
                                  WheelDropEvent, self.wheeldrop_callback)
+            self.subscribers.append(s)
+            self.pub = rospy.Publisher('bump', String, queue_size=10)
+            s = rospy.Subscriber('bump', Bool, self.reset_bumper_callback)
             self.subscribers.append(s)
 
     def bumper_callback_create(self, data):
@@ -92,8 +99,17 @@ class BaseSafetyCallbacks(object):
 
     def bumper_callback_kobuki(self, date):
         rospy.loginfo("Bumper Detected")
-        self.bumper = True
+        with self.lock:
+            self.bumper = True
         self.should_stop = True
+        self.pub.publish(True)
+    
+    def reset_bumper_callback(self, data):
+        if data.data:
+            time.sleep(1)
+            with self.lock:
+                self.bumper = False
+
 
     def __del__(self):
         # Delete callback on deletion of object.
