@@ -99,13 +99,6 @@ class BaseSafetyCallbacks(object):
 
     def bumper_callback_kobuki(self, data):
         rospy.loginfo("Bumper Detected")
-        rospy.loginfo("data.left " + str(data.LEFT))
-        rospy.loginfo("data.right " + str(data.RIGHT))
-        rospy.loginfo("data.center " + str(data.CENTER))
-        rospy.loginfo("data.released " + str(data.RELEASED))
-        rospy.loginfo("data.pressed " + str(data.PRESSED))
-        rospy.loginfo("data.bumper " + str(data.bumper))
-        rospy.loginfo("data.state " + str(data.state))
         with self.lock:
             self.bumper = True
         self.should_stop = True
