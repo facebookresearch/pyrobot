@@ -114,14 +114,15 @@ class BaseSafetyCallbacks(object):
                 self.bumper = False
 
     def button_event_callback(self,data):
-	    if ( data.state == ButtonEvent.RELEASED ) :
+	    if data.state == ButtonEvent.RELEASED:
 		    state = "released"
 	    else:
-		    state = "pressed"  
-	    if ( data.button == ButtonEvent.Button0 ) :
+		    state = "pressed"
+
+	    if data.button == ButtonEvent.Button0:
 		    button = "B0"
             self.emergency_stop = True
-	    elif ( data.button == ButtonEvent.Button1 ) :
+	    elif data.button == ButtonEvent.Button1:
 		    button = "B1"
             self.emergency_stop = True
 	    else:
