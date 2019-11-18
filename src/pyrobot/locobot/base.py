@@ -17,7 +17,7 @@ import rospy
 import tf
 import tf.transformations
 from ca_msgs.msg import Bumper
-from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent
+from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent, ButtonEvent
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
 
@@ -44,6 +44,7 @@ class BaseSafetyCallbacks(object):
 
     def __init__(self, base):
         self.should_stop = False
+        self.emergency_stop = False
         self.bumper = False
         self.cliff = False
         self.wheel_drop = False
@@ -72,6 +73,8 @@ class BaseSafetyCallbacks(object):
             self.subscribers.append(s)
             self.pub = rospy.Publisher('bump', Bool, queue_size=10)
             s = rospy.Subscriber('bump', Bool, self.reset_bumper_callback)
+            self.subscribers.append(s)
+            s = rospy.Subscriber("/mobile_base/events/button",ButtonEvent,self.button_event_callback)
             self.subscribers.append(s)
 
     def bumper_callback_create(self, data):
@@ -109,6 +112,22 @@ class BaseSafetyCallbacks(object):
             time.sleep(1)
             with self.lock:
                 self.bumper = False
+
+    def button_event_callback(self,data):
+	    if ( data.state == ButtonEvent.RELEASED ) :
+		    state = "released"
+	    else:
+		    state = "pressed"  
+	    if ( data.button == ButtonEvent.Button0 ) :
+		    button = "B0"
+            self.emergency_stop = True
+	    elif ( data.button == ButtonEvent.Button1 ) :
+		    button = "B1"
+            self.emergency_stop = True
+	    else:
+		    button = "B2"
+            self.emergency_stop = True
+	    rospy.loginfo("Button %s was %s."%(button, state))
 
 
     def __del__(self):
