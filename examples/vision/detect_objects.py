@@ -5,7 +5,6 @@
 
 import os
 import sys
-import time
 
 import numpy
 import models
@@ -24,14 +23,9 @@ if ros_path in sys.path:
     import cv2
 sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
 
-
 FLAGS = flags.FLAGS
 flags.DEFINE_string('botname', 'locobot',
                     'Robot name, locobot, locobot_lite, ...')
-
-
-def get_time_str():
-    return time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
 
 
 class Detector(object):
@@ -57,8 +51,11 @@ class Detector(object):
             image = image.unsqueeze(0)
             detections = self.model(image)
             detections = non_max_suppression(detections, 0.8, 0.0)
-            for d in detections[0]:
-                print("Class %s" % self.object_classes[int(d[6])])
+            if detections[0] is not None:
+                for d in detections[0]:
+                    print("Class %s" % self.object_classes[int(d[6])])
+            else:
+                print("No objects detected")
         return detections,\
             (image.squeeze().permute(1, 2, 0).numpy()*255).astype(numpy.uint8)
 
@@ -73,15 +70,13 @@ def main(_):
         image = camera.get_rgb()
 
         objects, image = detector.detect(image)
-        if objects:
+        image = image[:, :, ::-1]  # RGB -> BGR
+        if objects[0] is not None:
             for detected in objects[0]:
                 detect = detected.numpy().astype(int)
                 print((detect[0], detect[1]))
                 image = cv2.rectangle(image, (detect[0], detect[1]),
                                       (detect[2], detect[3]), (0, 255, 0), 2)
-        else:
-            print("No Objects Detected")
-
         cv2.imshow('Color', image)
         cv2.waitKey(1000)
 
