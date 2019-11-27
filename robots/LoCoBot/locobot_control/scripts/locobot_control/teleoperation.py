@@ -145,9 +145,10 @@ class RobotTeleoperationServer():
         self.status = data.data
 
     def update_alpha(self):
-        _, _, quat = self.bot.arm.get_ee_pose('/base_link')
-        (_, pitch, _) = euler_from_quaternion(quat)
-        self.target_alpha = -pitch
+        if self.use_arm:
+            _, _, quat = self.bot.arm.get_ee_pose('/base_link')
+            (_, pitch, _) = euler_from_quaternion(quat)
+            self.target_alpha = -pitch
 
     @property
     def pose_fingertip(self):
@@ -212,6 +213,8 @@ class RobotTeleoperationServer():
         return True
 
     def move_arm(self, delta, key):
+        if not self.use_arm:
+            rospy.logerr('use_arm is false! cannot move arm')
         target_position = self.trans.copy().flatten()
         target_position += delta
         result = self.bot.arm.set_ee_pose_pitch_roll(target_position,
@@ -232,6 +235,8 @@ class RobotTeleoperationServer():
                                       exe_time=0.5)
             else:
                 self.bot.base.stop()
+        else:
+            rospy.logerr('use_base is false! cannot move base')
 
     def reset(self):
         self.set_joint(np.zeros(5))

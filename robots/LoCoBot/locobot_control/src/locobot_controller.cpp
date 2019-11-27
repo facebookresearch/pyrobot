@@ -173,7 +173,7 @@ bool LoCoBotController::getDynamixelsInfo(const std::string yaml_file) {
 }
 
 bool LoCoBotController::loadDynamixels(void) {
-  bool result = false;
+  bool result = true;
   const char *log;
 
   for (auto const &dxl:dynamixel_name_2ids_) {
