@@ -78,7 +78,7 @@ _BASEC.MAP_FRAME = '/map'
 # Rosaction topic for movebase
 _BASEC.ROSTOPIC_BASE_ACTION_COMMAND = 'move_base'
 # Rate of control for ILQR
-_BASEC.BASE_CONTROL_RATE = 10
+_BASEC.BASE_CONTROL_RATE = 30
 # Maximum linear for velocity control and ILQR
 _BASEC.MAX_ABS_FWD_SPEED = 0.4
 # Maximum rotational velocity for velocity control and ILQR
