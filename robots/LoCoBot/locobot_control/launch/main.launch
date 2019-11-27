@@ -73,7 +73,7 @@
 
         <include file="$(find locobot_gazebo)/launch/gazebo_locobot_control.launch"/>
         <node name="locobot_gazebo" pkg="locobot_gazebo" type="locobot_gazebo" 
-            respawn="true" output="screen"/> 
+            respawn="true" output="screen"/>
     </group>
 
 

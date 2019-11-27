@@ -134,7 +134,8 @@ class RobotTeleoperationServer():
 
         self.target_alpha = 0.0
         self.update_alpha()
-        self.trans, _, _ = self.bot.arm.pose_ee
+        if self.use_arm:
+            self.trans, _, _ = self.bot.arm.pose_ee
 
         rospy.loginfo('Teleop server ready to accept requests...')
 
