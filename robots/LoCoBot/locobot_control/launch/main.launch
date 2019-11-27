@@ -91,7 +91,7 @@
     </group>
 
 
-    <group if="$(eval arg('use_arm')">
+    <group if="$(arg use_arm)">
         <group if="$(eval base =='create')">
             <include file="$(find locobot_lite_moveit_config)/launch/demo.launch">
                 <arg name="use_rviz" value="$(arg use_rviz)"/>
