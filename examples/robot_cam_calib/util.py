@@ -118,8 +118,9 @@ def compute_loss(t_B_G, r_B_G, t_C_A, r_C_A, t_G_A, q_G_A, t_B_C, q_B_C, criteri
         pred_r_B_G_A[i] = torch.mm(r_B_G[i], pred_r_G_A)
         pred_r_B_C_A[i] = torch.mm(pred_r_B_C, r_C_A[i])
 
-    loss = criterion(pred_t_C_A, t_C_A).mean(dim=1) + rot_loss_w * criterion(pred_r_B_G_A.reshape(t_B_G.shape[0], -1),
-                                                                             pred_r_B_C_A.reshape(t_B_G.shape[0], -1)).mean(dim=1)
+    norm_pred_t_C_A = pred_t_C_A / pred_t_C_A.norm(dim=1).reshape(-1,1)
+    norm_t_C_A = t_C_A / t_C_A.norm(dim=1).reshape(-1,1)
+    loss = criterion(norm_pred_t_C_A, norm_t_C_A).mean(dim=1)
 
     return loss, loss.mean()
 
