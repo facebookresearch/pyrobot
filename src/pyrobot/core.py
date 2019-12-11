@@ -620,14 +620,29 @@ class Arm(object):
         :return: Returns True if command succeeded, False otherwise
         :rtype: bool
         """
-        joint_positions = self.compute_ik(position, orientation,
-                                          numerical=numerical)
-        result = False
-        if joint_positions is None:
-            rospy.logerr('No IK solution found; check if target_pose is valid')
+        if plan and self.configs.ARM.CLASS != 'LoCoBotArm':
+            if not self.use_moveit:
+                raise ValueError('Using plan=True when moveit is not'
+                                 ' initialized, did you pass '
+                                 'in use_moveit=True?')
+            pose = Pose()
+            position = position.flatten()
+            pose.position.x, pose.position.y, pose.position.z = position[0], position[1], position[2]
+            pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w = \
+                self._ori_2_quat(orientation)
+            self.moveit_group.set_pose_target(pose)
+            plan = self.moveit_group.plan()
+            result = self.moveit_group.execute(plan, wait=True)
+            self.moveit_group.clear_pose_targets()
         else:
-            result = self.set_joint_positions(joint_positions,
-                                              plan=plan, wait=wait)
+            joint_positions = self.compute_ik(position, orientation,
+                                            numerical=numerical)
+            result = False
+            if joint_positions is None:
+                rospy.logerr('No IK solution found; check if target_pose is valid')
+            else:
+                result = self.set_joint_positions(joint_positions,
+                                                plan=plan, wait=wait)
         return result
 
     def move_ee_xyz(self, displacement, eef_step=0.005,
@@ -818,28 +833,7 @@ class Arm(object):
         :rtype: np.ndarray
         """
         position = position.flatten()
-        if orientation.size == 4:
-            orientation = orientation.flatten()
-            ori_x = orientation[0]
-            ori_y = orientation[1]
-            ori_z = orientation[2]
-            ori_w = orientation[3]
-        elif orientation.size == 3:
-            quat = prutil.euler_to_quat(orientation)
-            ori_x = quat[0]
-            ori_y = quat[1]
-            ori_z = quat[2]
-            ori_w = quat[3]
-        elif orientation.size == 9:
-            quat = prutil.rot_mat_to_quat(orientation)
-            ori_x = quat[0]
-            ori_y = quat[1]
-            ori_z = quat[2]
-            ori_w = quat[3]
-        else:
-            raise TypeError('Orientation must be in one '
-                            'of the following forms:'
-                            'rotation matrix, euler angles, or quaternion')
+        ori_x, ori_y, ori_z, ori_w = self._ori_2_quat(orientation)
         if qinit is None:
             qinit = self.get_joint_angles().tolist()
         elif isinstance(qinit, np.ndarray):
@@ -884,6 +878,43 @@ class Arm(object):
             return None
         print (joint_positions)
         return np.array(joint_positions)
+
+    def _ori_2_quat(self, orientation):
+        """
+        To convert orientation (of any form) to quaternion
+
+        :param orientation: end effector orientation.
+                    It can be quaternion ([x,y,z,w],
+                    shape: :math:`[4,]`),
+                    euler angles (yaw, pitch, roll
+                    angles (shape: :math:`[3,]`)),
+                    or rotation matrix (shape: :math:`[3, 3]`)
+        :type orientation: np.ndarray
+        :rtype tuple
+        """
+        if orientation.size == 4:
+            orientation = orientation.flatten()
+            ori_x = orientation[0]
+            ori_y = orientation[1]
+            ori_z = orientation[2]
+            ori_w = orientation[3]
+        elif orientation.size == 3:
+            quat = prutil.euler_to_quat(orientation)
+            ori_x = quat[0]
+            ori_y = quat[1]
+            ori_z = quat[2]
+            ori_w = quat[3]
+        elif orientation.size == 9:
+            quat = prutil.rot_mat_to_quat(orientation)
+            ori_x = quat[0]
+            ori_y = quat[1]
+            ori_z = quat[2]
+            ori_w = quat[3]
+        else:
+            raise TypeError('Orientation must be in one '
+                            'of the following forms:'
+                            'rotation matrix, euler angles, or quaternion')
+        return ori_x, ori_y, ori_z, ori_w
 
     def _callback_joint_states(self, msg):
         """
