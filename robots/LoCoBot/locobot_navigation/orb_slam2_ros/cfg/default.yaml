@@ -1,9 +1,9 @@
 %YAML:1.0
 ---
-Camera.fx: 6.1913385009765625e+02
-Camera.fy: 6.1907653808593750e+02
-Camera.cx: 3.2507214355468750e+02
-Camera.cy: 2.3738647460937500e+02
+Camera.fx: 6.1500598144531250e+02
+Camera.fy: 6.1440563964843750e+02
+Camera.cx: 3.2098373413085938e+02
+Camera.cy: 2.4188500976562500e+02
 Camera.k1: 0.
 Camera.k2: 0.
 Camera.p1: 0.
@@ -12,7 +12,7 @@ Camera.k3: 0.
 Camera.width: 640
 Camera.height: 480
 Camera.fps: 30.
-Camera.bf: 3.0956691741943359e+01
+Camera.bf: 3.0750299453735352e+01
 Camera.RGB: 1
 ThDepth: 40.
 DepthMapFactor: 1000.

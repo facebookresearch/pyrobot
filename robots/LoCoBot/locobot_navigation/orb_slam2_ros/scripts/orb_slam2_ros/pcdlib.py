@@ -11,11 +11,11 @@ import time
 from os.path import expanduser
 
 import sys
-ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+ros_path = '/opt/ros/melodic/lib/python2.7/dist-packages'
 if ros_path in sys.path:
     sys.path.remove(ros_path)
     import cv2
-sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
+sys.path.append('/opt/ros/melodic/lib/python2.7/dist-packages')
 
 import numpy as np
 import rospy
@@ -227,7 +227,7 @@ class PointCloudProcessor:
             return None, None
         num_frames = 0
         num_pts = 0
-        for KFid, ext_mat in self.extrinsic_mats.iteritems():
+        for KFid, ext_mat in self.extrinsic_mats.items():
             if KFid not in self.pcd_pool_in_cam:
                 continue
             num_frames += 1
@@ -238,7 +238,7 @@ class PointCloudProcessor:
         all_pts = np.zeros((num_pts, 3))
         all_colors = np.zeros((num_pts, 3))
         cur_id = 0
-        for KFid, ext_mat in self.extrinsic_mats.iteritems():
+        for KFid, ext_mat in self.extrinsic_mats.items():
             if KFid not in self.pcd_pool_in_cam:
                 continue
             pcd_in_cam, rgb = self.pcd_pool_in_cam[KFid]

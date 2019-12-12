@@ -277,7 +277,7 @@ class VisualSLAM(object):
         self.occ_map_msg.info.height = height
         self.occ_map_msg.info.origin.position.x = x_min
         self.occ_map_msg.info.origin.position.y = y_min
-        self.occ_map_msg.data = occ_map
+        self.occ_map_msg.data = occ_map.astype(int).tolist()
         self.occ_map_pub.publish(self.occ_map_msg)
 
     def _callback_occ_pub(self, event):
@@ -361,7 +361,7 @@ class VisualSLAM(object):
     def _init_occupancy_map(self):
         grid = OccupancyGrid()
         grid.header.seq = 1
-        grid.header.frame_id = '/map'
+        grid.header.frame_id = 'map'
         grid.info.origin.position.z = 0
         grid.info.origin.orientation.x = 0
         grid.info.origin.orientation.y = 0
