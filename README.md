@@ -28,8 +28,7 @@
   ```bash
   sudo apt update
   sudo apt-get install curl
-  https://github.com/facebookresearch/pyrobot/tree/feature/ros-melodic
-  https://github.com/facebookresearch/pyrobot/tree/feature/ros-melodic/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
+  curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/feature/ros-melodic/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
   ```
 
 * Run the script to install everything (ROS, realsense driver, etc.). 

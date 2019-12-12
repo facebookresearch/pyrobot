@@ -48,9 +48,6 @@ if [ $PYTHON_VERSION == "3" ]; then
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 		sudo apt-get install software-properties-common 
-		
-		#sudo add-apt-repository ppa:jonathonf/python-3.6
-		sudo apt-get update
 		sudo apt-get install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml python3-rospkg-modules python3-empy
 		sudo apt-get install python3-tk
 		sudo apt-get -y install ros-melodic-orocos-kdl ros-melodic-kdl-parser-py ros-melodic-python-orocos-kdl ros-melodic-trac-ik

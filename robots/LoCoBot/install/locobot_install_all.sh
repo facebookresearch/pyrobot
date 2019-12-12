@@ -85,43 +85,41 @@ sudo pip install --upgrade cryptography
 sudo python -m easy_install --upgrade pyOpenSSL
 sudo pip install --upgrade pip
 
-
-# STEP 2 - Install ROS Kinetic
-if [ $(dpkg-query -W -f='${Status}' ros-kinetic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
+# STEP 2 - Install ROS Melodic
+if [ $(dpkg-query -W -f='${Status}' ros-melodic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
 	echo "Installing ROS..."
 	sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-	sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+	sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 	sudo apt-get update
-	sudo apt-get -y install ros-kinetic-desktop-full
+	sudo apt-get -y install ros-melodic-desktop-full
 	if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
-	    sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
+		sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
 	fi
 	sudo rosdep init
 	rosdep update
-	echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+	echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
 else
-	echo "ros-kinetic-desktop-full is already installed";
+	echo "ros-melodic-desktop-full is already installed";
 fi
-source /opt/ros/kinetic/setup.bash
+source /opt/ros/melodic/setup.bash
+
 
 
 # STEP 3 - Install ROS debian dependencies
 declare -a ros_package_names=(
-	"ros-kinetic-dynamixel-motor" 
-	"ros-kinetic-moveit" 
-	"ros-kinetic-trac-ik"
-	"ros-kinetic-ar-track-alvar"
-	"ros-kinetic-turtlebot-*"
-	"ros-kinetic-move-base"
-	"ros-kinetic-ros-control"
-	"ros-kinetic-gazebo-ros-control"
-	"ros-kinetic-ros-controllers"
-	"ros-kinetic-navigation"
-	"ros-kinetic-rgbd-launch"
-	"ros-kinetic-kdl-parser-py"
-	"ros-kinetic-orocos-kdl"
-	"ros-kinetic-python-orocos-kdl"
-	"ros-kinetic-turtlebot"
+	"ros-melodic-dynamixel-motor" 
+	"ros-melodic-moveit" 
+	"ros-melodic-trac-ik"
+	"ros-melodic-ar-track-alvar"
+	"ros-melodic-move-base"
+	"ros-melodic-ros-control"
+	"ros-melodic-gazebo-ros-control"
+	"ros-melodic-ros-controllers"
+	"ros-melodic-navigation"
+	"ros-melodic-rgbd-launch"
+	"ros-melodic-kdl-parser-py"
+	"ros-melodic-orocos-kdl"
+	"ros-melodic-python-orocos-kdl"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -136,13 +134,12 @@ if [ $INSTALL_TYPE == "full" ]; then
 		sudo apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE
 		sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u
 		sudo apt-get update
-		version="2.18.1-0~realsense0.568"
-		sudo apt-get -y install librealsense2-udev-rules=${version}
-		sudo apt-get -y install librealsense2-dkms=1.3.4-0ubuntu1
-		sudo apt-get -y install librealsense2=${version}
-		sudo apt-get -y install librealsense2-utils=${version}
-		sudo apt-get -y install librealsense2-dev=${version}
-		sudo apt-get -y install librealsense2-dbg=${version}
+		sudo apt-get -y install librealsense2-udev-rules
+		sudo apt-get -y install librealsense2-dkms
+		sudo apt-get -y install librealsense2
+		sudo apt-get -y install librealsense2-utils
+		sudo apt-get -y install librealsense2-dev
+		sudo apt-get -y install librealsense2-dbg
 	fi
 
 	# STEP 4B: Install realsense2 SDK from source (in a separate catkin workspace)
@@ -182,11 +179,15 @@ if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
 fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
-	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
+	git clone https://github.com/facebookresearch/pyrobot.git
+	cd pyrobot
+	git checkout feature/ros-melodic
+	git submodule update --init --recursive
+	cd $LOCOBOT_FOLDER
+	rosdep update 
+	rosdep install --from-paths src -i -y
 fi
-cd $LOCOBOT_FOLDER
-rosdep update 
-rosdep install --from-paths src -i -y
+
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
 chmod +x install_orb_slam2.sh
 source install_orb_slam2.sh
@@ -197,6 +198,54 @@ fi
 if [ -d "$LOCOBOT_FOLDER/build" ]; then
 	rm -rf $LOCOBOT_FOLDER/build
 fi
+
+
+##### Turtle bot melodic stuff
+if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
+	cd $LOCOBOT_FOLDER/src/
+	mkdir turtlebot
+	cd turtlebot
+
+	git clone https://github.com/turtlebot/turtlebot_simulator
+	git clone https://github.com/turtlebot/turtlebot.git
+	git clone https://github.com/turtlebot/turtlebot_apps.git
+	git clone https://github.com/turtlebot/turtlebot_msgs.git
+	git clone https://github.com/turtlebot/turtlebot_interactions.git
+
+	git clone https://github.com/toeklk/orocos-bayesian-filtering.git
+	cd orocos-bayesian-filtering/orocos_bfl/
+	./configure
+	make
+	sudo make install
+	cd ../
+	make
+	cd ../
+
+	git clone https://github.com/udacity/robot_pose_ekf
+	git clone https://github.com/ros-perception/depthimage_to_laserscan.git
+
+	git clone https://github.com/yujinrobot/kobuki_msgs.git
+	git clone https://github.com/yujinrobot/kobuki_desktop.git
+	cd kobuki_desktop/
+	rm -r kobuki_qtestsuite
+	cd -
+	git clone https://github.com/yujinrobot/kobuki.git
+	mv kobuki/kobuki_description kobuki/kobuki_bumper2pc \
+	  kobuki/kobuki_node kobuki/kobuki_keyop \
+	  kobuki/kobuki_safety_controller ./
+
+	git clone https://github.com/yujinrobot/yujin_ocs.git
+	mv yujin_ocs/yocs_cmd_vel_mux yujin_ocs/yocs_controllers .
+	mv yujin_ocs/yocs_safety_controller yujin_ocs/yocs_velocity_smoother .
+	rm -rf yujin_ocs
+
+	sudo apt-get install ros-melodic-kobuki-* -y
+	sudo apt-get install ros-melodic-ecl-streams -y
+fi
+
+##### End of turtle bot melodic stuff
+
+
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 if [ $PYTHON_VERSION == "2" ]; then
 	cd $LOCOBOT_FOLDER/src/pyrobot
@@ -224,11 +273,11 @@ if [ $PYTHON_VERSION == "3" ]; then
 	chmod +x install_pyrobot.sh
 	source install_pyrobot.sh  -p 3
 
-	virtualenv_name="pyenv_pyrobot_python3"
-	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-	source ~/${virtualenv_name}/bin/activate
-	pip3 install --ignore-installed -r requirements_python3.txt
-	deactivate
+	#virtualenv_name="pyenv_pyrobot_python3"
+	#cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	#source ~/${virtualenv_name}/bin/activate
+	#pip3 install --ignore-installed -r requirements_python3.txt
+	#deactivate
 fi
 
 
