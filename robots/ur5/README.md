@@ -1,48 +1,76 @@
 
-# Examples for using PyRobot to control Sawyer
+# Examples for using PyRobot API to control UR-e arm
 
-
-## Real robot hardware setup
-
-Please follow the instructions of [ROS-UR page](http://wiki.ros.org/universal_robot/Tutorials/Getting%20Started%20with%20a%20Universal%20Robot%20and%20ROS-Industrial) to setup your robot hadware to work with ROS.
+## Note
+For real robot, instructions are specifically for `UR5-e` arm running `5.4` software version
 
 ## Getting started
-
-Make sure you have the necessary UR-ROS packages installed. Run the following command to do so,
-On supported Linux distributions (Ubuntu, up to 16.04 (Xenial), `i386` and `amd64`) and ROS versions:
-
-```bash
-sudo apt-get install ros-$ROS_DISTRO-universal-robot
+Install ros package for UR-e arm
+```
+sudo apt-get install ros-kinetic-universal-robots
+mkdir -p ~/ur_ws/src
+cd ~/ur_ws/src
+git clone -b kinetic_ur_5_4 https://github.com/AdmiralWall/ur_modern_driver.git
+cd ..
+rosdep update
+rosdep install --rosdistro kinetic --ignore-src --from-paths src
+catkin_make
+echo "source ~/ur_ws/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 ```
 
-The official  UR5 tutorial on installation can be found [here](https://github.com/ros-industrial/universal_robot)
+## Setting up the real robot
+1. Power on the robot from UR control panel (its 3 step process)
 
+On the main screen press `Power off` button on bottom left corner 
+![image](https://drive.google.com/uc?export=view&id=1Wsd7lUug2NkAwbeKBT--u6oxg1_-KF4Y)
 
+On the next screen press `ON` button
+![image](https://drive.google.com/uc?export=view&id=1ZFs3g0JPkGlD1fP3Cyyd1lHTvrlDML8S)
 
+On the next screen press `Start` button
+![image](https://drive.google.com/uc?export=view&id=1Joo-v_vk2NiS_SCzzpBNNr8uZnrZwVQI)
+
+After robot is powered on properly, screen will look like this
+![image](https://drive.google.com/uc?export=view&id=110rn_BMLznj3QFXsrfLO3NTwPFZUapXZ)
+
+2. Toggle Control to `Remote`. 
+
+![image](https://drive.google.com/uc?export=view&id=1KNX6PZJetZsPCPGaLvwHhs8wEfVUlBBC)
 
 ## Running the examples
-1. Intial setup,
 
-For real robot only,
+1. Connect to robot
+* Real Robot
 ```bash
-roslaunch ur_bringup ur5_bringup.launch robot_ip:=IP_OF_THE_ROBOT [reverse_port:=REVERSE_PORT]
+roslaunch ur_modern_driver ur5_e_bringup_joint_limited.launch robot_ip:=IP_OF_THE_ROBOT use_lowbandwidth_trajectory_follower:=true
 ```
-**Note** Dont forget to the ```IP_OF_THE_ROBOT``` and ```REVERSE_PORT``` to match your robot's
-
-For the Gazebo simulator only,
-```bash
-roslaunch ur_gazebo ur5.launch
+* Simulator
+```
+roslaunch ur_gazebo ur5_bringup_joint_limited.launch
 ```
 
-2. Start the Moveit-Movegroup controller
+2. Launch MoveIt for robot in a new terminal
+* Real Robot
 ```bash
-roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch
+roslaunch ur5_e_moveit_config ur5_e_moveit_planning_execution.launch
 ```
-Augument ```sim:=true``` for the above command for Gazebo only mode.
+* Simulator
+```
+roslaunch ur5_moveit_config ur5_moveit_planning_execution.launch sim:=true
+```
 
-3. Run PyRobot examples in a new terminal
-
-4. Optionally, you can also visualize the robot in R-Viz by the running this command,
+3. Launch RViz with a configuration including the MoveIt! 
 ```bash
-roslaunch ur5_moveit_config moveit_rviz.launch config:=true
+roslaunch ur5e_moveit_config moveit_rviz.launch config:=true
 ```
+
+4. Run PyRobot examples in a new terminal
+```bash
+source ~/pyenv_pyrobot/bin/activate
+python move_to_neutral.py
+```
+
+## Things Missing
+1. Velocity Control
+2. Torque Control
