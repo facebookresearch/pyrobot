@@ -32,11 +32,11 @@ class LoCoBotBase(object):
 		return (pose[0], pose[1], pose[2])
 
 	def stop(self):
-		raise NotImplementedError("Veclocity control is not supported in V-Rep Sim!!")
+		#raise NotImplementedError("Veclocity control is not supported in V-Rep Sim!!")
+		self.base.set_joint_target_velocities([0,0])
 
 	def set_vel(self, fwd_speed, turn_speed, exe_time=1):
 		raise NotImplementedError("Veclocity control is not supported in V-Rep Sim!!")
-
 
 	def go_to_relative(self, xyt_position, use_map=None, close_loop=True, smooth=False):
 		"""
@@ -90,6 +90,7 @@ class LoCoBotBase(object):
 		"""
 		if use_map is None:
 			use_map = smooth
+
 		try:
 			if use_map != smooth:
 				raise NotImplementedError("Use map feature only works when smooth is enables")
@@ -109,7 +110,12 @@ class LoCoBotBase(object):
 		except ConfigurationPathError as error:
 			print(error)
 			return False
-	
+
+
+		if close_loop:
+			self.base.set_2d_pose(xyt_position)
+			return True
+
 
 		done = False
 		while not done:
@@ -120,7 +126,7 @@ class LoCoBotBase(object):
 		return True
 
 
-	def track_trajectory(self, states, controls, close_loop):
+	def track_trajectory(self, states, controls, close_loop=True):
 		"""
 		State trajectory that the robot should track.
 
