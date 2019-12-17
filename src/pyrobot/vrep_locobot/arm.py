@@ -2,7 +2,6 @@ import numpy as np
 import math
 import pyrobot.utils.util as prutil
 import rospy
-import quaternion
 from tf.transformations import euler_from_quaternion, euler_from_matrix
 
 from pyrep.robots.mobiles.nonholonomic_base import NonHolonomicBase
@@ -12,6 +11,8 @@ import pyrobot.utils.util as prutil
 from pyrep.objects.object import Object
 
 from pyrep.errors import ConfigurationError, ConfigurationPathError, IKError
+from pyrep.objects.dummy import Dummy
+from pyrep.objects.shape import Shape
 
 class LoCoBotArm(object):
 	"""docstring for SimpleBase"""
@@ -26,7 +27,7 @@ class LoCoBotArm(object):
 
 		# arm_base_link
 
-		self.arm_base_link = Object('LoCoBot_clear_plate_visual')
+		self.arm_base_link = Shape('LoCoBot_clear_plate_visual')
 		self.ee_link = self.arm.get_tip()
 
 
@@ -130,7 +131,7 @@ class LoCoBotArm(object):
 
 
 
-    def go_home(self, plan=False):
+	def go_home(self, plan=False):
 		"""
 		Commands robot to home position
 
@@ -141,7 +142,7 @@ class LoCoBotArm(object):
 
 
 
-    def get_transform(self, src_frame, dest_frame):
+	def get_transform(self, src_frame, dest_frame):
 		"""
 		Return the transform from the src_frame to dest_frame
 
@@ -253,7 +254,7 @@ class LoCoBotArm(object):
 		:return: joint angle
 		:rtype: float
 		"""
-        raise NotImplementedError
+		raise NotImplementedError
 
 	def get_joint_velocity(self, joint):
 		"""
@@ -264,7 +265,7 @@ class LoCoBotArm(object):
 		:return: joint velocity
 		:rtype: float
 		"""
-        raise NotImplementedError
+		raise NotImplementedError
 
 	def get_joint_torque(self, joint):
 		"""
@@ -275,7 +276,7 @@ class LoCoBotArm(object):
 		:return: joint torque
 		:rtype: float
 		"""
-        raise NotImplementedError
+		raise NotImplementedError
 
 	def set_joint_velocities(self, velocities, **kwargs):
 		"""
@@ -316,12 +317,12 @@ class LoCoBotArm(object):
 			positions = positions.flatten().tolist()
 		if plan:
 			pos , rot = self.compute_fk_position(positions)
-        	return self.set_ee_pose(pos,rot,plan=True)
+			return self.set_ee_pose(pos,rot,plan=True)
 		else:
 			self.arm.set_joint_positions(positions)
 			return True
 
-    def set_ee_pose(self, position, orientation, plan=True,
+	def set_ee_pose(self, position, orientation, plan=True,
                     wait=True, numerical=True, **kwargs):
 		"""
 		Commands robot arm to desired end-effector pose
@@ -355,7 +356,7 @@ class LoCoBotArm(object):
 		
 		if joint_positions is None:
 			rospy.logerr('No IK solution found; check if target_pose is valid')
-		else if not plan:
+		elif not plan:
 			return self.set_joint_positions(joint_positions,
 												plan=False, wait=wait)
 		else:
@@ -372,8 +373,8 @@ class LoCoBotArm(object):
 		                        quaternion=quat.tolist(),
 		                        ignore_collisions=False)
 			except ConfigurationPathError as error:
-			print(error)
-			return False
+				print(error)
+				return False
 			# arm_path.visualize()
 			# done = False
 			# while not done:
@@ -384,7 +385,7 @@ class LoCoBotArm(object):
 			return True
 
 
-    def move_ee_xyz(self, displacement, eef_step=0.005,
+	def move_ee_xyz(self, displacement, eef_step=0.005,
                     numerical=True, plan=True, **kwargs):
 		"""
 		Keep the current orientation fixed, move the end
