@@ -16,6 +16,7 @@ class VrepSim(object):
 		self.sim = PyRep()
 		self.sim.launch(scene_path, headless=False)
 		self.sim.start()
+		[self.sim.step() for _ in range(50)]
 
 
 	def __del__(self): 

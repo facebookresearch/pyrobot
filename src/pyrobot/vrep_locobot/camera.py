@@ -24,7 +24,7 @@ class LoCoBotCamera(Camera):
 	"""docstring for SimpleCamera"""
 	def __init__(self, configs, simulator):
 		
-
+		self.sim = simulator.sim
 		self.rgb_cam = VisionSensor('kinect_rgb')
 		self.depth_cam = VisionSensor('kinect_depth')
 		self.rgb_cam.set_render_mode(RenderMode.OPENGL3)
@@ -41,7 +41,7 @@ class LoCoBotCamera(Camera):
 
 	def get_depth(self):
 
-		return self.capture_depth.capture_rgb()
+		return self.depth_cam.capture_depth()
 		
 	def get_rgb_depth(self):
 		
@@ -171,7 +171,8 @@ class LoCoBotCamera(Camera):
 		:type wait: bool
 		"""
 
-		self.tilt_joint.set_joint_position(self.pan)
+		self.pan_joint.set_joint_position(pan)
+		#[self.sim.step() for _ in range(50)]
 
 	def set_tilt(self, tilt, wait=True):
 		"""
@@ -185,7 +186,7 @@ class LoCoBotCamera(Camera):
 		:type wait: bool
 		"""
 	
-		self.tilt_joint.set_joint_position(self.tilt)
+		self.tilt_joint.set_joint_position(tilt)
 
 
 

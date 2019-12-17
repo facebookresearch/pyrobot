@@ -94,8 +94,6 @@ class LoCoBotBase(object):
 		try:
 			if use_map != smooth:
 				raise NotImplementedError("Use map feature only works when smooth is enables")
-			if not close_loop:
-				raise NotImplementedError("Open loop execution is not possible in V-rep at the moment.")
 		except Exception as error:
 			print(error)
 			return False

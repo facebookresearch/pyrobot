@@ -17,7 +17,7 @@ _C.HAS_ARM = False
 # whether the robot has a mobile base or not
 _C.HAS_BASE = True
 # whether the robot has a camera or not
-_C.HAS_CAMERA = False
+_C.HAS_CAMERA = True
 # whether the robot has a gripper or not
 _C.HAS_GRIPPER = False
 # whether the robot has a common shared class among all components
