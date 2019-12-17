@@ -15,37 +15,37 @@ if ros_path in sys.path:
 sys.path.append(ros_path)
 from cv_bridge import CvBridge, CvBridgeError
 
-import habitat_sim.agent as habAgent
-import habitat_sim.utils as habUtils
 
+from pyrep.objects.vision_sensor import VisionSensor
+from pyrep.const import ObjectType, PerspectiveMode, RenderMode
+from pyrep.objects.joint import Joint
 
 class LoCoBotCamera(Camera):
 	"""docstring for SimpleCamera"""
 	def __init__(self, configs, simulator):
-		super(LoCoBotCamera, self).__init__(configs)
-		self.sim = simulator.sim
-		self.configs = configs
-		self.agent = \
-			self.sim.get_agent(self.configs.COMMON.SIMULATOR.DEFAULT_AGENT_ID)
+		
 
-		# Depth Image processor
+		self.rgb_cam = VisionSensor('kinect_rgb')
+		self.depth_cam = VisionSensor('kinect_depth')
+		self.rgb_cam.set_render_mode(RenderMode.OPENGL3)
+		self.depth_cam.set_render_mode(RenderMode.OPENGL3)
+		
+		# Pan and tilt related variables.
+		self.pan_joint = Joint('LoCoBot_head_pan_joint')
+		self.tilt_joint = Joint('LoCoBot_head_tilt_joint')
 
-
-		# Pan and tilt related vairades.
-		self.pan = 0.0
-		self.tilt = 0.0
 
 	def get_rgb(self):
-		observations = self.sim.get_sensor_observations()
-		return observations["rgb"]
+		
+		return self.rgb_cam.capture_rgb()
 
 	def get_depth(self):
-		observations = self.sim.get_sensor_observations()
-		return observations["depth"]
+
+		return self.capture_depth.capture_rgb()
 		
 	def get_rgb_depth(self):
-		observations = self.sim.get_sensor_observations()
-		return  observations["rgb"], observations["depth"]
+		
+		return self.get_rgb() , self.get_depth()
 
 	def get_intrinsics(self):
 
@@ -137,7 +137,7 @@ class LoCoBotCamera(Camera):
 		        pan_tilt: A list the form [pan angle, tilt angle]
 		:rtype: list
 		"""
-		return [self.pan, self.tilt]
+		return [self.get_pan(), self.get_tilt()]
 
 	def get_pan(self):
 		"""
@@ -147,7 +147,7 @@ class LoCoBotCamera(Camera):
 		        pan: Pan joint angle
 		:rtype: float
 		"""
-		return self.pan
+		return self.pan_joint.get_joint_position()
 
 	def get_tilt(self):
 		"""
@@ -157,7 +157,7 @@ class LoCoBotCamera(Camera):
 		        tilt: Tilt joint angle
 		:rtype: float
 		"""
-		return self.tilt
+		return self.tilt_joint.get_joint_position()
 
 	def set_pan(self, pan, wait=True):
 		"""
@@ -171,7 +171,7 @@ class LoCoBotCamera(Camera):
 		:type wait: bool
 		"""
 
-		self.set_pan_tilt(pan, self.tilt)
+		self.tilt_joint.set_joint_position(self.pan)
 
 	def set_tilt(self, tilt, wait=True):
 		"""
@@ -184,33 +184,10 @@ class LoCoBotCamera(Camera):
 		:type tilt: float
 		:type wait: bool
 		"""
+	
+		self.tilt_joint.set_joint_position(self.tilt)
 
-		self.set_pan_tilt(self.pan, tilt)
 
-	def _compute_relative_pose(self, pan, tilt):
-
-		pan_link = 0.1 #length of pan link
-		tilt_link = 0.1 #length of tilt link
-		
-		sensor_offset_tilt = np.asarray([0.0, 0.0, -1*tilt_link])
-
-		quat_cam_to_pan = habUtils.quat_from_angle_axis(-1 * self.tilt, 
-															np.asarray([1.0,0.0,0.0]))
-
-		sensor_offset_pan = habUtils.quat_rotate_vector(quat_cam_to_pan, 
-													    sensor_offset_tilt) 
-		sensor_offset_pan += np.asarray([0.0, pan_link, 0.0])								
-
-		quat_pan_to_base = habUtils.quat_from_angle_axis(-1*self.pan, 
-															np.asarray([0.0,1.0,0.0]))
-
-		sensor_offset_base = habUtils.quat_rotate_vector(quat_pan_to_base, 
-													    sensor_offset_pan) 
-		sensor_offset_base += np.asarray([0.0, 0.5, 0.1]) # offset w.r.t base
-
-		# translation
-		quat = quat_cam_to_pan*quat_pan_to_base		
-		return sensor_offset_base, quat.inverse()
 
 	def set_pan_tilt(self, pan, tilt, wait=True):
 		"""
@@ -225,16 +202,9 @@ class LoCoBotCamera(Camera):
 		:type tilt: float
 		:type wait: bool
 		"""
-		self.pan = pan
-		self.tilt = tilt
-		sensor_offset, quat_base_to_sensor = self._compute_relative_pose(pan, tilt)
-		cur_state = self.agent.get_state()
-		sensor_position = sensor_offset + cur_state.position
-		sensor_quat = cur_state.rotation * quat_base_to_sensor
-		cur_state.sensor_states["rgb"].position = sensor_position
-		cur_state.sensor_states["rgb"].rotation = sensor_quat
 
-		self.agent.set_state(cur_state)
+		self.set_pan(pan)
+		self.set_tilt(tilt)
 
 	def reset(self):
 		"""
