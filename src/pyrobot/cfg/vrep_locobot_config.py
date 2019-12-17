@@ -13,7 +13,7 @@ from pyrobot.cfg.config import get_cfg_defaults
 _C = get_cfg_defaults()
 
 # whether the robot has an arm or not
-_C.HAS_ARM = False
+_C.HAS_ARM = True
 # whether the robot has a mobile base or not
 _C.HAS_BASE = True
 # whether the robot has a camera or not
@@ -33,6 +33,13 @@ _CAMERAC.CLASS = 'LoCoBotCamera'
 _BASEC = _C.BASE
 # BASE class name
 _BASEC.CLASS = 'LoCoBotBase'
+
+
+# Arm specific settings
+_ARMC = _C.ARM
+# Arm class name
+_ARMC.CLASS = 'LoCoBotArm'
+
 
 
 _COMMONC = _C.COMMON
