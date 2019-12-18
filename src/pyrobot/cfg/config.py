@@ -44,6 +44,8 @@ _C.ARM.ROSTOPIC_SET_JOINT = '/goal_dynamixel_position'
 
 _C.ARM.ROSSRV_CART_PATH = '/compute_cartesian_path'
 
+_C.ARM.ROSSRV_MP_PATH = '/plan_kinematic_path'
+
 _C.CAMERA = CN()
 
 _C.BASE = CN()

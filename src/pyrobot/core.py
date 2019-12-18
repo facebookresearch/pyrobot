@@ -345,7 +345,7 @@ class Arm(object):
         # Ros-Params
         rospy.set_param('pyrobot/base_link', configs.ARM.ARM_BASE_FRAME)
         rospy.set_param('pyrobot/gripper_link', configs.ARM.EE_FRAME)
-        rospy.set_param('pyrobot/robot_description', 
+        rospy.set_param('pyrobot/robot_description',
                         configs.ARM.ARM_ROBOT_DSP_PARAM_NAME)
 
         # Publishers
@@ -363,7 +363,7 @@ class Arm(object):
         try:
             self._fk_service.wait_for_service(timeout=3)
         except:
-            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")  
+            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")
 
     @abstractmethod
     def go_home(self):
@@ -573,6 +573,21 @@ class Arm(object):
                                                   positions)
         return result
 
+    def make_plan_joint_positions(self, positions, **kwargs):
+        result = None
+        if isinstance(positions, np.ndarray):
+            positions = positions.flatten().tolist()
+
+        if not self.use_moveit:
+            raise ValueError('Moveit is not initialized, '
+                             'did you pass in use_moveit=True?')
+
+        rospy.loginfo('Moveit Motion Planning...')
+        result = self.moveit_group.motionPlanToJointPosition(
+                    self.arm_joint_names,
+                    positions)
+        return [p.positions for p in result]
+
     def set_joint_velocities(self, velocities, **kwargs):
         """
         Sets the desired joint velocities for all arm joints
@@ -620,15 +635,87 @@ class Arm(object):
         :return: Returns True if command succeeded, False otherwise
         :rtype: bool
         """
-        joint_positions = self.compute_ik(position, orientation,
-                                          numerical=numerical)
-        result = False
-        if joint_positions is None:
-            rospy.logerr('No IK solution found; check if target_pose is valid')
+        if plan:
+            if not self.use_moveit:
+                raise ValueError('Using plan=True when moveit is not'
+                                 ' initialized, did you pass '
+                                 'in use_moveit=True?')
+            pose = Pose()
+            position = position.flatten()
+            if orientation.size == 4:
+                orientation = orientation.flatten()
+                ori_x = orientation[0]
+                ori_y = orientation[1]
+                ori_z = orientation[2]
+                ori_w = orientation[3]
+            elif orientation.size == 3:
+                quat = prutil.euler_to_quat(orientation)
+                ori_x = quat[0]
+                ori_y = quat[1]
+                ori_z = quat[2]
+                ori_w = quat[3]
+            elif orientation.size == 9:
+                quat = prutil.rot_mat_to_quat(orientation)
+                ori_x = quat[0]
+                ori_y = quat[1]
+                ori_z = quat[2]
+                ori_w = quat[3]
+            else:
+                raise TypeError('Orientation must be in one '
+                                'of the following forms:'
+                                'rotation matrix, euler angles, or quaternion')
+            pose.position.x, pose.position.y, pose.position.z = position[0], position[1], position[2]
+            pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w = \
+                ori_x, ori_y, ori_z, ori_w
+            result = self.moveit_group.moveToPose(pose, wait=True)
         else:
-            result = self.set_joint_positions(joint_positions,
-                                              plan=plan, wait=wait)
+            joint_positions = self.compute_ik(position, orientation,
+                                            numerical=numerical)
+            result = False
+            if joint_positions is None:
+                rospy.logerr('No IK solution found; check if target_pose is valid')
+            else:
+                result = self.set_joint_positions(joint_positions,
+                                                plan=plan, wait=wait)
         return result
+
+    def make_plan_pose(self, position, orientation,
+                    wait=True, numerical=True, **kwargs):
+
+        if not self.use_moveit:
+            raise ValueError('Using plan=True when moveit is not'
+                             ' initialized, did you pass '
+                             'in use_moveit=True?')
+        pose = Pose()
+        position = position.flatten()
+        if orientation.size == 4:
+            orientation = orientation.flatten()
+            ori_x = orientation[0]
+            ori_y = orientation[1]
+            ori_z = orientation[2]
+            ori_w = orientation[3]
+        elif orientation.size == 3:
+            quat = prutil.euler_to_quat(orientation)
+            ori_x = quat[0]
+            ori_y = quat[1]
+            ori_z = quat[2]
+            ori_w = quat[3]
+        elif orientation.size == 9:
+            quat = prutil.rot_mat_to_quat(orientation)
+            ori_x = quat[0]
+            ori_y = quat[1]
+            ori_z = quat[2]
+            ori_w = quat[3]
+        else:
+            raise TypeError('Orientation must be in one '
+                            'of the following forms:'
+                            'rotation matrix, euler angles, or quaternion')
+        pose.position.x, pose.position.y, pose.position.z = position[0], position[1], position[2]
+        pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w = \
+            ori_x, ori_y, ori_z, ori_w
+        result = self.moveit_group.motionPlanToPose(pose, wait=True)
+
+        return [p.positions for p in result]
 
     def move_ee_xyz(self, displacement, eef_step=0.005,
                     numerical=True, plan=True, **kwargs):
@@ -689,7 +776,7 @@ class Arm(object):
                 raise ValueError('Using plan=True when moveit is not'
                                  ' initialized, did you pass '
                                  'in use_moveit=True?')
-            
+
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
             cur_pos, cur_ori, cur_quat = ee_pose
             cur_pos = np.array(cur_pos).reshape(-1, 1)
@@ -715,10 +802,10 @@ class Arm(object):
                 way_point_frame=self.configs.ARM.ARM_BASE_FRAME,
                 max_step=eef_step,  # eef_step
                 jump_threshold=0.0)  # jump_threshold
-            
+
             if result is False:
                 return False
-            
+
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
             cur_pos, cur_ori, cur_quat = ee_pose
 
@@ -925,6 +1012,7 @@ class Arm(object):
                                 self.configs.ARM.ARM_BASE_FRAME,
                                 self.configs.ARM.EE_FRAME,
                                 self.configs.ARM.ROSSRV_CART_PATH,
+                                self.configs.ARM.ROSSRV_MP_PATH,
                                 listener=self.tf_listener,
                                 plan_only=False)
 
