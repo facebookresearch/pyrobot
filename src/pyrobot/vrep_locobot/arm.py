@@ -33,7 +33,7 @@ class LoCoBotArm(object):
 
 		# todo: add remapping for joint names and frames to vrep
 
-	def compute_fk_position(self, joint_positions, des_frame):
+	def compute_fk_position(self, joint_positions):
 		"""
 		Given joint angles, compute the pose of desired_frame with respect
 		to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame
@@ -47,7 +47,7 @@ class LoCoBotArm(object):
 		:rtype: np.ndarray, np.ndarray
 		"""
 
-		raise NotImplementedError
+		#raise NotImplementedError
 
 		#TODO: Add ability to handle des_frame
 		pos, quat = self.ee_link.get_position(), self.ee_link.get_quaternion()
@@ -74,13 +74,13 @@ class LoCoBotArm(object):
 		"""
 		raise NotImplementedError
 
-	def _quaternion_multiply(quaternion1, quaternion0):
-		w0, x0, y0, z0 = quaternion0
-		w1, x1, y1, z1 = quaternion1
-		return np.array([-x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0,
-							x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0,
+	def _quaternion_multiply(self, quaternion1, quaternion0):
+		x0, y0, z0, w0 = quaternion0
+		x1, y1, z1, w1 = quaternion1
+		return np.array([	x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0,
 							-x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0,
-							x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0], dtype=np.float64)
+							x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0,
+							-x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0], dtype=np.float64)
 
 
 	def compute_ik(self, position, orientation, qinit=None, numerical=True):
@@ -104,6 +104,8 @@ class LoCoBotArm(object):
 		:return: None or joint positions
 		:rtype: np.ndarray
 		"""
+
+		position = position.flatten()
 		
 		if orientation.size == 4:
 			quat = orientation.flatten()
@@ -117,9 +119,31 @@ class LoCoBotArm(object):
 							'rotation matrix, euler angles, or quaternion')
 		
 		#TODO: check this math!!#######################################
-		position = position + np.asarray(self.arm_base_link.get_position())
+		# This is needed to conform compute_ik to core.py's compute ik
+
+
+		corrector_rot = np.asarray([ [0, 1, 0],
+									 [0, 0, 1],
+									 [1, 0, 0]])
+		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
 		quat_world_to_base_link = np.asarray(self.arm_base_link.get_quaternion()) 
-		quat =  self._quaternion_multiply(quat_world_to_base_link , quat)
+		quat_world_to_base_link_corrected = self._quaternion_multiply(quat_world_to_base_link,
+																	corrector_quat)
+		quat =  self._quaternion_multiply(quat_world_to_base_link_corrected , quat)
+
+		rot_world_to_base_link = np.transpose(
+										prutil.quat_to_rot_mat(
+											np.asarray(
+													self.arm_base_link.get_quaternion())))
+
+		rot_world_base_link_corrected = np.matmul(corrector_rot, rot_world_to_base_link )
+
+		position = np.matmul(position, rot_world_base_link_corrected)
+		position = position + np.asarray(self.arm_base_link.get_position())
+
+		print(position)
+		rot_mat = prutil.quat_to_rot_mat(quat)
+		print(rot_mat)#, quat, np.asarray(self.arm_base_link.get_position()))
 		################################################################
 		try:
 			joint_angles = self.arm.solve_ik(position.tolist(), euler=None, quaternion=quat.tolist())
@@ -129,6 +153,63 @@ class LoCoBotArm(object):
 		joint_angles = np.asarray(joint_angles)
 		return joint_angles
 
+
+	@property
+	def pose_ee(self):
+		"""
+		Return the end effector pose w.r.t 'ARM_BASE_FRAME'
+
+		:return:
+		        trans: translational vector (shape: :math:`[3, 1]`)
+
+		        rot_mat: rotational matrix (shape: :math:`[3, 3]`)
+
+		        quat: rotational matrix in the form
+		        of quaternion (shape: :math:`[4,]`)
+
+		:rtype: tuple (trans, rot_mat, quat)
+		"""
+		pos  = self.ee_link.get_position(self.arm_base_link), 
+		quat = self.ee_link.get_quaternion(self.arm_base_link)
+
+		# in vrep y faces forward ad x is up. Use this rotation matirx to correct
+		# R_B^{B_c}
+		corrector_rot = np.asarray([ [0, 1, 0],
+									 [0, 0, 1],
+									 [1, 0, 0]])
+		corrector_rot = np.transpose(corrector_rot)
+		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
+
+		pos = np.asarray(pos).flatten()
+		quat=  np.asarray(quat).flatten()
+		rot = prutil.quat_to_rot_mat(quat)
+		return np.matmul(pos, corrector_rot), np.matmul(corrector_rot,rot), self._quaternion_multiply(corrector_quat, quat)
+
+	def get_ee_pose(self, base_frame=None):
+		"""
+		Return the end effector pose with respect to the base_frame
+
+		:param base_frame: reference frame
+		:type base_frame: string
+		:return:
+		        tuple (trans, rot_mat, quat)
+
+		        trans: translational vector (shape: :math:`[3, 1]`)
+
+		        rot_mat: rotational matrix (shape: :math:`[3, 3]`)
+
+		        quat: rotational matrix in the form
+		        of quaternion (shape: :math:`[4,]`)
+
+		:rtype: tuple or ROS PoseStamped
+		"""
+		#raise NotImplementedError
+		pos  = self.ee_link.get_position(), 
+		quat = self.ee_link.get_quaternion()
+		pos = np.asarray(pos).flatten()
+		quat=  np.asarray(quat).flatten()
+		rot = prutil.quat_to_rot_mat(quat)
+		return pos, rot, quat
 
 
 	def go_home(self, plan=False):
@@ -164,53 +245,6 @@ class LoCoBotArm(object):
 		"""
 		raise NotImplementedError
 
-	@property
-	def pose_ee(self):
-		"""
-		Return the end effector pose w.r.t 'ARM_BASE_FRAME'
-
-		:return:
-		        trans: translational vector (shape: :math:`[3, 1]`)
-
-		        rot_mat: rotational matrix (shape: :math:`[3, 3]`)
-
-		        quat: rotational matrix in the form
-		        of quaternion (shape: :math:`[4,]`)
-
-		:rtype: tuple (trans, rot_mat, quat)
-		"""
-		pos  = self.ee_link.get_position(self.arm_base_link), 
-		quat = self.ee_link.get_quaternion(self.arm_base_link)
-		pos = np.asarray(pos)
-		quat=  np.asarray(quat)
-		rot = prutil.quat_to_rot_mat(quat)
-		return pos, rot, quat
-
-	def get_ee_pose(self, base_frame):
-		"""
-		Return the end effector pose with respect to the base_frame
-
-		:param base_frame: reference frame
-		:type base_frame: string
-		:return:
-		        tuple (trans, rot_mat, quat)
-
-		        trans: translational vector (shape: :math:`[3, 1]`)
-
-		        rot_mat: rotational matrix (shape: :math:`[3, 3]`)
-
-		        quat: rotational matrix in the form
-		        of quaternion (shape: :math:`[4,]`)
-
-		:rtype: tuple or ROS PoseStamped
-		"""
-		pos  = self.ee_link.get_position(), 
-		quat = self.ee_link.get_quaternion()
-		pos = np.asarray(pos)
-		quat=  np.asarray(quat)
-		rot = prutil.quat_to_rot_mat(quat)
-		return pos, rot, quat
-
 
 	def get_joint_angles(self):
 		"""
@@ -220,7 +254,7 @@ class LoCoBotArm(object):
 		:rtype: np.ndarray
 		"""
 		joint_angles = self.arm.get_joint_positions()
-		joint_angles = np.asarray(joint_angles)
+		joint_angles = np.asarray(joint_angles).flatten()
 		return joint_angles
 
 	def get_joint_velocities(self):
@@ -231,7 +265,7 @@ class LoCoBotArm(object):
 		:rtype: np.ndarray
 		"""
 		joint_vels = self.arm.get_joint_velocities()
-		joint_vels = np.asarray(joint_vels)
+		joint_vels = np.asarray(joint_vels).flatten()
 		return joint_vels
 
 	def get_joint_torques(self):
@@ -242,7 +276,7 @@ class LoCoBotArm(object):
 		:rtype: np.ndarray
 		"""
 		joint_torqs = self.arm.get_joint_forces()
-		joint_torqs = np.asarray(joint_torqs)
+		joint_torqs = np.asarray(joint_torqs).flatten()
 		return joint_torqs
 
 	def get_joint_angle(self, joint):
@@ -438,3 +472,43 @@ class LoCoBotArm(object):
 												plan=plan, wait=True)
 
 		return success
+
+
+	def set_ee_pose_pitch_roll(self, position, pitch, roll=None, plan=True,
+                               wait=True, numerical=True, **kwargs):
+		"""
+		Commands robot arm to desired end-effector pose
+		(w.r.t. 'ARM_BASE_FRAME').
+		Computes IK solution in joint space and calls set_joint_positions.
+		Will wait for command to complete if wait is set to True.
+
+		:param position: position of the end effector (shape: :math:`[3,]`)
+		:param pitch: pitch angle
+		:param roll: roll angle
+		:param plan: use moveit the plan a path to move to the desired pose
+		:param wait: wait until the desired pose is achieved
+		:param numerical: use numerical inverse kinematics solver or
+		                  analytical inverse kinematics solver
+		:type position: np.ndarray
+		:type pitch: float
+		:type roll: float
+		:type plan: bool
+		:type wait: bool
+		:type numerical: bool
+		:return result: Returns True if command succeeded, False otherwise
+		:rtype: bool
+		"""
+		raise NotImplementedError
+
+		position = np.array(position).flatten()
+		base_offset, _, _ = self.get_transform(self.configs.ARM.ARM_BASE_FRAME,
+												'arm_base_link')
+		yaw = np.arctan2(position[1] - base_offset[1],
+						 position[0] - base_offset[0])
+		if roll is None:
+			# read the current roll angle
+			roll = -self.get_joint_angle('joint_5')
+		euler = np.array([yaw, pitch, roll])
+		return self.set_ee_pose(position=position, orientation=euler,
+								plan=plan, wait=wait,
+								numerical=numerical, **kwargs)
