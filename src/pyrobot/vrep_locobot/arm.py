@@ -118,17 +118,17 @@ class LoCoBotArm(object):
 							'of the following forms:'
 							'rotation matrix, euler angles, or quaternion')
 		
-		#TODO: check this math!!#######################################
+	
 		# This is needed to conform compute_ik to core.py's compute ik
-
-
 		corrector_rot = np.asarray([ [0, 1, 0],
 									 [0, 0, 1],
 									 [1, 0, 0]])
+
 		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
 		quat_world_to_base_link = np.asarray(self.arm_base_link.get_quaternion()) 
-		quat_world_to_base_link_corrected = self._quaternion_multiply(quat_world_to_base_link,
-																	corrector_quat)
+		quat_world_to_base_link_corrected = self._quaternion_multiply(
+															quat_world_to_base_link,
+															corrector_quat)
 		quat =  self._quaternion_multiply(quat_world_to_base_link_corrected , quat)
 
 		rot_world_to_base_link = np.transpose(
@@ -136,17 +136,13 @@ class LoCoBotArm(object):
 											np.asarray(
 													self.arm_base_link.get_quaternion())))
 
-		rot_world_base_link_corrected = np.matmul(corrector_rot, rot_world_to_base_link )
-
-		position = np.matmul(position, rot_world_base_link_corrected)
+		temp_mat = np.matmul(corrector_rot, rot_world_to_base_link )
+		position = np.matmul(position, temp_mat)
 		position = position + np.asarray(self.arm_base_link.get_position())
 
-		print(position)
-		rot_mat = prutil.quat_to_rot_mat(quat)
-		print(rot_mat)#, quat, np.asarray(self.arm_base_link.get_position()))
-		################################################################
 		try:
-			joint_angles = self.arm.solve_ik(position.tolist(), euler=None, quaternion=quat.tolist())
+			joint_angles = self.arm.solve_ik(position.tolist(), 
+											euler=None, quaternion=quat.tolist())
 		except IKError as error:
 			print(error)
 			return None
@@ -183,7 +179,8 @@ class LoCoBotArm(object):
 		pos = np.asarray(pos).flatten()
 		quat=  np.asarray(quat).flatten()
 		rot = prutil.quat_to_rot_mat(quat)
-		return np.matmul(pos, corrector_rot), np.matmul(corrector_rot,rot), self._quaternion_multiply(corrector_quat, quat)
+		return np.matmul(pos, corrector_rot), np.matmul(corrector_rot,rot), \
+									self._quaternion_multiply(corrector_quat, quat)
 
 	def get_ee_pose(self, base_frame=None):
 		"""
