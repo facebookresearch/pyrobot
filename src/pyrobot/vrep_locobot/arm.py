@@ -46,10 +46,7 @@ class LoCoBotArm(object):
 		:return: translational vector and rotational matrix
 		:rtype: np.ndarray, np.ndarray
 		"""
-
-		#raise NotImplementedError
-
-		#TODO: Add ability to handle des_frame
+		raise NotImplementedError
 		pos, quat = self.ee_link.get_position(), self.ee_link.get_quaternion()
 		pos = np.asarray(pos)
 		rot = prutil.quat_to_rot_mat(quat)
@@ -327,7 +324,7 @@ class LoCoBotArm(object):
 		"""
 		raise NotImplementedError
 
-	def set_joint_positions(self, positions, plan=True, wait=True, **kwargs):
+	def set_joint_positions(self, positions, plan=False, wait=True, **kwargs):
 		"""
 		Sets the desired joint angles for all arm joints
 
@@ -347,6 +344,7 @@ class LoCoBotArm(object):
 		if isinstance(positions, np.ndarray):
 			positions = positions.flatten().tolist()
 		if plan:
+			raise NotImplementedError
 			pos , rot = self.compute_fk_position(positions)
 			return self.set_ee_pose(pos,rot,plan=True)
 		else:
