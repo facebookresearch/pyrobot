@@ -13,7 +13,7 @@ from pyrep.objects.object import Object
 from pyrep.errors import ConfigurationError, ConfigurationPathError, IKError
 from pyrep.objects.dummy import Dummy
 from pyrep.objects.shape import Shape
-
+import copy
 class LoCoBotArm(object):
 	"""docstring for SimpleBase"""
 	def __init__(self, configs, simulator):
@@ -46,11 +46,11 @@ class LoCoBotArm(object):
 		:return: translational vector and rotational matrix
 		:rtype: np.ndarray, np.ndarray
 		"""
-		raise NotImplementedError
+		#raise NotImplementedError
 		pos, quat = self.ee_link.get_position(), self.ee_link.get_quaternion()
 		pos = np.asarray(pos)
 		rot = prutil.quat_to_rot_mat(quat)
-		return pos, rot
+		return pos, quat
 
 	def compute_fk_velocity(self, joint_positions,
                             joint_velocities, des_frame):
@@ -137,6 +137,8 @@ class LoCoBotArm(object):
 		position = np.matmul(position, temp_mat)
 		position = position + np.asarray(self.arm_base_link.get_position())
 
+		#print(position, prutil.quat_to_rot_mat(quat))
+		print(position, quat)
 		try:
 			joint_angles = self.arm.solve_ik(position.tolist(), 
 											euler=None, quaternion=quat.tolist())
@@ -380,42 +382,53 @@ class LoCoBotArm(object):
 		:return: Returns True if command succeeded, False otherwise
 		:rtype: bool
 		"""
-		joint_positions = self.compute_ik(position, orientation,
-								numerical=numerical)
 		
-		if joint_positions is None:
-			rospy.logerr('No IK solution found; check if target_pose is valid')
-		elif not plan:
-			return self.set_joint_positions(joint_positions,
-												plan=False, wait=wait)
-		else:
+		if orientation.size == 4:
+			quat = orientation.flatten()
+		elif orientation.size == 3:
+			quat = prutil.euler_to_quat(orientation)
+		elif orientation.size == 9:
+			quat = prutil.rot_mat_to_quat(orientation)
 
-			if orientation.size == 4:
-				quat = orientation.flatten()
-			elif orientation.size == 3:
-				quat = prutil.euler_to_quat(orientation)
-			elif orientation.size == 9:
-				quat = prutil.rot_mat_to_quat(orientation)
+		corrector_rot = np.asarray([ [0, 1, 0],
+									 [0, 0, 1],
+									 [1, 0, 0]])
 
-			try:
-				arm_path = self.arm.get_path(position,
-		                        quaternion=quat.tolist(),
-		                        ignore_collisions=False)
-			except ConfigurationPathError as error:
-				print(error)
-				return False
-			# arm_path.visualize()
-			# done = False
-			# while not done:
-			# 	done = arm_path.step()
-			# 	pr.step()
-			# arm_path.clear_visualization()
-			arm_path.set_to_end()
-			return True
+		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
+		quat_world_to_base_link = np.asarray(self.arm_base_link.get_quaternion()) 
+		quat_world_to_base_link_corrected = self._quaternion_multiply(
+															quat_world_to_base_link,
+															corrector_quat)
+		quat =  self._quaternion_multiply(quat_world_to_base_link_corrected , quat)
+
+		rot_world_to_base_link = np.transpose(
+										prutil.quat_to_rot_mat(
+											np.asarray(
+													self.arm_base_link.get_quaternion())))
+
+		temp_mat = np.matmul(corrector_rot, rot_world_to_base_link )
+		position = np.matmul(position, temp_mat)
+		position = position + np.asarray(self.arm_base_link.get_position())
+
+		try:
+			arm_path = self.arm.get_path(position.tolist(),
+	                        quaternion=quat.tolist(),
+	                        ignore_collisions=False)
+		except ConfigurationPathError as error:
+			print(error)
+			return False
+		# arm_path.visualize()
+		# done = False
+		# while not done:
+		# 	done = arm_path.step()
+		# 	pr.step()
+		# arm_path.clear_visualization()
+		arm_path.set_to_end()
+		return True
 
 
 	def move_ee_xyz(self, displacement, eef_step=0.005,
-                    numerical=True, plan=True, **kwargs):
+                    numerical=True, plan=False, **kwargs):
 		"""
 		Keep the current orientation fixed, move the end
 		effector in {xyz} directions
@@ -447,6 +460,7 @@ class LoCoBotArm(object):
 
 		cur_pos, cur_ori, cur_quat = self.pose_ee
 		waypoints_sp = np.linspace(0, path_len, num_pts)
+		cur_pos = cur_pos.reshape(-1,1)
 		waypoints = cur_pos + waypoints_sp / float(path_len) * displacement
 		way_joint_positions = []
 		qinit = self.get_joint_angles().tolist()
