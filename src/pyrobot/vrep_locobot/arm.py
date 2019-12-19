@@ -50,7 +50,7 @@ class LoCoBotArm(object):
 		pos, quat = self.ee_link.get_position(), self.ee_link.get_quaternion()
 		pos = np.asarray(pos)
 		rot = prutil.quat_to_rot_mat(quat)
-		return pos, quat
+		return pos, rot
 
 	def compute_fk_velocity(self, joint_positions,
                             joint_velocities, des_frame):
@@ -117,28 +117,19 @@ class LoCoBotArm(object):
 		
 	
 		# This is needed to conform compute_ik to core.py's compute ik
-		corrector_rot = np.asarray([ [0, 1, 0],
-									 [0, 0, 1],
-									 [1, 0, 0]])
-
-		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
+		
 		quat_world_to_base_link = np.asarray(self.arm_base_link.get_quaternion()) 
-		quat_world_to_base_link_corrected = self._quaternion_multiply(
-															quat_world_to_base_link,
-															corrector_quat)
-		quat =  self._quaternion_multiply(quat_world_to_base_link_corrected , quat)
+		quat =  self._quaternion_multiply(quat_world_to_base_link , quat)
 
 		rot_world_to_base_link = np.transpose(
 										prutil.quat_to_rot_mat(
 											np.asarray(
 													self.arm_base_link.get_quaternion())))
-
-		temp_mat = np.matmul(corrector_rot, rot_world_to_base_link )
-		position = np.matmul(position, temp_mat)
+		position = np.matmul(position, rot_world_to_base_link)
 		position = position + np.asarray(self.arm_base_link.get_position())
 
-		#print(position, prutil.quat_to_rot_mat(quat))
-		print(position, quat)
+		print(position, prutil.quat_to_rot_mat(quat))
+		#print(position, quat)
 		try:
 			joint_angles = self.arm.solve_ik(position.tolist(), 
 											euler=None, quaternion=quat.tolist())
@@ -167,19 +158,15 @@ class LoCoBotArm(object):
 		pos  = self.ee_link.get_position(self.arm_base_link), 
 		quat = self.ee_link.get_quaternion(self.arm_base_link)
 
-		# in vrep y faces forward ad x is up. Use this rotation matirx to correct
-		# R_B^{B_c}
-		corrector_rot = np.asarray([ [0, 1, 0],
-									 [0, 0, 1],
-									 [1, 0, 0]])
-		corrector_rot = np.transpose(corrector_rot)
-		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
+		# print("#################Debug start########################")
+		# print(quat)
+		# print("#################Debug end########################")
 
+		
 		pos = np.asarray(pos).flatten()
 		quat=  np.asarray(quat).flatten()
 		rot = prutil.quat_to_rot_mat(quat)
-		return np.matmul(pos, corrector_rot), np.matmul(corrector_rot,rot), \
-									self._quaternion_multiply(corrector_quat, quat)
+		return pos, rot, quat
 
 	def get_ee_pose(self, base_frame=None):
 		"""
@@ -390,24 +377,14 @@ class LoCoBotArm(object):
 		elif orientation.size == 9:
 			quat = prutil.rot_mat_to_quat(orientation)
 
-		corrector_rot = np.asarray([ [0, 1, 0],
-									 [0, 0, 1],
-									 [1, 0, 0]])
-
-		corrector_quat = prutil.rot_mat_to_quat(corrector_rot)
 		quat_world_to_base_link = np.asarray(self.arm_base_link.get_quaternion()) 
-		quat_world_to_base_link_corrected = self._quaternion_multiply(
-															quat_world_to_base_link,
-															corrector_quat)
-		quat =  self._quaternion_multiply(quat_world_to_base_link_corrected , quat)
+		quat =  self._quaternion_multiply(quat_world_to_base_link , quat)
 
 		rot_world_to_base_link = np.transpose(
 										prutil.quat_to_rot_mat(
 											np.asarray(
 													self.arm_base_link.get_quaternion())))
-
-		temp_mat = np.matmul(corrector_rot, rot_world_to_base_link )
-		position = np.matmul(position, temp_mat)
+		position = np.matmul(position, rot_world_to_base_link)
 		position = position + np.asarray(self.arm_base_link.get_position())
 
 		try:
