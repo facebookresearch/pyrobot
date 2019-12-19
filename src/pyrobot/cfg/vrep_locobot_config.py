@@ -19,7 +19,7 @@ _C.HAS_BASE = True
 # whether the robot has a camera or not
 _C.HAS_CAMERA = True
 # whether the robot has a gripper or not
-_C.HAS_GRIPPER = False
+_C.HAS_GRIPPER = True
 # whether the robot has a common shared class among all components
 _C.HAS_COMMON = True
 
@@ -40,7 +40,10 @@ _ARMC = _C.ARM
 # Arm class name
 _ARMC.CLASS = 'LoCoBotArm'
 
-
+# Gripper specific settings
+_GRIPPERC = _C.GRIPPER
+# Arm class name
+_GRIPPERC.CLASS = 'LoCoBotGripper'
 
 _COMMONC = _C.COMMON
 # Name of the common class variable that will be shared in Robot class
@@ -52,36 +55,6 @@ _C.COMMON.SIMULATOR = CN()
 
 # Contains all of the simulator config
 _SIMULATORC = _C.COMMON.SIMULATOR
-
-# _SIMULATORC.PHYSICS = False
-
-# _SIMULATORC.DEFAULT_AGENT_ID = 0
-
-# _SIMULATORC.SCENE_ID = "none"
-# _SIMULATORC.PHYSICS_CONFIG_FILE = "none"
-
-# # Contains the config of all the agents in simulation
-# _SIMULATORC.AGENT = CN()
-
-# _SIMULATORC.AGENT.NAME = ['realsense']
-
-# # TODO: ADD agent- types, more agents, agent height, radius, actions etc
-
-# # Sensor config on the agent
-# _SIMULATORC.AGENT.SENSORS = CN()
-
-# # Set sensor names
-# _SIMULATORC.AGENT.SENSORS.NAMES = ["rgb", "depth"]
-
-# # Set sensor type (COLOR, DEPTH, SEMANTIC)
-# _SIMULATORC.AGENT.SENSORS.TYPES = ["COLOR", "DEPTH"]
-
-# # x, y, z and roll pitch yaw w.r.t to agent in meters and radians
-# # TODO: Check if these units are consistant with Habitat-sim
-# _SIMULATORC.AGENT.SENSORS.POSES = [[ 0.0, 0.6, 0.0, 0.0, 0.0, 0.0],
-# 								   [ 0.0, 0.6, 0.0, 0.0, 0.0, 0.0]]
-# # Height and Widhth in Pixels
-# _SIMULATORC.AGENT.SENSORS.RESOLUTIONS =  [[512, 512], [512, 512]]
 
 
 def get_cfg():
