@@ -5,7 +5,7 @@
 
 * Prepare a client machine, and a LoCoBot (Server) with PyRobot installed. Make sure they connect to the same network.
 * Copy the robot instance wrapper (`remote_locobot.py`) to LoCoBot
-* `Pip install Pyro4` on both machine. 
+* `Pip install Pyro4` on both machine.
 
 ## Launch the robot driver
 
@@ -59,8 +59,15 @@ bot2 = Pyro4.Proxy("PYRONAME:remotelocobot@<Robot_IP2>")
 pan_angle = bot1.get_pan()
 tilt_angle = bot1.get_tilt()
 bot1.set_pan_tilt(pan_angle + 0.1, tilt_angle - 0.1)
-bot2.get_rgb()
-bot2.get_depth()
+rgb = bot2.get_rgb()
+depth = bot2.get_depth()
 ```
 
-Note that `get_depth` runs ~1.25 fps, and `get_rgb` runs ~0.25 fps on remote.
+Note that `get_depth` runs ~1.25 fps, and `get_rgb` runs ~0.25 fps on remote. You can accelerate by bytes serializing image using `get_rgb_bytes` and decode string locally:
+
+```bash
+import numpy as np
+import base64
+rgb_bytes = base64.b64decode(bot2.get_rgb_bytes()['data'])
+img = np.frombuffer(rgb_bytes, dtype=np.int64).reshape(480, 640, 3)
+```

@@ -15,5 +15,11 @@ if __name__ == '__main__':
 	tilt_angle = bot.get_tilt()
 	bot.set_pan_tilt(pan_angle + 0.1, tilt_angle - 0.1)
 
-	bot.get_rgb()
-	bot.get_depth()
+	rgb = bot.get_rgb()
+	depth = bot.get_depth()
+
+	# if using byte serialization for image:
+	import numpy as np
+	import base64
+	rgb_bytes = base64.b64decode(bot.get_rgb_bytes()['data'])
+	img = np.frombuffer(rgb_bytes, dtype=np.int64).reshape(480, 640, 3)

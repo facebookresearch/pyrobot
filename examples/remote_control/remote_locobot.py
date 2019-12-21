@@ -9,16 +9,17 @@ import math as m
 from time import sleep
 
 Pyro4.config.SERIALIZERS_ACCEPTED.add('pickle')
+Pyro4.config.ITER_STREAMING = True
 
 @Pyro4.expose
 class RemoteLoCoRobot(object):
     def __init__(self):
-        base_config_dict={'base_controller': 'proportional'} 
+        base_config_dict={'base_controller': 'proportional'}
         arm_config_dict=dict(moveit_planner='ESTkConfigDefault')
         self._robot = Robot("locobot",
                             use_base=True,
                             use_arm=True,
-                            use_camera=True, 
+                            use_camera=True,
                             base_config=base_config_dict,
                             arm_config=arm_config_dict)
 
@@ -42,7 +43,7 @@ class RemoteLoCoRobot(object):
         """Go to original point: x, y, yaw 0, 0, 0"""
         if self._done:
             self._done = False
-            self._robot.base.go_to_absolute([0,0,0]) 
+            self._robot.base.go_to_absolute([0,0,0])
             self._done = True
 
     @Pyro4.oneway
@@ -50,7 +51,7 @@ class RemoteLoCoRobot(object):
         """Go to absolute position: x, y, yaw"""
         if self._done:
             self._done = False
-            self._robot.base.go_to_absolute(xyt_position, use_map=use_map, close_loop=close_loop, smooth=smooth) 
+            self._robot.base.go_to_absolute(xyt_position, use_map=use_map, close_loop=close_loop, smooth=smooth)
             self._done = True
 
     @Pyro4.oneway
@@ -58,7 +59,7 @@ class RemoteLoCoRobot(object):
         """Go to absolute position: x, y, yaw"""
         if self._done:
             self._done = False
-            self._robot.base.go_to_relative(xyt_position, use_map=use_map, close_loop=close_loop, smooth=smooth) 
+            self._robot.base.go_to_relative(xyt_position, use_map=use_map, close_loop=close_loop, smooth=smooth)
             self._done = True
 
     @Pyro4.oneway
@@ -153,6 +154,12 @@ class RemoteLoCoRobot(object):
             return depth.tolist()
         return None
 
+    def get_depth_bytes(self):
+        depth = self._robot.camera.get_depth().astype(np.int64)
+        if depth is not None:
+            return depth.tobytes()
+        return None
+
     def get_intrinsics(self):
         intrinsics = self._robot.camera.get_intrinsics()
         if intrinsics is not None:
@@ -163,6 +170,12 @@ class RemoteLoCoRobot(object):
         rgb = self._robot.camera.get_rgb()
         if rgb is not None:
             return rgb.tolist()
+        return None
+
+    def get_rgb_bytes(self):
+        rgb = self._robot.camera.get_rgb().astype(np.int64)
+        if rgb is not None:
+            return rgb.tobytes()
         return None
 
     def pix_to_3dpt(self, rs, cs, in_cam=False):
@@ -183,28 +196,28 @@ class RemoteLoCoRobot(object):
     def reset(self):
         if self._done:
             self._done = False
-            self._robot.camera.reset() 
+            self._robot.camera.reset()
             self._done = True
 
     @Pyro4.oneway
     def set_pan(self, pan, wait=True):
         if self._done:
             self._done = False
-            self._robot.camera.set_pan(pan, wait=True) 
+            self._robot.camera.set_pan(pan, wait=True)
             self._done = True
 
     @Pyro4.oneway
     def set_pan_tilt(self, pan, tilt, wait=True):
         if self._done:
             self._done = False
-            self._robot.camera.set_pan_tilt(pan, tilt, wait=True) 
+            self._robot.camera.set_pan_tilt(pan, tilt, wait=True)
             self._done = True
 
     @Pyro4.oneway
     def set_tilt(self, tilt, wait=True):
         if self._done:
             self._done = False
-            self._robot.camera.set_tilt(tilt, wait=True) 
+            self._robot.camera.set_tilt(tilt, wait=True)
             self._done = True
 if __name__ == '__main__':
     import argparse
