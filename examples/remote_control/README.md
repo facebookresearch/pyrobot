@@ -71,3 +71,5 @@ import base64
 rgb_bytes = base64.b64decode(bot2.get_rgb_bytes()['data'])
 img = np.frombuffer(rgb_bytes, dtype=np.int64).reshape(480, 640, 3)
 ```
+
+Note that `get_depth_bytes` runs ~5.5 fps, and `get_rgb_bytes` runs ~1.49 fps on remote, including decoding and deserializing time.
