@@ -47,7 +47,7 @@ If you want to use simulated LoCoBot in Gazebo only, please run the following co
   #-t Decides the type of installation. Available Options: full or sim_only
   #-p Decides the python version for pyRobot. Available Options: 2 or 3
   chmod +x locobot_install_all.sh 
-  ./locobot_install_all.sh sim -t sim_only -p 2
+  ./locobot_install_all.sh -t sim_only -p 2
   ```
 
 **Note**: To install Python 3 compatible PyRobot, modify ```-p 2``` to ```-p 3``` in the above commands.

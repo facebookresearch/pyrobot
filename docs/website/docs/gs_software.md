@@ -47,12 +47,6 @@ If you have done the steps above, you don't need to run the steps below.
 
 * Install [ROS kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
 
-* Install KDL
-
-```bash
-sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
-```
-
 * Install PyRobot
 
   ```bash
