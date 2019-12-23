@@ -19,7 +19,7 @@ def visualize(bot):
 	cv2.waitKey(4000)
 
 # Please change this to match your habitat_sim repo's path
-path_to_habitat_sim = "/home/kalyanv/temp/habitat-sim"
+path_to_habitat_sim = "/PATH_TO_THE_REPO/habitat-sim"
 relative_path = "examples/data/scene_datasets/habitat-test-scenes/skokloster-castle.glb"
 
 common_config = dict(scene_path=os.path.join(path_to_habitat_sim, relative_path))
