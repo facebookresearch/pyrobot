@@ -20,11 +20,6 @@ get started with this, ensure the following:
 
 * The robot base is switched ON. With the LoCoBot the base beeps when connected.
 
-* The appropriate python virtual environment has been sourced.
-```bash
-source ~/pyenv_pyrobot/bin/activate
-```
-
 * The robot's launch file has been run. Note that you have to set `use_base:=true`.
 
 <!--DOCUSAURUS_CODE_TABS-->
@@ -39,6 +34,11 @@ roslaunch locobot_control main.launch use_base:=true use_sim:=true
 # for LoCoBot-Lite append the command above with 'base:=create'
 ```
 <!--END_DOCUSAURUS_CODE_TABS-->
+
+* The appropriate python virtual environment has been sourced.
+```bash
+load_pyrobot_env
+```
 
 ## Base State
 Base state is represented by `[x, y, yaw]`, the `x`-coordinate, `y`-coordinate

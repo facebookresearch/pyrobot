@@ -42,7 +42,8 @@ class Robot:
                  arm_config={},
                  base_config={},
                  camera_config={},
-                 gripper_config={}):
+                 gripper_config={},
+                 common_config={}):
         """
         Constructor for the Robot class
 
@@ -96,21 +97,39 @@ class Robot:
 
         root_node += this_robot
         root_node += '.'
+        if self.configs.HAS_COMMON:
+            mod = importlib.import_module(root_node + 
+                                          self.configs.COMMON.NAME)
+            common_class = getattr(mod, self.configs.COMMON.CLASS)
+            setattr(self, self.configs.COMMON.NAME, 
+                    common_class(self.configs, **common_config))
         if self.configs.HAS_ARM and use_arm:
             mod = importlib.import_module(root_node + 'arm')
             arm_class = getattr(mod, self.configs.ARM.CLASS)
+            if self.configs.HAS_COMMON:
+                arm_config[self.configs.COMMON.NAME] = \
+                            getattr(self, self.configs.COMMON.NAME)
             self.arm = arm_class(self.configs, **arm_config)
         if self.configs.HAS_BASE and use_base:
             mod = importlib.import_module(root_node + 'base')
             base_class = getattr(mod, self.configs.BASE.CLASS)
+            if self.configs.HAS_COMMON:
+                base_config[self.configs.COMMON.NAME] = \
+                            getattr(self, self.configs.COMMON.NAME)
             self.base = base_class(self.configs, **base_config)
         if self.configs.HAS_CAMERA and use_camera:
             mod = importlib.import_module(root_node + 'camera')
             camera_class = getattr(mod, self.configs.CAMERA.CLASS)
+            if self.configs.HAS_COMMON:
+                camera_config[self.configs.COMMON.NAME] = \
+                            getattr(self, self.configs.COMMON.NAME)
             self.camera = camera_class(self.configs, **camera_config)
         if self.configs.HAS_GRIPPER and use_gripper and use_arm:
             mod = importlib.import_module(root_node + 'gripper')
             gripper_class = getattr(mod, self.configs.GRIPPER.CLASS)
+            if self.configs.HAS_COMMON:
+                gripper_config[self.configs.COMMON.NAME] = \
+                            getattr(self, self.configs.COMMON.NAME)
             self.gripper = gripper_class(self.configs, **gripper_config)
 
         # sleep some time for tf listeners in subclasses

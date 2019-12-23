@@ -18,6 +18,8 @@ _ARMC.EE_FRAME = 'right_gripper_tip'
 _ARMC.ROSTOPIC_JOINT_STATES = '/robot/joint_states'
 _ARMC.ROSTOPIC_SET_JOINT = '/robot/limb/right/joint_command'
 _ARMC.ROSTOPIC_COLLISION_STATE = '/robot/limb/right/collision_detection_state'
+_ARMC.JOINT_NAMES = ["right_j0", "right_j1",
+					 "right_j2", "right_j3","right_j4", "right_j5", "right_j6"]
 _ARMC.IK_POSITION_TOLERANCE = 0.005
 _ARMC.IK_ORIENTATION_TOLERANCE = 0.005
 

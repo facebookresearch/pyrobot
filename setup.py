@@ -24,6 +24,14 @@ packages = find_packages('src')
 for p in packages:
     assert p == 'pyrobot' or p.startswith('pyrobot.')
 
+import sys
+if (sys.version_info > (3, 0)):
+    # Python 3 code in this block
+    requirements_file = 'requirements_python3.txt'
+else:
+    # Python 2 code in this block
+    requirements_file = 'requirements_python2.txt'
+
 setup(
     name='pyrobot',
     version=__version__,
@@ -35,5 +43,5 @@ setup(
         'pyrobot': ['cfg/*.yaml'],
     },
     package_dir={'': 'src'},
-    install_requires=read_requirements_file('requirements.txt'),
+    install_requires=read_requirements_file(requirements_file),
 )
