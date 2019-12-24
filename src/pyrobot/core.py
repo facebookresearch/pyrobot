@@ -781,7 +781,7 @@ class Arm(object):
         if not resp.success:
             return None
 
-        pos = np.asarray(resp.pos)
+        pos = np.asarray(resp.pos).reshape(3,1)
         rot = prutil.quat_to_rot_mat(resp.quat)
         return pos, rot
 
