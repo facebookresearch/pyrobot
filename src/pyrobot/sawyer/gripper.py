@@ -74,3 +74,34 @@ class SawyerGripper(Gripper):
         self.gripper.gripper_io.set_signal_value("position_m", position)
         if wait:
             rospy.sleep(self.wait_time)
+
+    def get_gripper_state(self):
+        """
+        Return the gripper state.
+
+        :return: state
+
+                 state = -1: unknown gripper state
+
+                 state = 0: gripper is fully open
+
+                 state = 1: gripper is closing
+
+                 state = 2: there is an object in the gripper
+
+                 state = 3: gripper is fully closed
+
+        :rtype: int
+        """
+        eps = 0.01
+        if self.gripper.is_gripping():
+            state = 2
+        elif self.configs.GRIPPER.GRIPPER_MIN_POSITION - eps <= self.gripper.get_position() <= \
+                self.configs.GRIPPER.GRIPPER_MIN_POSITION + eps:
+            state = 3
+        elif self.configs.GRIPPER.GRIPPER_MAX_POSITION - eps <= self.gripper.get_position() <= \
+                self.configs.GRIPPER.GRIPPER_MAX_POSITION + eps:
+            state = 0
+        else:
+            state = -1
+        return state
