@@ -15,7 +15,7 @@ _C.HAS_ARM = False
 _GRIPPERC = _C.GRIPPER
 _GRIPPERC.CLASS = 'AllegroHand'
 _GRIPPERC.MAX_JOINT_ERROR = 0.15
-_GRIPPERC.WAIT_MIN_TIME = 0.05
+_GRIPPERC.WAIT_MIN_TIME = 1.5 #very important wait param
 _GRIPPERC.JOINT_NAMES =  ["joint_0.0", "joint_1.0", "joint_2.0", "joint_3.0", "joint_4.0", "joint_5.0", "joint_6.0", "joint_7.0",
   "joint_8.0", "joint_9.0", "joint_10.0", "joint_11.0", "joint_12.0", "joint_13.0", "joint_14.0",
   "joint_15.0"]
