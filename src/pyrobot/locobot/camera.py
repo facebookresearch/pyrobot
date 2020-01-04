@@ -55,27 +55,7 @@ class SimpleCamera(Camera):
         :type configs: YACS CfgNode
         """
         super(SimpleCamera, self).__init__(configs=configs)
-        self.cv_bridge = CvBridge()
-        self.camera_info_lock = threading.RLock()
-        self.camera_img_lock = threading.RLock()
         self._tf_listener = TransformListener()
-        self.rgb_img = None
-        self.depth_img = None
-        self.camera_info = None
-        self.camera_P = None
-        rospy.Subscriber(self.configs.CAMERA.ROSTOPIC_CAMERA_INFO_STREAM,
-                         CameraInfo,
-                         self._camera_info_callback)
-
-        rgb_topic = self.configs.CAMERA.ROSTOPIC_CAMERA_RGB_STREAM
-        self.rgb_sub = message_filters.Subscriber(rgb_topic, Image)
-        depth_topic = self.configs.CAMERA.ROSTOPIC_CAMERA_DEPTH_STREAM
-        self.depth_sub = message_filters.Subscriber(depth_topic, Image)
-        img_subs = [self.rgb_sub, self.depth_sub]
-        self.sync = message_filters.ApproximateTimeSynchronizer(img_subs,
-                                                                queue_size=10,
-                                                                slop=0.2)
-        self.sync.registerCallback(self._sync_callback)
         depth_threshold = (self.configs.BASE.VSLAM.DEPTH_MIN,
                            self.configs.BASE.VSLAM.DEPTH_MAX)
         cfg_filename = self.configs.BASE.VSLAM.CFG_FILENAME
@@ -84,70 +64,6 @@ class SimpleCamera(Camera):
                                            cfg_filename=cfg_filename)
         self.cam_cf = self.configs.BASE.VSLAM.RGB_CAMERA_CENTER_FRAME
         self.base_f = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
-
-    def _sync_callback(self, rgb, depth):
-        self.camera_img_lock.acquire()
-        try:
-            self.rgb_img = self.cv_bridge.imgmsg_to_cv2(rgb, "bgr8")
-            self.rgb_img = self.rgb_img[:, :, ::-1]
-            self.depth_img = self.cv_bridge.imgmsg_to_cv2(depth, "passthrough")
-        except CvBridgeError as e:
-            rospy.logerr(e)
-        self.camera_img_lock.release()
-
-    def _camera_info_callback(self, msg):
-        self.camera_info_lock.acquire()
-        self.camera_info = msg
-        self.camera_P = np.array(msg.P).reshape((3, 4))
-        self.camera_info_lock.release()
-
-    def get_rgb(self):
-        '''
-        This function returns the RGB image perceived by the camera.
-
-        :rtype: np.ndarray or None
-        '''
-        self.camera_img_lock.acquire()
-        rgb = deepcopy(self.rgb_img)
-        self.camera_img_lock.release()
-        return rgb
-
-    def get_depth(self):
-        '''
-        This function returns the depth image perceived by the camera.
-
-        :rtype: np.ndarray or None
-        '''
-        self.camera_img_lock.acquire()
-        depth = deepcopy(self.depth_img)
-        self.camera_img_lock.release()
-        return depth
-
-    def get_rgb_depth(self):
-        '''
-        This function returns both the RGB and depth
-        images perceived by the camera.
-
-        :rtype: np.ndarray or None
-        '''
-        self.camera_img_lock.acquire()
-        rgb = deepcopy(self.rgb_img)
-        depth = deepcopy(self.depth_img)
-        self.camera_img_lock.release()
-        return rgb, depth
-
-    def get_intrinsics(self):
-        """
-        This function returns the camera intrinsics.
-
-        :rtype: np.ndarray
-        """
-        if self.camera_P is None:
-            return self.camera_P
-        self.camera_info_lock.acquire()
-        P = deepcopy(self.camera_P)
-        self.camera_info_lock.release()
-        return P[:3, :3]
 
     def get_current_pcd(self, in_cam=True):
         """
@@ -214,10 +130,10 @@ class SimpleCamera(Camera):
         base2cam_trans = np.array(trans).reshape(-1, 1)
         base2cam_rot = np.array(rot)
         rgb_im, depth_im = self.get_rgb_depth()
-        pcd_in_cam = self.depth_cam.get_pix_3dpt(depth_im=depth_im,
+        pts_in_cam = self.depth_cam.get_pix_3dpt(depth_im=depth_im,
                                                  rs=rs,
                                                  cs=cs)
-        pts = pcd_in_cam[:3, :].T
+        pts = pts_in_cam[:3, :].T
         colors = rgb_im[rs, cs].reshape(-1, 3)
         if in_cam:
             return pts, colors
@@ -485,33 +401,7 @@ class DepthImgProcessor:
                  camera frame (shape: :math:`[4, N]`)
         :rtype np.ndarray
         """
-        assert isinstance(rs,
-                          int) or isinstance(rs,
-                                             list) or isinstance(rs,
-                                                                 np.ndarray)
-        assert isinstance(cs,
-                          int) or isinstance(cs,
-                                             list) or isinstance(cs,
-                                                                 np.ndarray)
-        if isinstance(rs, int):
-            rs = [rs]
-        if isinstance(cs, int):
-            cs = [cs]
-        if isinstance(rs, np.ndarray):
-            rs = rs.flatten()
-        if isinstance(cs, np.ndarray):
-            cs = cs.flatten()
-        depth_im = depth_im[rs, cs]
-        depth = depth_im.reshape(-1) / float(self.cfg_data['DepthMapFactor'])
-        img_pixs = np.stack((rs, cs)).reshape(2, -1)
-        img_pixs[[0, 1], :] = img_pixs[[1, 0], :]
-        uv_one = np.concatenate((img_pixs,
-                                 np.ones((1, img_pixs.shape[1]))))
-        uv_one_in_cam = np.dot(self.intrinsic_mat_inv, uv_one)
-        pts_in_cam = np.multiply(uv_one_in_cam, depth)
-        pts_in_cam = np.concatenate((pts_in_cam,
-                                     np.ones((1, pts_in_cam.shape[1]))),
-                                    axis=0)
+        pts_in_cam = prutil.pix_to_3dpt(depth_im, rs, cs, self.intrinsic_mat, float(self.cfg_data['DepthMapFactor']))
         return pts_in_cam
 
     def get_pcd_ic(self, depth_im, rgb_im=None):
