@@ -8,7 +8,7 @@ import numpy as np
 import rospy
 import tf
 import geometry_msgs.msg
-from geometry_msgs.msg import PoseStamped, Pose
+from geometry_msgs.msg import PoseStamped, Pose, PointStamped
 from pyrobot.utils.planning_scene_interface import PlanningSceneInterface
 
 
@@ -108,6 +108,31 @@ def rot_mat_to_quat(rot):
     R = np.eye(4)
     R[:3, :3] = rot
     return tf.transformations.quaternion_from_matrix(R)
+
+
+def convert_frames(pt, src_frame, tgt_frame):
+    """
+    Convert pt from src_frame to tgt_frame
+    :param pt: 3D point position [x,y,z]
+    :param src_frame: string
+    :param tgt_frame: string
+    :return: np.array()
+    """
+    assert len(pt) == 3
+    rospy.loginfo('Point to convert: {}'.format(pt))
+    ps = PointStamped()
+    ps.header.frame_id = src_frame
+    ps.point.x, ps.point.y, ps.point.z = pt
+    tf_listener = tf.TransformListener()
+    tf_listener.waitForTransform(tgt_frame, src_frame,
+                                 rospy.Time(0),
+                                 rospy.Duration(3))
+    base_ps = tf_listener.transformPoint(tgt_frame, ps)
+    rospy.loginfo(
+        'transform : {}'.format(tf_listener.lookupTransform(tgt_frame, src_frame, rospy.Time(0))))
+    base_pt = np.array([base_ps.point.x, base_ps.point.y, base_ps.point.z])
+    rospy.loginfo('Base point to convert: {}'.format(base_pt))
+    return base_pt
 
 
 class MoveitObjectHandler(object):
