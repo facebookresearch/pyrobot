@@ -37,11 +37,13 @@ from geometry_msgs.msg import *
 from moveit_msgs.srv import GetCartesianPath, GetCartesianPathRequest, \
                             GetCartesianPathResponse, GetPositionIK, \
                             GetPositionIKRequest, GetPositionIKResponse,\
-                            GetPositionFK, GetPositionFKRequest, GetPositionFKResponse
+                            GetPositionFK, GetPositionFKRequest, GetPositionFKResponse, \
+                            GetMotionPlan
 from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes,\
                             ExecuteTrajectoryAction, ExecuteTrajectoryGoal
 from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, \
                             OrientationConstraint, BoundingVolume
+from moveit_msgs.msg import MotionPlanRequest, MotionPlanResponse
 from shape_msgs.msg import SolidPrimitive
 from sensor_msgs.msg import JointState
 
@@ -74,6 +76,7 @@ class MoveGroupInterface(object):
                 fixed_frame,
                 gripper_frame, 
                 cart_srv,
+                mp_srv,
                 listener=None, 
                 plan_only=False):
 
@@ -85,10 +88,16 @@ class MoveGroupInterface(object):
         self._traj_action = actionlib.SimpleActionClient('execute_trajectory',
                                                     ExecuteTrajectoryAction)
         self._cart_service =  rospy.ServiceProxy(cart_srv, GetCartesianPath)
+        self._mp_service = rospy.ServiceProxy(mp_srv, GetMotionPlan)
         try:
             self._cart_service.wait_for_service(timeout=3)
         except:
             rospy.logerr("Timeout waiting for Cartesian Planning Service!!") 
+
+        try:
+            self._mp_service.wait_for_service(timeout=3)
+        except:
+            rospy.logerr("Timeout waiting for Motion Planning Service!!")
         
 
         self._action.wait_for_server()
@@ -221,8 +230,7 @@ class MoveGroupInterface(object):
 
     
     def moveToPose(self,
-                   pose_stamped,
-                   gripper_frame,
+                   pose,
                    tolerance=0.01,
                    wait=True,
                    **kwargs):
@@ -230,10 +238,8 @@ class MoveGroupInterface(object):
         '''
         Move the arm, based on a goal pose_stamped for the end effector.
 
-        :param pose_stamped: target pose to which we want to move
+        :param pose: target pose to which we want to move
                             specified link to
-        :param gripper_frame: frame/link which we want to move 
-                            to the specified target.
         :param tolerance: allowed tolerance in the final joint positions.
         :param wait: if enabled, makes the fuctions wait until the
             target joint position is reached
@@ -257,7 +263,6 @@ class MoveGroupInterface(object):
 
         # Create goal
         g = MoveGroupGoal()
-        pose_transformed = self._listener.transformPose(self._fixed_frame, pose_stamped)
 
         # 1. fill in request workspace_parameters
 
@@ -272,20 +277,21 @@ class MoveGroupInterface(object):
 
         c1.position_constraints.append(PositionConstraint())
         c1.position_constraints[0].header.frame_id = self._fixed_frame
-        c1.position_constraints[0].link_name = gripper_frame
+        c1.position_constraints[0].link_name = self._gripper_frame
+        # c1.position_constraints[0].target_point_offset
         b = BoundingVolume()
         s = SolidPrimitive()
-        s.dimensions = [tolerance * tolerance]
+        s.dimensions = [tolerance]
         s.type = s.SPHERE
         b.primitives.append(s)
-        b.primitive_poses.append(pose_transformed.pose)
+        b.primitive_poses.append(pose)
         c1.position_constraints[0].constraint_region = b
         c1.position_constraints[0].weight = 1.0
 
         c1.orientation_constraints.append(OrientationConstraint())
         c1.orientation_constraints[0].header.frame_id = self._fixed_frame
-        c1.orientation_constraints[0].orientation = pose_transformed.pose.orientation
-        c1.orientation_constraints[0].link_name = gripper_frame
+        c1.orientation_constraints[0].orientation = pose.orientation
+        c1.orientation_constraints[0].link_name = self._gripper_frame
         c1.orientation_constraints[0].absolute_x_axis_tolerance = tolerance
         c1.orientation_constraints[0].absolute_y_axis_tolerance = tolerance
         c1.orientation_constraints[0].absolute_z_axis_tolerance = tolerance
@@ -418,6 +424,229 @@ class MoveGroupInterface(object):
         except:
             rospy.logerr('Failed while waiting for action result.')
             return False
+
+    def motionPlanToJointPosition(self,
+                                  joints,
+                                  positions,
+                                  tolerance=0.01,
+                                  wait=True,
+                                  **kwargs):
+        '''
+        Move the arm to set of joint position goals
+
+        :param joints: joint names for which the target position
+                is specified.
+        :param positions: target joint positions
+        :param tolerance: allowed tolerance in the final joint positions.
+        :param wait: if enabled, makes the fuctions wait until the
+            target joint position is reached
+
+        :type joints: list of string element type
+        :type positions: list of float element type
+        :type tolerance: float
+        :type wait: bool
+        '''
+
+        # Check arguments
+        supported_args = ("max_velocity_scaling_factor",
+                          "max_acceleration_scaling_factor",
+                          "planner_id",
+                          "planning_scene_diff",
+                          "planning_time",
+                          "plan_only",
+                          "start_state")
+        for arg in kwargs.keys():
+            if not arg in supported_args:
+                rospy.loginfo("motionPlanToPose: unsupported argument: %s",
+                              arg)
+
+        # Create goal
+        g = MotionPlanRequest()
+
+        # 1. fill in request workspace_parameters
+
+        # 2. fill in request start_state
+        try:
+            g.start_state = kwargs["start_state"]
+        except KeyError:
+            g.start_state.is_diff = True
+
+        # 3. fill in request goal_constraints
+        c1 = Constraints()
+        for i in range(len(joints)):
+            c1.joint_constraints.append(JointConstraint())
+            c1.joint_constraints[i].joint_name = joints[i]
+            c1.joint_constraints[i].position = positions[i]
+            c1.joint_constraints[i].tolerance_above = tolerance
+            c1.joint_constraints[i].tolerance_below = tolerance
+            c1.joint_constraints[i].weight = 1.0
+
+        g.goal_constraints.append(c1)
+
+        # 4. fill in request path constraints
+
+        # 5. fill in request trajectory constraints
+
+        # 6. fill in request planner id
+        try:
+            g.planner_id = kwargs["planner_id"]
+        except KeyError:
+            if self.planner_id:
+                g.planner_id = self.planner_id
+
+        # 7. fill in request group name
+        g.group_name = self._group
+
+        # 8. fill in request number of planning attempts
+        try:
+            g.num_planning_attempts = kwargs["num_attempts"]
+        except KeyError:
+            g.num_planning_attempts = 1
+
+        # 9. fill in request allowed planning time
+        try:
+            g.allowed_planning_time = kwargs["planning_time"]
+        except KeyError:
+            g.allowed_planning_time = self.planning_time
+
+        # 10. Fill in velocity scaling factor
+        try:
+            g.max_velocity_scaling_factor = kwargs["max_velocity_scaling_factor"]
+        except KeyError:
+            pass  # do not fill in at all
+
+         # 11. Fill in acceleration scaling factor
+        try:
+            g.max_velocity_scaling_factor = kwargs["max_acceleration_scaling_factor"]
+        except KeyError:
+            pass  # do not fill in at all
+
+        result = self._mp_service(g)
+        traj = result.motion_plan_response.trajectory.joint_trajectory.points
+        if len(traj) < 1:
+            rospy.logwarn('No motion plan found.')
+            return None
+        return traj
+
+
+
+    def motionPlanToPose(self,
+                         pose,
+                         tolerance=0.01,
+                         wait=True,
+                         **kwargs):
+        '''
+        Move the arm to set of joint position goals
+
+        :param joints: joint names for which the target position
+                is specified.
+        :param positions: target joint positions
+        :param tolerance: allowed tolerance in the final joint positions.
+        :param wait: if enabled, makes the fuctions wait until the
+            target joint position is reached
+
+        :type joints: list of string element type
+        :type positions: list of float element type
+        :type tolerance: float
+        :type wait: bool
+        '''
+
+        # Check arguments
+        supported_args = ("max_velocity_scaling_factor",
+                          "max_acceleration_scaling_factor",
+                          "planner_id",
+                          "planning_scene_diff",
+                          "planning_time",
+                          "plan_only",
+                          "start_state")
+        for arg in kwargs.keys():
+            if not arg in supported_args:
+                rospy.loginfo("motionPlanToPose: unsupported argument: %s",
+                              arg)
+
+        # Create goal
+        g = MotionPlanRequest()
+        
+        # 1. fill in request workspace_parameters
+
+        # 2. fill in request start_state
+        try:
+            g.start_state = kwargs["start_state"]
+        except KeyError:
+            g.start_state.is_diff = True
+
+        # 3. fill in request goal_constraints
+        c1 = Constraints()
+
+        c1.position_constraints.append(PositionConstraint())
+        c1.position_constraints[0].header.frame_id = self._fixed_frame
+        c1.position_constraints[0].link_name = self._gripper_frame
+        # c1.position_constraints[0].target_point_offset
+        b = BoundingVolume()
+        s = SolidPrimitive()
+        s.dimensions = [tolerance]
+        s.type = s.SPHERE
+        b.primitives.append(s)
+        b.primitive_poses.append(pose)
+        c1.position_constraints[0].constraint_region = b
+        c1.position_constraints[0].weight = 1.0
+
+        c1.orientation_constraints.append(OrientationConstraint())
+        c1.orientation_constraints[0].header.frame_id = self._fixed_frame
+        c1.orientation_constraints[0].orientation = pose.orientation
+        c1.orientation_constraints[0].link_name = self._gripper_frame
+        c1.orientation_constraints[0].absolute_x_axis_tolerance = tolerance
+        c1.orientation_constraints[0].absolute_y_axis_tolerance = tolerance
+        c1.orientation_constraints[0].absolute_z_axis_tolerance = tolerance
+        c1.orientation_constraints[0].weight = 1.0
+
+        g.goal_constraints.append(c1)
+
+        # 4. fill in request path constraints
+
+        # 5. fill in request trajectory constraints
+
+        # 6. fill in request planner id
+        try:
+            g.planner_id = kwargs["planner_id"]
+        except KeyError:
+            if self.planner_id:
+                g.planner_id = self.planner_id
+
+        # 7. fill in request group name
+        g.group_name = self._group
+
+        # 8. fill in request number of planning attempts
+        try:
+            g.num_planning_attempts = kwargs["num_attempts"]
+        except KeyError:
+            g.num_planning_attempts = 1
+
+        # 9. fill in request allowed planning time
+        try:
+            g.allowed_planning_time = kwargs["planning_time"]
+        except KeyError:
+            g.allowed_planning_time = self.planning_time
+
+        # 10. Fill in velocity scaling factor
+        try:
+            g.max_velocity_scaling_factor = kwargs["max_velocity_scaling_factor"]
+        except KeyError:
+            pass  # do not fill in at all
+
+         # 11. Fill in acceleration scaling factor
+        try:
+            g.max_velocity_scaling_factor = kwargs["max_acceleration_scaling_factor"]
+        except KeyError:
+            pass  # do not fill in at all
+
+        result = self._mp_service(g)
+        traj = result.motion_plan_response.trajectory.joint_trajectory.points
+        if len(traj) < 1:
+            rospy.logwarn('No motion plan found.')
+            return None
+        return traj
+
 
     def setPlannerId(self, planner_id):
         '''
