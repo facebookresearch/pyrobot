@@ -110,6 +110,91 @@ def rot_mat_to_quat(rot):
     return tf.transformations.quaternion_from_matrix(R)
 
 
+def pix_to_3dpt(depth_im, rs, cs, intrinsic_mat, depth_map_factor, reduce=None, k=5):
+    """
+    Get the 3D points of the pixels in RGB images.
+    :param depth_im: depth image (shape: :math:`[H, W]`)
+    :param rs: rows of interest in the RGB image.
+               It can be a list or 1D numpy array
+               which contains the row indices.
+               The default value is None,
+               which means all rows.
+    :param cs: columns of interest in the RGB image.
+               It can be a list or 1D numpy array
+               which contains the column indices.
+               The default value is None,
+               which means all columns.
+    :param intrinsic_mat: np.ndarray [3,3],  the camera intrinsic matrix
+    :param depth_map_factor: float,  factor by which depth img intensity value to be divide to get real depth
+    :param reduce: whether to consider the depth at nearby pixels
+                'none': no neighbour consideration
+                'mean': depth based on the mean of kernel sized k  centered at [rs,cs]
+                'max': depth based on the max of kernel sized k  centered at [rs,cs]
+                'min': depth based on the min of kernel sized k  centered at [rs,cs]
+    :param k: kernel size for reduce type['mean', 'max', 'min']
+
+    :type rs: list or np.ndarray
+    :type cs: list or np.ndarray
+    :type reduce: str
+    :tyep k: int
+
+    :returns: tuple (pts, colors)
+
+              pts: point coordinates in world frame
+              (shape: :math:`[N, 3]`)
+
+              colors: rgb values for pts_in_cam
+              (shape: :math:`[N, 3]`)
+
+    :rtype: np.ndarray
+    """
+    assert isinstance(rs,
+                      int) or isinstance(rs,
+                                         list) or isinstance(rs,
+                                                             np.ndarray)
+    assert isinstance(cs,
+                      int) or isinstance(cs,
+                                         list) or isinstance(cs,
+                                                             np.ndarray)
+    if isinstance(rs, int):
+        rs = [rs]
+    if isinstance(cs, int):
+        cs = [cs]
+    if isinstance(rs, np.ndarray):
+        rs = rs.flatten()
+    if isinstance(cs, np.ndarray):
+        cs = cs.flatten()
+    R, C = depth_im.shape
+    if reduce == 'none':
+        depth_im = depth_im[rs, cs]
+    elif reduce == 'mean':
+        depth_im = np.array(
+            [np.mean(depth_im[max(i - k, 0):min(i + k, R), max(j - k, 0):min(j + k, C)]) for i, j in zip(rs, cs)])
+    elif reduce == 'max':
+        depth_im = np.array(
+            [np.max(depth_im[max(i - k, 0):min(i + k, R), max(j - k, 0):min(j + k, C)]) for i, j in zip(rs, cs)])
+    elif reduce == 'min':
+        depth_im = np.array(
+            [np.min(depth_im[max(i - k, 0):min(i + k, R), max(j - k, 0):min(j + k, C)]) for i, j in zip(rs, cs)])
+    else:
+        raise ValueError('Invalid reduce name provided, only the following'
+                         ' are currently available: [{}, {}, {}, {}]'.format('none', 'mean', 'max', 'min'))
+
+    depth = depth_im.reshape(-1) / depth_map_factor
+    img_pixs = np.stack((rs, cs)).reshape(2, -1)
+    img_pixs[[0, 1], :] = img_pixs[[1, 0], :]
+    uv_one = np.concatenate((img_pixs,
+                             np.ones((1, img_pixs.shape[1]))))
+
+    intrinsic_mat_inv = np.linalg.inv(intrinsic_mat)
+    uv_one_in_cam = np.dot(intrinsic_mat_inv, uv_one)
+    pts_in_cam = np.multiply(uv_one_in_cam, depth)
+    pts_in_cam = np.concatenate((pts_in_cam,
+                                 np.ones((1, pts_in_cam.shape[1]))),
+                                axis=0)
+    return pts_in_cam
+
+
 class MoveitObjectHandler(object):
     '''
     Use this class to create objects that reside in moveit environments
