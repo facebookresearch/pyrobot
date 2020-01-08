@@ -98,6 +98,21 @@ def main(_):
         p = Popen(['rosnode', 'cleanup'])
         p.wait()
 
+        # # Create base tests
+        args = 'base:=create use_rviz:=false use_sim:=true'
+        create_p = launch_gazebo(args)
+        test_cmds = ['test_make_robots.py test_arm_utils.py test_arm_controls.py '
+                     'test_camera.py --botname locobot_lite']
+        run_test(test_cmds, 'locobot-lite.html')
+        exit_gazebo(create_p)
+
+        args = 'base:=create use_rviz:=false use_sim:=true'
+        create_p = launch_gazebo(args)
+        test_cmds = ['test_base_velocity_control.py test_base_controllers.py'
+                     ' --botname locobot_lite']
+        run_test(test_cmds, 'locobot-lite-base.html')
+        exit_gazebo(create_p)
+        
         # Kobuki base tests. s-gupta: I had to split the following tests into
         # multiple calls to pytest, and starting gazebo multiple times, in
         # order for things to work. Ditto for create.
@@ -115,20 +130,6 @@ def main(_):
         run_test(test_cmds, 'locobot-base.html')
         exit_gazebo(kobuki_p)
 
-        # # Create base tests
-        args = 'base:=create use_rviz:=false use_sim:=true'
-        create_p = launch_gazebo(args)
-        test_cmds = ['test_make_robots.py test_arm_utils.py test_arm_controls.py '
-                     'test_camera.py --botname locobot_lite']
-        run_test(test_cmds, 'locobot-lite.html')
-        exit_gazebo(create_p)
-
-        args = 'base:=create use_rviz:=false use_sim:=true'
-        create_p = launch_gazebo(args)
-        test_cmds = ['test_base_velocity_control.py test_base_controllers.py'
-                     ' --botname locobot_lite']
-        run_test(test_cmds, 'locobot-lite-base.html')
-        exit_gazebo(create_p)
 
         # # Write put coverage results.
         gen_html_anno()
