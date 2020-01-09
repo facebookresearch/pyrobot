@@ -35,7 +35,7 @@ ninja
 sudo ninja install
 ```
 
-5. Download the missing ```libdepthengine.so.1.0``` and ```libstdc++.so.6``` for (here)[https://drive.google.com/drive/folders/1PYci8STgGtf2GMMl1I8wrVRMXMw-mPbC?usp=sharing] into ```path/to/Azure-Kinect-Sensor-SDK/build/bin```
+5. Download the missing ```libdepthengine.so.1.0``` and ```libstdc++.so.6``` from [here](https://drive.google.com/drive/folders/1PYci8STgGtf2GMMl1I8wrVRMXMw-mPbC?usp=sharing) into ```path/to/Azure-Kinect-Sensor-SDK/build/bin```
 
 6. Test out that the setup is working connecting the Azure kinect to the computer and running
 ```bash
@@ -81,17 +81,23 @@ cd path/to/azure_kinect_ws
 catkin_make
 ```
 
-10. Download the missing ```libdepthengine.so.1.0``` and ```libstdc++.so.6``` for (here)[https://drive.google.com/drive/folders/1PYci8STgGtf2GMMl1I8wrVRMXMw-mPbC?usp=sharing] into ```path/to/azure_kinect_ws/devel/lib```
+10. Download the missing ```libdepthengine.so.1.0``` and ```libstdc++.so.6``` from [here](https://drive.google.com/drive/folders/1PYci8STgGtf2GMMl1I8wrVRMXMw-mPbC?usp=sharing) into ```path/to/azure_kinect_ws/devel/lib```
 
 
-11. Finally, test out the ROS-Kinect setup by running,
+11. Copy udev rules from the ROS driver repo to your machine. 
+```bash
+sudo cd path/to/Azure-Kinect-Sensor-SDK/scripts/99-k4a.rules /etc/udev/rules.d/
+```
+**Unplug and replug your sensor into the machine after copying the file over.**
+
+12. Finally, test out the ROS-Kinect setup by running,
 ```bash
 source path/to/azure_kinect_ws/devel/setup.bash
 roslaunch azure_kinect_ros_driver driver.launch
 ```
 
 
-##Running the examples
+## Running the examples
 
 1st terminal,
 ```bash
