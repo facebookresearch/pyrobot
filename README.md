@@ -64,7 +64,6 @@ If you want to use simulated LoCoBot in Gazebo only, please run the following co
   cd ~
   mkdir -p low_cost_ws/src
   cd ~/low_cost_ws/src
-  source ~/${virtualenv_name}/bin/activate
   git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
   cd pyrobot/
   chmod +x install_pyrobot.sh
