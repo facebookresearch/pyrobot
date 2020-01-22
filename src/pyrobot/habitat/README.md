@@ -2,7 +2,7 @@
 
 __Note__: 
 
-The V-Rep PyRobot examples only work with Python3-PyRobot setup.
+The Habitat PyRobot examples only work with Python3-PyRobot setup.
 Arm on LoCoBot is not support in AI-Habitat.
 
 ## Getting Started
@@ -45,7 +45,7 @@ python setup.py install # Inside PyRobot Virtual Environment
 # python setup.py install --with-cuda for cuda enabled machines.
 ```
 
-Detailed Habitat-Sim installation instrucitons are available (here)[https://github.com/facebookresearch/habitat-sim#installation]
+Detailed Habitat-Sim installation instrucitons are available [here](https://github.com/facebookresearch/habitat-sim#installation)
 
 ## Resources 
 
