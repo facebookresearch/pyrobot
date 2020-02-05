@@ -1,0 +1,47 @@
+ARM:
+  # individual joint motor control command
+  ROSSERVICE_JOINT_COMMAND: '/joint_command'
+  # stop command for all motors
+  ROSTOPIC_STOP_EXECUTION: '/stop_execution'
+  # topic name to do torque control on LoCoBot
+  ROSTOPIC_TORQUE_COMMAND: '/torque_command'
+  # Arm Joint Names (Consistent with moveit group)
+  JOINT_NAMES: ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5"]
+
+
+CAMERA:
+  # CAMERA class name
+  CLASS: 'LoCoBotCamera'
+  # minimum pan value allowed for the camera platform
+  MIN_PAN: -2.7
+  # maximum pan value allowed for the camera platform
+  MAX_PAN: 2.6
+  # minimum tilt value allowed for the camera platform
+  MIN_TILT: -1.4
+  # maximum tilt value allowed for the camera platform
+  MAX_TILT: 1.75
+  # reset value for the pan
+  RESET_PAN: 0.0
+  # reset value for the tilt
+  RESET_TILT: 0.0
+  # topic name of the camera info
+  ROSTOPIC_CAMERA_INFO_STREAM: '/camera/color/camera_info'
+  # topic name of the RGB images
+  ROSTOPIC_CAMERA_RGB_STREAM: '/camera/color/image_raw'
+  # topic name of the depth images
+  ROSTOPIC_CAMERA_DEPTH_STREAM: '/camera/aligned_depth_to_color/image_raw'
+  # topic name to set pan angle
+  ROSTOPIC_SET_PAN: '/pan/command'
+  # topic name to set tilt angle
+  ROSTOPIC_SET_TILT: '/tilt/command'
+
+GRIPPER:
+  # GRIPPER class name`
+  CLASS: 'LoCoBotGripper'
+  # topic name to open gripper
+  ROSTOPIC_GRIPPER_OPEN: '/gripper/open'
+  # topic name to close gripper
+  ROSTOPIC_GRIPPER_CLOSE: '/gripper/close'
+  # joint names of the gripper joints
+  ROSTOPIC_GRIPPER_STATE: '/gripper/state'
+

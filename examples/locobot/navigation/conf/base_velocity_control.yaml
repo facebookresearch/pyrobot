@@ -1,0 +1,76 @@
+defaults:
+  - hydra/job_logging: colorlog
+  - hydra/hydra_logging: colorlog
+  - base/kobuki
+  - robot: locobot
+
+
+BASE:
+  BASE_TYPE: create
+  ROSTOPIC_BUMPER: /bumper
+  ROSTOPIC_CLIFF: /cliff
+  ROSTOPIC_WHEELDROP: /wheeldrop
+  TRACKED_POINT: 30
+
+
+# whether the robot has an arm or not
+HAS_ARM: True
+# whether the robot has a camera or not
+HAS_CAMERA: True
+# whether the robot has a gripper or not
+HAS_GRIPPER: True
+# whether the robot has a common shared class among all components
+HAS_COMMON: False
+
+HAS_BASE: True
+
+CAMERA: ???
+
+BASE: ???
+
+GRIPPER: ???
+
+COMMON: ???
+
+
+ARM:
+# ARM class name
+  CLASS: 'LoCoBotArm'
+# robot description parameter name for the arm
+  ARM_ROBOT_DSP_PARAM_NAME: '/robot_description'
+# moveit group name for the arm
+  MOVEGROUP_NAME: 'arm'
+# base frame for the arm
+  ARM_BASE_FRAME: 'base_link'
+# end-effector frame of the arm
+  EE_FRAME: 'gripper_link'
+# inverse kinematics position tolerance (m)
+  IK_POSITION_TOLERANCE: 0.01
+# inverse kinematics orientation toelrance (rad)
+  IK_ORIENTATION_TOLERANCE: 0.1
+# maximum allowed joint error for checking if the target joint value is reached
+  MAX_JOINT_ERROR: 0.09
+# maximum allowed end-effector position error in `move_ee_xyz`
+  MAX_EE_ERROR: 0.03
+# minimum waiting time to check again if the set command is complete
+  WAIT_MIN_TIME: 0.05
+# joint states topic name for the arm
+  ROSTOPIC_JOINT_STATES: '/joint_states'
+# topic name to set joint position/velocity/torque
+  ROSTOPIC_SET_JOINT: '/goal_dynamixel_position'
+
+  ROSSRV_CART_PATH: '/compute_cartesian_path'
+
+  ROSSRV_MP_PATH: '/plan_kinematic_path'
+
+
+# flags
+base_controller: ilqr
+base_planner: movebase
+botname: locobot
+
+linear_speed: 0.2
+#Angular Velocity
+angular_speed: 0.5
+#Time to run velocity commands for.
+duration: 1.0 

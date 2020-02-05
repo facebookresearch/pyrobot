@@ -37,7 +37,7 @@ class Robot:
     """
 
     def __init__(self,
-                 robot_name,
+                 robot_config,
                  use_arm=True,
                  use_base=True,
                  use_camera=True,
@@ -70,35 +70,15 @@ class Robot:
         :type camera_config: dict
         :type gripper_config: dict
         """
-        root_path = os.path.dirname(os.path.realpath(__file__))
-        cfg_path = os.path.join(root_path, 'cfg')
-        robot_pool = []
-        for f in os.listdir(cfg_path):
-            if f.endswith('_config.py'):
-                robot_pool.append(f[:-len('_config.py')])
-        root_node = 'pyrobot.'
-        self.configs = None
-        this_robot = None
-        for srobot in robot_pool:
-            if srobot in robot_name:
-                this_robot = srobot
-                mod = importlib.import_module(root_node + 'cfg.' +
-                                              '{:s}_config'.format(srobot))
-                cfg_func = getattr(mod, 'get_cfg')
-                if srobot == 'locobot' and 'lite' in robot_name:
-                    self.configs = cfg_func('create')
-                else:
-                    self.configs = cfg_func()
-        if self.configs is None:
-            raise ValueError('Invalid robot name provided, only the following'
-                             ' are currently available: {}'.format(robot_pool))
-        self.configs.freeze()
+        self.configs = robot_config
+        print(robot_config.pretty())
         try:
             rospy.init_node('pyrobot', anonymous=True)
         except rospy.exceptions.ROSException:
             rospy.logwarn('ROS node [pyrobot] has already been initialized')
 
-        root_node += this_robot
+        root_node = 'pyrobot.'
+        root_node += robot_config.botname
         root_node += '.'
         if self.configs.HAS_COMMON:
             mod = importlib.import_module(root_node + 

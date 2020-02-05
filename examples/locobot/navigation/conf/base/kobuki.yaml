@@ -1,0 +1,80 @@
+BASE:
+  # BASE class name
+  CLASS: 'LoCoBotBase'
+  # Type of base being used 'kobuki' or 'create'
+  BASE_TYPE: 'kobuki'
+  # Type of contrller being used for postion control
+  # 'ilqr' or 'proportional' or 'movebase'
+  BASE_CONTROLLER: 'ilqr'
+  # Type of planner being used for slam base path planning 'movebase'
+  BASE_PLANNER: 'movebase'
+  # Rostopic on which the velocity commands to be published
+  ROSTOPIC_BASE_COMMAND: '/navigation_velocity_smoother/raw_cmd_vel'
+  # Rostopic on which the wheel-encoder-based odommetry is available
+  ROSTOPIC_ODOMETRY: '/odom'
+  # Rostopic on which base bumper sensor informations is available
+  ROSTOPIC_BUMPER: '/mobile_base/events/bumper'
+  # Rosotopic on which base cliff sensor information is available
+  ROSTOPIC_CLIFF: '/mobile_base/events/cliff'
+  # Rostopic on whihc the base wheeldrop sensor info is available
+  ROSTOPIC_WHEELDROP: '/mobile_base/events/wheel_drop'
+
+  # Rostopic on which movebase goal to be pusblished
+  ROSTOPIC_MOVE_BASE_GOAL: '/move_base_simple/goal'
+  # Rostopic on which the movebase execution status is available
+  ROSTOPIC_MOVE_BASE_STATUS: '/move_base/status'
+  # Rostopic on which the command to cancel the goal sent to movebase should be
+  ROSTOPIC_GOAL_CANCEL: '/move_base/cancel'
+  # world frame name
+  MAP_FRAME: '/map'
+  # Rosaction topic for movebase
+  ROSTOPIC_BASE_ACTION_COMMAND: 'move_base'
+  # Rate of control for ILQR
+  BASE_CONTROL_RATE: 10
+  # Maximum linear for velocity control and ILQR
+  MAX_ABS_FWD_SPEED: 0.2
+  # Maximum rotational velocity for velocity control and ILQR
+  MAX_ABS_TURN_SPEED: 0.5
+  # ROSTOPIC to send movebase (x,ym theta) planner request
+  PLAN_TOPIC: '/move_base/GlobalPlanner/make_plan'
+  # Index of the point to be tracked on the plan.
+  # (used by Proportional and ILQR trajectory tracking)
+  TRACKED_POINT: 20
+  # Linear treshold used by trajectory tracking with proportional and ILQR
+  TRESHOLD_LIN: 0.15
+  # Tolearance to be used by movebase planner while generating plans
+  PLAN_TOL: 0.1
+  # z minimum cut-off height for slam-based costmap computation
+  Z_MIN_TRESHOLD_OCC_MAP: 0.1
+  # z maximum cut-off height for slam-based costmap computation
+  Z_MAX_TRESHOLD_OCC_MAP: 0.8
+  # proportional control specific max linear velocity
+  MAX_ABS_FWD_SPEED_P_CONTROLLER: 0.5
+  # proportional control specific max angular velocity
+  MAX_ABS_TURN_SPEED_P_CONTROLLER: 1
+  # proportional control specific ignore translation treshold
+  TRANSLATION_TRESHOLD: 0.01
+
+  VSLAM:
+    VSLAM_BASE_FRAME: '/base_link'
+    # topic name of the camera pose
+    ROSTOPIC_CAMERA_POSE: '/orb_slam2_rgbd/slam/camera_pose'
+    # topic name of the camera trajectory
+    ROSTOPIC_CAMERA_TRAJ: '/orb_slam2_rgbd/slam/camera_traj'
+    # reference link name of the visual SLAM system, the pose of this frame
+    # in the first time step will be used to define
+    # the origin/orientation of the world frame
+    BASE_FRAME: '/base_link'
+    # RGB camera center frame name
+    RGB_CAMERA_CENTER_FRAME: '/camera_color_optical_frame'
+    # minimum depth values to be considered as valid
+    DEPTH_MIN: 0.2
+    # maximum depth values to be considered as valid
+    DEPTH_MAX: 1.5
+    # configuration file name for ORB-SLAM2
+    CFG_FILENAME: 'realsense_d435.yaml'
+    # sample every n pixels in depth images during
+    # reconstruction (to save computation time)
+    SUBSAMPLE_PIXS: 1
+    # publishing frequence of the occupancy map
+    OCCUPANCY_MAP_RATE: 0.5
