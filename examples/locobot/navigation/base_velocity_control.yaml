@@ -1,0 +1,10 @@
+
+base_controller: ilqr
+base_planner: movebase
+botname: locobot
+
+linear_speed: 0.2
+#Angular Velocity
+angular_speed: 0.5
+#Time to run velocity commands for.
+duration: 1.0 
