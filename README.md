@@ -52,6 +52,11 @@ If you want to use simulated LoCoBot in Gazebo only, please run the following co
 
 **Note**: To install Python 3 compatible PyRobot, modify ```-p 2``` to ```-p 3``` in the above commands.
 
+**Note**: If you already have the Python2 version installed, make sure to clean up first so that python3 dependencies resolve correctly. Specifically - 
+* [Uninstall ros](https://answers.ros.org/question/57213/how-i-completely-remove-all-ros-from-my-system/?answer=192266#post-id-192266)
+* [Revert your ~/.bashrc file](https://answers.ros.org/question/57213/how-i-completely-remove-all-ros-from-my-system/?answer=192266#post-id-192266)
+* After installing for python 3, check that the following alias exists in the ~/.bashrc file `alias load_pyrobot_env='source /home/locobot/pyenv_pyrobot_python3/bin/activate && source /home/locobot/pyrobot_catkin_ws/devel/setup.bash'`
+
 ### Installing just PyRobot
 
 * Install **Ubuntu 16.04**
