@@ -117,7 +117,11 @@ class ProportionalControl:
 
         ret_val = True
 
+        start_time = time.time()
         while True:
+            if time.time() - start_time > 10:
+                break
+
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = self._norm_pose(
                     target_world - self.bot_base.state.theta)
@@ -188,7 +192,11 @@ class ProportionalControl:
         prev_time = time.time()
         self.bot_base.should_stop = False
         ret_val = True
+        start_time = time.time()
         while True:
+            if time.time() - start_time > 10:
+                break
+
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = abs(abs(target) -
                                 sqrt((self.bot_base.state.x -
@@ -484,7 +492,11 @@ class MoveBaseControl(object):
 
         rospy.sleep(0.1)
         rospy.loginfo("Waiting for the Result")
+        start_time = time.time()
         while True:
+            if time.time() - start_time > 10:
+                break
+
             assert (
                     self.execution_status is not 4), \
                 "move_base failed to find a valid plan to goal"
