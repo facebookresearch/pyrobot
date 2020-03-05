@@ -785,6 +785,15 @@
         <minDepth>0.001</minDepth>
         <maxVel>1.0</maxVel>
     </gazebo>
+	
+   <gazebo reference="caster_back_link">
+        <mu1>0.0</mu1>
+        <mu2>0.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
 
 
     <gazebo reference="cliff_sensor_left_link">
