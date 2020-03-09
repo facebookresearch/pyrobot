@@ -230,6 +230,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	rm -r kobuki_qtestsuite
 	cd -
 	git clone https://github.com/yujinrobot/kobuki.git
+	cd kobuki && git checkout melodic && cd ..
 	mv kobuki/kobuki_description kobuki/kobuki_bumper2pc \
 	  kobuki/kobuki_node kobuki/kobuki_keyop \
 	  kobuki/kobuki_safety_controller ./
