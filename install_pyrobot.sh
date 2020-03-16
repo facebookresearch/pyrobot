@@ -27,7 +27,6 @@ if [ $PYTHON_VERSION != "2" ] && [ $PYTHON_VERSION != "3" ]; then
 fi
 
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
-
 sudo apt-get -y install python-virtualenv
 sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
 
