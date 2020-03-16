@@ -48,12 +48,11 @@ if [ $PYTHON_VERSION == "3" ]; then
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 		sudo apt-get install software-properties-common python-software-properties
-		sudo add-apt-repository ppa:fkrull/deadsnakes
+		sudo add-apt-repository -y ppa:fkrull/deadsnakes
 		#sudo add-apt-repository ppa:jonathonf/python-3.6
 		sudo apt-get update
 		sudo apt-get install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml
-		sudo apt-get install python3-tk
-		sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
+		sudo apt-get install python3-tk python3.6-tk
 		virtualenv -p /usr/bin/python3.6 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
 		pip install catkin_pkg pyyaml empy rospkg
@@ -71,7 +70,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 		cd $PYROBOT_PYTHON3_WS/src
 
 		#clone tf
-		git clone https://github.com/ros/geometry
+		git clone -b indigo-devel https://github.com/ros/geometry
 		git clone -b indigo-devel https://github.com/ros/geometry2
 		
 		# Clone cv_bridge src
