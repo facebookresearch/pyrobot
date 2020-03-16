@@ -87,6 +87,7 @@ jobs:
       - run:
           name: Run tests
           command: |
+            set +e # Force runs all the tests inspite of a failure
             sleep 150 # Wait for Gazebo to properly spin up
             source ~/.bashrc
             cd ~/project/tests/
