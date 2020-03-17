@@ -68,8 +68,6 @@ if [ $PYTHON_VERSION == "3" ]; then
 
 		cd $PYROBOT_PYTHON3_WS/src
 
-		git clone https://github.com/ros/geometry
-		
 		git clone https://github.com/ros/geometry2
 
 		# Clone cv_bridge src
