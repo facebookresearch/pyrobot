@@ -111,7 +111,9 @@ def main(args):
     """
 
     if args.display_images == True:
-        import cv2
+        from pyrobot.utils.util import try_cv2_import
+        cv2 = try_cv2_import()
+
     bot = Robot('locobot', base_config={'base_planner':'none'})
     bot.camera.reset()
     print("Setting pan: {}, tilt: {}".format(*DEFAULT_PAN_TILT))

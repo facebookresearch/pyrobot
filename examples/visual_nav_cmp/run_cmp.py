@@ -6,7 +6,9 @@
 import os
 import time
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import numpy as np
 import rospy
 from absl import flags, app

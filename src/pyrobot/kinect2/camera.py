@@ -19,12 +19,9 @@ from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float64
 
-import sys
-ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
-if ros_path in sys.path:
-    sys.path.remove(ros_path)
-    import cv2
-sys.path.append(ros_path)
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 from cv_bridge import CvBridge, CvBridgeError
 
 class Kinect2Camera(Camera):

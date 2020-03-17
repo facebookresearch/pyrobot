@@ -6,7 +6,9 @@
 import os
 import pytest
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import numpy as np
 
 from cmp_runner import CMPRunner

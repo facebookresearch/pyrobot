@@ -3,12 +3,8 @@ from pyrobot import Robot
 import sys
 import os
 
-ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
-if ros_path in sys.path:
-	sys.path.remove(ros_path)
-	import cv2
-sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
-
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
 
 def visualize(bot):
 	rgb_img = bot.camera.get_rgb()

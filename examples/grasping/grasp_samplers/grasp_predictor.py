@@ -9,7 +9,9 @@ Class definition for Predictors
 """
 import copy
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import numpy as np
 
 n_class = 18

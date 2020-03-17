@@ -11,7 +11,10 @@ reprojection error problem using pytorch. See README.md for details.
 """
 
 from __future__ import print_function
-import cv2
+
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import os
 import pickle
 import numpy as np

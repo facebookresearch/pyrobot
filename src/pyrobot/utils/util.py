@@ -13,6 +13,27 @@ from pyrobot.utils.planning_scene_interface import PlanningSceneInterface
 
 
 
+
+def try_cv2_import():
+    """
+    In order to import cv2 in python3 we need to remove
+    the python2.7 path from sys.path. To use the Habitat-PyRobot integration the user
+    needs to export environment variable ROS_PATH which will look something like:
+    /opt/ros/kinetic/lib/python2.7/dist-packages
+    """
+    import sys
+    import os
+
+    ros_path = os.environ.get("ROS_PATH")
+    if ros_path is not None and ros_path in sys.path:
+        sys.path.remove(ros_path)
+        import cv2
+        sys.path.append(ros_path)
+    else:
+        import cv2
+
+    return cv2
+
 def list_to_pose(pose_list):
     pose_msg = Pose()
     if len(pose_list) == 7:

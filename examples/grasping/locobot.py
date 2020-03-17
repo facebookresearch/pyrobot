@@ -36,7 +36,9 @@ N_SAMPLES = 100
 PATCH_SIZE = 100
 
 from IPython import embed
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 # DEFAULT_PITCH_EPSILON = 0.02
 
 class Grasper(object):

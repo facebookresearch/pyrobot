@@ -24,13 +24,10 @@ import pyrobot.utils.util as prutil
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
 from pyrobot_bridge.srv import *
 
-import sys
-ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
-if ros_path in sys.path:
-    sys.path.remove(ros_path)
-    import cv2
-    from cv_bridge import CvBridge, CvBridgeError
-sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
+from cv_bridge import CvBridge, CvBridgeError
 
 import message_filters
 

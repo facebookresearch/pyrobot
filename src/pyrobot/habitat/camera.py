@@ -7,12 +7,9 @@ import numpy as np
 import pyrobot.utils.util as prutil
 from pyrobot.core import Camera
 
-import sys
-ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
-if ros_path in sys.path:
-    sys.path.remove(ros_path)
-    import cv2
-sys.path.append(ros_path)
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 from cv_bridge import CvBridge, CvBridgeError
 
 import habitat_sim.agent as habAgent

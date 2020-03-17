@@ -5,7 +5,9 @@
 
 import argparse
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import torch
 from IPython import embed
 from PIL import Image

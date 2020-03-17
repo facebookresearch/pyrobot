@@ -15,7 +15,9 @@ import rospkg
 import signal
 import sys
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import numpy as np
 import rospy
 import tf

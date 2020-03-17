@@ -8,7 +8,9 @@ Example for controlling pan-tilt active camera system and get image data
 """
 from __future__ import print_function
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 from pyrobot import Robot
 
 if __name__ == "__main__":

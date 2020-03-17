@@ -14,7 +14,9 @@ import os.path
 import time
 from copy import deepcopy as copy
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import numpy as np
 import rospy
 from grasp_samplers.grasp_object import GraspTorchObj
