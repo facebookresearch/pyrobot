@@ -247,7 +247,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	sudo apt-get install ros-kinetic-ecl-streams -y
 fi
 
-##### End of turtle bot melodic stuff
+##### End of turtle bot kinetic stuff
 
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 if [ $PYTHON_VERSION == "2" ]; then
@@ -306,6 +306,11 @@ if [ $INSTALL_TYPE == "full" ]; then
 	sudo udevadm trigger
 	sudo usermod -a -G dialout $USER
 fi
+
+# Step 8 - Install GPMP specific things
+chmod +x install_gpmp2.sh
+source install_gpmp2.sh
+
 
 
 echo "Installation complete, took $elapsed seconds in total"
