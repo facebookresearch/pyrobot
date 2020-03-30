@@ -115,6 +115,16 @@ def test_relative_position_control1(botname, posn, base_controller, base_planner
                                     base_planner, close_loop, smooth, 0.05, 10)
 
 
+@pytest.mark.parametrize("base_controller", ['gpmp'])
+@pytest.mark.parametrize("base_planner", ['none'])
+@pytest.mark.parametrize("close_loop", [True])
+@pytest.mark.parametrize("smooth", [True])
+@pytest.mark.parametrize("posn", posns)
+def test_relative_position_control1(botname, posn, base_controller, base_planner, close_loop, smooth):
+    _test_relative_position_control(posn, botname, base_controller,
+                                    base_planner, close_loop, smooth, 0.05, 10)
+
+
 @pytest.mark.parametrize("base_controller", ['movebase'])
 @pytest.mark.parametrize("base_planner", ['none'])
 @pytest.mark.parametrize("close_loop", [True])
@@ -166,6 +176,14 @@ def test_relative_position_control3(botname, posn, base_controller, base_planner
     _test_relative_position_control(posn, botname, base_controller,
                                     base_planner, close_loop, smooth, 0.05, 10)
 
+@pytest.mark.parametrize("base_controller", ['gpmp'])
+@pytest.mark.parametrize("base_planner", ['movebase'])
+@pytest.mark.parametrize("close_loop", [True])
+@pytest.mark.parametrize("smooth", [True])
+@pytest.mark.parametrize("posn", posns[:1, :])
+def test_relative_position_control3(botname, posn, base_controller, base_planner, close_loop, smooth):
+    _test_relative_position_control(posn, botname, base_controller,
+                                    base_planner, close_loop, smooth, 0.05, 10)
 
 @pytest.mark.parametrize("base_controller", ['movebase'])
 @pytest.mark.parametrize("base_planner", ['movebase'])
