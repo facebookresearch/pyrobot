@@ -47,9 +47,9 @@ if [ $PYTHON_VERSION == "3" ]; then
 	virtualenv_name="pyenv_pyrobot_python3"
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-		sudo apt-get install software-properties-common 
-		sudo apt-get install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml python3-rospkg-modules python3-empy
-		sudo apt-get install python3-tk
+		sudo apt-get -y install software-properties-common 
+		sudo apt-get -y install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml python3-rospkg-modules python3-empy
+		sudo apt-get -y install python3-tk
 		sudo apt-get -y install ros-melodic-orocos-kdl ros-melodic-kdl-parser-py ros-melodic-python-orocos-kdl ros-melodic-trac-ik
 		virtualenv -p /usr/bin/python3.6 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
@@ -81,7 +81,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 		rosdep install --from-paths src --ignore-src -y -r
 		
 		# Install all the python 3 dependencies
-		sudo apt-get install ros-melodic-cv-bridge
+		sudo apt-get -y install ros-melodic-cv-bridge
 
 		## Find version of cv_bridge in your repository
 		##apt-cache show ros-kinetic-cv-bridge | grep Version
