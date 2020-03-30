@@ -28,7 +28,9 @@ from pyrobot.core import Base
 from std_msgs.msg import Empty
 
 from pyrobot.locobot.base_control_utils import MoveBasePlanner, _get_absolute_pose
-from pyrobot.locobot.base_controllers import ProportionalControl, ILQRControl, MoveBaseControl
+from pyrobot.locobot.base_controllers import (
+    ProportionalControl, ILQRControl, MoveBaseControl, GPMPControl
+)
 from pyrobot.locobot.bicycle_model import wrap_theta
 
 
@@ -245,9 +247,9 @@ class LoCoBotBase(Base):
         # Set up low-level controllers.
         if base_controller is None:
             base_controller = configs.BASE.BASE_CONTROLLER
-        assert (base_controller in ['proportional', 'ilqr', 'movebase']), \
+        assert (base_controller in ['proportional', 'ilqr', 'movebase', 'gpmp']), \
             'BASE.BASE_CONTROLLER should be one of proportional, ilqr, ' \
-            'movebase but is {:s}'.format(base_controller)
+            'movebase, gpmp but is {:s}'.format(base_controller)
 
         self.base_controller = base_controller
         if base_controller == 'ilqr':
@@ -258,13 +260,15 @@ class LoCoBotBase(Base):
                 self.base_state, self.ctrl_pub, self.configs)
         elif base_controller == 'movebase':
             self.controller = MoveBaseControl(self.base_state, self.configs)
+        elif base_controller == 'gpmp':
+            self.controller = GPMPControl(self, self.base_state, self.configs)
 
         rospy.on_shutdown(self.clean_shutdown)
         
 
     def clean_shutdown(self):
         rospy.loginfo("Stop LoCoBot Base")
-        if self.base_controller == 'movebase':
+        if self.base_controller == 'movebase' or self.base_controller == 'gpmp':
             self.controller.cancel_goal()
         self.stop()
 
@@ -367,7 +371,7 @@ class LoCoBotBase(Base):
                 assert (
                     self.build_map), 'Error: Cannot use map without ' \
                                      'enabling build map feature'
-                if self.base_controller == 'ilqr':
+                if self.base_controller == 'ilqr' or self.base_controller == 'gpmp':
                     goto = partial(
                         self.go_to_relative,
                         close_loop=close_loop,

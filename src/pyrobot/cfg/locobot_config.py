@@ -102,6 +102,15 @@ _BASEC.MAX_ABS_FWD_SPEED_P_CONTROLLER = 0.5
 _BASEC.MAX_ABS_TURN_SPEED_P_CONTROLLER = 1
 # proportional control specific ignore translation treshold
 _BASEC.TRANSLATION_TRESHOLD = 0.01
+#GPMP control requires the goal acceptable error
+_BASEC.GOAL_TOLERANCE = 0.1
+#GPMP control requires the maximum allowable execution time in seconds
+_BASEC.EXEC_TIME = 600
+#GPMP control requires the GPMP action server name
+_BASEC.GPMP_SERVER_NAME = '/gpmp_controller'
+#GPMP control requires the turtlebot trajectory server name
+_BASEC.TURTLEBOT_TRAJ_SERVER_NAME = '/turtle/base_controller/trajectory'
+
 
 _BASEC.VSLAM = CN()
 # topic name of the camera pose
