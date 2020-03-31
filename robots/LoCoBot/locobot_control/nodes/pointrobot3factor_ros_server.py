@@ -4,7 +4,7 @@
 
 
 import numpy as np
-from gtsam import * 
+from gtsam import *
 from gpmp2 import *
 
 import threading
@@ -24,12 +24,10 @@ from control_msgs.msg import (
     FollowJointTrajectoryAction,
     FollowJointTrajectoryGoal,
 )
-from trajectory_msgs.msg import (
-    JointTrajectoryPoint,
-)
+from trajectory_msgs.msg import JointTrajectoryPoint
 
 
-#TOPIC NAMES
+# TOPIC NAMES
 odom_topic = "/odom"
 cmd_vel_topic = "/cmd_vel_mux/input/navi"
 action_topic = "/gpmp_ctrl"
@@ -38,11 +36,13 @@ occ_grid_topic = "/move_base/local_costmap/costmap"
 
 class RobotState(object):
     """A simple robot state object to keep track of locobot's base state"""
+
     def __init__(self):
         self.pose = None
         self.vel = None
 
-class Robot(object): 
+
+class Robot(object):
     """
 
     A simple locobot interface object which is PyRobot independent.
@@ -52,40 +52,37 @@ class Robot(object):
     Publishes gpmp trajectory to the trajectory action server.
 
     """
+
     def __init__(self):
-        
-        self.ctrl_pub = rospy.Publisher(cmd_vel_topic,
-                                        Twist, queue_size=1)
+
+        self.ctrl_pub = rospy.Publisher(cmd_vel_topic, Twist, queue_size=1)
         self.state = RobotState()
         self.sdf = None
         self.sdf_lock = threading.RLock()
 
         rospy.Subscriber(odom_topic, Odometry, self._odometry_callback)
 
-
         rospy.Subscriber(occ_grid_topic, OccupancyGrid, self._occ_grid_callback)
 
         self.traj_client_ = actionlib.SimpleActionClient(
-            '/turtle/base_controller/trajectory',
-            FollowJointTrajectoryAction,
+            "/turtle/base_controller/trajectory", FollowJointTrajectoryAction,
         )
 
         server_up = self.traj_client_.wait_for_server(timeout=rospy.Duration(10.0))
         if not server_up:
-            rospy.logerr("Timed out waiting for Joint Trajectory"
-                 " Action Server to connect. Start the action server"
-                 " before running example.")
+            rospy.logerr(
+                "Timed out waiting for Joint Trajectory"
+                " Action Server to connect. Start the action server"
+                " before running example."
+            )
             rospy.signal_shutdown("Timed out waiting for Action Server")
             sys.exit(1)
 
-
-
-
-    def _occ_grid_callback(self, msg): 
+    def _occ_grid_callback(self, msg):
         cols = msg.info.width
         rows = msg.info.height
         origin_x = msg.info.origin.position.x
-        origin_y =  msg.info.origin.position.x
+        origin_y = msg.info.origin.position.x
         cell_size = msg.info.resolution
         occ_map = np.zeros((rows, cols))
 
@@ -106,8 +103,7 @@ class Robot(object):
         self.sdf = sdf
         self.sdf_lock.release()
 
-
-    def _odometry_callback(self, msg): 
+    def _odometry_callback(self, msg):
 
         x = msg.pose.pose.position.x
         y = msg.pose.pose.position.y
@@ -116,77 +112,73 @@ class Robot(object):
             orientation_q.x,
             orientation_q.y,
             orientation_q.z,
-            orientation_q.w]
-        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-            orientation_list)
+            orientation_q.w,
+        ]
+        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
         x_vel = msg.twist.twist.linear.x
         y_vel = 0.0
         ang_vel = msg.twist.twist.angular.z
-        self.state.pose = np.asarray([x ,y , yaw])
-        self.state.vel = np.asarray([x_vel ,y_vel , ang_vel])
-
+        self.state.pose = np.asarray([x, y, yaw])
+        self.state.vel = np.asarray([x_vel, y_vel, ang_vel])
 
     def set_vel(self, vel, exe_time):
         msg = Twist()
         msg.linear.x = vel[0]
         msg.angular.z = vel[2]
-        
-        
+
         start_time = rospy.get_time()
         self.ctrl_pub.publish(msg)
         while rospy.get_time() - start_time < exe_time:
             self.ctrl_pub.publish(msg)
-            rospy.sleep(1. / 10)
+            rospy.sleep(1.0 / 10)
 
-    
     def get_robot_state(self):
         return self.state.pose, self.state.vel
 
     def executeTrajectory(self, result, params):
 
         DOF = 3
-        traj_ = FollowJointTrajectoryGoal()  
+        traj_ = FollowJointTrajectoryGoal()
         point = JointTrajectoryPoint()
 
         for i in range(params.total_time_step):
 
-            pose = result.atVector(symbol(ord('x'), i))
-            vel = result.atVector(symbol(ord('v'), i))
+            pose = result.atVector(symbol(ord("x"), i))
+            vel = result.atVector(symbol(ord("v"), i))
 
             point = JointTrajectoryPoint()
-                            
+
             for j in range(3):
                 point.positions.append(pose[j])
                 point.velocities.append(vel[j])
 
-            point.time_from_start = rospy.Duration(i*params.delta_t)#/(check_inter+1))
+            point.time_from_start = rospy.Duration(
+                i * params.delta_t
+            )  # /(check_inter+1))
             traj_.trajectory.points.append(point)
 
-
             traj_.trajectory.header.stamp = rospy.Time.now()
-        
+
         self.traj_client_.cancel_goal()
         self.traj_client_.send_goal(traj_)
-        #self.traj_client_.wait_for_result()
-
+        # self.traj_client_.wait_for_result()
 
 
 def signedDistanceField2D(ground_truth_map, cell_size):
-    #SIGNEDDISTANCEFIELD2D 2D signed distance field
+    # SIGNEDDISTANCEFIELD2D 2D signed distance field
     #   Given a ground truth 2D map defined in Matrix in 0-1,
     #   calculate 2D signed distance field, which is defined as a matrix
     #   map matrix and signed distance field matrix have the same resolution.
     #
     #   Usage: field = SIGNEDDISTANCEFIELD2D(ground_truth_map, cell_siz)
-    #   @map        evidence grid from dataset, map use 0 show open area, 1 show objects. 
+    #   @map        evidence grid from dataset, map use 0 show open area, 1 show objects.
     #   @cell_size  cell sizeto given metric information
     #
-    #   Output: 
+    #   Output:
     #   @field      sdf, row is Y, col is X
 
-
     # regularize unknow area to open area
-    cur_map = (ground_truth_map > 0.75)
+    cur_map = ground_truth_map > 0.75
     cur_map = cur_map.astype(int)
 
     if np.amax(cur_map) is 0:
@@ -197,7 +189,7 @@ def signedDistanceField2D(ground_truth_map, cell_size):
 
     # get signed distance from map and inverse map
     # since bwdist(foo) = ndimage.distance_transform_edt(1-foo)
-    map_dist = ndimage.distance_transform_edt(inv_map) 
+    map_dist = ndimage.distance_transform_edt(inv_map)
     inv_map_dist = ndimage.distance_transform_edt(cur_map)
 
     field = map_dist - inv_map_dist
@@ -208,7 +200,7 @@ def signedDistanceField2D(ground_truth_map, cell_size):
 
     return field
 
-        
+
 def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
 
     start_conf = start_conf_val
@@ -217,28 +209,27 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
     avg_vel = (end_conf_val - start_conf_val / params.total_time_step) / params.delta_t
 
     # plot param
-   
 
     # init optimization
     graph = NonlinearFactorGraph()
     init_values = Values()
 
-    for i in range(0, params.total_time_step+1):
-        key_pos = symbol(ord('x'), i) 
-        key_vel = symbol(ord('v'), i)
-        
+    for i in range(0, params.total_time_step + 1):
+        key_pos = symbol(ord("x"), i)
+        key_vel = symbol(ord("v"), i)
+
         #% initialize as straight line in conf space
         pose = start_conf_val
         vel = avg_vel
-        
+
         init_values.insert(key_pos, pose)
         init_values.insert(key_vel, vel)
-        
+
         #% start/end priors
-        if i==0:
+        if i == 0:
             graph.push_back(PriorFactorVector(key_pos, start_conf, params.pose_fix))
             graph.push_back(PriorFactorVector(key_vel, start_vel, params.vel_fix))
-        elif i==params.total_time_step:
+        elif i == params.total_time_step:
             graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
             graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
 
@@ -246,29 +237,48 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
 
         # GP priors and cost factor
         if i > 0:
-            #graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
-            #graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
-            key_pos1 = symbol(ord('x'), i-1)
-            key_pos2 = symbol(ord('x'), i)
-            key_vel1 = symbol(ord('v'), i-1)
-            key_vel2 = symbol(ord('v'), i)
+            # graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
+            # graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
+            key_pos1 = symbol(ord("x"), i - 1)
+            key_pos2 = symbol(ord("x"), i)
+            key_vel1 = symbol(ord("v"), i - 1)
+            key_vel2 = symbol(ord("v"), i)
 
-            temp = GaussianProcessPriorLinear(key_pos1, key_vel1,
-                key_pos2, key_vel2, params.delta_t, params.Qc_model)
+            temp = GaussianProcessPriorLinear(
+                key_pos1, key_vel1, key_pos2, key_vel2, params.delta_t, params.Qc_model
+            )
             graph.push_back(temp)
-            
+
             #% cost factor
-            graph.push_back(ObstaclePlanarSDFFactorPointRobot(key_pos, params.pR_model, 
-                                    sdf, params.cost_sigma, params.epsilon_dist))
-            
+            graph.push_back(
+                ObstaclePlanarSDFFactorPointRobot(
+                    key_pos,
+                    params.pR_model,
+                    sdf,
+                    params.cost_sigma,
+                    params.epsilon_dist,
+                )
+            )
+
             #% GP cost factor
             if params.use_GP_inter and params.check_inter > 0:
-                for j in range(1, params.check_inter+1):
+                for j in range(1, params.check_inter + 1):
                     tau = j * (params.total_time_sec / params.total_check_step)
-                    graph.add(ObstaclePlanarSDFFactorGPPointRobot(
-                        key_pos1, key_vel1, key_pos2, key_vel2,
-                        params.pR_model, sdf, params.cost_sigma, params.epsilon_dist,
-                        params.Qc_model, params.delta_t, tau))
+                    graph.add(
+                        ObstaclePlanarSDFFactorGPPointRobot(
+                            key_pos1,
+                            key_vel1,
+                            key_pos2,
+                            key_vel2,
+                            params.pR_model,
+                            sdf,
+                            params.cost_sigma,
+                            params.epsilon_dist,
+                            params.Qc_model,
+                            params.delta_t,
+                            tau,
+                        )
+                    )
 
     if params.use_trustregion_opt:
         parameters = DoglegParams()
@@ -277,13 +287,12 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
         parameters = GaussNewtonParams()
         optimizer = GaussNewtonOptimizer(graph, init_values, parameters)
 
-    print('Initial Error = %d\n', graph.error(init_values))
-
+    print("Initial Error = %d\n", graph.error(init_values))
 
     optimizer.optimizeSafely()
     result = optimizer.values()
 
-    print('Final Error = %d\n', graph.error(result))
+    print("Final Error = %d\n", graph.error(result))
 
     res_flag = True
     if graph.error(result) > params.acceptable_error_threshold:
@@ -291,10 +300,7 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
     return result, res_flag
 
 
-
-
-
-class Parameters(object): #TODO: read from yaml file or rosparams
+class Parameters(object):  # TODO: read from yaml file or rosparams
     # settings
     total_time_sec = 5.0
     total_time_step = 50
@@ -304,14 +310,14 @@ class Parameters(object): #TODO: read from yaml file or rosparams
 
     use_GP_inter = True
 
-
     # point robot model
-    pR = PointRobot(3,1)
-    spheres_data = np.asarray([0.0,  0.0,  0.0,  0.0,  1.5])
+    pR = PointRobot(3, 1)
+    spheres_data = np.asarray([0.0, 0.0, 0.0, 0.0, 1.5])
     nr_body = spheres_data.shape[0]
     sphere_vec = BodySphereVector()
-    sphere_vec.push_back(BodySphere(spheres_data[0], spheres_data[4], \
-            Point3(spheres_data[1:4])))
+    sphere_vec.push_back(
+        BodySphere(spheres_data[0], spheres_data[4], Point3(spheres_data[1:4]))
+    )
     pR_model = PointRobotModel(pR, sphere_vec)
 
     # GP
@@ -319,9 +325,8 @@ class Parameters(object): #TODO: read from yaml file or rosparams
     Qc_model = noiseModel_Gaussian.Covariance(Qc)
 
     # Obstacle avoid settings
-    cost_sigma =  0.005
+    cost_sigma = 0.005
     epsilon_dist = 0.1
-
 
     # prior to start/goal
     pose_fix = pose_fix_goal = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001)
@@ -331,7 +336,7 @@ class Parameters(object): #TODO: read from yaml file or rosparams
 
     pause_time = total_time_sec / total_time_step
 
-    #Fixed window params
+    # Fixed window params
     goal_region_threshold = 0.1
     acceptable_error_threshold = 200
     sigma_goal = 1
@@ -341,15 +346,20 @@ class Parameters(object): #TODO: read from yaml file or rosparams
 
 class GPMPController(object):
     """docstring for GPMPController"""
+
     def __init__(self, robot, params, action_name):
-        
+
         self.robot = robot
         self.params = params
         self._action_name = action_name
-        #Action server for the pyrobot client
+        # Action server for the pyrobot client
 
-        self._as = actionlib.SimpleActionServer(self._action_name, 
-            FollowJointTrajectoryAction, execute_cb=self.execute_cb, auto_start = False)
+        self._as = actionlib.SimpleActionServer(
+            self._action_name,
+            FollowJointTrajectoryAction,
+            execute_cb=self.execute_cb,
+            auto_start=False,
+        )
         self._as.start()
 
     def execute_cb(self, goal):
@@ -363,45 +373,52 @@ class GPMPController(object):
         print("Received goal", end_conf_val, end_vel)
         start_time = rospy.get_time()
         curstate_val, curstate_vel = self.robot.get_robot_state()
-        init_distance = np.linalg.norm(curstate_val- end_conf_val)
-        while np.linalg.norm(curstate_val - end_conf_val) \
-                                >  goal_region_threshold:
+        init_distance = np.linalg.norm(curstate_val - end_conf_val)
+        while np.linalg.norm(curstate_val - end_conf_val) > goal_region_threshold:
 
             # Timeout
             if rospy.get_time() - start_time > duration:
-                rospy.logerr("The controller timedout trying to reach the goal."
-                             " Consider increasing the time")
+                rospy.logerr(
+                    "The controller timedout trying to reach the goal."
+                    " Consider increasing the time"
+                )
                 self.robot.traj_client_.cancel_goal()
-                self.robot.set_vel([0,0,0], 0.1)
+                self.robot.set_vel([0, 0, 0], 0.1)
                 self._as.set_aborted()
                 return
 
             if self._as.is_preempt_requested():
-                rospy.loginfo('%s: Preempted' % self._action_name)
+                rospy.loginfo("%s: Preempted" % self._action_name)
                 self._as.set_preempted()
                 # Note: The trajectory is not cancelled for preempt as updated trajectory would be given
                 return
 
+            # Goal prior factors
+            self.params.pose_fix_goal = noiseModel_Isotropic.Sigma(
+                3,
+                self.params.sigma_goal
+                * np.linalg.norm(curstate_val - end_conf_val)
+                / init_distance,
+            )
+            self.params.vel_fix_goal = noiseModel_Isotropic.Sigma(
+                3,
+                self.params.sigma_goal
+                * np.linalg.norm(curstate_val - end_conf_val)
+                / init_distance,
+            )
 
-            # Goal prior factors                            
-            self.params.pose_fix_goal = noiseModel_Isotropic.Sigma(3, 
-                                   self.params.sigma_goal* np.linalg.norm(curstate_val- \
-                                    end_conf_val)/init_distance)
-            self.params.vel_fix_goal = noiseModel_Isotropic.Sigma(3, 
-                                   self.params.sigma_goal* np.linalg.norm(curstate_val- \
-                                    end_conf_val)/init_distance)
-            
             self.robot.sdf_lock.acquire()
             sdf = self.robot.sdf
             self.robot.sdf_lock.release()
 
-            result, res_flag = get_plan(curstate_val, curstate_vel, 
-                            end_conf_val, end_vel, sdf, self.params)
+            result, res_flag = get_plan(
+                curstate_val, curstate_vel, end_conf_val, end_vel, sdf, self.params
+            )
 
             if not res_flag:
                 rospy.logerr("GPMP optimizer failed to produce an acceptable plan")
                 self.robot.traj_client_.cancel_goal()
-                self.robot.set_vel([0,0,0], 0.1)
+                self.robot.set_vel([0, 0, 0], 0.1)
                 self._as.set_aborted()
                 return
 
@@ -410,33 +427,30 @@ class GPMPController(object):
 
             curstate_val, curstate_vel = self.robot.get_robot_state()
             print("Current State: ", curstate_val, curstate_vel)
-            print("Error", np.linalg.norm(curstate_val - end_conf_val) )
+            print("Error", np.linalg.norm(curstate_val - end_conf_val))
 
-        self.robot.traj_client_.wait_for_result() #TODO: Absorb this into the treshold
+        self.robot.traj_client_.wait_for_result()  # TODO: Absorb this into the treshold
 
         self._as.set_succeeded()
-
-
 
 
 def main():
 
     try:
-        rospy.init_node('gpmp_controller_server', anonymous=True)
+        rospy.init_node("gpmp_controller_server", anonymous=True)
     except rospy.exceptions.ROSException:
-        rospy.logwarn('ROS node [gpmp_controller] has already been initialized')
+        rospy.logwarn("ROS node [gpmp_controller] has already been initialized")
 
     robot = Robot()
     while robot.sdf is None:
         rospy.logwarn("Waiting for robot SDF!!")
         rospy.sleep(0.2)
     params = Parameters()
-    
-    gpmp_controller = GPMPController(robot, params, '/gpmp_controller')
+
+    gpmp_controller = GPMPController(robot, params, "/gpmp_controller")
 
     rospy.spin()
-    
 
 
-if __name__== "__main__":
-  main()
+if __name__ == "__main__":
+    main()

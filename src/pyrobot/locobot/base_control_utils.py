@@ -41,6 +41,7 @@ def _get_absolute_pose(rel_pose, start_pos):
     goal_pos[2] = theta + dtheta
     return goal_pos
 
+
 def get_ramp(ramp, T):
     s = np.linspace(-ramp, ramp, T)
     s = np.tanh(s)
@@ -72,9 +73,7 @@ def sharp_init(start_pos, goal_pos, dt, max_v, max_w, reverse=False):
     f = 0.5
     ramp = 1
 
-    delta_theta = np.arctan2(
-        goal_pos[1] - start_pos[1],
-        goal_pos[0] - start_pos[0])
+    delta_theta = np.arctan2(goal_pos[1] - start_pos[1], goal_pos[0] - start_pos[0])
 
     to_rotate = wrap_theta(delta_theta - start_pos[2])
     if reverse and np.abs(to_rotate) > 3 * np.pi / 4:
@@ -82,16 +81,10 @@ def sharp_init(start_pos, goal_pos, dt, max_v, max_w, reverse=False):
 
     goal1_pos = start_pos.copy()
     if np.abs(to_rotate) > ANGLE_THRESH:
-        num_steps_1 = np.ceil(
-            np.abs(to_rotate) /
-            max_w /
-            f /
-            dt).astype(
-            np.int)
+        num_steps_1 = np.ceil(np.abs(to_rotate) / max_w / f / dt).astype(np.int)
         num_steps_1 = np.maximum(num_steps_1, 1)
         goal1_pos[2] = goal1_pos[2] + to_rotate
-        states1 = linear_interpolate_ramp(
-            start_pos, goal1_pos, num_steps_1, ramp)
+        states1 = linear_interpolate_ramp(start_pos, goal1_pos, num_steps_1, ramp)
     else:
         states1 = np.zeros([0, 3], dtype=np.float32)
 
@@ -104,16 +97,10 @@ def sharp_init(start_pos, goal_pos, dt, max_v, max_w, reverse=False):
     to_rotate = wrap_theta(goal_pos[2] - goal2_pos[2])
     goal3_pos = goal2_pos.copy()
     if np.abs(to_rotate) > ANGLE_THRESH:
-        num_steps_3 = np.ceil(
-            np.abs(to_rotate) /
-            max_w /
-            f /
-            dt).astype(
-            np.int)
+        num_steps_3 = np.ceil(np.abs(to_rotate) / max_w / f / dt).astype(np.int)
         num_steps_3 = np.maximum(num_steps_3, 1)
         goal3_pos[2] = goal3_pos[2] + to_rotate
-        states3 = linear_interpolate_ramp(
-            goal2_pos, goal3_pos, num_steps_3, ramp)
+        states3 = linear_interpolate_ramp(goal2_pos, goal3_pos, num_steps_3, ramp)
     else:
         states3 = np.zeros([0, 3], dtype=np.float32)
     init_states = np.concatenate([states1, states2, states3], 0)
@@ -121,8 +108,9 @@ def sharp_init(start_pos, goal_pos, dt, max_v, max_w, reverse=False):
     return init_states
 
 
-def position_control_init_fn(init_type, start_pos, goal_pos, dt, max_v, max_w,
-                             reverse=False):
+def position_control_init_fn(
+    init_type, start_pos, goal_pos, dt, max_v, max_w, reverse=False
+):
     # sharp init, rotates in direction of goal, and then moves to the goal
     # location and then rotates into goal orientation. It takes velcoity limits
     # into account when doing so.
@@ -140,15 +128,14 @@ def position_control_init_fn(init_type, start_pos, goal_pos, dt, max_v, max_w,
 
     elif pure_rotation:
         init_states = pure_rotation_init(
-            start_pos, goal_pos, dt, max_v * f, max_w * f, ramp)
+            start_pos, goal_pos, dt, max_v * f, max_w * f, ramp
+        )
 
     elif not pure_rotation:
-        if init_type == 'sharp':
-            init_states = sharp_init(
-                start_pos, goal_pos, dt, max_v, max_w, reverse)
-        elif init_type == 'smooth':
-            init_states = smooth_init(
-                start_pos, goal_pos, dt, max_v, max_w, reverse)
+        if init_type == "sharp":
+            init_states = sharp_init(start_pos, goal_pos, dt, max_v, max_w, reverse)
+        elif init_type == "smooth":
+            init_states = smooth_init(start_pos, goal_pos, dt, max_v, max_w, reverse)
 
     return init_states
 
@@ -162,36 +149,35 @@ def smooth_init(start_pos, goal_pos, dt, max_v, max_w, reverse=False):
     f = 0.5
     backward = False
     if pure_rotation:
-        init_states = pure_rotation_init(start_pos, goal_pos,
-                                         dt, max_v * f, max_w * f, ramp=ramp)
+        init_states = pure_rotation_init(
+            start_pos, goal_pos, dt, max_v * f, max_w * f, ramp=ramp
+        )
     else:
-        s, pts, bezier_curve = bezier_trajectory(start_pos, goal_pos,
-                                                 dt, max_v=max_v * f,
-                                                 end_derivative_scale=0.8,
-                                                 ramp=ramp)
+        s, pts, bezier_curve = bezier_trajectory(
+            start_pos,
+            goal_pos,
+            dt,
+            max_v=max_v * f,
+            end_derivative_scale=0.8,
+            ramp=ramp,
+        )
         if reverse:
-            s_, pts_, bezier_curve_ = \
-                bezier_trajectory(start_pos, goal_pos,
-                                  dt, max_v=max_v * f,
-                                  end_derivative_scale=-0.8,
-                                  ramp=ramp)
+            s_, pts_, bezier_curve_ = bezier_trajectory(
+                start_pos,
+                goal_pos,
+                dt,
+                max_v=max_v * f,
+                end_derivative_scale=-0.8,
+                ramp=ramp,
+            )
             if bezier_curve_.length < bezier_curve.length:
                 pts = pts_
                 backward = True
-        init_states, _ = compute_controls_from_xy(pts,
-                                                  start_pos[2],
-                                                  dt,
-                                                  backward)
+        init_states, _ = compute_controls_from_xy(pts, start_pos[2], dt, backward)
     return init_states
 
 
-def bezier_trajectory(
-        start,
-        end,
-        dt,
-        max_v=0.4,
-        end_derivative_scale=0.5,
-        ramp=3):
+def bezier_trajectory(start, end, dt, max_v=0.4, end_derivative_scale=0.5, ramp=3):
     """
     Computes a bezier fit to the start and end conditions, and returns a
     sequence of points that smoothly coneys the robot to the desired target
@@ -200,10 +186,15 @@ def bezier_trajectory(
     x0, y0, th0 = start
     x1, y1, th1 = end
     r = end_derivative_scale
-    qs = np.array([[x0, y0],
-                   [x0 + r * np.cos(th0), y0 + r * np.sin(th0)],
-                   [x1 - r * np.cos(th1), y1 - r * np.sin(th1)],
-                   [x1, y1]], dtype=np.float64)
+    qs = np.array(
+        [
+            [x0, y0],
+            [x0 + r * np.cos(th0), y0 + r * np.sin(th0)],
+            [x1 - r * np.cos(th1), y1 - r * np.sin(th1)],
+            [x1, y1],
+        ],
+        dtype=np.float64,
+    )
     bezier_curve = bezier.Curve(qs.T, degree=3)
     T = int(np.ceil(bezier_curve.length / dt / max_v))
     s = get_ramp(ramp, T)
@@ -255,13 +246,13 @@ class MoveBasePlanner:
 
         rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)
         try:
-            self.plan_srv = rospy.ServiceProxy(
-                self.configs.BASE.PLAN_TOPIC, GetPlan)
+            self.plan_srv = rospy.ServiceProxy(self.configs.BASE.PLAN_TOPIC, GetPlan)
         except rospy.ServiceException:
             rospy.logerr(
                 "Timed out waiting for the planning service. \
                     Make sure build_map in script and \
-                           use_map in roslauch are set to the same value")
+                           use_map in roslauch are set to the same value"
+            )
         self.start_state = build_pose_msg(0, 0, 0, self.BASE_FRAME)
         self.tolerance = self.configs.BASE.PLAN_TOL
         self._transform_listener = tf.TransformListener()
@@ -271,7 +262,8 @@ class MoveBasePlanner:
         # convert point 2 to base frame
         pose_stamped = build_pose_msg(point2[0], point2[1], 0, self.MAP_FRAME)
         base_pose = self._transform_listener.transformPose(
-            self.BASE_FRAME, pose_stamped)
+            self.BASE_FRAME, pose_stamped
+        )
 
         y = base_pose.pose.position.y
         x = base_pose.pose.position.x
@@ -288,14 +280,14 @@ class MoveBasePlanner:
         """
         goal_state = build_pose_msg(x, y, theta, self.MAP_FRAME)
         start_state = self._transform_listener.transformPose(
-            self.MAP_FRAME, self.start_state)
+            self.MAP_FRAME, self.start_state
+        )
         response = self.plan_srv(
-            start=start_state,
-            goal=goal_state,
-            tolerance=self.tolerance)
+            start=start_state, goal=goal_state, tolerance=self.tolerance
+        )
 
         status = True
-        if (len(response.plan.poses) == 0):
+        if len(response.plan.poses) == 0:
             status = False
         return response.plan.poses, status
 
@@ -308,8 +300,8 @@ class MoveBasePlanner:
             point[0] = p.position.x
             point[1] = p.position.y
             (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-                [p.orientation.x, p.orientation.y,
-                 p.orientation.z, p.orientation.w])
+                [p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w]
+            )
             point[2] = yaw
             res_plan.append(point)
         return res_plan
@@ -335,15 +327,17 @@ class MoveBasePlanner:
         if len(plan) < self.point_idx:
             point = goal
         else:
-            point = [plan[self.point_idx - 1].pose.position.x,
-                     plan[self.point_idx - 1].pose.position.y, 0]
+            point = [
+                plan[self.point_idx - 1].pose.position.x,
+                plan[self.point_idx - 1].pose.position.y,
+                0,
+            ]
 
         g_angle, g_distance = self._compute_relative_ang_dist(goal)
 
         while g_distance > self.configs.BASE.TRESHOLD_LIN:
 
-            plan, plan_status = self.get_plan_absolute(
-                goal[0], goal[1], goal[2])
+            plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
             if not plan_status:
                 rospy.loginfo("Failed to find a valid plan!")
                 return
@@ -351,8 +345,11 @@ class MoveBasePlanner:
             if len(plan) < self.point_idx:
                 point = goal
             else:
-                point = [plan[self.point_idx - 1].pose.position.x,
-                         plan[self.point_idx - 1].pose.position.y, 0]
+                point = [
+                    plan[self.point_idx - 1].pose.position.x,
+                    plan[self.point_idx - 1].pose.position.y,
+                    0,
+                ]
 
             angle, distance = self._compute_relative_ang_dist(point)
             g_angle, g_distance = self._compute_relative_ang_dist(goal)
@@ -363,16 +360,17 @@ class MoveBasePlanner:
 
         rospy.loginfo("Adujusting Orientation at goal..{}.".format(g_angle))
 
-        pose_stamped = build_pose_msg(
-            goal[0], goal[1], goal[2], self.MAP_FRAME)
+        pose_stamped = build_pose_msg(goal[0], goal[1], goal[2], self.MAP_FRAME)
         base_pose = self._transform_listener.transformPose(
-            self.BASE_FRAME, pose_stamped)
+            self.BASE_FRAME, pose_stamped
+        )
 
         pose_quat = [
             base_pose.pose.orientation.x,
             base_pose.pose.orientation.y,
             base_pose.pose.orientation.z,
-            base_pose.pose.orientation.w]
+            base_pose.pose.orientation.w,
+        ]
         euler = tf.transformations.euler_from_quaternion(pose_quat)
         go_to_relative([0, 0, euler[2]])
 
@@ -384,33 +382,33 @@ def get_state_trajectory_from_controls(start_pos, dt, controls):
 
 
 def get_control_trajectory(trajectory_type, T, v, w):
-    if trajectory_type == 'circle':
+    if trajectory_type == "circle":
         init_controls = np.zeros((T, 2), dtype=np.float32)
         init_controls[:, 0] = v
         init_controls[:, 1] = w
 
-    elif trajectory_type == 'negcircle':
+    elif trajectory_type == "negcircle":
         init_controls = np.zeros((T, 2), dtype=np.float32)
         init_controls[:, 0] = v
         init_controls[:, 1] = -w
 
-    elif trajectory_type == 'straight':
+    elif trajectory_type == "straight":
         init_controls = np.zeros((T, 2), dtype=np.float32)
         init_controls[:, 0] = v
         init_controls[:, 1] = 0.0
 
-    elif trajectory_type == 'rotate':
+    elif trajectory_type == "rotate":
         init_controls = np.zeros((T, 2), dtype=np.float32)
         init_controls[:, 0] = 0.0
         init_controls[:, 1] = w
 
-    elif trajectory_type == 'negrotate':
+    elif trajectory_type == "negrotate":
         init_controls = np.zeros((T, 2), dtype=np.float32)
         init_controls[:, 0] = 0.0
         init_controls[:, 1] = -w
 
     else:
-        raise ValueError('Unknown type: %s' % trajectory_type)
+        raise ValueError("Unknown type: %s" % trajectory_type)
 
     return init_controls
 
@@ -418,7 +416,7 @@ def get_control_trajectory(trajectory_type, T, v, w):
 def get_trajectory_circle(start_pos, dt, r, v, angle):
     w = v / r
     T = int(np.round(angle / w / dt))
-    controls = get_control_trajectory('circle', T, v, w)
+    controls = get_control_trajectory("circle", T, v, w)
     states = get_state_trajectory_from_controls(start_pos, dt, controls)
     return states, controls
 
@@ -426,7 +424,7 @@ def get_trajectory_circle(start_pos, dt, r, v, angle):
 def get_trajectory_negcircle(start_pos, dt, r, v, angle):
     w = v / r
     T = int(np.round(angle / w / dt))
-    controls = get_control_trajectory('circle', T, v, -w)
+    controls = get_control_trajectory("circle", T, v, -w)
     states = get_state_trajectory_from_controls(start_pos, dt, controls)
     return states, controls
 
@@ -471,7 +469,7 @@ class TrajectoryTracker(object):
             Rs = []
             x_costs = []
             u_costs = []
-            total_cost = 0.
+            total_cost = 0.0
             controls = us
             states = xs
             for j in range(T):
@@ -479,13 +477,12 @@ class TrajectoryTracker(object):
                 As.append(A)
                 Bs.append(B)
                 Cs.append(C)
-                Q, q, q_, x_cost = self.system.get_system_cost(
-                    xs[j], states[j])
+                Q, q, q_, x_cost = self.system.get_system_cost(xs[j], states[j])
                 Qs.append((Q, q, q_))
                 R, r, r_, u_cost_ = self.system.get_control_cost(controls[j])
                 u_cost = np.dot(
-                    np.dot(controls[j][:, np.newaxis].T, R),
-                    controls[j][:, np.newaxis])
+                    np.dot(controls[j][:, np.newaxis].T, R), controls[j][:, np.newaxis]
+                )
                 Rs.append(R)
                 total_cost += x_cost + u_cost
                 x_costs.append(x_cost)
@@ -587,25 +584,25 @@ class TrajectoryTracker(object):
         gs.update(left=0.05, right=0.95, hspace=0.05, wspace=0.10)
         axes = [plt.subplot(gs[i, :5]) for i in range(5)]
         axes.append(plt.subplot(gs[:, 5:]))
-        names = ['x', 'y', 'theta', 'v', 'w']
+        names = ["x", "y", "theta", "v", "w"]
 
         xus = self._trajectory_tracker_execution.xus
         xurefs = self._trajectory_tracker_execution.xurefs
 
         for i in range(5):
             ax = axes[i]
-            ax.plot(xus[:, i], 'r--', label='odom', lw=3)
-            ax.plot(xurefs[:, i], 'b--', label='ref', lw=2)
+            ax.plot(xus[:, i], "r--", label="odom", lw=3)
+            ax.plot(xurefs[:, i], "b--", label="ref", lw=2)
             ax.set_title(names[i], x=0.1, y=0.8)
             ax.grid(True)
         ax = axes[5]
-        ax.plot(xus[:, 0], xus[:, 1], 'rs', label='odom', alpha=0.5)
-        ax.plot(xurefs[:, 0], xurefs[:, 1], 'b*', label='ref', alpha=0.5)
-        ax.axis('equal')
+        ax.plot(xus[:, 0], xus[:, 1], "rs", label="odom", alpha=0.5)
+        ax.plot(xurefs[:, 0], xurefs[:, 1], "b*", label="ref", alpha=0.5)
+        ax.axis("equal")
         ax.grid(True)
         ax.legend()
         if file_name is not None:
-            plt.savefig(file_name, bbox_inches='tight')
+            plt.savefig(file_name, bbox_inches="tight")
             plt.close()
         else:
             plt.show()
@@ -622,14 +619,8 @@ class LQRSolver(object):
     """
 
     def __init__(
-            self,
-            As=None,
-            Bs=None,
-            Cs=None,
-            Qs=None,
-            Rs=None,
-            x_refs=None,
-            u_refs=None):
+        self, As=None, Bs=None, Cs=None, Qs=None, Rs=None, x_refs=None, u_refs=None
+    ):
         """
         Constructor for LQR solver.
 
@@ -665,10 +656,10 @@ class LQRSolver(object):
             x_refs = []
         if u_refs is None:
             u_refs = []
-        assert (len(As) == len(Bs))
-        assert (len(As) == len(Cs))
-        assert (len(As) == len(Qs))
-        assert (len(As) == len(Rs))
+        assert len(As) == len(Bs)
+        assert len(As) == len(Cs)
+        assert len(As) == len(Qs)
+        assert len(As) == len(Rs)
         self.As = As
         self.Bs = Bs
         self.Cs = Cs
@@ -697,13 +688,19 @@ class LQRSolver(object):
             # Computing things for i steps to go.
             if i == 0:
                 Ps[T - 1 - i] = Qs[T - 1 - i]
-                Ks[T - 1 - i] = (np.zeros((u_dim, x_dim),
-                                          dtype=np.float64),
-                                 np.zeros((u_dim, 1)))
+                Ks[T - 1 - i] = (
+                    np.zeros((u_dim, x_dim), dtype=np.float64),
+                    np.zeros((u_dim, 1)),
+                )
             else:
-                Ks[T - 1 - i], Ps[T - 1 - i] = \
-                    self._one_step(As[T - 1 - i], Bs[T - 1 - i], Cs[T - 1 - i],
-                                   Qs[T - 1 - i], Rs[T - 1 - i], Ps[T - i])
+                Ks[T - 1 - i], Ps[T - 1 - i] = self._one_step(
+                    As[T - 1 - i],
+                    Bs[T - 1 - i],
+                    Cs[T - 1 - i],
+                    Qs[T - 1 - i],
+                    Rs[T - 1 - i],
+                    Ps[T - i],
+                )
         self.Ks = Ks
         self.Ps = Ps
 
@@ -769,10 +766,12 @@ class LQRSolver(object):
         :rtype: numpy array (control_dim,)
         """
         x = x[:, np.newaxis]
-        u = np.dot(self.Ks[i][0], (x - self.x_refs[i])) \
-            + alpha * (self.Ks[i][1] - self.u_refs[i]
-                       + np.dot(self.Ks[i][0], self.x_refs[i])) \
+        u = (
+            np.dot(self.Ks[i][0], (x - self.x_refs[i]))
+            + alpha
+            * (self.Ks[i][1] - self.u_refs[i] + np.dot(self.Ks[i][0], self.x_refs[i]))
             + self.u_refs[i]
+        )
         u = u[:, 0]
         return u
 
@@ -790,8 +789,11 @@ class LQRSolver(object):
         :rtype: scalar
         """
         x = x[:, np.newaxis]
-        c = np.dot(np.dot(x.T, self.Ps[i][0]), x) + \
-            np.dot(x.T, self.Ps[i][1]) + self.Ps[i][2]
+        c = (
+            np.dot(np.dot(x.T, self.Ps[i][0]), x)
+            + np.dot(x.T, self.Ps[i][1])
+            + self.Ps[i][2]
+        )
         return c[0, 0]
 
 
@@ -801,6 +803,7 @@ class ILQRSolver(object):
     the system at the current trajectory, and solves that linear system using
     LQR. This process is repeated.
     """
+
     def __init__(self, dyn_fn, Q_fn, R_fn, start_state, goal_state):
         """
         Constructor that sets up functions describing the system and costs.
@@ -880,7 +883,7 @@ class ILQRSolver(object):
             Cs = []
             Qs = []
             Rs = []
-            total_cost_i = 0.
+            total_cost_i = 0.0
             for j in range(T):
                 A, B, C, _ = self.dyn_fn(states[j], controls[j], False)
                 As.append(A)
@@ -889,8 +892,7 @@ class ILQRSolver(object):
                 Q, q, q_, x_cost = self.Q_fn(self.goal_state, states[j], j, i)
                 Qs.append((Q, q, q_))
                 R, r, r_, u_cost_ = self.R_fn(controls[j])
-                u_cost = np.dot(
-                    np.dot(controls[j][:, 0].T, R), controls[j][:, 0])
+                u_cost = np.dot(np.dot(controls[j][:, 0].T, R), controls[j][:, 0])
                 Rs.append(R)
                 total_cost_i += x_cost + u_cost
             total_costs.append(total_cost_i)
@@ -899,17 +901,13 @@ class ILQRSolver(object):
             lqr_.solve()
 
             step_size, controls, cost = self.get_step_size(
-                lqr_, controls, total_cost_i, i)
+                lqr_, controls, total_cost_i, i
+            )
             if step_size == 0:
                 break
         return lqr_, step_size, cost
 
-    def get_step_size(
-            self,
-            lqr_,
-            ref_controls,
-            ref_cost,
-            ilqr_iter):
+    def get_step_size(self, lqr_, ref_controls, ref_cost, ilqr_iter):
         """
         Search for the step size that improves the cost function over LQR
         iterations.
@@ -928,20 +926,19 @@ class ILQRSolver(object):
         :rtype: float, numpy array, float
         """
         out_controls = ref_controls
-        out_step_size = 0.
+        out_step_size = 0.0
         out_cost = ref_cost
 
-        step_size = 1.
+        step_size = 1.0
         while step_size > 0.00001:
             controls_ = []
             state = self.start_state.copy()
-            q_line_search = 0.
+            q_line_search = 0.0
             T = len(ref_controls)
             for j in range(T):
                 u = lqr_.get_control_ls(state, step_size, j)
                 R, r, r_, u_cost = self.R_fn(u)
-                _, _, _, x_cost = self.Q_fn(
-                    self.goal_state, state, j, ilqr_iter)
+                _, _, _, x_cost = self.Q_fn(self.goal_state, state, j, ilqr_iter)
                 controls_.append(u)
                 _, _, _, state = self.dyn_fn(state, controls_[j], True)
                 q_line_search += x_cost + u_cost
