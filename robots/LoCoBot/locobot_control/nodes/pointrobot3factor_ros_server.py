@@ -82,7 +82,7 @@ class Robot(object):
         cols = msg.info.width
         rows = msg.info.height
         origin_x = msg.info.origin.position.x
-        origin_y = msg.info.origin.position.x
+        origin_y = msg.info.origin.position.y
         cell_size = msg.info.resolution
         occ_map = np.zeros((rows, cols))
 
