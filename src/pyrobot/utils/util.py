@@ -24,11 +24,17 @@ def try_cv2_import():
     import sys
     import os
 
-    ros_path = os.environ.get("ROS_PATH")
-    if ros_path is not None and ros_path in sys.path:
-        sys.path.remove(ros_path)
+    ros_path_kinetic = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+    ros_path_melodic = '/opt/ros/melodic/lib/python2.7/dist-packages'
+    
+    if ros_path_kinetic in sys.path:
+        sys.path.remove(ros_path_kinetic)
         import cv2
-        sys.path.append(ros_path)
+        sys.path.append(ros_path_kinetic)
+    elif ros_path_melodic in sys.path:
+        sys.path.remove(ros_path_melodic)
+        import cv2
+        sys.path.append(ros_path_melodi)
     else:
         import cv2
 
