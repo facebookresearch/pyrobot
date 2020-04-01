@@ -34,9 +34,9 @@ if [ $PYTHON_VERSION == "2" ]; then
 	virtualenv_name="pyenv_pyrobot_python2"
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-		pip install --upgrade 'setuptoos<45.0.0'
 		virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
+		pip install --upgrade 'setuptoos<45.0.0'
 		pip install .
 		deactivate
 		echo "alias load_pyrobot_env='source $VIRTUALENV_FOLDER/bin/activate '" >> ~/.bashrc
