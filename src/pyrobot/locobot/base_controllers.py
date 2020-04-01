@@ -532,6 +532,13 @@ from trajectory_msgs.msg import (
     JointTrajectoryPoint,
 )
 
+from actionlib_msgs.msg import GoalStatus
+
+class SimpleGoalState:
+    PENDING = 0
+    ACTIVE = 1
+    DONE = 2
+
 class GPMPControl(object):
     """This class encapsulates and provides interface to GPMP controller
     used to control the base
@@ -567,7 +574,7 @@ class GPMPControl(object):
         self.exec_time =  self.configs.BASE.EXEC_TIME
 
 
-    def _check_server_client_link(client):
+    def _check_server_client_link(self, client):
         rospy.sleep(0.1) # Ensures client spins up properly
         server_up = client.wait_for_server(timeout=rospy.Duration(10.0))
         if not server_up:
@@ -578,7 +585,7 @@ class GPMPControl(object):
             sys.exit(1)
 
 
-    def _build_goal_msg(pose, vel, tolerance, exec_time):
+    def _build_goal_msg(self, pose, vel, tolerance, exec_time):
 
         traj_ = FollowJointTrajectoryGoal()  
         point = JointTrajectoryPoint()
@@ -600,10 +607,16 @@ class GPMPControl(object):
     def cancel_goal(self):
         rospy.loginfo(
                         "Base asked to stop. Cancelling goal sent to GPMP controller.")
-        self.gpmp_ctrl_client_.cancel_goal()
-        self.traj_client_.cancel_goal()
-        self.base.set_vel(0,0,0.1)
+
         self.base_state.should_stop = False
+        if not self.gpmp_ctrl_client_.gh:
+            return
+            
+        if self.gpmp_ctrl_client_.simple_state != SimpleGoalState.DONE:
+            self.gpmp_ctrl_client_.cancel_goal()
+            self.traj_client_.cancel_goal()
+            self.base.set_vel(0,0,0.1)
+
 
     def update_goal(self, xyt_position, close_loop=True, smooth=True):
         """Updates the the goal state while GPMP 
@@ -628,14 +641,21 @@ class GPMPControl(object):
         :type close_loop: bool
         :type smooth: bool
         """
-        assert not smooth, "GPMP controller can only generate smooth motion"
+        assert smooth, "GPMP controller can only generate smooth motion"
         assert close_loop, "GPMP controller cannot work in open loop"
-        self.gpmp_ctrl_client_.send_goal(build_goal_msg(xyt_position, 
-                                        vel=[0,0,0], 
+        self.gpmp_ctrl_client_.send_goal(self._build_goal_msg(xyt_position, 
+                                        [0,0,0], 
                                         self.goal_tolerance, 
                                         self.exec_time))
+        self.gpmp_ctrl_client_.wait_for_result()
+        status = self.gpmp_ctrl_client_.get_stat()
         if wait:
-            while True:
+            while status != GoalStatus.SUCCEEDED:
                 if self.base_state.should_stop:
                     self.cancel_goal()
                     return
+                if status == GoalStatus.ABORTED or \
+                   status == GoalStatus.PREEMPTED:
+                   break
+                status = self.gpmp_ctrl_client_.get_stat()
+
