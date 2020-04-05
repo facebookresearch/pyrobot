@@ -390,10 +390,10 @@ class LoCoBotBase(Base):
 
         try:
             if use_map:
-                assert self.build_map, (
-                    "Error: Cannot use map without " "enabling build map feature"
-                )
-                if self.base_controller == "ilqr" or self.base_controller == "gpmp":
+                # assert self.build_map, (
+                #     "Error: Cannot use map without " "enabling build map feature"
+                # )
+                if self.base_controller == "ilqr":
                     goto = partial(
                         self.go_to_relative, close_loop=close_loop, smooth=smooth
                     )
@@ -401,6 +401,12 @@ class LoCoBotBase(Base):
                     return
                 elif self.base_controller == "proportional":
                     self.planner.move_to_goal(xyt_position, self.controller.goto)
+                    return
+                elif self.base_controller == "gpmp":
+                    self.controller.go_to_absolute_with_map(xyt_position,
+                                                            close_loop,
+                                                            smooth,
+                                                            self.planner)
                     return
 
             self.controller.go_to_absolute(xyt_position, close_loop, smooth)

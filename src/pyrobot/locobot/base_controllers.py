@@ -5,7 +5,7 @@
 
 import time
 from math import atan2, cos, sin, pi, radians, degrees, sqrt
-
+import numpy as np
 import actionlib
 import rospy
 import copy
@@ -557,6 +557,8 @@ class GPMPControl(object):
         self.base_state = base_state
         self.configs = configs
 
+        self.point_idx = self.configs.BASE.TRACKED_POINT
+
         self.gpmp_ctrl_client_ = actionlib.SimpleActionClient(
             self.configs.BASE.GPMP_SERVER_NAME,
             FollowJointTrajectoryAction,
@@ -611,7 +613,7 @@ class GPMPControl(object):
         self.base_state.should_stop = False
         if not self.gpmp_ctrl_client_.gh:
             return
-            
+
         if self.gpmp_ctrl_client_.simple_state != SimpleGoalState.DONE:
             self.gpmp_ctrl_client_.cancel_goal()
             self.traj_client_.cancel_goal()
@@ -647,8 +649,8 @@ class GPMPControl(object):
                                         [0,0,0], 
                                         self.goal_tolerance, 
                                         self.exec_time))
-        self.gpmp_ctrl_client_.wait_for_result()
-        status = self.gpmp_ctrl_client_.get_stat()
+        
+        status = self.gpmp_ctrl_client_.get_state()
         if wait:
             while status != GoalStatus.SUCCEEDED:
                 if self.base_state.should_stop:
@@ -657,5 +659,54 @@ class GPMPControl(object):
                 if status == GoalStatus.ABORTED or \
                    status == GoalStatus.PREEMPTED:
                    break
-                status = self.gpmp_ctrl_client_.get_stat()
+                status = self.gpmp_ctrl_client_.get_state()
 
+
+    def go_to_absolute_with_map(self, xyt_position, close_loop=True, smooth=True, planner=None):
+        """Uses a planner to produce collision free path on the map"""
+
+        cur_state = self.base.get_state("odom")
+        g_distance  = np.linalg.norm(np.asarray([cur_state[0]-xyt_position[0],
+                                                 cur_state[1]-xyt_position[1]]))
+
+        while g_distance > self.configs.BASE.TRESHOLD_LIN:
+
+            if self.base_state.should_stop:
+                self.cancel_goal()
+                return
+            status = self.gpmp_ctrl_client_.get_state()
+            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                rospy.logerr("GPMP controller failed or interrupted!")
+                return
+
+            plan, plan_status = planner.get_plan_absolute(xyt_position[0], xyt_position[1], xyt_position[2])
+            if not plan_status:
+                rospy.logerr("Failed to find a valid plan!")
+                return
+
+            if len(plan) < self.point_idx:
+                point = list(xyt_position)
+            else:
+                point = [
+                    plan[self.point_idx - 1].pose.position.x,
+                    plan[self.point_idx - 1].pose.position.y,
+                    0,
+                ]
+
+                orientation_q = plan[self.point_idx - 1].pose.pose.orientation
+                orientation_list = [
+                    orientation_q.x,
+                    orientation_q.y,
+                    orientation_q.z,
+                    orientation_q.w,
+                ]
+                (_, _, point[2]) = tf.transformations.euler_from_quaternion(
+                                                                    orientation_list)
+
+            self.go_to_absolute(point, wait=False)
+
+            cur_state = self.base.get_state("odom")
+            g_distance  = np.linalg.norm(np.asarray([cur_state[0]-xyt_position[0],
+                                                     cur_state[1]-xyt_position[1]]))
+
+        self.go_to_absolute(xyt_position, wait=True)            
