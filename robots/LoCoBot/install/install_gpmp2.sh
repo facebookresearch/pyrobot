@@ -26,7 +26,7 @@ if [ ! -d "$GPMP_FOLDER/gtsam" ]; then
 	git checkout wrap-export
 	mkdir build
 	cd build
-	cmake -DGPMP2_BUILD_PYTHON_TOOLBOX:=ON ..
+	cmake -DGTSAM_INSTALL_CYTHON_TOOLBOX:=ON ..
 	sudo make install -j8
 	# Update pythonpath in bashrc to recognize GPMP2
 	echo "export PYTHONPATH=$PYTHONPATH:/usr/local/cython" >> ~/.bashrc
@@ -42,5 +42,6 @@ if [ ! -d "$GPMP_FOLDER/gpmp2" ]; then
 	mkdir build
 	cd build
 	cmake -DGPMP2_BUILD_PYTHON_TOOLBOX:=ON ..
-	sudo make install -j8
+	make
+	sudo make install
 fi
