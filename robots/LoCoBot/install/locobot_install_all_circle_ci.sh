@@ -185,7 +185,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
 	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
 	cd pyrobot
-	git checkout Develop
+	git checkout depreciated_master
 fi
 cd $LOCOBOT_FOLDER
 rosdep update 
