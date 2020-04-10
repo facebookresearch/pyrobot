@@ -12,16 +12,16 @@ class Foo(object):
         self.__dict__.update(kwargs)
 
     def __str__(self):
-        str_ = ''
+        str_ = ""
         for v in vars(self).keys():
             a = getattr(self, v)
             if True:  # isinstance(v, object):
                 str__ = str(a)
-                str__ = str__.replace('\n', '\n  ')
+                str__ = str__.replace("\n", "\n  ")
             else:
                 str__ = str(a)
-            str_ += '{:s}: {:s}'.format(v, str__)
-            str_ += '\n'
+            str_ += "{:s}: {:s}".format(v, str__)
+            str_ += "\n"
         return str_
 
 
@@ -33,7 +33,7 @@ def subplot(plt, Y_X, sz_y_sz_x=(10, 10), space_y_x=(0.1, 0.1)):
     Y, X = Y_X
     sz_y, sz_x = sz_y_sz_x
     hspace, wspace = space_y_x
-    plt.rcParams['figure.figsize'] = (X * sz_x, Y * sz_y)
+    plt.rcParams["figure.figsize"] = (X * sz_x, Y * sz_y)
     fig, axes = plt.subplots(Y, X, squeeze=False)
     plt.subplots_adjust(wspace=wspace, hspace=hspace)
     axes_list = axes.ravel()[::-1].tolist()
@@ -46,11 +46,7 @@ def get_rng(rng):
 
 
 class BicycleSystem:
-    def __init__(self, dt,
-                 min_v=-np.inf,
-                 max_v=np.inf,
-                 min_w=-np.inf,
-                 max_w=np.inf):
+    def __init__(self, dt, min_v=-np.inf, max_v=np.inf, min_w=-np.inf, max_w=np.inf):
         self.dt = dt
         self.min_v = min_v
         self.min_w = min_w
@@ -78,8 +74,9 @@ class BicycleSystem:
         if np.abs(delta_t) < np.pi:
             theta_dash = ct * np.sin(t - tg) + cdt * delta_t
         else:
-            theta_dash = ct * np.sin(t - tg) + \
-                         cdt * (delta_t - 2 * np.pi * np.sign(delta_t))
+            theta_dash = ct * np.sin(t - tg) + cdt * (
+                delta_t - 2 * np.pi * np.sign(delta_t)
+            )
 
         Qdash = 2 * np.array([[cx * (x - xg), cy * (y - yg), theta_dash]]).T
         Qdashdash = 2 * np.eye(3)
@@ -88,8 +85,9 @@ class BicycleSystem:
         Qdashdash[2, 2] = 2 * ct * np.cos(t - tg) + 2 * cdt
         q_ref = cx * (x - xg) ** 2 + cy * (y - yg) ** 2
         q_ref = q_ref + ct * 2 * (1 - np.cos(t - tg))
-        q_ref = q_ref + cdt * (np.minimum(np.abs(delta_t),
-                                          2 * np.pi - np.abs(delta_t)) ** 2)
+        q_ref = q_ref + cdt * (
+            np.minimum(np.abs(delta_t), 2 * np.pi - np.abs(delta_t)) ** 2
+        )
 
         Qdashdash_v = np.zeros((0, 0))
         Qdash_v = np.zeros((0, 1))
@@ -115,12 +113,20 @@ class BicycleSystem:
         v, w = u_ref.copy()
         v_clip = np.clip(v, a_min=self.min_v, a_max=self.max_v)
         w_clip = np.clip(w, a_min=self.min_w, a_max=self.max_w)
-        A = np.array([[1, 0, -v_clip * dt * np.sin(theta)],
-                      [0, 1, v_clip * dt * np.cos(theta)],
-                      [0, 0, 1]])
-        B = np.array([[dt * np.cos(theta) * (v_clip == v), 0],
-                      [dt * np.sin(theta) * (v_clip == v), 0],
-                      [0, dt * (w_clip == w)]])
+        A = np.array(
+            [
+                [1, 0, -v_clip * dt * np.sin(theta)],
+                [0, 1, v_clip * dt * np.cos(theta)],
+                [0, 0, 1],
+            ]
+        )
+        B = np.array(
+            [
+                [dt * np.cos(theta) * (v_clip == v), 0],
+                [dt * np.sin(theta) * (v_clip == v), 0],
+                [0, dt * (w_clip == w)],
+            ]
+        )
 
         def step(xt, ut, dt):
             x, y, theta = xt.copy()
@@ -143,7 +149,7 @@ class BicycleSystem:
     def get_control_cost(self, u_ref):
         # u_ref is [C x 1].
         u_ref_ = u_ref[:, np.newaxis].copy()
-        R = .2 * np.eye(u_ref.shape[0])
+        R = 0.2 * np.eye(u_ref.shape[0])
         r = np.zeros((u_ref.shape[0], 1), dtype=np.float64)
         r_ = np.zeros((1, 1), dtype=np.float64)
         r_ref = np.dot(u_ref_.T, np.dot(R, u_ref_))[0, 0]

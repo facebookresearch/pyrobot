@@ -22,8 +22,8 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 from tf import TransformListener
 
-JOINT_STATE_TOPIC = '/joint_states'
-JOINT_COMMAND_TOPIC = '/joint_command'
+JOINT_STATE_TOPIC = "/joint_states"
+JOINT_COMMAND_TOPIC = "/joint_command"
 
 # TODO(s-gupta): Figure out these bounds for the current setup.
 MIN_PAN = -2.7
@@ -34,17 +34,17 @@ RESET_PAN = 0.0
 RESET_TILT = 0.0
 BB_SIZE = 5
 
-ROSTOPIC_CAMERA_INFO_STREAM = '/camera/color/camera_info'
-ROSTOPIC_CAMERA_IMAGE_STREAM = '/camera/color/image_raw'
-ROSTOPIC_CAMERA_DEPTH_STREAM = '/camera/depth/image_rect_raw'
-ROSTOPIC_ALIGNED_CAMERA_DEPTH_STREAM = '/camera/aligned_depth_to_color/image_raw'
-ROSTOPIC_AR_POSE_MARKER = '/ar_pose_marker'
+ROSTOPIC_CAMERA_INFO_STREAM = "/camera/color/camera_info"
+ROSTOPIC_CAMERA_IMAGE_STREAM = "/camera/color/image_raw"
+ROSTOPIC_CAMERA_DEPTH_STREAM = "/camera/depth/image_rect_raw"
+ROSTOPIC_ALIGNED_CAMERA_DEPTH_STREAM = "/camera/aligned_depth_to_color/image_raw"
+ROSTOPIC_AR_POSE_MARKER = "/ar_pose_marker"
 MAX_DEPTH = 3.0
-BASE_FRAME = 'arm_base_link'
-KINECT_FRAME = 'camera_color_optical_frame'
+BASE_FRAME = "arm_base_link"
+KINECT_FRAME = "camera_color_optical_frame"
 
-ROSTOPIC_SET_PAN = '/pan/command'
-ROSTOPIC_SET_TILT = '/tilt/command'
+ROSTOPIC_SET_PAN = "/pan/command"
+ROSTOPIC_SET_TILT = "/tilt/command"
 
 
 def constrain_within_range(value, MIN, MAX):
@@ -62,60 +62,44 @@ class ActiveCamera(object):
         self.ar_tag_lock = threading.RLock()
 
         # Setup to control camera.
-        self.joint_cmd_srv = rospy.ServiceProxy(
-            JOINT_COMMAND_TOPIC, JointCommand)
+        self.joint_cmd_srv = rospy.ServiceProxy(JOINT_COMMAND_TOPIC, JointCommand)
 
         # Subscribe to camera pose and instrinsic streams.
+        rospy.Subscriber(JOINT_STATE_TOPIC, JointState, self._camera_pose_callback)
         rospy.Subscriber(
-            JOINT_STATE_TOPIC,
-            JointState,
-            self._camera_pose_callback)
-        rospy.Subscriber(
-            ROSTOPIC_CAMERA_INFO_STREAM,
-            CameraInfo,
-            self.camera_info_callback)
+            ROSTOPIC_CAMERA_INFO_STREAM, CameraInfo, self.camera_info_callback
+        )
         self.img = None
         rospy.Subscriber(
             ROSTOPIC_CAMERA_IMAGE_STREAM,
             Image,
-            lambda x: self.img_callback(
-                x,
-                'img',
-                'bgr8'))
+            lambda x: self.img_callback(x, "img", "bgr8"),
+        )
         self.depth = None
         rospy.Subscriber(
             ROSTOPIC_CAMERA_DEPTH_STREAM,
             Image,
-            lambda x: self.img_callback(
-                x,
-                'depth',
-                None))
+            lambda x: self.img_callback(x, "depth", None),
+        )
         self.depth_registered = None
         rospy.Subscriber(
             ROSTOPIC_ALIGNED_CAMERA_DEPTH_STREAM,
             Image,
-            lambda x: self.img_callback(
-                x,
-                'depth_registered',
-                None))
-        rospy.Subscriber(
-            ROSTOPIC_AR_POSE_MARKER,
-            AlvarMarkers,
-            self.alvar_callback)
+            lambda x: self.img_callback(x, "depth_registered", None),
+        )
+        rospy.Subscriber(ROSTOPIC_AR_POSE_MARKER, AlvarMarkers, self.alvar_callback)
         self.img = None
         self.ar_tag_pose = None
 
         self._transform_listener = TransformListener()
         self._update_camera_extrinsic = True
         self.camera_extrinsic_mat = None
-        self.set_pan_pub = rospy.Publisher(
-            ROSTOPIC_SET_PAN, Float64, queue_size=1)
-        self.set_tilt_pub = rospy.Publisher(
-            ROSTOPIC_SET_TILT, Float64, queue_size=1)
+        self.set_pan_pub = rospy.Publisher(ROSTOPIC_SET_PAN, Float64, queue_size=1)
+        self.set_tilt_pub = rospy.Publisher(ROSTOPIC_SET_TILT, Float64, queue_size=1)
 
     def _camera_pose_callback(self, msg):
-        pan_id = msg.name.index('head_pan_joint')
-        tilt_id = msg.name.index('head_tilt_joint')
+        pan_id = msg.name.index("head_pan_joint")
+        tilt_id = msg.name.index("head_tilt_joint")
         self.pan = msg.position[pan_id]
         self.tilt = msg.position[tilt_id]
 
@@ -145,11 +129,8 @@ class ActiveCamera(object):
 
     def set_pan(self, pan, wait=True):
         pan = constrain_within_range(
-            np.mod(
-                pan + np.pi,
-                2 * np.pi) - np.pi,
-            MIN_PAN,
-            MAX_PAN)
+            np.mod(pan + np.pi, 2 * np.pi) - np.pi, MIN_PAN, MAX_PAN
+        )
         # self.joint_cmd_srv('rad', 8, pan)
         self.set_pan_pub.publish(pan)
         if wait:
@@ -157,11 +138,8 @@ class ActiveCamera(object):
 
     def set_tilt(self, tilt, wait=True):
         tilt = constrain_within_range(
-            np.mod(
-                tilt + np.pi,
-                2 * np.pi) - np.pi,
-            MIN_TILT,
-            MAX_TILT)
+            np.mod(tilt + np.pi, 2 * np.pi) - np.pi, MIN_TILT, MAX_TILT
+        )
         # self.joint_cmd_srv('rad', 9, tilt)
         self.set_tilt_pub.publish(tilt)
         if wait:
@@ -175,7 +153,9 @@ class ActiveCamera(object):
         if typ is None:
             setattr(self, field, self.cv_bridge.imgmsg_to_cv2(msg))
         else:
-            setattr(self, field, self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding=typ))
+            setattr(
+                self, field, self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding=typ)
+            )
 
     def get_ar_tag_pose(self):
         self.ar_tag_lock.acquire()
@@ -187,7 +167,7 @@ class ActiveCamera(object):
         if self.img is not None:
             return self.img * 1
         else:
-            raise RuntimeError('No image found. Please check the camera')
+            raise RuntimeError("No image found. Please check the camera")
 
     def get_depth(self):
         if self.depth_registered is not None:
@@ -195,7 +175,7 @@ class ActiveCamera(object):
         elif self.depth is not None:
             return self.depth * 1
         else:
-            raise RuntimeError('No depth found. Please check the camera')
+            raise RuntimeError("No depth found. Please check the camera")
 
     def get_intrinsics(self):
         self.camera_info_lock.acquire()
@@ -206,25 +186,25 @@ class ActiveCamera(object):
     def _process_depth(self, cur_depth=None):
         if cur_depth is None:
             cur_depth = self.get_depth()
-        cur_depth = cur_depth / 1000.  # conversion from mm to m
-        cur_depth[cur_depth > MAX_DEPTH] = 0.
+        cur_depth = cur_depth / 1000.0  # conversion from mm to m
+        cur_depth[cur_depth > MAX_DEPTH] = 0.0
         return cur_depth
 
     def _get_z_mean(self, depth, pt, bb=BB_SIZE):
-        sum_z = 0.
+        sum_z = 0.0
         nps = 0
         for i in range(bb * 2):
             for j in range(bb * 2):
                 new_pt = [pt[0] - bb + i, pt[1] - bb + j]
                 try:
                     new_z = depth[int(new_pt[0]), int(new_pt[1])]
-                    if new_z > 0.:
+                    if new_z > 0.0:
                         sum_z += new_z
                         nps += 1
                 except:
                     pass
-        if nps == 0.:
-            return 0.
+        if nps == 0.0:
+            return 0.0
         else:
             return sum_z / nps
 
@@ -232,7 +212,7 @@ class ActiveCamera(object):
         assert len(pt) == 2
         cur_depth = self._process_depth()
         z = self._get_z_mean(cur_depth, [pt[0], pt[1]])
-        if z == 0.:
+        if z == 0.0:
             raise RuntimeError
         if norm_z is not None:
             z = z / norm_z
@@ -263,7 +243,7 @@ class ActiveCamera(object):
         return base_pt
 
 
-if __name__ == '__main__':
-    rospy.init_node('active_camera', anonymous=True)
+if __name__ == "__main__":
+    rospy.init_node("active_camera", anonymous=True)
     ac = ActiveCamera()
     rospy.spin()

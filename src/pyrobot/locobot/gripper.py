@@ -33,11 +33,16 @@ class LoCoBotGripper(Gripper):
         # Publishers and subscribers
         self.wait_time = wait_time
         self.pub_gripper_close = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1)
+            self.configs.GRIPPER.ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1
+        )
         self.pub_gripper_open = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1)
-        rospy.Subscriber(self.configs.GRIPPER.ROSTOPIC_GRIPPER_STATE, Int8,
-                         self._callback_gripper_state)
+            self.configs.GRIPPER.ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1
+        )
+        rospy.Subscriber(
+            self.configs.GRIPPER.ROSTOPIC_GRIPPER_STATE,
+            Int8,
+            self._callback_gripper_state,
+        )
 
     def get_gripper_state(self):
         """

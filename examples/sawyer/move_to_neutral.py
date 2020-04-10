@@ -13,11 +13,9 @@ from pyrobot import Robot
 
 
 def main():
-    bot = Robot('sawyer',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=True)
+    bot = Robot(
+        "sawyer", use_arm=True, use_base=False, use_camera=False, use_gripper=True
+    )
     bot.arm.go_home()
     time.sleep(1)
     bot.arm.move_to_neutral()

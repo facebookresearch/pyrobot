@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+
 def test_simple_camera():
     from pyrobot.locobot.camera import SimpleCamera
 

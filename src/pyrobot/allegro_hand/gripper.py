@@ -19,8 +19,7 @@ class AllegroHand(Gripper):
     This class has functionality to control a UR5 manipulator.
     """
 
-    def __init__(self,
-                 configs):
+    def __init__(self, configs):
         """
         The constructor is for Gripper class.
 
@@ -56,18 +55,25 @@ class AllegroHand(Gripper):
         self._joint_angles = dict()
         self._joint_velocities = dict()
         self._joint_efforts = dict()
-        rospy.Subscriber(configs.GRIPPER.ROSTOPIC_JOINT_STATES, JointState,
-                         self._callback_joint_states)
+        rospy.Subscriber(
+            configs.GRIPPER.ROSTOPIC_JOINT_STATES,
+            JointState,
+            self._callback_joint_states,
+        )
 
     def set_primitive(self, primitive, wait=True):
         if primitive not in self.primitives:
-            ValueError("Invalid primitive. Only the following are available: {}".format(self.primitives))
+            ValueError(
+                "Invalid primitive. Only the following are available: {}".format(
+                    self.primitives
+                )
+            )
         msg = str_msg()
         msg.data = primitive
         self.primitive_pub.publish(msg)
         if wait:
-                rospy.sleep(self.configs.GRIPPER.WAIT_MIN_TIME)
-        
+            rospy.sleep(self.configs.GRIPPER.WAIT_MIN_TIME)
+
     def go_home(self):
         """
         Commands robot to home position
@@ -80,16 +86,32 @@ class AllegroHand(Gripper):
         """
 
         # TODO: Change it to some better neutral position
-        neutral_pos =  np.asarray([-0.047094788747171, 0.12041967890287064, 0.9031856318825505, 
-                0.7667246220374792, -0.000653114836499732, 0.1256168065087617, 0.8983287641635962, 
-                0.811247063242525, 0.019528077323928285, 0.1802489201211747, 1.0038365983813113, 
-                0.8052881420910417, 1.1071484265259601, 0.6201480040823202, 
-                0.2677506665261866, 0.885150694760694])
+        neutral_pos = np.asarray(
+            [
+                -0.047094788747171,
+                0.12041967890287064,
+                0.9031856318825505,
+                0.7667246220374792,
+                -0.000653114836499732,
+                0.1256168065087617,
+                0.8983287641635962,
+                0.811247063242525,
+                0.019528077323928285,
+                0.1802489201211747,
+                1.0038365983813113,
+                0.8052881420910417,
+                1.1071484265259601,
+                0.6201480040823202,
+                0.2677506665261866,
+                0.885150694760694,
+            ]
+        )
         self.set_joint_positions(neutral_pos, plan=False)
 
     def set_joint_velocities(self, velocities, **kwargs):
-        raise NotImplementedError('Velocity control for '
-                                  'Allegro Hand is not supported yet!')
+        raise NotImplementedError(
+            "Velocity control for " "Allegro Hand is not supported yet!"
+        )
 
     def set_joint_positions(self, positions, plan=False, wait=True, **kwargs):
         """
@@ -115,8 +137,10 @@ class AllegroHand(Gripper):
         if isinstance(positions, np.ndarray):
             positions = positions.flatten().tolist()
         if plan:
-            raise NotImplementedError("Using planning while gripper position control\
-                                        is not supported")
+            raise NotImplementedError(
+                "Using planning while gripper position control\
+                                        is not supported"
+            )
         else:
             self._pub_joint_positions(positions)
             if wait:
@@ -124,7 +148,7 @@ class AllegroHand(Gripper):
             res = self._angle_error_is_small(positions)
             joint_diff, error, eflag = res
             if eflag:
-                    result = True
+                result = True
         return result
 
     def get_joint_angles(self):
@@ -170,8 +194,7 @@ class AllegroHand(Gripper):
             try:
                 joint_torques.append(self.get_joint_torque(joint))
             except (ValueError, IndexError):
-                rospy.loginfo('Torque value for joint '
-                              '[%s] not available!' % joint)
+                rospy.loginfo("Torque value for joint " "[%s] not available!" % joint)
         joint_torques = np.array(joint_torques).flatten()
         self.joint_state_lock.release()
         return joint_torques
@@ -186,9 +209,9 @@ class AllegroHand(Gripper):
         :rtype: float
         """
         if joint not in self.gripper_joint_names:
-            raise ValueError('%s not in gripper joint list!' % joint)
+            raise ValueError("%s not in gripper joint list!" % joint)
         if joint not in self._joint_angles.keys():
-            raise ValueError('Joint angle for joint $s not available!' % joint)
+            raise ValueError("Joint angle for joint $s not available!" % joint)
         return self._joint_angles[joint]
 
     def get_joint_velocity(self, joint):
@@ -201,10 +224,9 @@ class AllegroHand(Gripper):
         :rtype: float
         """
         if joint not in self.gripper_joint_names:
-            raise ValueError('%s not in gripper joint list!' % joint)
+            raise ValueError("%s not in gripper joint list!" % joint)
         if joint not in self._joint_velocities.keys():
-            raise ValueError('Joint velocity for joint'
-                             ' $s not available!' % joint)
+            raise ValueError("Joint velocity for joint" " $s not available!" % joint)
         return self._joint_velocities[joint]
 
     def get_joint_torque(self, joint):
@@ -217,13 +239,10 @@ class AllegroHand(Gripper):
         :rtype: float
         """
         if joint not in self.gripper_joint_names:
-            raise ValueError('%s not in gripper joint list!' % joint)
+            raise ValueError("%s not in gripper joint list!" % joint)
         if joint not in self._joint_efforts.keys():
-            raise ValueError('Joint torque for joint $s'
-                             ' not available!' % joint)
+            raise ValueError("Joint torque for joint $s" " not available!" % joint)
         return self._joint_efforts[joint]
-
-
 
     def set_joint_torques(self, torques, **kwargs):
         """
@@ -264,7 +283,6 @@ class AllegroHand(Gripper):
         joint_state.position = tuple(positions)
         self.joint_pub.publish(joint_state)
 
-
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()
         joint_diff = cur_joint_vals - np.array(target_joints)
@@ -276,20 +294,21 @@ class AllegroHand(Gripper):
 
     def _setup_joint_pub(self):
         self.joint_pub = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_SET_JOINT, JointState, queue_size=1)
+            self.configs.GRIPPER.ROSTOPIC_SET_JOINT, JointState, queue_size=1
+        )
 
     def _setup_torque_pub(self):
         self.torque_pub = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_SET_TORQUE, JointState, queue_size=1)
+            self.configs.GRIPPER.ROSTOPIC_SET_TORQUE, JointState, queue_size=1
+        )
 
     def _setup_primitive_pub(self):
         self.primitive_pub = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_SET_PRIMITIVE, str_msg, queue_size=1)
-
+            self.configs.GRIPPER.ROSTOPIC_SET_PRIMITIVE, str_msg, queue_size=1
+        )
 
     def open(self, **kwargs):
         self.set_primitive("home")
-
 
     def close(self, **kwargs):
         self.set_primitive("envelop")

@@ -15,9 +15,7 @@ class UR5Arm(Arm):
     This class has functionality to control a UR5 manipulator.
     """
 
-    def __init__(self,
-                 configs,
-                 moveit_planner='ESTkConfigDefault'):
+    def __init__(self, configs, moveit_planner="ESTkConfigDefault"):
         """
         The constructor for LoCoBotArm class.
 
@@ -27,11 +25,10 @@ class UR5Arm(Arm):
         :type configs: YACS CfgNode
         :type moveit_planner: string
         """
-        super(UR5Arm, self).__init__(configs=configs,
-                                        moveit_planner=moveit_planner,
-                                        use_moveit=True)
-        
-        
+        super(UR5Arm, self).__init__(
+            configs=configs, moveit_planner=moveit_planner, use_moveit=True
+        )
+
     def go_home(self):
         """
         Commands robot to home position
@@ -44,28 +41,23 @@ class UR5Arm(Arm):
         """
 
         # TODO: Change it to some better neutral position
-        neutral_pos = [-0.002, -0.9005, 1.9278, -1.0271, -0.0009,  0.0031]
+        neutral_pos = [-0.002, -0.9005, 1.9278, -1.0271, -0.0009, 0.0031]
         self.set_joint_positions(neutral_pos, plan=True)
 
     def _setup_joint_pub(self):
         rospy.loginfo("Setting up the joint publishers")
 
-
     def _pub_joint_positions(self, positions):
         raise NotImplementedError
 
     def _pub_joint_velocities(self, velocities):
-        raise NotImplementedError('Velocity control for '
-                                  'UR not supported yet!')
+        raise NotImplementedError("Velocity control for " "UR not supported yet!")
 
     def _pub_joint_torques(self, torques):
-        raise NotImplementedError('Torque control for '
-                                  'UR is not supported yet!')
+        raise NotImplementedError("Torque control for " "UR is not supported yet!")
 
     def set_joint_velocities(self, velocities, **kwargs):
-        raise NotImplementedError('Velocity control for '
-                                  'UR not supported yet!')
-
+        raise NotImplementedError("Velocity control for " "UR not supported yet!")
 
     def set_joint_positions(self, positions, plan=True, wait=True, **kwargs):
         """
@@ -89,19 +81,19 @@ class UR5Arm(Arm):
             positions = positions.flatten().tolist()
         if plan:
             if not self.use_moveit:
-                raise ValueError('Moveit is not initialized, '
-                                 'did you pass in use_moveit=True?')
+                raise ValueError(
+                    "Moveit is not initialized, " "did you pass in use_moveit=True?"
+                )
             if isinstance(positions, np.ndarray):
                 positions = positions.tolist()
 
-            rospy.loginfo('Moveit Motion Planning...')
+            rospy.loginfo("Moveit Motion Planning...")
             result = self.moveit_group.moveToJointPosition(
-                        self.arm_joint_names,
-                        positions,
-                        wait=wait)
+                self.arm_joint_names, positions, wait=wait
+            )
         else:
             raise NotImplementedError
-            
+
             # self._pub_joint_positions(positions)
             # if wait:
             #     result = self._loop_angle_pub_cmd(self._pub_joint_positions,

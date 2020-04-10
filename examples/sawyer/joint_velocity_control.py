@@ -16,7 +16,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    print("Exit")
     sys.exit(0)
 
 
@@ -28,11 +28,9 @@ def sin_wave(t, f, A):
 
 
 def main():
-    bot = Robot('sawyer',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=True)
+    bot = Robot(
+        "sawyer", use_arm=True, use_base=False, use_camera=False, use_gripper=True
+    )
     bot.arm.move_to_neutral()
 
     A = 0.2

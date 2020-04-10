@@ -17,7 +17,7 @@ from sklearn.cluster import DBSCAN
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    print("Exit")
     sys.exit(0)
 
 
@@ -26,12 +26,9 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def filter_points(pts, colors, z_lowest=0.01):
     valid = pts[:, 2] > z_lowest
-    valid = np.logical_and(valid,
-                           pts[:, 0] < 0.5)
-    valid = np.logical_and(valid,
-                           pts[:, 1] < 0.4)
-    valid = np.logical_and(valid,
-                           pts[:, 1] > -0.4)
+    valid = np.logical_and(valid, pts[:, 0] < 0.5)
+    valid = np.logical_and(valid, pts[:, 1] < 0.4)
+    valid = np.logical_and(valid, pts[:, 1] > -0.4)
     pts = pts[valid]
     colors = colors[valid]
     return pts, colors
@@ -51,35 +48,33 @@ def draw_segments(pts, labels, core_samples_mask):
     plt.scatter(pts[:, 0], pts[:, 1])
     plt.xlim(-0.4, 0.4)
     plt.ylim(0, 0.5)
-    plt.xlabel('Y axis of the base link')
-    plt.ylabel('X axis of the base link')
-    plt.savefig('raw_pts.png')
+    plt.xlabel("Y axis of the base link")
+    plt.ylabel("X axis of the base link")
+    plt.savefig("raw_pts.png")
     plt.clf()
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     unique_labels = set(labels)
     useful_labels = []
-    colors = [plt.cm.Spectral(each)
-              for each in np.linspace(0, 1, len(unique_labels))]
-    print('Estimated number of clusters: %d' % n_clusters_)
+    colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, len(unique_labels))]
+    print("Estimated number of clusters: %d" % n_clusters_)
     for k, col in zip(unique_labels, colors):
         if k == -1:
             # Black used for noise.
             col = [0, 0, 0, 1]
             continue
-        class_member_mask = (labels == k)
+        class_member_mask = labels == k
 
         xy = pts[class_member_mask & core_samples_mask]
-        print('Label:[%d]   # of pts:%d' % (k, xy.shape[0]))
+        print("Label:[%d]   # of pts:%d" % (k, xy.shape[0]))
         if xy.shape[0] > num_threshold:
             useful_labels.append(k)
-        plt.plot(xy[:, 0], xy[:, 1], 'o', markerfacecolor=tuple(col),
-                 markersize=1)
+        plt.plot(xy[:, 0], xy[:, 1], "o", markerfacecolor=tuple(col), markersize=1)
         plt.xlim(-0.4, 0.4)
         plt.ylim(0, 0.5)
-        plt.xlabel('Y axis of the base link')
-        plt.ylabel('X axis of the base link')
-    plt.savefig('seg_pts.png')
-    print('Number of clusters after filtering:', len(useful_labels))
+        plt.xlabel("Y axis of the base link")
+        plt.ylabel("X axis of the base link")
+    plt.savefig("seg_pts.png")
+    print("Number of clusters after filtering:", len(useful_labels))
     return useful_labels
 
 
@@ -116,14 +111,13 @@ def push(bot, z_lowest=0.01, gripper_length=0.10):
     X = pts[:, :2]
     labels, core_samples_mask = segment_objects(X)
     useful_labelset = draw_segments(X, labels, core_samples_mask)
-    start_pt, mid_pt, center = sample_pt(pts, labels, useful_labelset,
-                                         gripper_length=gripper_length)
+    start_pt, mid_pt, center = sample_pt(
+        pts, labels, useful_labelset, gripper_length=gripper_length
+    )
     print("Going to: ", start_pt.tolist())
-    result = bot.arm.set_ee_pose_pitch_roll(position=start_pt,
-                                            pitch=np.pi / 2,
-                                            roll=0,
-                                            plan=False,
-                                            numerical=False)
+    result = bot.arm.set_ee_pose_pitch_roll(
+        position=start_pt, pitch=np.pi / 2, roll=0, plan=False, numerical=False
+    )
     if not result:
         return
     down_disp = mid_pt - start_pt
@@ -133,16 +127,20 @@ def push(bot, z_lowest=0.01, gripper_length=0.10):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Argument Parser')
-    parser.add_argument('--floor_height', type=float, default=0.03,
-                        help='the z coordinate of the floor')
-    parser.add_argument('--gripper_len', type=float, default=0.12,
-                        help='the gripper length (length from gripper_link'
-                             'to the tip of the gripper')
+    parser = argparse.ArgumentParser(description="Argument Parser")
+    parser.add_argument(
+        "--floor_height", type=float, default=0.03, help="the z coordinate of the floor"
+    )
+    parser.add_argument(
+        "--gripper_len",
+        type=float,
+        default=0.12,
+        help="the gripper length (length from gripper_link" "to the tip of the gripper",
+    )
     args = parser.parse_args()
 
     np.set_printoptions(precision=4, suppress=True)
-    bot = Robot('locobot', use_arm=True, use_base=False, use_gripper=True)
+    bot = Robot("locobot", use_arm=True, use_base=False, use_gripper=True)
     bot.gripper.close()
     bot.camera.set_pan_tilt(0, 0.7, wait=True)
     bot.arm.go_home()

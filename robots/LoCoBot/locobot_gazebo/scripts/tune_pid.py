@@ -13,8 +13,8 @@ from pyrobot import Robot
 
 
 def main(args):
-    joint_name = 'joint_%d' % args.joint_id
-    bot = Robot('locobot')
+    joint_name = "joint_%d" % args.joint_id
+    bot = Robot("locobot")
     bot.arm.go_home()
     time.sleep(1)
     angle = 0.5
@@ -30,13 +30,13 @@ def main(args):
         angles.append(copy.deepcopy(actual_angle))
         time.sleep(sleep_time)
     times = np.arange(len(angles)) * sleep_time
-    print('error:', np.mean(angles[-10]) - angle)
+    print("error:", np.mean(angles[-10]) - angle)
     plt.plot(times, angles)
     plt.show()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Argument Parser')
-    parser.add_argument('--joint_id', type=int, default=1, help='joint id')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Argument Parser")
+    parser.add_argument("--joint_id", type=int, default=1, help="joint id")
     args = parser.parse_args()
     main(args)

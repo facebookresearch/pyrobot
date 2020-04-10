@@ -22,6 +22,7 @@ from std_msgs.msg import Float64
 from tf import TransformListener
 
 from pyrobot.utils.util import try_cv2_import
+
 cv2 = try_cv2_import()
 
 from cv_bridge import CvBridge, CvBridgeError
@@ -53,12 +54,14 @@ class SimpleCamera(Camera):
         """
         super(SimpleCamera, self).__init__(configs=configs)
         self._tf_listener = TransformListener()
-        depth_threshold = (self.configs.BASE.VSLAM.DEPTH_MIN,
-                           self.configs.BASE.VSLAM.DEPTH_MAX)
+        depth_threshold = (
+            self.configs.BASE.VSLAM.DEPTH_MIN,
+            self.configs.BASE.VSLAM.DEPTH_MAX,
+        )
         cfg_filename = self.configs.BASE.VSLAM.CFG_FILENAME
-        self.depth_cam = DepthImgProcessor(subsample_pixs=1,
-                                           depth_threshold=depth_threshold,
-                                           cfg_filename=cfg_filename)
+        self.depth_cam = DepthImgProcessor(
+            subsample_pixs=1, depth_threshold=depth_threshold, cfg_filename=cfg_filename
+        )
         self.cam_cf = self.configs.BASE.VSLAM.RGB_CAMERA_CENTER_FRAME
         self.base_f = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
 
@@ -77,13 +80,11 @@ class SimpleCamera(Camera):
                   colors: rgb values for pts_in_cam (shape: :math:`[N, 3]`)
         :rtype: tuple(np.ndarray, np.ndarray)
         """
-        trans, rot, T = self.get_link_transform(self.cam_cf,
-                                                self.base_f)
+        trans, rot, T = self.get_link_transform(self.cam_cf, self.base_f)
         base2cam_trans = np.array(trans).reshape(-1, 1)
         base2cam_rot = np.array(rot)
         rgb_im, depth_im = self.get_rgb_depth()
-        pcd_in_cam, colors = self.depth_cam.get_pcd_ic(depth_im=depth_im,
-                                                       rgb_im=rgb_im)
+        pcd_in_cam, colors = self.depth_cam.get_pcd_ic(depth_im=depth_im, rgb_im=rgb_im)
         pts = pcd_in_cam[:3, :].T
         if in_cam:
             return pts, colors
@@ -122,14 +123,11 @@ class SimpleCamera(Camera):
 
         :rtype: tuple(np.ndarray, np.ndarray)
         """
-        trans, rot, T = self.get_link_transform(self.cam_cf,
-                                                self.base_f)
+        trans, rot, T = self.get_link_transform(self.cam_cf, self.base_f)
         base2cam_trans = np.array(trans).reshape(-1, 1)
         base2cam_rot = np.array(rot)
         rgb_im, depth_im = self.get_rgb_depth()
-        pts_in_cam = self.depth_cam.get_pix_3dpt(depth_im=depth_im,
-                                                 rs=rs,
-                                                 cs=cs)
+        pts_in_cam = self.depth_cam.get_pix_3dpt(depth_im=depth_im, rs=rs, cs=cs)
         pts = pts_in_cam[:3, :].T
         colors = rgb_im[rs, cs].reshape(-1, 3)
         if in_cam:
@@ -165,9 +163,7 @@ class SimpleCamera(Camera):
                   T: transofrmation matrix (shape: :math:`[4, 4]`)
         :rtype: tuple(np.ndarray, np.ndarray, np.ndarray)
         """
-        trans, quat = prutil.get_tf_transform(self._tf_listener,
-                                              tgt,
-                                              src)
+        trans, quat = prutil.get_tf_transform(self._tf_listener, tgt, src)
         rot = prutil.quat_to_rot_mat(quat)
         T = np.eye(4)
         T[:3, :3] = rot
@@ -190,35 +186,41 @@ class LoCoBotCamera(SimpleCamera):
 
         :type configs: YACS CfgNode
         """
-        use_camera = rospy.get_param('use_camera', False)
-        use_sim = rospy.get_param('use_sim', False)
+        use_camera = rospy.get_param("use_camera", False)
+        use_sim = rospy.get_param("use_sim", False)
         use_camera = use_camera or use_sim
         if not use_camera:
-            rospy.logwarn('Neither use_camera, nor use_sim, is not set'
-                          ' to True when the LoCoBot driver is launched.'
-                          'You may not be able to command the camera'
-                          ' correctly using PyRobot!!!')
+            rospy.logwarn(
+                "Neither use_camera, nor use_sim, is not set"
+                " to True when the LoCoBot driver is launched."
+                "You may not be able to command the camera"
+                " correctly using PyRobot!!!"
+            )
             return
         super(LoCoBotCamera, self).__init__(configs=configs)
 
-        rospy.Subscriber(self.configs.ARM.ROSTOPIC_JOINT_STATES,
-                         JointState,
-                         self._camera_pose_callback)
+        rospy.Subscriber(
+            self.configs.ARM.ROSTOPIC_JOINT_STATES,
+            JointState,
+            self._camera_pose_callback,
+        )
 
         self.set_pan_pub = rospy.Publisher(
-            self.configs.CAMERA.ROSTOPIC_SET_PAN, Float64, queue_size=1)
+            self.configs.CAMERA.ROSTOPIC_SET_PAN, Float64, queue_size=1
+        )
         self.set_tilt_pub = rospy.Publisher(
-            self.configs.CAMERA.ROSTOPIC_SET_TILT, Float64, queue_size=1)
+            self.configs.CAMERA.ROSTOPIC_SET_TILT, Float64, queue_size=1
+        )
         self.pan = None
         self.tilt = None
         self.tol = 0.01
 
     def _camera_pose_callback(self, msg):
-        if 'head_pan_joint' in msg.name:
-            pan_id = msg.name.index('head_pan_joint')
+        if "head_pan_joint" in msg.name:
+            pan_id = msg.name.index("head_pan_joint")
             self.pan = msg.position[pan_id]
-        if 'head_tilt_joint' in msg.name:
-            tilt_id = msg.name.index('head_tilt_joint')
+        if "head_tilt_joint" in msg.name:
+            tilt_id = msg.name.index("head_tilt_joint")
             self.tilt = msg.position[tilt_id]
 
     @property
@@ -273,10 +275,11 @@ class LoCoBotCamera(SimpleCamera):
         :type pan: float
         :type wait: bool
         """
-        pan = constrain_within_range(np.mod(pan + np.pi,
-                                            2 * np.pi) - np.pi,
-                                     self.configs.CAMERA.MIN_PAN,
-                                     self.configs.CAMERA.MAX_PAN)
+        pan = constrain_within_range(
+            np.mod(pan + np.pi, 2 * np.pi) - np.pi,
+            self.configs.CAMERA.MIN_PAN,
+            self.configs.CAMERA.MAX_PAN,
+        )
         self.set_pan_pub.publish(pan)
         if wait:
             for i in range(30):
@@ -295,10 +298,11 @@ class LoCoBotCamera(SimpleCamera):
         :type tilt: float
         :type wait: bool
         """
-        tilt = constrain_within_range(np.mod(tilt + np.pi,
-                                             2 * np.pi) - np.pi,
-                                      self.configs.CAMERA.MIN_TILT,
-                                      self.configs.CAMERA.MAX_TILT)
+        tilt = constrain_within_range(
+            np.mod(tilt + np.pi, 2 * np.pi) - np.pi,
+            self.configs.CAMERA.MIN_TILT,
+            self.configs.CAMERA.MAX_TILT,
+        )
         self.set_tilt_pub.publish(tilt)
         if wait:
             for i in range(30):
@@ -319,21 +323,25 @@ class LoCoBotCamera(SimpleCamera):
         :type tilt: float
         :type wait: bool
         """
-        pan = constrain_within_range(np.mod(pan + np.pi,
-                                            2 * np.pi) - np.pi,
-                                     self.configs.CAMERA.MIN_PAN,
-                                     self.configs.CAMERA.MAX_PAN)
-        tilt = constrain_within_range(np.mod(tilt + np.pi,
-                                             2 * np.pi) - np.pi,
-                                      self.configs.CAMERA.MIN_TILT,
-                                      self.configs.CAMERA.MAX_TILT)
+        pan = constrain_within_range(
+            np.mod(pan + np.pi, 2 * np.pi) - np.pi,
+            self.configs.CAMERA.MIN_PAN,
+            self.configs.CAMERA.MAX_PAN,
+        )
+        tilt = constrain_within_range(
+            np.mod(tilt + np.pi, 2 * np.pi) - np.pi,
+            self.configs.CAMERA.MIN_TILT,
+            self.configs.CAMERA.MAX_TILT,
+        )
         self.set_pan_pub.publish(pan)
         self.set_tilt_pub.publish(tilt)
         if wait:
             for i in range(30):
                 rospy.sleep(0.1)
-                if np.fabs(self.get_pan() - pan) < self.tol and \
-                        np.fabs(self.get_tilt() - tilt) < self.tol:
+                if (
+                    np.fabs(self.get_pan() - pan) < self.tol
+                    and np.fabs(self.get_tilt() - tilt) < self.tol
+                ):
                     break
 
     def reset(self):
@@ -341,8 +349,7 @@ class LoCoBotCamera(SimpleCamera):
         This function resets the pan and tilt joints by actuating
         them to their home configuration.
         """
-        self.set_pan_tilt(self.configs.CAMERA.RESET_PAN,
-                          self.configs.CAMERA.RESET_TILT)
+        self.set_pan_tilt(self.configs.CAMERA.RESET_PAN, self.configs.CAMERA.RESET_TILT)
 
 
 class DepthImgProcessor:
@@ -350,8 +357,12 @@ class DepthImgProcessor:
     This class transforms the depth image and rgb image to point cloud
     """
 
-    def __init__(self, subsample_pixs=1, depth_threshold=(0, 1.5),
-                 cfg_filename='realsense_d435.yaml'):
+    def __init__(
+        self,
+        subsample_pixs=1,
+        depth_threshold=(0, 1.5),
+        cfg_filename="realsense_d435.yaml",
+    ):
         """
         The constructor for :class:`DepthImgProcessor` class.
 
@@ -363,21 +374,22 @@ class DepthImgProcessor:
         :type depth_threshold: tuple
         :type cfg_filename: string
         """
-        assert (type(depth_threshold) is tuple and
-                0 < len(depth_threshold) < 3) or \
-               (depth_threshold is None)
+        assert (type(depth_threshold) is tuple and 0 < len(depth_threshold) < 3) or (
+            depth_threshold is None
+        )
         self.subsample_pixs = subsample_pixs
         self.depth_threshold = depth_threshold
         self.cfg_data = self.read_cfg(cfg_filename)
         self.intrinsic_mat = self.get_intrinsic()
         self.intrinsic_mat_inv = np.linalg.inv(self.intrinsic_mat)
 
-        img_pixs = np.mgrid[0: self.cfg_data['Camera.height']: subsample_pixs,
-                   0: self.cfg_data['Camera.width']: subsample_pixs]
+        img_pixs = np.mgrid[
+            0 : self.cfg_data["Camera.height"] : subsample_pixs,
+            0 : self.cfg_data["Camera.width"] : subsample_pixs,
+        ]
         img_pixs = img_pixs.reshape(2, -1)
         img_pixs[[0, 1], :] = img_pixs[[1, 0], :]
-        self.uv_one = np.concatenate((img_pixs,
-                                      np.ones((1, img_pixs.shape[1]))))
+        self.uv_one = np.concatenate((img_pixs, np.ones((1, img_pixs.shape[1]))))
         self.uv_one_in_cam = np.dot(self.intrinsic_mat_inv, self.uv_one)
 
     def get_pix_3dpt(self, depth_im, rs, cs):
@@ -398,7 +410,9 @@ class DepthImgProcessor:
                  camera frame (shape: :math:`[4, N]`)
         :rtype np.ndarray
         """
-        pts_in_cam = prutil.pix_to_3dpt(depth_im, rs, cs, self.intrinsic_mat, float(self.cfg_data['DepthMapFactor']))
+        pts_in_cam = prutil.pix_to_3dpt(
+            depth_im, rs, cs, self.intrinsic_mat, float(self.cfg_data["DepthMapFactor"])
+        )
         return pts_in_cam
 
     def get_pcd_ic(self, depth_im, rgb_im=None):
@@ -422,26 +436,25 @@ class DepthImgProcessor:
         :rtype tuple(np.ndarray, np.ndarray)
         """
         # pcd in camera from depth
-        depth_im = depth_im[0::self.subsample_pixs, 0::self.subsample_pixs]
-        rgb_im = rgb_im[0::self.subsample_pixs, 0::self.subsample_pixs]
-        depth = depth_im.reshape(-1) / float(self.cfg_data['DepthMapFactor'])
+        depth_im = depth_im[0 :: self.subsample_pixs, 0 :: self.subsample_pixs]
+        rgb_im = rgb_im[0 :: self.subsample_pixs, 0 :: self.subsample_pixs]
+        depth = depth_im.reshape(-1) / float(self.cfg_data["DepthMapFactor"])
         rgb = None
         if rgb_im is not None:
             rgb = rgb_im.reshape(-1, 3)
         if self.depth_threshold is not None:
             valid = depth > self.depth_threshold[0]
             if len(self.depth_threshold) > 1:
-                valid = np.logical_and(valid,
-                                       depth < self.depth_threshold[1])
+                valid = np.logical_and(valid, depth < self.depth_threshold[1])
             uv_one_in_cam = self.uv_one_in_cam[:, valid]
             depth = depth[valid]
             rgb = rgb[valid]
         else:
             uv_one_in_cam = self.uv_one_in_cam
         pts_in_cam = np.multiply(uv_one_in_cam, depth)
-        pts_in_cam = np.concatenate((pts_in_cam,
-                                     np.ones((1, pts_in_cam.shape[1]))),
-                                    axis=0)
+        pts_in_cam = np.concatenate(
+            (pts_in_cam, np.ones((1, pts_in_cam.shape[1]))), axis=0
+        )
         return pts_in_cam, rgb
 
     def get_pcd_iw(self, pts_in_cam, extrinsic_mat):
@@ -477,11 +490,9 @@ class DepthImgProcessor:
         :rtype: dict
         """
         rospack = rospkg.RosPack()
-        slam_pkg_path = rospack.get_path('orb_slam2_ros')
-        cfg_path = os.path.join(slam_pkg_path,
-                                'cfg',
-                                cfg_filename)
-        with open(cfg_path, 'r') as f:
+        slam_pkg_path = rospack.get_path("orb_slam2_ros")
+        cfg_path = os.path.join(slam_pkg_path, "cfg", cfg_filename)
+        with open(cfg_path, "r") as f:
             for i in range(1):
                 f.readline()
             cfg_data = yaml.load(f)
@@ -494,11 +505,9 @@ class DepthImgProcessor:
         :return: the intrinsic matrix (shape: :math:`[3, 3]`)
         :rtype: np.ndarray
         """
-        fx = self.cfg_data['Camera.fx']
-        fy = self.cfg_data['Camera.fy']
-        cx = self.cfg_data['Camera.cx']
-        cy = self.cfg_data['Camera.cy']
-        Itc = np.array([[fx, 0, cx],
-                        [0, fy, cy],
-                        [0, 0, 1]])
+        fx = self.cfg_data["Camera.fx"]
+        fy = self.cfg_data["Camera.fy"]
+        cx = self.cfg_data["Camera.cx"]
+        cy = self.cfg_data["Camera.cy"]
+        Itc = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
         return Itc
