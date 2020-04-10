@@ -24,8 +24,8 @@ jobs:
           command: |
             pip install --upgrade pip
             cd ~/project/robots/LoCoBot/install
-            chmod +x locobot_install_all_circle_ci.sh
-            ./locobot_install_all_circle_ci.sh -t sim_only -p 2
+            chmod +x locobot_install_all.sh
+            ./locobot_install_all.sh -t sim_only -p 2
  
       - run:
           name: Installer Python3

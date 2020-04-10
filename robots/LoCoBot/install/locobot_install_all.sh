@@ -66,6 +66,8 @@ fi
 
 # STEP 1 - Install basic dependencies
 declare -a package_names=(
+	"python-tk"
+	"python-sip"
 	"vim" 
 	"git" 
 	"terminator"
@@ -111,7 +113,6 @@ declare -a ros_package_names=(
 	"ros-kinetic-moveit" 
 	"ros-kinetic-trac-ik"
 	"ros-kinetic-ar-track-alvar"
-	"ros-kinetic-turtlebot-*"
 	"ros-kinetic-move-base"
 	"ros-kinetic-ros-control"
 	"ros-kinetic-gazebo-ros-control"
@@ -121,7 +122,7 @@ declare -a ros_package_names=(
 	"ros-kinetic-kdl-parser-py"
 	"ros-kinetic-orocos-kdl"
 	"ros-kinetic-python-orocos-kdl"
-	"ros-kinetic-turtlebot"
+	"ros-kinetic-libcreate"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -197,6 +198,52 @@ fi
 if [ -d "$LOCOBOT_FOLDER/build" ]; then
 	rm -rf $LOCOBOT_FOLDER/build
 fi
+
+if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
+	cd $LOCOBOT_FOLDER/src/
+	mkdir turtlebot
+	cd turtlebot
+
+	git clone https://github.com/turtlebot/turtlebot_simulator
+	git clone https://github.com/turtlebot/turtlebot.git
+	git clone https://github.com/turtlebot/turtlebot_apps.git
+	git clone https://github.com/turtlebot/turtlebot_msgs.git
+	git clone https://github.com/turtlebot/turtlebot_interactions.git
+
+	git clone https://github.com/toeklk/orocos-bayesian-filtering.git
+	cd orocos-bayesian-filtering/orocos_bfl/
+	./configure
+	make
+	sudo make install
+	cd ../
+	make
+	cd ../
+
+	git clone https://github.com/udacity/robot_pose_ekf
+	git clone https://github.com/ros-perception/depthimage_to_laserscan.git
+
+	git clone https://github.com/yujinrobot/kobuki_msgs.git
+	git clone https://github.com/yujinrobot/kobuki_desktop.git
+	cd kobuki_desktop/
+	rm -r kobuki_qtestsuite
+	cd -
+	git clone https://github.com/yujinrobot/kobuki.git
+	cd kobuki && git checkout kinetic && cd ..
+	mv kobuki/kobuki_description kobuki/kobuki_bumper2pc \
+	  kobuki/kobuki_node kobuki/kobuki_keyop \
+	  kobuki/kobuki_safety_controller ./
+	
+	#rm -r kobuki
+
+	git clone https://github.com/yujinrobot/yujin_ocs.git
+	mv yujin_ocs/yocs_cmd_vel_mux yujin_ocs/yocs_controllers .
+	mv yujin_ocs/yocs_safety_controller yujin_ocs/yocs_velocity_smoother .
+	rm -rf yujin_ocs
+
+	sudo apt-get install ros-kinetic-kobuki-* -y
+	sudo apt-get install ros-kinetic-ecl-streams -y
+fi
+
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 if [ $PYTHON_VERSION == "2" ]; then
 	cd $LOCOBOT_FOLDER/src/pyrobot
@@ -209,6 +256,8 @@ if [ $PYTHON_VERSION == "2" ]; then
 	pip install --ignore-installed -r requirements_python2.txt
 	
 	cd $LOCOBOT_FOLDER
+	source /opt/ros/kinetic/setup.bash
+	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash
@@ -216,6 +265,7 @@ if [ $PYTHON_VERSION == "2" ]; then
 fi
 if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER
+	source /opt/ros/kinetic/setup.bash
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash

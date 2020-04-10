@@ -42,8 +42,8 @@ echo "Python $PYTHON_VERSION chosen for pyRobot installation."
 echo -e "\e[1;33m ******************************************* \e[0m"
 echo -e "\e[1;33m The installation takes around half an hour! \e[0m"
 echo -e "\e[1;33m ******************************************* \e[0m"
-#sleep 4
-
+sleep 4
+start_time="$(date -u +%s)"
 
 install_packages () {
 	pkg_names=("$@")
@@ -184,8 +184,6 @@ fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
 	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
-	cd pyrobot
-	git checkout Develop
 fi
 cd $LOCOBOT_FOLDER
 rosdep update 
@@ -200,7 +198,6 @@ fi
 if [ -d "$LOCOBOT_FOLDER/build" ]; then
 	rm -rf $LOCOBOT_FOLDER/build
 fi
-
 
 if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	cd $LOCOBOT_FOLDER/src/
@@ -246,8 +243,6 @@ if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	sudo apt-get install ros-kinetic-kobuki-* -y
 	sudo apt-get install ros-kinetic-ecl-streams -y
 fi
-
-##### End of turtle bot melodic stuff
 
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 if [ $PYTHON_VERSION == "2" ]; then
@@ -307,6 +302,8 @@ if [ $INSTALL_TYPE == "full" ]; then
 	sudo usermod -a -G dialout $USER
 fi
 
+end_time="$(date -u +%s)"
+elapsed="$(($end_time-$start_time))"
 
 echo "Installation complete, took $elapsed seconds in total"
 echo "NOTE: Remember to logout and login back again before using the robot!"
