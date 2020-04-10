@@ -16,13 +16,13 @@ pip install cython
 GPMP_FOLDER=~/gpmp_ws
 
 # Clone GTSAM and GPMP2
-mkdir GPMP_FOLDER
-cd GPMP_FOLDER
+mkdir -p $GPMP_FOLDER
+cd $GPMP_FOLDER
 git clone https://github.com/kalyanvasudev/gpmp2.git
 git clone https://github.com/borglab/gtsam.git
 
 # Install GTSAM
-cd gtsam
+cd $GPMP_FOLDER/gtsam
 git checkout wrap-export
 mkdir build
 cd build
@@ -30,7 +30,7 @@ cmake -DGPMP2_BUILD_PYTHON_TOOLBOX:=ON ..
 sudo make install -j8
 
 # Install GPMP2
-cd  GPMP_FOLDER
+cd $GPMP_FOLDER/gpmp2
 mkdir build
 cd build
 cmake -DGPMP2_BUILD_PYTHON_TOOLBOX:=ON ..
