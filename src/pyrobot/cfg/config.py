@@ -20,15 +20,15 @@ _C.HAS_COMMON = False
 
 _C.ARM = CN()
 # ARM class name
-_C.ARM.CLASS = 'LoCoBotArm'
+_C.ARM.CLASS = "LoCoBotArm"
 # robot description parameter name for the arm
-_C.ARM.ARM_ROBOT_DSP_PARAM_NAME = '/robot_description'
+_C.ARM.ARM_ROBOT_DSP_PARAM_NAME = "/robot_description"
 # moveit group name for the arm
-_C.ARM.MOVEGROUP_NAME = 'arm'
+_C.ARM.MOVEGROUP_NAME = "arm"
 # base frame for the arm
-_C.ARM.ARM_BASE_FRAME = 'base_link'
+_C.ARM.ARM_BASE_FRAME = "base_link"
 # end-effector frame of the arm
-_C.ARM.EE_FRAME = 'gripper_link'
+_C.ARM.EE_FRAME = "gripper_link"
 # inverse kinematics position tolerance (m)
 _C.ARM.IK_POSITION_TOLERANCE = 0.01
 # inverse kinematics orientation toelrance (rad)
@@ -40,13 +40,13 @@ _C.ARM.MAX_EE_ERROR = 0.03
 # minimum waiting time to check again if the set command is complete
 _C.ARM.WAIT_MIN_TIME = 0.05
 # joint states topic name for the arm
-_C.ARM.ROSTOPIC_JOINT_STATES = '/joint_states'
+_C.ARM.ROSTOPIC_JOINT_STATES = "/joint_states"
 # topic name to set joint position/velocity/torque
-_C.ARM.ROSTOPIC_SET_JOINT = '/goal_dynamixel_position'
+_C.ARM.ROSTOPIC_SET_JOINT = "/goal_dynamixel_position"
 
-_C.ARM.ROSSRV_CART_PATH = '/compute_cartesian_path'
+_C.ARM.ROSSRV_CART_PATH = "/compute_cartesian_path"
 
-_C.ARM.ROSSRV_MP_PATH = '/plan_kinematic_path'
+_C.ARM.ROSSRV_MP_PATH = "/plan_kinematic_path"
 
 _C.CAMERA = CN()
 

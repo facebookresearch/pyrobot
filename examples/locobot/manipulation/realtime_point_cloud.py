@@ -14,7 +14,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    print("Exit")
     sys.exit(0)
 
 
@@ -23,24 +23,22 @@ signal.signal(signal.SIGINT, signal_handler)
 
 def filter_points(pts, colors, z_lowest=0.01):
     valid = pts[:, 2] > z_lowest
-    valid = np.logical_and(valid,
-                           pts[:, 0] < 0.5)
-    valid = np.logical_and(valid,
-                           pts[:, 1] < 0.4)
-    valid = np.logical_and(valid,
-                           pts[:, 1] > -0.4)
+    valid = np.logical_and(valid, pts[:, 0] < 0.5)
+    valid = np.logical_and(valid, pts[:, 1] < 0.4)
+    valid = np.logical_and(valid, pts[:, 1] > -0.4)
     pts = pts[valid]
     colors = colors[valid]
     return pts, colors
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Argument Parser')
-    parser.add_argument('--floor_height', type=float, default=0.03,
-                        help='the z coordinate of the floor')
+    parser = argparse.ArgumentParser(description="Argument Parser")
+    parser.add_argument(
+        "--floor_height", type=float, default=0.03, help="the z coordinate of the floor"
+    )
     args = parser.parse_args()
     np.set_printoptions(precision=4, suppress=True)
-    bot = Robot('locobot')
+    bot = Robot("locobot")
     bot.camera.set_pan_tilt(0, 0.7, wait=True)
     bot.arm.go_home()
     bot.arm.set_joint_positions([1.96, 0.52, -0.51, 1.67, 0.01], plan=False)

@@ -11,15 +11,14 @@ from pyrobot import Robot
 
 @pytest.fixture(scope="module")
 def create_robot():
-    return Robot('locobot', use_camera=True,
-                 use_base=False,
-                 use_arm=False,
-                 use_gripper=False)
+    return Robot(
+        "locobot", use_camera=True, use_base=False, use_arm=False, use_gripper=False
+    )
 
 
-@pytest.mark.parametrize("target_position", [[0, 0.7], [0.4, 0.4],
-                                             [0.4, -0.4], [-0.4, 0.4],
-                                             [-0.4, -0.4]])
+@pytest.mark.parametrize(
+    "target_position", [[0, 0.7], [0.4, 0.4], [0.4, -0.4], [-0.4, 0.4], [-0.4, -0.4]]
+)
 def test_position_control(create_robot, target_position):
     bot = create_robot
     bot.camera.reset()

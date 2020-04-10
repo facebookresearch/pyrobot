@@ -32,18 +32,23 @@ class VisualSLAM(object):
     position in the first frame (when the program is just turned on).
     """
 
-    def __init__(self,
-                 map_img_dir=os.path.join(expanduser("~"), '.ros/Imgs'),
-                 cam_pose_tp='/orb_slam2_rgbd/slam/camera_pose',
-                 cam_traj_tp='/orb_slam2_rgbd/slam/camera_traj',
-                 base_frame='/base_link',
-                 camera_frame='/camera_color_optical_frame',
-                 map_resolution=0.02,
-                 z_min=0.1,
-                 z_max=0.8,
-                 obstacle_cost=100,
-                 occ_map_rate=0.0,
-                 x_min=-5, y_min=-5, x_max=5, y_max=5):
+    def __init__(
+        self,
+        map_img_dir=os.path.join(expanduser("~"), ".ros/Imgs"),
+        cam_pose_tp="/orb_slam2_rgbd/slam/camera_pose",
+        cam_traj_tp="/orb_slam2_rgbd/slam/camera_traj",
+        base_frame="/base_link",
+        camera_frame="/camera_color_optical_frame",
+        map_resolution=0.02,
+        z_min=0.1,
+        z_max=0.8,
+        obstacle_cost=100,
+        occ_map_rate=0.0,
+        x_min=-5,
+        y_min=-5,
+        x_max=5,
+        y_max=5,
+    ):
         """
         The constructor for :class:`VisualSLAM` class.
 
@@ -67,39 +72,41 @@ class VisualSLAM(object):
         self.y_max = y_max
 
         self.obstacle_cost = obstacle_cost
-        rgb_dir = os.path.join(self.map_img_dir, 'RGBImgs')
-        depth_dir = os.path.join(self.map_img_dir, 'DepthImgs')
+        rgb_dir = os.path.join(self.map_img_dir, "RGBImgs")
+        depth_dir = os.path.join(self.map_img_dir, "DepthImgs")
         pcd_args = {
-            'rgb_dir': rgb_dir,
-            'depth_dir': depth_dir,
-            'cfg_filename': 'realsense_d435.yaml',
-            'subsample_pixs': 1,
-            'depth_threshold': (0.2, 1.5),
-            'camera_traj_topic': self.cam_traj_tp
+            "rgb_dir": rgb_dir,
+            "depth_dir": depth_dir,
+            "cfg_filename": "realsense_d435.yaml",
+            "subsample_pixs": 1,
+            "depth_threshold": (0.2, 1.5),
+            "camera_traj_topic": self.cam_traj_tp,
         }
         self._pcd_processor = PointCloudProcessor(**pcd_args)
         self._cam_pose_in_cam = None
         self._cam_traj_in_cam = []
         self._cam_traj_lock = threading.Lock()
-        self._cam_pose_sub = rospy.Subscriber(self.cam_pose_tp,
-                                              PoseStamped,
-                                              self._cam_pose_callback)
-        self._cam_traj_sub = rospy.Subscriber(self.cam_traj_tp,
-                                              Traj,
-                                              self.cam_traj_callback)
-        self.occ_map_pub = rospy.Publisher('/occupancy_map', OccupancyGrid, queue_size=1)
+        self._cam_pose_sub = rospy.Subscriber(
+            self.cam_pose_tp, PoseStamped, self._cam_pose_callback
+        )
+        self._cam_traj_sub = rospy.Subscriber(
+            self.cam_traj_tp, Traj, self.cam_traj_callback
+        )
+        self.occ_map_pub = rospy.Publisher(
+            "/occupancy_map", OccupancyGrid, queue_size=1
+        )
         self.occ_map_msg = self._init_occupancy_map()
         self.tf_listener = tf.TransformListener()
         rospy.sleep(1)
 
-        trans, rot, T = self.get_link_transform(self.camera_frame,
-                                                self.base_frame)
+        trans, rot, T = self.get_link_transform(self.camera_frame, self.base_frame)
         self._ini_base2cam_T = T
         self._ini_base2cam_trans = np.array(trans).reshape(-1, 1)
         self._ini_base2cam_rot = np.array(rot)
         if occ_map_rate > 0:
-            rospy.Timer(rospy.Duration(int(np.ceil(1.0 / occ_map_rate))),
-                        self._callback_occ_pub)
+            rospy.Timer(
+                rospy.Duration(int(np.ceil(1.0 / occ_map_rate))), self._callback_occ_pub
+            )
 
     @property
     def camera_pose(self):
@@ -155,8 +162,7 @@ class VisualSLAM(object):
         :rtype: (numpy.ndarray, numpy.ndarray, numpy.ndarray)
         """
         # gives the base pose as a tuple (x, y, yaw)
-        trans, rot, T = self.get_link_transform(self.base_frame,
-                                                self.camera_frame)
+        trans, rot, T = self.get_link_transform(self.base_frame, self.camera_frame)
         _, _, camera_pose = self.camera_pose
         if camera_pose is None:
             return None, None, None
@@ -254,8 +260,7 @@ class VisualSLAM(object):
         xcells = int(np.ceil((self.x_max - self.x_min) / self.map_resultion))
         ycells = int(np.ceil((self.y_max - self.y_min) / self.map_resultion))
 
-        filter_idx = np.logical_and(pts[:, 2] >= self.z_min,
-                                    pts[:, 2] <= self.z_max)
+        filter_idx = np.logical_and(pts[:, 2] >= self.z_min, pts[:, 2] <= self.z_max)
 
         pts = pts[filter_idx, :2]
         map_mins = np.array([self.x_min, self.y_min])
@@ -297,14 +302,17 @@ class VisualSLAM(object):
                   ori: rotational vector (shape: :math:`[3, 3]`)
         :rtype: (numpy.ndarray, numpy.ndarray)
         """
-        pos = np.array([pose.pose.position.x,
-                        pose.pose.position.y,
-                        pose.pose.position.z])
-        quat = np.array([pose.pose.orientation.x,
-                         pose.pose.orientation.y,
-                         pose.pose.orientation.z,
-                         pose.pose.orientation.w,
-                         ])
+        pos = np.array(
+            [pose.pose.position.x, pose.pose.position.y, pose.pose.position.z]
+        )
+        quat = np.array(
+            [
+                pose.pose.orientation.x,
+                pose.pose.orientation.y,
+                pose.pose.orientation.z,
+                pose.pose.orientation.w,
+            ]
+        )
         ori = tf.transformations.quaternion_matrix(quat)[:3, :3]
         return pos, ori
 
@@ -349,9 +357,7 @@ class VisualSLAM(object):
                   T: transofrmation matrix (shape: :math:`[4, 4]`)
         :rtype: (numpy.ndarray, numpy.ndarray, numpy.ndarray)
         """
-        trans, quat = self._get_tf_transform(self.tf_listener,
-                                             tgt,
-                                             src)
+        trans, quat = self._get_tf_transform(self.tf_listener, tgt, src)
         rot = tf.transformations.quaternion_matrix(quat)[:3, :3]
         T = np.eye(4)
         T[:3, :3] = rot
@@ -361,7 +367,7 @@ class VisualSLAM(object):
     def _init_occupancy_map(self):
         grid = OccupancyGrid()
         grid.header.seq = 1
-        grid.header.frame_id = '/map'
+        grid.header.frame_id = "/map"
         grid.info.origin.position.z = 0
         grid.info.origin.orientation.x = 0
         grid.info.origin.orientation.y = 0
@@ -386,27 +392,31 @@ class VisualSLAM(object):
         :rtype: tuple (of floats)
         """
         try:
-            tf_listener.waitForTransform(tgt_frame, src_frame,
-                                         rospy.Time(0),
-                                         rospy.Duration(3))
-            (trans, quat) = tf_listener.lookupTransform(tgt_frame,
-                                                        src_frame,
-                                                        rospy.Time(0))
-        except (tf.LookupException,
-                tf.ConnectivityException,
-                tf.ExtrapolationException):
-            raise RuntimeError('Cannot fetch the transform from'
-                               ' {0:s} to {1:s}'.format(tgt_frame, src_frame))
+            tf_listener.waitForTransform(
+                tgt_frame, src_frame, rospy.Time(0), rospy.Duration(3)
+            )
+            (trans, quat) = tf_listener.lookupTransform(
+                tgt_frame, src_frame, rospy.Time(0)
+            )
+        except (
+            tf.LookupException,
+            tf.ConnectivityException,
+            tf.ExtrapolationException,
+        ):
+            raise RuntimeError(
+                "Cannot fetch the transform from"
+                " {0:s} to {1:s}".format(tgt_frame, src_frame)
+            )
         return trans, quat
 
 
 def main():
-    rospy.init_node('vslam', anonymous=True)
+    rospy.init_node("vslam", anonymous=True)
     vslam = VisualSLAM()
     rate = rospy.Rate(0.5)
     while not rospy.is_shutdown():
         rate.sleep()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

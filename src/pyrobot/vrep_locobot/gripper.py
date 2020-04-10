@@ -17,7 +17,7 @@ import copy
 from pyrep.robots.end_effectors.locobot_gripper import LoCoBotGripper as VREP_Gripper
 
 
-class LoCoBotGripper():
+class LoCoBotGripper:
     """
     Interface for gripper
     """
@@ -55,12 +55,11 @@ class LoCoBotGripper():
         :rtype: int
         """
         if self.gripper.get_open_ammount() is 1:
-        	return 0
+            return 0
         elif self.gripper.get_open_ammount() is 0:
-        	return 3
+            return 3
         else:
-        	return 2
-        
+            return 2
 
     def open(self, wait=True):
         """
@@ -70,8 +69,7 @@ class LoCoBotGripper():
                      after target_joint is achieved, False otherwise
         :type wait: bool
         """
-        self.gripper.actuate(1,1)
-
+        self.gripper.actuate(1, 1)
 
     def close(self, wait=True):
         """
@@ -81,7 +79,7 @@ class LoCoBotGripper():
                      after target_joint is achieved, False otherwise
         :type wait: bool
         """
-        self.gripper.actuate(0,1)
+        self.gripper.actuate(0, 1)
 
     def reset(self, wait=True):
         """

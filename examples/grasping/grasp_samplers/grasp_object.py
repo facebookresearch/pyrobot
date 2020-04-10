@@ -19,7 +19,7 @@ from torchvision import transforms
 
 import deeper_models
 
-sys.modules['patch_learner.deeper_models'] = deeper_models
+sys.modules["patch_learner.deeper_models"] = deeper_models
 
 is_gpu = torch.cuda.is_available()
 n_class = 18
@@ -50,9 +50,7 @@ class GraspTorchObj(object):
         else:
             self.transform = transform
 
-    def test_one_batch(self, x, h, w,
-                       angle_labels, robot_labels,
-                       full_x):
+    def test_one_batch(self, x, h, w, angle_labels, robot_labels, full_x):
         """
         Runs the torch model on a batch of inputs.
     
@@ -86,11 +84,14 @@ class GraspTorchObj(object):
             one_hot_var = one_hot_var.cuda()
             robot_one_hot_var = robot_one_hot_var.cuda()
             torch_images_var = torch_images_var.cuda()
-        predictions, _ = self.model(x=torch_patches_var,
-                                    h=h_var, w=w_var,
-                                    one_hot_labels=one_hot_var,
-                                    robot_one_hot_labels=robot_one_hot_var,
-                                    full_x=torch_images_var)
+        predictions, _ = self.model(
+            x=torch_patches_var,
+            h=h_var,
+            w=w_var,
+            one_hot_labels=one_hot_var,
+            robot_one_hot_labels=robot_one_hot_var,
+            full_x=torch_images_var,
+        )
         return predictions.data.cpu().numpy()
 
     def convert_cv2_patches(self, P):
@@ -108,7 +109,7 @@ class GraspTorchObj(object):
         for p in P:
             p = np.uint8(p)
             pil_im = Image.fromarray(p)
-            pil_im = pil_im.convert('RGB')
+            pil_im = pil_im.convert("RGB")
             if self.transform:
                 pil_im = self.transform(pil_im)
             im_list.append(pil_im)
@@ -168,9 +169,11 @@ class GraspTorchObj(object):
         :returns: An image transform
         :rtype: a torchvision.Transform object
         """
-        image_transforms = transforms.Compose([
-            transforms.Resize((self.image_size, self.image_size)),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
+        image_transforms = transforms.Compose(
+            [
+                transforms.Resize((self.image_size, self.image_size)),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
+        )
         return image_transforms

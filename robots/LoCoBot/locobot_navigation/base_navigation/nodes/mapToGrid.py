@@ -22,7 +22,9 @@ MAP_TOPIC = "/occupancy_map"
 class PcdToOcGrid:
     def __init__(self, z_lower_treshold, z_upper_treshold, x_min, y_min, x_max, y_max):
 
-        self.bot = Robot('locobase', base_config={'build_map': True, 'base_planner': 'none'})
+        self.bot = Robot(
+            "locobase", base_config={"build_map": True, "base_planner": "none"}
+        )
 
         self.ocGrid = None  #
         self.points = None  # these are the points from orbslam
@@ -60,15 +62,21 @@ class PcdToOcGrid:
         self.yCells = int(np.ceil((self.yMax - self.yMin) / CELL_RESOLUTION))
         self.ocGrid = np.zeros(self.xCells * self.yCells)
 
-        good_point_indxs = np.logical_and(self.points[:, 2] >= self.z_lower_treshold,
-                                          self.points[:, 2] <= self.z_upper_treshold)
+        good_point_indxs = np.logical_and(
+            self.points[:, 2] >= self.z_lower_treshold,
+            self.points[:, 2] <= self.z_upper_treshold,
+        )
 
-        self.points = self.points[good_point_indxs, :2]  # z tresholding and removing z column
+        self.points = self.points[
+            good_point_indxs, :2
+        ]  # z tresholding and removing z column
 
         map_origin = np.array([self.xMin, self.yMin])
         self.points = self.points[:, :2] - map_origin
         self.points = np.floor(self.points / CELL_RESOLUTION).astype(int)
-        self.points = self.points[:, 1] * self.xCells + self.points[:, 0]  # at this stage they are indices
+        self.points = (
+            self.points[:, 1] * self.xCells + self.points[:, 0]
+        )  # at this stage they are indices
         self.ocGrid[self.points] = 100
 
     def calcSize(self):
@@ -91,7 +99,7 @@ class PcdToOcGrid:
 
     def initGrid(self):
         self.grid.header.seq = 1
-        self.grid.header.frame_id = '/map'
+        self.grid.header.frame_id = "/map"
         self.grid.info.origin.position.z = 0
         self.grid.info.origin.orientation.x = 0
         self.grid.info.origin.orientation.y = 0
@@ -126,7 +134,7 @@ def main():
         rate.sleep()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         main()
     except rospy.ROSInterruptException:

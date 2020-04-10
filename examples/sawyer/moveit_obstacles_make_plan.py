@@ -19,26 +19,32 @@ from geometry_msgs.msg import Point
 
 
 def main():
-    config = dict(moveit_planner='ESTkConfigDefault')
-    bot = Robot('sawyer',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=True,
-                arm_config=config)
+    config = dict(moveit_planner="ESTkConfigDefault")
+    bot = Robot(
+        "sawyer",
+        use_arm=True,
+        use_base=False,
+        use_camera=False,
+        use_gripper=True,
+        arm_config=config,
+    )
     obstacle_handler = MoveitObjectHandler()
     # Add a table
     # position and orientation (quaternion: x, y, z, w) of the table
-    pose=[0.8,0.0,-0.1,0.,0.,0.,1.]
+    pose = [0.8, 0.0, -0.1, 0.0, 0.0, 0.0, 1.0]
     # size of the table (x, y, z)
-    size=(1.35,2.0,0.1)
+    size = (1.35, 2.0, 0.1)
     obstacle_handler.add_table(pose, size)
 
     target_pos = np.array([0.45251711, 0.16039618, 0.08021886])
-    target_ori = np.array([[-0.00437824,  0.99994626,  0.00939675],
-                           [ 0.99998735,  0.0044013 , -0.00243524],
-                           [-0.00247647,  0.00938597, -0.99995288]])
-                    
+    target_ori = np.array(
+        [
+            [-0.00437824, 0.99994626, 0.00939675],
+            [0.99998735, 0.0044013, -0.00243524],
+            [-0.00247647, 0.00938597, -0.99995288],
+        ]
+    )
+
     bot.arm.go_home()
     time.sleep(1)
     traj = bot.arm.make_plan_pose(target_pos, target_ori)

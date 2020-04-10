@@ -20,9 +20,11 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Float64
 
 from pyrobot.utils.util import try_cv2_import
+
 cv2 = try_cv2_import()
 
 from cv_bridge import CvBridge, CvBridgeError
+
 
 class Kinect2Camera(Camera):
     """
@@ -58,23 +60,21 @@ class Kinect2Camera(Camera):
         if self.intrinsic_mat is None:
             self.intrinsic_mat = self.get_intrinsics()
             self.intrinsic_mat_inv = np.linalg.inv(self.intrinsic_mat)
-            #TODO: image height --> rgb_im.shape[0] and width--> rgb_im.shape[1]
-            img_pixs = np.mgrid[0: rgb_im.shape[0]: 1,
-                    0: rgb_im.shape[1]: 1]
+            # TODO: image height --> rgb_im.shape[0] and width--> rgb_im.shape[1]
+            img_pixs = np.mgrid[0 : rgb_im.shape[0] : 1, 0 : rgb_im.shape[1] : 1]
             img_pixs = img_pixs.reshape(2, -1)
             img_pixs[[0, 1], :] = img_pixs[[1, 0], :]
-            self.uv_one = np.concatenate((img_pixs,
-                                        np.ones((1, img_pixs.shape[1]))))
+            self.uv_one = np.concatenate((img_pixs, np.ones((1, img_pixs.shape[1]))))
             self.uv_one_in_cam = np.dot(self.intrinsic_mat_inv, self.uv_one)
-        
+
         pts_in_cam = np.multiply(self.uv_one_in_cam, depth)
-        pts_in_cam = np.concatenate((pts_in_cam,
-                                     np.ones((1, pts_in_cam.shape[1]))),
-                                    axis=0)
+        pts_in_cam = np.concatenate(
+            (pts_in_cam, np.ones((1, pts_in_cam.shape[1]))), axis=0
+        )
         pts = pts_in_cam[:3, :].T
         return pts, rgb
 
-    def pix_to_3dpt(self, rs, cs, reduce='none', k=5):
+    def pix_to_3dpt(self, rs, cs, reduce="none", k=5):
         """
         Get the 3D points of the pixels in RGB images.
 
@@ -111,7 +111,9 @@ class Kinect2Camera(Camera):
         :rtype: tuple(np.ndarray, np.ndarray)
         """
         rgb_im, depth_im = self.get_rgb_depth()
-        pts_in_cam = prutil.pix_to_3dpt(depth_im, rs, cs, self.get_intrinsics(), self.DepthMapFactor, reduce, k)
+        pts_in_cam = prutil.pix_to_3dpt(
+            depth_im, rs, cs, self.get_intrinsics(), self.DepthMapFactor, reduce, k
+        )
         pts = pts_in_cam[:3, :].T
         colors = rgb_im[rs, cs].reshape(-1, 3)
         return pts, colors

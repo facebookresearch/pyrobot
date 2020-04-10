@@ -13,14 +13,14 @@ _C.HAS_GRIPPER = False
 
 _CAMERAC = _C.CAMERA
 # CAMERA class name
-_CAMERAC.CLASS = 'Kinect2Camera'
+_CAMERAC.CLASS = "Kinect2Camera"
 # topic name of the camera info
-_CAMERAC.ROSTOPIC_CAMERA_INFO_STREAM = '/kinect2/qhd/camera_info'
+_CAMERAC.ROSTOPIC_CAMERA_INFO_STREAM = "/kinect2/qhd/camera_info"
 # TOD0: Make sure the topic names are right
 # topic name of the RGB images
-_CAMERAC.ROSTOPIC_CAMERA_RGB_STREAM = '/kinect2/qhd/image_color_rect'
+_CAMERAC.ROSTOPIC_CAMERA_RGB_STREAM = "/kinect2/qhd/image_color_rect"
 # topic name of the depth images
-_CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = '/kinect2/qhd/image_depth_rect'
+_CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = "/kinect2/qhd/image_depth_rect"
 # depth map factor
 _CAMERAC.DEPTH_MAP_FACTOR = 1000.0
 

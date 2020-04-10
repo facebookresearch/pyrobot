@@ -12,18 +12,24 @@ _C.HAS_CAMERA = False
 _C.HAS_GRIPPER = False
 
 _ARMC = _C.ARM
-_ARMC.CLASS = 'UR5Arm'
-_ARMC.MOVEGROUP_NAME = 'manipulator'
-_ARMC.ARM_BASE_FRAME = 'base_link'
-_ARMC.EE_FRAME = 'ee_link'
-_ARMC.ROSTOPIC_JOINT_STATES = '/joint_states'
-_ARMC.JOINT_NAMES = ["shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint",
-  "wrist_3_joint"]
+_ARMC.CLASS = "UR5Arm"
+_ARMC.MOVEGROUP_NAME = "manipulator"
+_ARMC.ARM_BASE_FRAME = "base_link"
+_ARMC.EE_FRAME = "ee_link"
+_ARMC.ROSTOPIC_JOINT_STATES = "/joint_states"
+_ARMC.JOINT_NAMES = [
+    "shoulder_pan_joint",
+    "shoulder_lift_joint",
+    "elbow_joint",
+    "wrist_1_joint",
+    "wrist_2_joint",
+    "wrist_3_joint",
+]
 
 _ARMC.ARM_MAX_JOINT_VELOCITY = 0.6
 
 # ur5 only allows setting joint angles through moveit
-#_ARMC.ROSTOPIC_SET_JOINT = '/robot/limb/right/joint_command'
+# _ARMC.ROSTOPIC_SET_JOINT = '/robot/limb/right/joint_command'
 
 _ARMC.IK_POSITION_TOLERANCE = 0.005
 _ARMC.IK_ORIENTATION_TOLERANCE = 0.005

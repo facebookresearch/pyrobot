@@ -1,7 +1,7 @@
 import numpy as np
 from pyrobot import Robot
 
-allegro_hand = Robot('allegro_hand')
+allegro_hand = Robot("allegro_hand")
 
 print("Openning Gripper...")
 allegro_hand.gripper.open()
@@ -12,7 +12,7 @@ print("Openning Gripper...")
 allegro_hand.gripper.open()
 
 print("Setting joint positions on Gripper...")
-joint_angles = 0.1*np.ones(allegro_hand.gripper.gripper_dof)
+joint_angles = 0.1 * np.ones(allegro_hand.gripper.gripper_dof)
 allegro_hand.gripper.set_joint_positions(joint_angles)
 
 print("Reading joint positions on Gripper...")

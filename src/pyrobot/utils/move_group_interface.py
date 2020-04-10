@@ -34,71 +34,93 @@ import rospy
 import actionlib
 from tf.listener import TransformListener
 from geometry_msgs.msg import *
-from moveit_msgs.srv import GetCartesianPath, GetCartesianPathRequest, \
-                            GetCartesianPathResponse, GetPositionIK, \
-                            GetPositionIKRequest, GetPositionIKResponse,\
-                            GetPositionFK, GetPositionFKRequest, GetPositionFKResponse, \
-                            GetMotionPlan
-from moveit_msgs.msg import MoveGroupAction, MoveGroupGoal, MoveItErrorCodes,\
-                            ExecuteTrajectoryAction, ExecuteTrajectoryGoal
-from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, \
-                            OrientationConstraint, BoundingVolume
+from moveit_msgs.srv import (
+    GetCartesianPath,
+    GetCartesianPathRequest,
+    GetCartesianPathResponse,
+    GetPositionIK,
+    GetPositionIKRequest,
+    GetPositionIKResponse,
+    GetPositionFK,
+    GetPositionFKRequest,
+    GetPositionFKResponse,
+    GetMotionPlan,
+)
+from moveit_msgs.msg import (
+    MoveGroupAction,
+    MoveGroupGoal,
+    MoveItErrorCodes,
+    ExecuteTrajectoryAction,
+    ExecuteTrajectoryGoal,
+)
+from moveit_msgs.msg import (
+    Constraints,
+    JointConstraint,
+    PositionConstraint,
+    OrientationConstraint,
+    BoundingVolume,
+)
 from moveit_msgs.msg import MotionPlanRequest, MotionPlanResponse
 from shape_msgs.msg import SolidPrimitive
 from sensor_msgs.msg import JointState
 
 moveit_error_dict = {}
 for name in MoveItErrorCodes.__dict__.keys():
-    if not name[:1] == '_':
+    if not name[:1] == "_":
         code = MoveItErrorCodes.__dict__[name]
         moveit_error_dict[code] = name
 
+
 def processResult(result):
-    '''
+    """
     This functions runs through the moveit error
     codes and logs the type of error encountered.
-    '''
+    """
     if result.error_code.val == 1:
         return True
-    rospy.loginfo("Moveit Failed with error code: " \
-            + str(moveit_error_dict[result.error_code.val]))
+    rospy.loginfo(
+        "Moveit Failed with error code: "
+        + str(moveit_error_dict[result.error_code.val])
+    )
     return False
 
 
 class MoveGroupInterface(object):
-    '''
+    """
     This class lets you interface with the movegroup node. It provides
     the ability to execute the specified trajectory on the robot by
     communicating to the movegroup node using services.
-    '''
-    def __init__(self, 
-                group, 
-                fixed_frame,
-                gripper_frame, 
-                cart_srv,
-                mp_srv,
-                listener=None, 
-                plan_only=False):
+    """
+
+    def __init__(
+        self,
+        group,
+        fixed_frame,
+        gripper_frame,
+        cart_srv,
+        mp_srv,
+        listener=None,
+        plan_only=False,
+    ):
 
         self._group = group
         self._fixed_frame = fixed_frame
-        self._gripper_frame = gripper_frame # a.k.a end-effector frame
-        self._action = actionlib.SimpleActionClient('move_group', 
-                                                    MoveGroupAction)
-        self._traj_action = actionlib.SimpleActionClient('execute_trajectory',
-                                                    ExecuteTrajectoryAction)
-        self._cart_service =  rospy.ServiceProxy(cart_srv, GetCartesianPath)
+        self._gripper_frame = gripper_frame  # a.k.a end-effector frame
+        self._action = actionlib.SimpleActionClient("move_group", MoveGroupAction)
+        self._traj_action = actionlib.SimpleActionClient(
+            "execute_trajectory", ExecuteTrajectoryAction
+        )
+        self._cart_service = rospy.ServiceProxy(cart_srv, GetCartesianPath)
         self._mp_service = rospy.ServiceProxy(mp_srv, GetMotionPlan)
         try:
             self._cart_service.wait_for_service(timeout=3)
         except:
-            rospy.logerr("Timeout waiting for Cartesian Planning Service!!") 
+            rospy.logerr("Timeout waiting for Cartesian Planning Service!!")
 
         try:
             self._mp_service.wait_for_service(timeout=3)
         except:
             rospy.logerr("Timeout waiting for Motion Planning Service!!")
-        
 
         self._action.wait_for_server()
         if listener == None:
@@ -109,17 +131,14 @@ class MoveGroupInterface(object):
 
         self.planner_id = None
         self.planning_time = 15.0
-        
+
     def get_move_action(self):
         return self._action
 
-    def moveToJointPosition(self,
-                            joints,
-                            positions,
-                            tolerance=0.01,
-                            wait=True,
-                            **kwargs):
-        '''
+    def moveToJointPosition(
+        self, joints, positions, tolerance=0.01, wait=True, **kwargs
+    ):
+        """
         Move the arm to set of joint position goals
 
         :param joints: joint names for which the target position
@@ -133,19 +152,20 @@ class MoveGroupInterface(object):
         :type positions: list of float element type
         :type tolerance: float
         :type wait: bool
-        '''
+        """
 
         # Check arguments
-        supported_args = ("max_velocity_scaling_factor",
-                          "planner_id",
-                          "planning_scene_diff",
-                          "planning_time",
-                          "plan_only",
-                          "start_state")
+        supported_args = (
+            "max_velocity_scaling_factor",
+            "planner_id",
+            "planning_scene_diff",
+            "planning_time",
+            "plan_only",
+            "start_state",
+        )
         for arg in kwargs.keys():
             if not arg in supported_args:
-                rospy.loginfo("moveToJointPosition: unsupported argument: %s",
-                              arg)
+                rospy.loginfo("moveToJointPosition: unsupported argument: %s", arg)
 
         # Create goal
         g = MoveGroupGoal()
@@ -197,7 +217,9 @@ class MoveGroupInterface(object):
 
         # Fill in velocity scaling factor
         try:
-            g.request.max_velocity_scaling_factor = kwargs["max_velocity_scaling_factor"]
+            g.request.max_velocity_scaling_factor = kwargs[
+                "max_velocity_scaling_factor"
+            ]
         except KeyError:
             pass  # do not fill in at all
 
@@ -225,17 +247,12 @@ class MoveGroupInterface(object):
             result = self._action.get_result()
             return processResult(result)
         else:
-            rospy.loginfo('Failed while waiting for action result.')
+            rospy.loginfo("Failed while waiting for action result.")
             return False
 
-    
-    def moveToPose(self,
-                   pose,
-                   tolerance=0.01,
-                   wait=True,
-                   **kwargs):
+    def moveToPose(self, pose, tolerance=0.01, wait=True, **kwargs):
 
-        '''
+        """
         Move the arm, based on a goal pose_stamped for the end effector.
 
         :param pose: target pose to which we want to move
@@ -248,18 +265,19 @@ class MoveGroupInterface(object):
         :type gripper_frame: string
         :type tolerance: float
         :type wait: bool
-        '''
+        """
 
         # Check arguments
-        supported_args = ("max_velocity_scaling_factor",
-                          "planner_id",
-                          "planning_time",
-                          "plan_only",
-                          "start_state")
+        supported_args = (
+            "max_velocity_scaling_factor",
+            "planner_id",
+            "planning_time",
+            "plan_only",
+            "start_state",
+        )
         for arg in kwargs.keys():
             if not arg in supported_args:
-                rospy.loginfo("moveToPose: unsupported argument: %s",
-                              arg)
+                rospy.loginfo("moveToPose: unsupported argument: %s", arg)
 
         # Create goal
         g = MoveGroupGoal()
@@ -327,7 +345,9 @@ class MoveGroupInterface(object):
 
         # Fill in velocity scaling factor
         try:
-            g.request.max_velocity_scaling_factor = kwargs["max_velocity_scaling_factor"]
+            g.request.max_velocity_scaling_factor = kwargs[
+                "max_velocity_scaling_factor"
+            ]
         except KeyError:
             pass  # do not fill in at all
 
@@ -352,19 +372,20 @@ class MoveGroupInterface(object):
             result = self._action.get_result()
             return processResult(result)
         else:
-            rospy.loginfo('Failed while waiting for action result.')
+            rospy.loginfo("Failed while waiting for action result.")
             return False
 
-
-    def followCartesian(self, 
-                        way_points, 
-                        way_point_frame,
-                        max_step, 
-                        jump_threshold=0,
-                        link_name=None,  #usually it is Gripper Frame
-                        start_state=None, #of type moveit robotstate
-                        avoid_collisions=True):
-        '''
+    def followCartesian(
+        self,
+        way_points,
+        way_point_frame,
+        max_step,
+        jump_threshold=0,
+        link_name=None,  # usually it is Gripper Frame
+        start_state=None,  # of type moveit robotstate
+        avoid_collisions=True,
+    ):
+        """
         Movegroup-based cartesian path Control.
 
         :param way_points: waypoints that the robot needs to track
@@ -386,9 +407,9 @@ class MoveGroupInterface(object):
         :type link_name: string
         :type start_state: moveit_msgs/RobotState
         :type avoid_collisions: bool
-        '''
+        """
         req = GetCartesianPathRequest()
-        req.header.stamp = rospy.Time.now() 
+        req.header.stamp = rospy.Time.now()
         req.header.frame_id = way_point_frame
         req.group_name = self._group
         req.waypoints = way_points
@@ -408,30 +429,27 @@ class MoveGroupInterface(object):
         rospy.loginfo("Cartesian plan for %f fraction of path", result.fraction)
 
         if len(result.solution.joint_trajectory.points) < 1:
-            rospy.logwarn('No motion plan found. No execution attempted')
+            rospy.logwarn("No motion plan found. No execution attempted")
             return False
 
-        rospy.loginfo('Executing Cartesian Plan...')
-        
+        rospy.loginfo("Executing Cartesian Plan...")
+
         # 13. send Trajectory
         action_req = ExecuteTrajectoryGoal()
-        action_req.trajectory  = result.solution
+        action_req.trajectory = result.solution
         self._traj_action.send_goal(action_req)
         try:
             self._traj_action.wait_for_result()
             result = self._traj_action.get_result()
             return processResult(result)
         except:
-            rospy.logerr('Failed while waiting for action result.')
+            rospy.logerr("Failed while waiting for action result.")
             return False
 
-    def motionPlanToJointPosition(self,
-                                  joints,
-                                  positions,
-                                  tolerance=0.01,
-                                  wait=True,
-                                  **kwargs):
-        '''
+    def motionPlanToJointPosition(
+        self, joints, positions, tolerance=0.01, wait=True, **kwargs
+    ):
+        """
         Move the arm to set of joint position goals
 
         :param joints: joint names for which the target position
@@ -445,20 +463,21 @@ class MoveGroupInterface(object):
         :type positions: list of float element type
         :type tolerance: float
         :type wait: bool
-        '''
+        """
 
         # Check arguments
-        supported_args = ("max_velocity_scaling_factor",
-                          "max_acceleration_scaling_factor",
-                          "planner_id",
-                          "planning_scene_diff",
-                          "planning_time",
-                          "plan_only",
-                          "start_state")
+        supported_args = (
+            "max_velocity_scaling_factor",
+            "max_acceleration_scaling_factor",
+            "planner_id",
+            "planning_scene_diff",
+            "planning_time",
+            "plan_only",
+            "start_state",
+        )
         for arg in kwargs.keys():
             if not arg in supported_args:
-                rospy.loginfo("motionPlanToPose: unsupported argument: %s",
-                              arg)
+                rospy.loginfo("motionPlanToPose: unsupported argument: %s", arg)
 
         # Create goal
         g = MotionPlanRequest()
@@ -515,7 +534,7 @@ class MoveGroupInterface(object):
         except KeyError:
             pass  # do not fill in at all
 
-         # 11. Fill in acceleration scaling factor
+        # 11. Fill in acceleration scaling factor
         try:
             g.max_velocity_scaling_factor = kwargs["max_acceleration_scaling_factor"]
         except KeyError:
@@ -524,18 +543,12 @@ class MoveGroupInterface(object):
         result = self._mp_service(g)
         traj = result.motion_plan_response.trajectory.joint_trajectory.points
         if len(traj) < 1:
-            rospy.logwarn('No motion plan found.')
+            rospy.logwarn("No motion plan found.")
             return None
         return traj
 
-
-
-    def motionPlanToPose(self,
-                         pose,
-                         tolerance=0.01,
-                         wait=True,
-                         **kwargs):
-        '''
+    def motionPlanToPose(self, pose, tolerance=0.01, wait=True, **kwargs):
+        """
         Move the arm to set of joint position goals
 
         :param joints: joint names for which the target position
@@ -549,24 +562,25 @@ class MoveGroupInterface(object):
         :type positions: list of float element type
         :type tolerance: float
         :type wait: bool
-        '''
+        """
 
         # Check arguments
-        supported_args = ("max_velocity_scaling_factor",
-                          "max_acceleration_scaling_factor",
-                          "planner_id",
-                          "planning_scene_diff",
-                          "planning_time",
-                          "plan_only",
-                          "start_state")
+        supported_args = (
+            "max_velocity_scaling_factor",
+            "max_acceleration_scaling_factor",
+            "planner_id",
+            "planning_scene_diff",
+            "planning_time",
+            "plan_only",
+            "start_state",
+        )
         for arg in kwargs.keys():
             if not arg in supported_args:
-                rospy.loginfo("motionPlanToPose: unsupported argument: %s",
-                              arg)
+                rospy.loginfo("motionPlanToPose: unsupported argument: %s", arg)
 
         # Create goal
         g = MotionPlanRequest()
-        
+
         # 1. fill in request workspace_parameters
 
         # 2. fill in request start_state
@@ -634,7 +648,7 @@ class MoveGroupInterface(object):
         except KeyError:
             pass  # do not fill in at all
 
-         # 11. Fill in acceleration scaling factor
+        # 11. Fill in acceleration scaling factor
         try:
             g.max_velocity_scaling_factor = kwargs["max_acceleration_scaling_factor"]
         except KeyError:
@@ -643,20 +657,19 @@ class MoveGroupInterface(object):
         result = self._mp_service(g)
         traj = result.motion_plan_response.trajectory.joint_trajectory.points
         if len(traj) < 1:
-            rospy.logwarn('No motion plan found.')
+            rospy.logwarn("No motion plan found.")
             return None
         return traj
 
-
     def setPlannerId(self, planner_id):
-        '''
+        """
         Sets the planner_id used for all future planning requests.
         :param planner_id: The string for the planner id, set to None to clear
-        '''
+        """
         self.planner_id = str(planner_id)
 
     def setPlanningTime(self, time):
-        '''
+        """
         Set default planning time to be used for future planning request.
-        '''
+        """
         self.planning_time = time

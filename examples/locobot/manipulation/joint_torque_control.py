@@ -16,9 +16,9 @@ def main():
     # with values in the range of (-4.1:4.1)]
     target_torques = 4 * [0.1]
 
-    arm_config = dict(control_mode='torque')
+    arm_config = dict(control_mode="torque")
 
-    bot = Robot('locobot', arm_config=arm_config)
+    bot = Robot("locobot", arm_config=arm_config)
     bot.arm.set_joint_torques(target_torques)
 
 
