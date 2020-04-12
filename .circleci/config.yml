@@ -48,35 +48,12 @@ jobs:
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
-     
-      - run:
-          name: Gazebo 7 VM bug fix
-          command: |
-            sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-            wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-            sudo apt-get update
-            sudo apt-get install gazebo7 -y
-            
+                 
       - run:
           name: Fake Display
           command: |
             Xvfb :1 -screen 0 1600x1200x16  &
-            export DISPLAY=:1.0
-      - run:
-          name: Sip 4.17 VM Bug fix
-          command: |
-            cd ~/
-            source ~/pyenv_pyrobot_python2/bin/activate
-            wget http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.zip
-            unzip sip-4.17.zip
-            cd sip-4.17/
-            python configure.py --incdir=~/pyenv_pyrobot_python2/include/python2.7
-            make
-            make install
-            cd ..
-            pip install lxml
-            deactivate
-      
+            export DISPLAY=:1.0      
       #- run:
       #    name: Python2 Tests
       #    command: |
