@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Installer Python2
           command: |
-            pip install --upgrade pip
+            sudo apt-get install -y python-rosdep
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2
