@@ -80,6 +80,8 @@ if [ $PYTHON_VERSION == "3" ]; then
 		#ros_comm TODO: Remove this when the pull request gets approved
 		git clone -b patch-1 https://github.com/kalyanvasudev/ros_comm.git
 		
+		cd ..
+		
 		# Install all the python 3 dependencies
 		sudo apt-get install ros-kinetic-cv-bridge
 
