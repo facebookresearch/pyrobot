@@ -12,8 +12,7 @@ jobs:
       - run:
           name: Python-TK and Python-SIM install (VM Bug)
           command: |
-            apt-get update
-            apt-get -y install sudo wget
+            sudo apt-get update
             wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - #Chrome linux keys error fix
             sudo apt-get update
             sudo apt-get install sip-dev
