@@ -6,6 +6,8 @@ jobs:
     resource_class: xlarge
     docker:
       - image: ubuntu:18.04
+        environment:
+          Z: "America/Los_Angeles"
 
     steps:
       - checkout
@@ -24,7 +26,6 @@ jobs:
       - run:
           name: Installer Python2
           command: |
-            export DEBIAN_FRONTEND=noninteractive
             pip install --upgrade pip
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
@@ -33,7 +34,6 @@ jobs:
       - run:
           name: Installer Python3
           command: |
-            export DEBIAN_FRONTEND=noninteractive
             source ~/.bashrc
             cd ~/project
             chmod +x install_pyrobot.sh
