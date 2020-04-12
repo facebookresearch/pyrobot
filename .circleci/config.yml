@@ -5,7 +5,7 @@ jobs:
   build:
     resource_class: xlarge
     docker:
-      - image: ubuntu:18.04
+      - image: ros:melodic-robot-bionic
 
     steps:
       - checkout
