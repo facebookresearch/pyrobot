@@ -7,7 +7,8 @@ jobs:
     docker:
       - image: ubuntu:18.04
         environment:
-          Z: "America/Los_Angeles"
+          TZ: "America/Los_Angeles"
+          DEBIAN_FRONTEND: noninteractive
 
     steps:
       - checkout
