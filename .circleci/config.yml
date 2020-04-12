@@ -17,7 +17,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install sip-dev
             sudo apt-get install tk-dev
-            pyenv install -f 2.7.12
+            #pyenv install -f 2.7.12
             
       - run:
           name: Installer Python2
