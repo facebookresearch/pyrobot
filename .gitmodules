@@ -15,7 +15,7 @@
 	url = https://github.com/ros-controls/ros_control.git
 [submodule "robots/LoCoBot/thirdparty/ORB_SLAM2"]
 	path = robots/LoCoBot/thirdparty/ORB_SLAM2
-	url = https://github.com/taochenshh/ORB_SLAM2.git
+	url = https://github.com/kalyanvasudev/ORB_SLAM2.git
 [submodule "robots/LoCoBot/thirdparty/ar_track_alvar"]
 	path = robots/LoCoBot/thirdparty/ar_track_alvar
 	url = https://github.com/s-gupta/ar_track_alvar.git
