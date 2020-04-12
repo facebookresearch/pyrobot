@@ -6,9 +6,6 @@ jobs:
     resource_class: xlarge
     docker:
       - image: ubuntu:18.04
-        environment:
-          TZ: "America/Los_Angeles"
-          DEBIAN_FRONTEND: noninteractive
 
     steps:
       - checkout
@@ -23,6 +20,12 @@ jobs:
             #sudo apt-get install -y sip-dev
             #sudo apt-get install -y tk-dev
             #pyenv install -f 2.7.12
+            
+            export DEBIAN_FRONTEND=noninteractive
+
+            ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+            sudo apt-get install -y tzdata
+            dpkg-reconfigure --frontend noninteractive tzdata
             
       - run:
           name: Installer Python2
