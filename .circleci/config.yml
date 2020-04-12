@@ -37,17 +37,19 @@ jobs:
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2
  
-      #- run:
-      #    name: Installer Python3
-      #    command: |
-      #      source ~/.bashrc
-      #      cd ~/project
-      #      chmod +x install_pyrobot.sh
-      #      ./install_pyrobot.sh -p 3
-      #      cd ~/project/robots/LoCoBot
-      #      source ~/pyenv_pyrobot_python3/bin/activate
-      #      pip3 install --ignore-installed -r requirements_python3.txt
-      #      deactivate
+      - run:
+          name: Installer Python3
+          command: |
+            source ~/.bashrc
+            source /opt/ros/melodic/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            cd ~/project
+            chmod +x install_pyrobot.sh
+            ./install_pyrobot.sh -p 3
+            cd ~/project/robots/LoCoBot
+            source ~/pyenv_pyrobot_python3/bin/activate
+            pip3 install --ignore-installed -r requirements_python3.txt
+            deactivate
                  
       #- run:
       #    name: Fake Display
