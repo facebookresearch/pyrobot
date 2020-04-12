@@ -37,23 +37,23 @@ jobs:
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2
  
-      - run:
-          name: Installer Python3
-          command: |
-            source ~/.bashrc
-            cd ~/project
-            chmod +x install_pyrobot.sh
-            ./install_pyrobot.sh -p 3
-            cd ~/project/robots/LoCoBot
-            source ~/pyenv_pyrobot_python3/bin/activate
-            pip3 install --ignore-installed -r requirements_python3.txt
-            deactivate
+      #- run:
+      #    name: Installer Python3
+      #    command: |
+      #      source ~/.bashrc
+      #      cd ~/project
+      #      chmod +x install_pyrobot.sh
+      #      ./install_pyrobot.sh -p 3
+      #      cd ~/project/robots/LoCoBot
+      #      source ~/pyenv_pyrobot_python3/bin/activate
+      #      pip3 install --ignore-installed -r requirements_python3.txt
+      #      deactivate
                  
-      - run:
-          name: Fake Display
-          command: |
-            Xvfb :1 -screen 0 1600x1200x16  &
-            export DISPLAY=:1.0      
+      #- run:
+      #    name: Fake Display
+      #    command: |
+      #      Xvfb :1 -screen 0 1600x1200x16  &
+      #      export DISPLAY=:1.0      
       #- run:
       #    name: Python2 Tests
       #    command: |
@@ -66,8 +66,8 @@ jobs:
           name: Run Gazebo in the background
           command: |
             source ~/.bashrc
-            source ~/pyenv_pyrobot_python2/bin/activate
-            roslaunch locobot_control main.launch use_sim:=true
+            source ~/.bashrc
+            roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
       
