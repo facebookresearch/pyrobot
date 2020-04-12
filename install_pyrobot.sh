@@ -26,9 +26,24 @@ if [ $PYTHON_VERSION != "2" ] && [ $PYTHON_VERSION != "3" ]; then
    helpFunction
 fi
 
+ubuntu_version="$(lsb_release -r -s)"
+
+if [ $ubuntu_version == "16.04" ]; then
+	echo "Ubuntu 16.04 detected. ROS-Kinetic chosen for installation.";
+	ROS_VERSION="kinetic"
+elif [ $ubuntu_version == "18.04" ]; then
+	echo "Ubuntu 18.04 detected. ROS-Melodic chosen for installation.";
+	ROS_VERSION="melodic"
+else
+	echo -e "Unsupported Ubuntu verison: $ubuntu_version"
+	echo -e "pyRobot only works with 16.04 or 18.04"
+	exit 1
+fi
+
+
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
 sudo apt-get -y install python-virtualenv
-sudo apt-get -y install ros-kinetic-orocos-kdl ros-kinetic-kdl-parser-py ros-kinetic-python-orocos-kdl ros-kinetic-trac-ik
+sudo apt-get -y install ros-$ROS_VERSION-orocos-kdl ros-$ROS_VERSION-kdl-parser-py ros-$ROS_VERSION-python-orocos-kdl ros-$ROS_VERSION-trac-ik
 
 if [ $PYTHON_VERSION == "2" ]; then
 	virtualenv_name="pyenv_pyrobot_python2"
@@ -70,20 +85,22 @@ if [ $PYTHON_VERSION == "3" ]; then
 		mkdir -p $PYROBOT_PYTHON3_WS/src
 		cd $PYROBOT_PYTHON3_WS/src
 
-		#clone tf
-		git clone -b indigo-devel https://github.com/ros/geometry
-		git clone -b indigo-devel https://github.com/ros/geometry2
+		if [ $ROS_VERSION == "kinetic" ]; then
+			git clone -b indigo-devel https://github.com/ros/geometry
+			git clone -b indigo-devel https://github.com/ros/geometry2
+			git clone -b python3_patch https://github.com/kalyanvasudev/vision_opencv.git
+		else
+			git clone https://github.com/ros/geometry
+			git clone https://github.com/ros/geometry2
+			git clone -b python3_patch_melodic https://github.com/kalyanvasudev/vision_opencv.git
+		fi
 		
-		# Clone cv_bridge src
-		git clone -b python3_patch https://github.com/kalyanvasudev/vision_opencv.git
-
-		#ros_comm TODO: Remove this when the pull request gets approved
 		git clone -b patch-1 https://github.com/kalyanvasudev/ros_comm.git
-		
+
 		cd ..
 		
 		# Install all the python 3 dependencies
-		sudo apt-get install ros-kinetic-cv-bridge
+		sudo apt-get install ros-$ROS_VERSION-cv-bridge
 
 		# Build
 		catkin_make --cmake-args -DPYTHON_EXECUTABLE=$(which python) -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
