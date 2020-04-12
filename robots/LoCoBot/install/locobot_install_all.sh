@@ -122,7 +122,7 @@ declare -a ros_package_names=(
 	"ros-kinetic-kdl-parser-py"
 	"ros-kinetic-orocos-kdl"
 	"ros-kinetic-python-orocos-kdl"
-	"ros-kinetic-libcreate"
+	#"ros-kinetic-libcreate"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -188,19 +188,6 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	git checkout Develop
 	git submodule update --init --recursive
 fi
-cd $LOCOBOT_FOLDER
-rosdep update 
-rosdep install --from-paths src -i -y
-cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
-chmod +x install_orb_slam2.sh
-source install_orb_slam2.sh
-cd $LOCOBOT_FOLDER
-if [ -d "$LOCOBOT_FOLDER/devel" ]; then
-	rm -rf $LOCOBOT_FOLDER/devel
-fi
-if [ -d "$LOCOBOT_FOLDER/build" ]; then
-	rm -rf $LOCOBOT_FOLDER/build
-fi
 
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 
@@ -229,6 +216,20 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
   git clone https://github.com/s-gupta/ar_track_alvar.git
   cd ar_track_alvar && git checkout 625a3cf928552ee5bf97453897af6790d523962f && cd ..
 
+fi
+
+cd $LOCOBOT_FOLDER
+rosdep update 
+rosdep install --from-paths src -i -y
+cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
+chmod +x install_orb_slam2.sh
+source install_orb_slam2.sh
+cd $LOCOBOT_FOLDER
+if [ -d "$LOCOBOT_FOLDER/devel" ]; then
+	rm -rf $LOCOBOT_FOLDER/devel
+fi
+if [ -d "$LOCOBOT_FOLDER/build" ]; then
+	rm -rf $LOCOBOT_FOLDER/build
 fi
 
 if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
