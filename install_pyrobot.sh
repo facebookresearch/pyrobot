@@ -75,29 +75,14 @@ if [ $PYTHON_VERSION == "3" ]; then
 		git clone -b indigo-devel https://github.com/ros/geometry2
 		
 		# Clone cv_bridge src
-		git clone https://github.com/ros-perception/vision_opencv.git
+		git clone -b python3_patch https://github.com/kalyanvasudev/vision_opencv.git
 
 		#ros_comm TODO: Remove this when the pull request gets approved
 		git clone -b patch-1 https://github.com/kalyanvasudev/ros_comm.git
 		
-		cd ..
-		
 		# Install all the python 3 dependencies
 		sudo apt-get install ros-kinetic-cv-bridge
 
-		## Find version of cv_bridge in your repository
-		##apt-cache show ros-kinetic-cv-bridge | grep Version
-		 
-		# Checkout right version in git repo. In our case it is 1.12.8
-		cd src/vision_opencv/
-		git checkout 1.12.8 # Usually this is the version!
-		cd ../../
-		
-		#symlink - https://github.com/ros-perception/vision_opencv/issues/196
-		my_link=/usr/lib/x86_64-linux-gnu/libboost_python3.so
-		if [ ! -L ${my_link} ] ; then
-		   sudo ln -s /usr/lib/x86_64-linux-gnu/libboost_python-py35.so /usr/lib/x86_64-linux-gnu/libboost_python3.so
-		fi
 		# Build
 		catkin_make --cmake-args -DPYTHON_EXECUTABLE=$(which python) -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
 		
