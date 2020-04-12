@@ -15,8 +15,8 @@ jobs:
             apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*
             #wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - #Chrome linux keys error fix
             sudo apt-get update -y
-            sudo apt-get install -y sip-dev
-            sudo apt-get install -y tk-dev
+            #sudo apt-get install -y sip-dev
+            #sudo apt-get install -y tk-dev
             #pyenv install -f 2.7.12
             
       - run:
