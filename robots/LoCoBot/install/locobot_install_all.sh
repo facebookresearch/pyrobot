@@ -37,17 +37,16 @@ fi
 ubuntu_version="$(lsb_release -r -s)"
 
 if [ $ubuntu_version == "16.04" ]; then
-	echo "Ubuntu 16.04 detected. ROS-Kinetic chosen for installation.";
-	ROS_VERSION="kinetic"
+	ROS_NAME="kinetic"
 elif [ $ubuntu_version == "18.04" ]; then
-	echo "Ubuntu 18.04 detected. ROS-Melodic chosen for installation.";
-	ROS_VERSION="melodic"
+	ROS_NAME="melodic"
 else
 	echo -e "Unsupported Ubuntu verison: $ubuntu_version"
 	echo -e "pyRobot only works with 16.04 or 18.04"
 	exit 1
 fi
 
+echo "Ubuntu $ubuntu_version detected. ROS-$ROS_NAME chosen for installation.";
 
 echo "$INSTALL_TYPE installation type is chosen for LoCoBot."
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
@@ -105,7 +104,7 @@ sudo pip install --upgrade pip
 
 # STEP 2 - Install ROS 
 
-if [ $ROS_VERSION == "kinetic" ]; then
+if [ $ROS_NAME == "kinetic" ]; then
 
 	if [ $(dpkg-query -W -f='${Status}' ros-kinetic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
 		echo "Installing ROS..."
@@ -140,25 +139,25 @@ else
 	fi
 fi
 
-source /opt/ros/$ROS_VERSION/setup.bash
+source /opt/ros/$ROS_NAME/setup.bash
 
 
 # STEP 3 - Install ROS debian dependencies
 declare -a ros_package_names=(
-	"ros-$ROS_VERSION-dynamixel-motor" 
-	"ros-$ROS_VERSION-moveit" 
-	"ros-$ROS_VERSION-trac-ik"
-	"ros-$ROS_VERSION-ar-track-alvar"
-	"ros-$ROS_VERSION-move-base"
-	"ros-$ROS_VERSION-ros-control"
-	"ros-$ROS_VERSION-gazebo-ros-control"
-	"ros-$ROS_VERSION-ros-controllers"
-	"ros-$ROS_VERSION-navigation"
-	"ros-$ROS_VERSION-rgbd-launch"
-	"ros-$ROS_VERSION-kdl-parser-py"
-	"ros-$ROS_VERSION-orocos-kdl"
-	"ros-$ROS_VERSION-python-orocos-kdl"
-	#"ros-$ROS_VERSION-libcreate"
+	"ros-$ROS_NAME-dynamixel-motor" 
+	"ros-$ROS_NAME-moveit" 
+	"ros-$ROS_NAME-trac-ik"
+	"ros-$ROS_NAME-ar-track-alvar"
+	"ros-$ROS_NAME-move-base"
+	"ros-$ROS_NAME-ros-control"
+	"ros-$ROS_NAME-gazebo-ros-control"
+	"ros-$ROS_NAME-ros-controllers"
+	"ros-$ROS_NAME-navigation"
+	"ros-$ROS_NAME-rgbd-launch"
+	"ros-$ROS_NAME-kdl-parser-py"
+	"ros-$ROS_NAME-orocos-kdl"
+	"ros-$ROS_NAME-python-orocos-kdl"
+	#"ros-$ROS_NAME-libcreate"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -238,7 +237,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 		git clone https://github.com/kalyanvasudev/ORB_SLAM2.git
 		git clone https://github.com/s-gupta/ar_track_alvar.git
 
-	if [ $ROS_VERSION == "kinetic" ]; then
+	if [ $ROS_NAME == "kinetic" ]; then
 		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
 		cd dynamixel-workbench && git checkout bf60cf8f17e8385f623cbe72236938b5950d3b56 && cd ..
 		cd DynamixelSDK && git checkout 05dcc5c551598b4d323bf1fb4b9d1ee03ad1dfd9 && cd ..
@@ -300,7 +299,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	rm -r kobuki_qtestsuite
 	cd -
 	git clone https://github.com/yujinrobot/kobuki.git
-	cd kobuki && git checkout $ROS_VERSION && cd ..
+	cd kobuki && git checkout $ROS_NAME && cd ..
 	mv kobuki/kobuki_description kobuki/kobuki_bumper2pc \
 	  kobuki/kobuki_node kobuki/kobuki_keyop \
 	  kobuki/kobuki_safety_controller ./
@@ -312,8 +311,8 @@ if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	mv yujin_ocs/yocs_safety_controller yujin_ocs/yocs_velocity_smoother .
 	rm -rf yujin_ocs
 
-	sudo apt-get install ros-$ROS_VERSION-kobuki-* -y
-	sudo apt-get install ros-$ROS_VERSION-ecl-streams -y
+	sudo apt-get install ros-$ROS_NAME-kobuki-* -y
+	sudo apt-get install ros-$ROS_NAME-ecl-streams -y
 fi
 
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
@@ -328,7 +327,7 @@ if [ $PYTHON_VERSION == "2" ]; then
 	pip install --ignore-installed -r requirements_python2.txt
 	
 	cd $LOCOBOT_FOLDER
-	source /opt/ros/$ROS_VERSION/setup.bash
+	source /opt/ros/$ROS_NAME/setup.bash
 	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
@@ -337,7 +336,7 @@ if [ $PYTHON_VERSION == "2" ]; then
 fi
 if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER
-	source /opt/ros/$ROS_VERSION/setup.bash
+	source /opt/ros/$ROS_NAME/setup.bash
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash
