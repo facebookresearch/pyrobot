@@ -9,25 +9,7 @@ jobs:
 
     steps:
       - checkout
-      - run:
-          name: Python-TK and Python-SIM install (VM Bug)
-          command: |
-            apt-get update && apt-get install -y sudo && rm -rf /var/lib/apt/lists/*
-            #wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - #Chrome linux keys error fix
-            sudo apt-get update -y
-            sudo apt-get install -y python-setuptools python-pip
-            #pyenv install -f 2.7.12
-            
-            export DEBIAN_FRONTEND=noninteractive
 
-            ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-            sudo apt-get install -y tzdata
-            dpkg-reconfigure --frontend noninteractive tzdata
-            
-            apt-get update && apt-get install -y lsb-release && apt-get clean all
-            
-            #sudo apt-get install -y sip-dev
-            #sudo apt-get install -y tk-dev
             
       - run:
           name: Installer Python2
