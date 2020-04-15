@@ -34,7 +34,7 @@ def try_cv2_import():
         sys.path.remove(ros_path_melodic)
         import cv2
 
-        sys.path.append(ros_path_melodi)
+        sys.path.append(ros_path_melodic)
     else:
         import cv2
 
