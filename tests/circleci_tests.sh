@@ -13,5 +13,6 @@ pytest test_base_velocity_control.py -v
 pytest test_base_position_control_inits.py -v
 pytest test_base_controllers.py -v
 pytest test_arm_controls.py -v
+pytest test_arm_utils.py -v
 
 exit 0
