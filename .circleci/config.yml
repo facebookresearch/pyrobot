@@ -31,7 +31,6 @@ jobs:
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
 
-
       - run:
           name: Run Gazebo in the background
           command: |

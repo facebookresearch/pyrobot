@@ -65,7 +65,8 @@ if [ $PYTHON_VERSION == "3" ]; then
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 		sudo apt-get install software-properties-common python-software-properties
-		sudo add-apt-repository -y ppa:fkrull/deadsnakes
+		sudo add-apt-repository -y ppa:deadsnakes/ppa
+		#sudo add-apt-repository -y ppa:fkrull/deadsnakes
 		#sudo add-apt-repository ppa:jonathonf/python-3.6
 		sudo apt-get update
 		sudo apt-get install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml
