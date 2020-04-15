@@ -73,7 +73,7 @@ jobs:
       - run:
           name: Installer Python3
           command: |
-            sudo apt-get install software-properties-common
+            sudo apt-get install -y software-properties-common
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
