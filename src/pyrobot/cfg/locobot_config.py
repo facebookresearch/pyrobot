@@ -74,7 +74,7 @@ _BASEC.ROSTOPIC_MOVE_BASE_STATUS = "/move_base/status"
 # Rostopic on which the command to cancel the goal sent to movebase should be
 _BASEC.ROSTOPIC_GOAL_CANCEL = "/move_base/cancel"
 # world frame name
-_BASEC.MAP_FRAME = "/map"
+_BASEC.MAP_FRAME = "map"
 # Rosaction topic for movebase
 _BASEC.ROSTOPIC_BASE_ACTION_COMMAND = "move_base"
 # Rate of control for ILQR
