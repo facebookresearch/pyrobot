@@ -51,7 +51,8 @@ if [ $PYTHON_VERSION == "2" ]; then
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
 		virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
-		pip install -U setuptools
+		#pip install -U setuptools
+		pip install --upgrade 'setuptools<45.0.0'
 		pip install .
 		deactivate
 		echo "alias load_pyrobot_env='source $VIRTUALENV_FOLDER/bin/activate '" >> ~/.bashrc
