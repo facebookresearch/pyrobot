@@ -64,12 +64,12 @@ if [ $PYTHON_VERSION == "3" ]; then
 	virtualenv_name="pyenv_pyrobot_python3"
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-		sudo apt-get install software-properties-common python-software-properties
+		sudo apt-get -y install software-properties-common python-software-properties
 		sudo add-apt-repository -y ppa:fkrull/deadsnakes
 		#sudo add-apt-repository ppa:jonathonf/python-3.6
 		sudo apt-get update
-		sudo apt-get install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml
-		sudo apt-get install python3-tk python3.6-tk
+		sudo apt-get -y install python-catkin-tools python3.6-dev python3-catkin-pkg-modules python3-numpy python3-yaml
+		sudo apt-get -y install python3-tk python3.6-tk
 		virtualenv -p /usr/bin/python3.6 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
 		pip install catkin_pkg pyyaml empy rospkg
@@ -101,7 +101,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 		cd ..
 		
 		# Install all the python 3 dependencies
-		sudo apt-get install ros-$ROS_NAME-cv-bridge
+		sudo apt-get -y install ros-$ROS_NAME-cv-bridge
 
 		# Build
 		catkin_make --cmake-args -DPYTHON_EXECUTABLE=$(which python) -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
