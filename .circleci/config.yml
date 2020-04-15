@@ -30,7 +30,14 @@ jobs:
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
-                       
+
+      - run:
+          name: Fake Display
+          command: |
+            sudo apt-get install -y xvfb
+            Xvfb :1 -screen 0 1600x1200x16  &
+            export DISPLAY=:1.0
+            
       - run:
           name: Run Gazebo in the background
           command: |
@@ -79,6 +86,13 @@ jobs:
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
+
+      - run:
+          name: Fake Display
+          command: |
+            sudo apt-get install -y xvfb
+            Xvfb :1 -screen 0 1600x1200x16  &
+            export DISPLAY=:1.0
                        
       - run:
           name: Run Gazebo in the background
