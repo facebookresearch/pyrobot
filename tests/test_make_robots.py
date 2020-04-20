@@ -26,7 +26,7 @@ def test_make_robot_base(botname, base_controller, base_planner):
     return bot
 
 
-def test_bumper_topic_locobase_ilqr_none(botname):
+def test_bumper_topic_locobot_ilqr_none(botname):
     bot = test_make_robot_base(botname, "ilqr", "none")
     topic_names = [x[0] for x in rospy.get_published_topics()]
     assert bot.configs.BASE.ROSTOPIC_BUMPER in topic_names

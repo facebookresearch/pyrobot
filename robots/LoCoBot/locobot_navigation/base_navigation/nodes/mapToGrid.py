@@ -23,7 +23,7 @@ class PcdToOcGrid:
     def __init__(self, z_lower_treshold, z_upper_treshold, x_min, y_min, x_max, y_max):
 
         self.bot = Robot(
-            "locobase", base_config={"build_map": True, "base_planner": "none"}
+            "locobot", base_config={"build_map": True, "base_planner": "none"}
         )
 
         self.ocGrid = None  #
