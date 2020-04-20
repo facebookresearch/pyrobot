@@ -495,7 +495,7 @@ class DepthImgProcessor:
         with open(cfg_path, "r") as f:
             for i in range(1):
                 f.readline()
-            cfg_data = yaml.load(f)
+            cfg_data = yaml.load(f, Loader=yaml.FullLoader)
         return cfg_data
 
     def get_intrinsic(self):
