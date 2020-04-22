@@ -22,7 +22,7 @@ class LoCoBotArm(Arm):
         self,
         configs,
         control_mode="position",
-        moveit_planner="ESTkConfigDefault",
+        moveit_planner="RRTConnectkConfigDefault",
         use_moveit=True,
     ):
         """
