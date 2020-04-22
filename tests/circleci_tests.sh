@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-
-source ~/.bashrc
-source /opt/ros/$ROS_DISTRO/setup.bash
-source ~/low_cost_ws/devel/setup.bash
-source ~/pyenv_pyrobot_python3/bin/activate
-source ~/pyrobot_catkin_ws/devel/setup.bash
-
 pytest test_make_robots.py -v
 pytest test_pyrobot_classes.py -v
 pytest test_camera.py -v

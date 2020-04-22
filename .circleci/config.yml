@@ -52,12 +52,28 @@ jobs:
             roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
-      
+
+      - run:
+          name: Run tests in Python2
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python2/bin/activate
+            cd ~/project/tests/
+            chmod +x circleci_tests.sh
+            ./circleci_tests.sh
+
       - run:
           name: Run tests in Python3
           command: |
             sleep 150 # Wait for Gazebo to properly spin up
             source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
             cd ~/project/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
@@ -107,10 +123,26 @@ jobs:
           background: true
       
       - run:
+          name: Run tests in Python2
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python2/bin/activate
+            cd ~/project/tests/
+            chmod +x circleci_tests.sh
+            ./circleci_tests.sh
+
+      - run:
           name: Run tests in Python3
           command: |
             sleep 150 # Wait for Gazebo to properly spin up
             source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
             cd ~/project/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
