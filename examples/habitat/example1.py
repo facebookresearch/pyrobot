@@ -18,10 +18,10 @@ def visualize(bot):
 
 
 # Please change this to match your habitat_sim repo's path
-path_to_habitat_sim = "/PATH_TO_THE_REPO/habitat-sim"
-relative_path = "examples/data/scene_datasets/habitat-test-scenes/skokloster-castle.glb"
+path_to_habitat_scene = os.path.dirname(os.path.realpath(__file__))
+relative_path = "scenes/skokloster-castle.glb"
 
-common_config = dict(scene_path=os.path.join(path_to_habitat_sim, relative_path))
+common_config = dict(scene_path=os.path.join(path_to_habitat_scene, relative_path))
 bot = Robot("habitat", common_config=common_config)
 visualize(bot)
 

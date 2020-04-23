@@ -30,8 +30,6 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
 sudo update-alternatives --config gcc
 ```
 
-Now, intall Habitat-Sim using the following commands,
-
 
 Install Habitat Sim using the installation instructions here,
 ```bash

@@ -17,11 +17,10 @@ import habitat_sim.agent as habAgent
 import habitat_sim.utils as habUtils
 
 
-class LoCoBotCamera(Camera):
+class LoCoBotCamera(object):
     """docstring for SimpleCamera"""
 
     def __init__(self, configs, simulator):
-        super(LoCoBotCamera, self).__init__(configs)
         self.sim = simulator.sim
         self.configs = configs
         self.agent = self.sim.get_agent(self.configs.COMMON.SIMULATOR.DEFAULT_AGENT_ID)
