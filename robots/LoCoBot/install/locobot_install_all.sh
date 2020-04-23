@@ -249,7 +249,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
     ln locobot.srdf interbotix_locobot.srdf
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_control/src
-    sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -1.30, 1.617, 0.5, 0};/' locobot_controller.cpp 
+    sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -1.30, 1.617, 0.5, 0};/' locobot_controller.cpp
   fi
 fi
 
@@ -357,7 +357,9 @@ if [ $PYTHON_VERSION == "2" ]; then
 
 	cd $LOCOBOT_FOLDER
 	source /opt/ros/$ROS_NAME/setup.bash
-  source $CAMERA_FOLDER/devel/setup.bash
+  if [ $INSTALL_TYPE == "full" ]; then
+    source $CAMERA_FOLDER/devel/setup.bash
+  fi
 	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
@@ -367,7 +369,9 @@ fi
 if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER
 	source /opt/ros/$ROS_NAME/setup.bash
-  source $CAMERA_FOLDER/devel/setup.bash
+  if [ $INSTALL_TYPE == "full" ]; then
+    source $CAMERA_FOLDER/devel/setup.bash
+  fi
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash
