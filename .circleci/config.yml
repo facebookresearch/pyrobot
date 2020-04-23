@@ -1,22 +1,22 @@
 version: 2.1
 
 jobs:
-  
+
   kinetic_install_ubuntu_16:
     resource_class: xlarge
     docker:
       - image: ros:kinetic-robot-xenial
 
     steps:
-      - checkout            
+      - checkout
       - run:
           name: Installer Python2
           command: |
             sudo apt-get install -y python-rosdep
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
-            ./locobot_install_all.sh -t sim_only -p 2
- 
+            ./locobot_install_all.sh -t sim_only -p 2 -l cmu
+
       - run:
           name: Installer Python3
           command: |
@@ -39,7 +39,7 @@ jobs:
             wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
             sudo apt-get update
             sudo apt-get install gazebo7 -y
-            
+
       - run:
           name: Run Gazebo in the background
           command: |
@@ -85,15 +85,15 @@ jobs:
       - image: ros:melodic-robot-bionic
 
     steps:
-      - checkout            
+      - checkout
       - run:
           name: Installer Python2
           command: |
             sudo apt-get install -y python-rosdep
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
-            ./locobot_install_all.sh -t sim_only -p 2
- 
+            ./locobot_install_all.sh -t sim_only -p 2 -l interbotix
+
       - run:
           name: Installer Python3
           command: |
@@ -108,7 +108,7 @@ jobs:
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
-                       
+
       - run:
           name: Run Gazebo in the background
           command: |
@@ -121,7 +121,7 @@ jobs:
             roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
-      
+
       - run:
           name: Run tests in Python2
           command: |
