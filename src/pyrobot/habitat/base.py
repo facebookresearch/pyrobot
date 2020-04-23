@@ -45,8 +45,9 @@ class LoCoBotBase(object):
             )
         return self.transform
 
-    def get_state(self):
+    def get_state(self, state_type="odom"):
         # Returns (x, y, yaw)
+        assert state_type=="odom", "Error: Only Odom state is availalabe"
         cur_state = self.get_full_state()
         true_position = cur_state.position - self.init_state.position
         true_position = habUtils.quat_rotate_vector(

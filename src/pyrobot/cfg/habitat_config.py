@@ -27,12 +27,15 @@ _C.HAS_COMMON = True
 _CAMERAC = _C.CAMERA
 # CAMERA class name
 _CAMERAC.CLASS = "LoCoBotCamera"
+# reset value for the pan
+_CAMERAC.RESET_PAN = 0.0
+# reset value for the tilt
+_CAMERAC.RESET_TILT = 0.0
 
 # Base specific settings
 _BASEC = _C.BASE
 # BASE class name
 _BASEC.CLASS = "LoCoBotBase"
-
 
 _COMMONC = _C.COMMON
 # Name of the common class variable that will be shared in Robot class
