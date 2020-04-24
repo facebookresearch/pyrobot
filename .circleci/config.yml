@@ -39,44 +39,7 @@ jobs:
             wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
             sudo apt-get update
             sudo apt-get install gazebo7 -y
-
-      - run:
-          name: Installl Habitat
-          command: |
-
-            source ~/.bashrc
-            source /opt/ros/$ROS_DISTRO/setup.bash
-            source ~/low_cost_ws/devel/setup.bash
-            source ~/pyenv_pyrobot_python3/bin/activate
-            source ~/pyrobot_catkin_ws/devel/setup.bash
-            
-            pip install cmake
-            sudo apt-get install -y software-properties-common
-            sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-            sudo apt update
-            sudo apt install g++-7 -y
-            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
-                         --slave /usr/bin/g++ g++ /usr/bin/g++-7 
-            sudo update-alternatives --config gcc
-            git clone --branch stable https://github.com/facebookresearch/habitat-sim.git
-            cd habitat-sim
-            pip install -r requirements.txt # Inside PyRobot Virtual Environment
-            sudo apt-get install -y libjpeg-dev libglm-dev libgl1-mesa-glx \
-                                libegl1-mesa-dev mesa-utils xorg-dev freeglut3-dev
-            python setup.py install # Inside PyRobot Virtual Environment
-
-      - run:
-          name: Test Habitat
-          command: |
-            source ~/.bashrc
-            source /opt/ros/$ROS_DISTRO/setup.bash
-            source ~/low_cost_ws/devel/setup.bash
-            source ~/pyenv_pyrobot_python3/bin/activate
-            source ~/pyrobot_catkin_ws/devel/setup.bash
-            cd ~/project/tests/
-            roscore &
-            pytest test_habitat_locobot.py -v
-            
+        
       - run:
           name: Run Gazebo in the background
           command: |
