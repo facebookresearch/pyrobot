@@ -741,7 +741,8 @@
                 <depthImageCameraInfoTopicName>aligned_depth_to_color/camera_info</depthImageCameraInfoTopicName>
                 <pointCloudTopicName>depth_registered/points</pointCloudTopicName>
                 <frameName>camera_color_optical_frame</frameName>
-                <pointCloudCutoff>10</pointCloudCutoff>
+                <pointCloudCutoff>0</pointCloudCutoff>
+                <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
                 <distortionK1>0.00000001</distortionK1>
                 <distortionK2>0.00000001</distortionK2>
                 <distortionK3>0.00000001</distortionK3>
