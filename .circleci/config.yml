@@ -15,7 +15,7 @@ jobs:
             sudo apt-get install -y python-rosdep
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
-            ./locobot_install_all.sh -t sim_only -p 2
+            ./locobot_install_all.sh -t sim_only -p 2 -l cmu
  
       - run:
           name: Installer Python3
@@ -92,7 +92,7 @@ jobs:
             sudo apt-get install -y python-rosdep
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
-            ./locobot_install_all.sh -t sim_only -p 2
+            ./locobot_install_all.sh -t sim_only -p 2 -l interbotix
  
       - run:
           name: Installer Python3
