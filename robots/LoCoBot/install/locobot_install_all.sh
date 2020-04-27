@@ -238,17 +238,17 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	git submodule update --init --recursive
   if [ $LOCOBOT_PLATFORM == "cmu" ]; then
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_description/urdf
-    ln locobot_description.urdf cmu_locobot_description.urdf
+    ln cmu_locobot_description.urdf locobot_description.urdf
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
-    ln locobot.srdf cmu_locobot.srdf
+    ln cmu_locobot.srdf locobot.srdf
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_control/src
     sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -0.3890, 1.617, -0.1812, 0.0153};/' locobot_controller.cpp
   fi
   if [ $LOCOBOT_PLATFORM == "interbotix" ]; then
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_description/urdf
-    ln locobot_description.urdf interbotix_locobot_description.urdf
+    ln interbotix_locobot_description.urdf locobot_description.urdf
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
-    ln locobot.srdf interbotix_locobot.srdf
+    ln interbotix_locobot.srdf locobot.srdf
     cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_control/src
     sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -1.30, 1.617, 0.5, 0};/' locobot_controller.cpp
   fi
