@@ -42,8 +42,8 @@ class LoCoBotBase(object):
 
         true_position = cur_state.position - self.init_state.position
         
-        init_rotation =_rot_matrix(self.init_state.rotation)  
-        cur_rotation = _rot_matrix(cur_state.rotation) 
+        init_rotation =self._rot_matrix(self.init_state.rotation)  
+        cur_rotation = self._rot_matrix(cur_state.rotation) 
         cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation) 
         (r, pitch, yaw) = euler_from_matrix(cur_rotation)
 
