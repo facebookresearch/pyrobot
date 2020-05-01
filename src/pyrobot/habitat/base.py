@@ -31,7 +31,7 @@ class LoCoBotBase(object):
         # Returns habitat_sim.agent.AgentState
         return self.agent.get_state()
 
-    def _rot_matrix(habitat_quat):
+    def _rot_matrix(self, habitat_quat):
         quat_list = [habitat_quat.x, habitat_quat.y, habitat_quat.z, habitat_quat.w]
         return prutil.quat_to_rot_mat(quat_list)
 
