@@ -22,6 +22,11 @@ class LoCoBotBase(object):
         self.transform = None
         self.init_state = self.get_full_state()
 
+        # Static transfrom from habitat to ros frame
+        self.rot_hab_to_ros = np.asarray([[1.0,0.0,0.0], 
+                                          [0.0,0.0,-1.0], 
+                                          [0.0,1.0,0.0]])
+
     def execute_action(self, action):
         # actions = "turn_right" or "turn_left" or "move_forward"
         # returns a bool showing if collided or not
@@ -29,37 +34,25 @@ class LoCoBotBase(object):
 
     def get_full_state(self):
         # Returns habitat_sim.agent.AgentState
-        # temp_state = self.agent.get_state()
-        # temp_state.position = habUtils.quat_rotate_vector(self._fix_transform().inverse(), temp_state.position)
-        # temp_state.rotation = self._fix_transform() * temp_state.rotation
         return self.agent.get_state()
 
-    def _fix_transform(self):
-        """Return the fixed transform needed to correct habitat-sim agent co-ordinates"""
-        if self.transform is None:
-            self.transform = habUtils.quat_from_angle_axis(
-                np.pi / 2, np.asarray([0.0, 1.0, 0.0])
-            )
-            self.transform = self.transform * habUtils.quat_from_angle_axis(
-                -np.pi / 2, np.asarray([1.0, 0.0, 0.0])
-            )
-        return self.transform
+    def _rot_matrix(habiat_quat):
+        quat_list = [habiat_quat.x, habiat_quat.y, habiat_quat.z, habiat_quat.w]
+        return prutil.quat_to_rot_mat(quat_list)
 
     def get_state(self, state_type="odom"):
         # Returns (x, y, yaw)
         assert state_type=="odom", "Error: Only Odom state is availalabe"
         cur_state = self.get_full_state()
-        true_position = cur_state.position - self.init_state.position
-        true_position = habUtils.quat_rotate_vector(
-            self.init_state.rotation.inverse(), true_position
-        )
-        true_position = habUtils.quat_rotate_vector(
-            self._fix_transform().inverse(), true_position
-        )
 
-        true_rotation = self.init_state.rotation.inverse() * cur_state.rotation
-        quat_list = [true_rotation.x, true_rotation.y, true_rotation.z, true_rotation.w]
-        (r, yaw, p) = euler_from_quaternion(quat_list)
+        true_position = cur_state.position - self.init_state.position
+        true_position = np.matmul(self.rot_hab_to_ros, true_position)
+
+        init_rotation =_rot_matrix(self.init_state.rotation)  
+        cur_rotation = _rot_matrix(cur_state.rotation) 
+        cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation) 
+        cur_rotation = np.matmul(cur_rotation, self.rot_hab_to_ros)
+        (r, p, yaw) = euler_from_matrix(cur_rotation)
 
         return (true_position[0], true_position[1], yaw)
 
