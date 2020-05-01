@@ -22,10 +22,12 @@ class LoCoBotBase(object):
         self.transform = None
         self.init_state = self.get_full_state()
 
-    def execute_action(self, action):
+
+    def execute_action(self, action_name, actuation):
         # actions = "turn_right" or "turn_left" or "move_forward"
         # returns a bool showing if collided or not
-        return self.agent.act(action)
+
+        return self._act(action_name, actuation)
 
     def get_full_state(self):
         # Returns habitat_sim.agent.AgentState
@@ -40,17 +42,19 @@ class LoCoBotBase(object):
         assert state_type=="odom", "Error: Only Odom state is availalabe"
         cur_state = self.get_full_state()
 
-        true_position = cur_state.position - self.init_state.position
-        
         init_rotation =self._rot_matrix(self.init_state.rotation)  
+        
+        true_position = cur_state.position - self.init_state.position
+        true_position = np.matmul(init_rotation.transpose(), true_position)
+
         cur_rotation = self._rot_matrix(cur_state.rotation) 
         cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation) 
-        (r, pitch, yaw) = euler_from_matrix(cur_rotation)
-
+        
+        (r, pitch, yaw) = euler_from_matrix(cur_rotation, axes='sxzy')
         # Habitat has y perpendicular to map where as ROS has z perpendicular 
         # to the map. Where as x is same.  
-        # Hence,  ROS_yaw = habitat pitch and ROS_z = habitat_y, ROS_y = -1*habiat_z
-        return (true_position[0], -1*true_position[2], pitch)
+        # Here ROS_Z = -1 * habitat_z and ROS_Y = habitat_x
+        return (-1*true_position[2], true_position[0], yaw)
 
     def stop(self):
         raise NotImplementedError("Veclocity control is not supported in Habitat-Sim!!")
@@ -171,9 +175,9 @@ class LoCoBotBase(object):
 
         if math.sqrt(rel_x ** 2 + rel_y ** 2) > 0.0:
             # rotate to point to (x, y) point
-            action_name = "turn_left"
+            action_name = "turn_right"
             if rel_y < 0.0:
-                action_name = "turn_right"
+                action_name = "turn_left"
 
             v1 = np.asarray([1, 0])
             v2 = np.asarray([rel_x, rel_y])
@@ -181,6 +185,7 @@ class LoCoBotBase(object):
             angle = np.arccos(cosine_angle)
 
             did_collide = self._act(action_name, math.degrees(angle))
+
             if did_collide:
                 print("Error: Collision accured while 1st rotating!")
                 return False
@@ -190,7 +195,6 @@ class LoCoBotBase(object):
             if did_collide:
                 print("Error: Collision accured while moving straight!")
                 return False
-
         # rotate to match the final yaw!
         (cur_x, cur_y, cur_yaw) = self.get_state()
         rel_yaw = abs_yaw - cur_yaw
