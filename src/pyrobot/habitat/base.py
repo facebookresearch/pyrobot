@@ -22,11 +22,6 @@ class LoCoBotBase(object):
         self.transform = None
         self.init_state = self.get_full_state()
 
-        # Static transfrom from habitat to ros frame
-        self.rot_hab_to_ros = np.asarray([[1.0,0.0,0.0], 
-                                          [0.0,0.0,-1.0], 
-                                          [0.0,1.0,0.0]])
-
     def execute_action(self, action):
         # actions = "turn_right" or "turn_left" or "move_forward"
         # returns a bool showing if collided or not
@@ -36,8 +31,8 @@ class LoCoBotBase(object):
         # Returns habitat_sim.agent.AgentState
         return self.agent.get_state()
 
-    def _rot_matrix(habiat_quat):
-        quat_list = [habiat_quat.x, habiat_quat.y, habiat_quat.z, habiat_quat.w]
+    def _rot_matrix(habitat_quat):
+        quat_list = [habitat_quat.x, habitat_quat.y, habitat_quat.z, habitat_quat.w]
         return prutil.quat_to_rot_mat(quat_list)
 
     def get_state(self, state_type="odom"):
@@ -46,15 +41,16 @@ class LoCoBotBase(object):
         cur_state = self.get_full_state()
 
         true_position = cur_state.position - self.init_state.position
-        true_position = np.matmul(self.rot_hab_to_ros, true_position)
-
+        
         init_rotation =_rot_matrix(self.init_state.rotation)  
         cur_rotation = _rot_matrix(cur_state.rotation) 
         cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation) 
-        cur_rotation = np.matmul(cur_rotation, self.rot_hab_to_ros)
-        (r, p, yaw) = euler_from_matrix(cur_rotation)
+        (r, pitch, yaw) = euler_from_matrix(cur_rotation)
 
-        return (true_position[0], true_position[1], yaw)
+        # Habitat has y perpendicular to map where as ROS has z perpendicular 
+        # to the map. Where as x is same.  
+        # Hence,  ROS_yaw = habitat pitch and ROS_z = habitat_y, ROS_y = -1*habiat_z
+        return (true_position[0], -1*true_position[2], pitch)
 
     def stop(self):
         raise NotImplementedError("Veclocity control is not supported in Habitat-Sim!!")
