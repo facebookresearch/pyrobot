@@ -22,7 +22,6 @@ class LoCoBotBase(object):
         self.transform = None
         self.init_state = self.get_full_state()
 
-
     def execute_action(self, action_name, actuation):
         # actions = "turn_right" or "turn_left" or "move_forward"
         # returns a bool showing if collided or not
@@ -39,22 +38,22 @@ class LoCoBotBase(object):
 
     def get_state(self, state_type="odom"):
         # Returns (x, y, yaw)
-        assert state_type=="odom", "Error: Only Odom state is availalabe"
+        assert state_type == "odom", "Error: Only Odom state is availalabe"
         cur_state = self.get_full_state()
 
-        init_rotation =self._rot_matrix(self.init_state.rotation)  
-        
+        init_rotation = self._rot_matrix(self.init_state.rotation)
+
         true_position = cur_state.position - self.init_state.position
         true_position = np.matmul(init_rotation.transpose(), true_position)
 
-        cur_rotation = self._rot_matrix(cur_state.rotation) 
-        cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation) 
-        
-        (r, pitch, yaw) = euler_from_matrix(cur_rotation, axes='sxzy')
-        # Habitat has y perpendicular to map where as ROS has z perpendicular 
-        # to the map. Where as x is same.  
+        cur_rotation = self._rot_matrix(cur_state.rotation)
+        cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation)
+
+        (r, pitch, yaw) = euler_from_matrix(cur_rotation, axes="sxzy")
+        # Habitat has y perpendicular to map where as ROS has z perpendicular
+        # to the map. Where as x is same.
         # Here ROS_Z = -1 * habitat_z and ROS_Y = habitat_x
-        return (-1*true_position[2], true_position[0], yaw)
+        return (-1 * true_position[2], true_position[0], yaw)
 
     def stop(self):
         raise NotImplementedError("Veclocity control is not supported in Habitat-Sim!!")

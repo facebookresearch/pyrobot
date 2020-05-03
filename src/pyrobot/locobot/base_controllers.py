@@ -5,7 +5,7 @@
 
 import time
 from math import atan2, cos, sin, pi, radians, degrees, sqrt
-
+import numpy as np
 import actionlib
 import rospy
 import copy
@@ -525,3 +525,195 @@ class MoveBaseControl(object):
         self._send_action_goal(
             xyt_position[0], xyt_position[1], xyt_position[2], self.MAP_FRAME
         )
+
+
+import sys
+from control_msgs.msg import (
+    FollowJointTrajectoryAction,
+    FollowJointTrajectoryGoal,
+    JointTolerance,
+)
+from trajectory_msgs.msg import JointTrajectoryPoint
+
+from actionlib_msgs.msg import GoalStatus
+
+
+class SimpleGoalState:
+    PENDING = 0
+    ACTIVE = 1
+    DONE = 2
+
+
+class GPMPControl(object):
+    """This class encapsulates and provides interface to GPMP controller
+    used to control the base
+    """
+
+    def __init__(self, base, base_state, configs):
+        """
+        The constructor for MoveBaseControl class.
+
+        :param configs: configurations read from config file
+        :param base_state: an object consisting of an instance of BaseState.
+        :type configs: dict
+        :type base_state: BaseState
+        """
+        self.base = base
+        self.base_state = base_state
+        self.configs = configs
+
+        self.point_idx = self.configs.BASE.TRACKED_POINT
+
+        self.gpmp_ctrl_client_ = actionlib.SimpleActionClient(
+            self.configs.BASE.GPMP_SERVER_NAME, FollowJointTrajectoryAction,
+        )
+        self._check_server_client_link(self.gpmp_ctrl_client_)
+
+        self.traj_client_ = actionlib.SimpleActionClient(
+            self.configs.BASE.TURTLEBOT_TRAJ_SERVER_NAME, FollowJointTrajectoryAction,
+        )
+        self._check_server_client_link(self.traj_client_)
+
+        self.goal_tolerance = self.configs.BASE.GOAL_TOLERANCE
+        self.exec_time = self.configs.BASE.EXEC_TIME
+
+    def _check_server_client_link(self, client):
+        rospy.sleep(0.1)  # Ensures client spins up properly
+        server_up = client.wait_for_server(timeout=rospy.Duration(10.0))
+        if not server_up:
+            rospy.logerr(
+                "Timed out waiting for the client"
+                " Action Server to connect. Start the action server"
+                " before running example."
+            )
+            rospy.signal_shutdown("Timed out waiting for Action Server")
+            sys.exit(1)
+
+    def _build_goal_msg(self, pose, vel, tolerance, exec_time):
+
+        traj_ = FollowJointTrajectoryGoal()
+        point = JointTrajectoryPoint()
+
+        for j in range(3):
+            point.positions.append(pose[j])
+            point.velocities.append(vel[j])
+
+        traj_.trajectory.points.append(point)
+        traj_.trajectory.header.stamp = rospy.Time.now()
+
+        joint_tolerance = JointTolerance()
+        joint_tolerance.position = tolerance
+        traj_.goal_tolerance.append(joint_tolerance)
+        traj_.goal_time_tolerance = rospy.Duration(exec_time)  # seconds
+
+        return traj_
+
+    def cancel_goal(self):
+        rospy.loginfo("Base asked to stop. Cancelling goal sent to GPMP controller.")
+
+        self.base_state.should_stop = False
+        if not self.gpmp_ctrl_client_.gh:
+            return
+
+        if self.gpmp_ctrl_client_.simple_state != SimpleGoalState.DONE:
+            self.gpmp_ctrl_client_.cancel_goal()
+            self.traj_client_.cancel_goal()
+            self.base.set_vel(0, 0, 0.1)
+
+    def update_goal(self, xyt_position, close_loop=True, smooth=True):
+        """Updates the the goal state while GPMP 
+        controller is in execution of previous goal"""
+        self.gpmp_ctrl_client_.cancel_goal()
+        self.go_to_absolute(xyt_position, close_loop, smooth)
+
+    def go_to_absolute(self, xyt_position, close_loop=True, smooth=True, wait=True):
+        """
+        Moves the robot to the robot to given goal state in the world frame.
+
+        :param xyt_position: The goal state of the form (x,y,t) in the world
+                             (map) frame.
+        :param close_loop: When set to "True", ensures that controler is
+                           operating in open loop by taking account of
+                           odometry.
+        :param smooth: When set to "True", ensures that the motion leading to
+                       the goal is a smooth one.
+
+        :type xyt_position: list or np.ndarray
+        :type close_loop: bool
+        :type smooth: bool
+        """
+        assert smooth, "GPMP controller can only generate smooth motion"
+        assert close_loop, "GPMP controller cannot work in open loop"
+        self.gpmp_ctrl_client_.send_goal(
+            self._build_goal_msg(
+                xyt_position, [0, 0, 0], self.goal_tolerance, self.exec_time
+            )
+        )
+
+        status = self.gpmp_ctrl_client_.get_state()
+        if wait:
+            while status != GoalStatus.SUCCEEDED:
+                if self.base_state.should_stop:
+                    self.cancel_goal()
+                    return
+                if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                    break
+                status = self.gpmp_ctrl_client_.get_state()
+
+    def go_to_absolute_with_map(
+        self, xyt_position, close_loop=True, smooth=True, planner=None
+    ):
+        """Uses a planner to produce collision free path on the map"""
+
+        cur_state = self.base.get_state("odom")
+        g_distance = np.linalg.norm(
+            np.asarray([cur_state[0] - xyt_position[0], cur_state[1] - xyt_position[1]])
+        )
+
+        while g_distance > self.configs.BASE.TRESHOLD_LIN:
+
+            if self.base_state.should_stop:
+                self.cancel_goal()
+                return
+            status = self.gpmp_ctrl_client_.get_state()
+            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                rospy.logerr("GPMP controller failed or interrupted!")
+                return
+
+            plan, plan_status = planner.get_plan_absolute(
+                xyt_position[0], xyt_position[1], xyt_position[2]
+            )
+            if not plan_status:
+                rospy.logerr("Failed to find a valid plan!")
+                return
+
+            if len(plan) < self.point_idx:
+                point = list(xyt_position)
+            else:
+                point = [
+                    plan[self.point_idx - 1].pose.position.x,
+                    plan[self.point_idx - 1].pose.position.y,
+                    0,
+                ]
+
+                orientation_q = plan[self.point_idx - 1].pose.pose.orientation
+                orientation_list = [
+                    orientation_q.x,
+                    orientation_q.y,
+                    orientation_q.z,
+                    orientation_q.w,
+                ]
+                (_, _, point[2]) = tf.transformations.euler_from_quaternion(
+                    orientation_list
+                )
+
+            self.go_to_absolute(point, wait=False)
+
+            cur_state = self.base.get_state("odom")
+            g_distance = np.linalg.norm(
+                np.asarray(
+                    [cur_state[0] - xyt_position[0], cur_state[1] - xyt_position[1]]
+                )
+            )
+
+        self.go_to_absolute(xyt_position, wait=True)

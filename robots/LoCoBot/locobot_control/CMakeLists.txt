@@ -107,7 +107,7 @@ install(DIRECTORY launch
 
 install(PROGRAMS nodes/robot_teleop_server.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 install(PROGRAMS nodes/keyboard_teleop_client.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
+install(PROGRAMS nodes/pointrobot3factor_ros_server.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 ################################################################################
 # Test
 ################################################################################
