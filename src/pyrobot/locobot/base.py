@@ -403,10 +403,9 @@ class LoCoBotBase(Base):
                     self.planner.move_to_goal(xyt_position, self.controller.goto)
                     return
                 elif self.base_controller == "gpmp":
-                    self.controller.go_to_absolute_with_map(xyt_position,
-                                                            close_loop,
-                                                            smooth,
-                                                            self.planner)
+                    self.controller.go_to_absolute_with_map(
+                        xyt_position, close_loop, smooth, self.planner
+                    )
                     return
 
             self.controller.go_to_absolute(xyt_position, close_loop, smooth)
