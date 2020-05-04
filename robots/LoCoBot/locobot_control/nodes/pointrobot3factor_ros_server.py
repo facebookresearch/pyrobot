@@ -121,16 +121,13 @@ class Robot(object):
         self.state.pose = np.asarray([x, y, yaw])
         self.state.vel = np.asarray([x_vel, y_vel, ang_vel])
 
-    def set_vel(self, vel, exe_time):
-        msg = Twist()
-        msg.linear.x = vel[0]
-        msg.angular.z = vel[2]
 
-        start_time = rospy.get_time()
+    def stop(self):
+        rospy.loginfo("Stopping base!")
+        msg = Twist()
+        msg.linear.x = 0
+        msg.angular.z = 0
         self.ctrl_pub.publish(msg)
-        while rospy.get_time() - start_time < exe_time:
-            self.ctrl_pub.publish(msg)
-            rospy.sleep(1.0 / 10)
 
     def get_robot_state(self):
         return self.state.pose, self.state.vel
@@ -383,7 +380,7 @@ class GPMPController(object):
                     " Consider increasing the time"
                 )
                 self.robot.traj_client_.cancel_goal()
-                self.robot.set_vel([0, 0, 0], 0.1)
+                self.robot.stop()
                 self._as.set_aborted()
                 return
 
@@ -418,7 +415,7 @@ class GPMPController(object):
             if not res_flag:
                 rospy.logerr("GPMP optimizer failed to produce an acceptable plan")
                 self.robot.traj_client_.cancel_goal()
-                self.robot.set_vel([0, 0, 0], 0.1)
+                self.robot.stop()
                 self._as.set_aborted()
                 return
 

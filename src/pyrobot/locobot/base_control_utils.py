@@ -236,7 +236,8 @@ class MoveBasePlanner:
     and plan tracking services.
     """
 
-    def __init__(self, configs):
+    def __init__(self, configs, action_server):
+        self._as = action_server
         self.configs = configs
         self.ROT_VEL = self.configs.BASE.MAX_ABS_TURN_SPEED
         self.LIN_VEL = self.configs.BASE.MAX_ABS_FWD_SPEED
@@ -322,7 +323,7 @@ class MoveBasePlanner:
         plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
         if not plan_status:
             rospy.loginfo("Failed to find a valid plan!")
-            return
+            return False
 
         if len(plan) < self.point_idx:
             point = goal
@@ -338,9 +339,13 @@ class MoveBasePlanner:
         while g_distance > self.configs.BASE.TRESHOLD_LIN:
 
             plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
+
+            if self._as.is_preempt_requested():
+                return False
+
             if not plan_status:
                 rospy.loginfo("Failed to find a valid plan!")
-                return
+                return False
 
             if len(plan) < self.point_idx:
                 point = goal
@@ -353,8 +358,10 @@ class MoveBasePlanner:
 
             angle, distance = self._compute_relative_ang_dist(point)
             g_angle, g_distance = self._compute_relative_ang_dist(goal)
-            go_to_relative([0, 0, angle])
-            go_to_relative([distance, 0, 0])
+            if not go_to_relative([0, 0, angle]):
+                return False
+            if not go_to_relative([distance, 0, 0]):
+                return False
 
         g_angle, g_distance = self._compute_relative_ang_dist(goal)
 
@@ -372,7 +379,9 @@ class MoveBasePlanner:
             base_pose.pose.orientation.w,
         ]
         euler = tf.transformations.euler_from_quaternion(pose_quat)
-        go_to_relative([0, 0, euler[2]])
+        if not go_to_relative([0, 0, euler[2]]):
+            return False
+
 
 
 def get_state_trajectory_from_controls(start_pos, dt, controls):
@@ -435,11 +444,12 @@ class TrajectoryTracker(object):
     around the system that has been linearized around the trajectory.
     """
 
-    def __init__(self, system):
+    def __init__(self, system, action_server):
         """
         Provide system that should track the trajectory.
         """
         self.system = system
+        self._as = action_server
 
     def generate_plan(self, xs, us=None):
         """
@@ -473,6 +483,11 @@ class TrajectoryTracker(object):
             controls = us
             states = xs
             for j in range(T):
+
+                if self._as.is_preempt_requested():
+                    rospy.loginfo("Preempted the ILQR execution")
+                    return False
+
                 A, B, C, _ = self.system.dynamics_fn(states[j], controls[j])
                 As.append(A)
                 Bs.append(B)
@@ -538,11 +553,15 @@ class TrajectoryTracker(object):
         us = []
         urefs = []
         for i in range(plan.T):
+
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the ILQR execution")
+                return False
+
             if self.should_stop:
                 self.stop()
                 self.should_stop = False
-                success = False
-                break
+                return False
 
             # Apply control for this time stpe.
             # Read the current state of the system and apply control.
@@ -950,3 +969,23 @@ class ILQRSolver(object):
                 break
             step_size = step_size * 0.5
         return out_step_size, out_controls, out_cost
+
+
+class SimpleGoalState:
+    PENDING = 0
+    ACTIVE = 1
+    DONE = 2
+
+
+
+def check_server_client_link(client):
+    rospy.sleep(0.1)  # Ensures client spins up properly
+    server_up = client.wait_for_server(timeout=rospy.Duration(10.0))
+    if not server_up:
+        rospy.logerr(
+            "Timed out waiting for the client"
+            " Action Server to connect. Start the action server"
+            " before running example."
+        )
+        rospy.signal_shutdown("Timed out waiting for Action Server")
+        sys.exit(1)
