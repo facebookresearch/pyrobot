@@ -286,7 +286,7 @@ class LoCoBotBase(Base):
         self._ac = actionlib.SimpleActionClient(
             self.action_name, FollowJointTrajectoryAction,
         )
-        check_server_client_link(self.gpmp_ctrl_client_)
+        check_server_client_link(self._ac)
 
         # class variables shared when communicating between client and server
         self.smooth, self.use_map, self.close_loop = None, None, None
