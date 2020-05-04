@@ -121,7 +121,6 @@ class Robot(object):
         self.state.pose = np.asarray([x, y, yaw])
         self.state.vel = np.asarray([x_vel, y_vel, ang_vel])
 
-
     def stop(self):
         rospy.loginfo("Stopping base!")
         msg = Twist()

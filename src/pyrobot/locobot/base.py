@@ -29,10 +29,10 @@ from pyrobot.core import Base
 from std_msgs.msg import Empty
 
 from pyrobot.locobot.base_control_utils import (
-    MoveBasePlanner, 
+    MoveBasePlanner,
     _get_absolute_pose,
     SimpleGoalState,
-    check_server_client_link    
+    check_server_client_link,
 )
 from pyrobot.locobot.base_controllers import (
     ProportionalControl,
@@ -46,7 +46,7 @@ from control_msgs.msg import (
     FollowJointTrajectoryAction,
     FollowJointTrajectoryGoal,
 )
-        
+
 
 from pyrobot.locobot.bicycle_model import wrap_theta
 
@@ -269,7 +269,6 @@ class LoCoBotBase(Base):
         self.build_map = rospy.get_param("use_vslam", False)
         self.base_state = BaseState(base, self.build_map, map_img_dir, configs)
 
-
         ###################### Action server specific things######################
 
         self.action_name = "pyrobot/locobot/base/controller_server"
@@ -278,11 +277,12 @@ class LoCoBotBase(Base):
             FollowJointTrajectoryAction,
             execute_cb=self._execute_controller,
             auto_start=False,
-            )
+        )
         self._as.start()
 
         ###################### Action client specific things######################
         from actionlib_msgs.msg import GoalStatus
+
         self._ac = actionlib.SimpleActionClient(
             self.action_name, FollowJointTrajectoryAction,
         )
@@ -292,7 +292,7 @@ class LoCoBotBase(Base):
         self.smooth, self.use_map, self.close_loop = None, None, None
         self.xyt_position = None
 
-        self.action_in_use = None # True means action is working on a goal
+        self.action_in_use = None  # True means action is working on a goal
         ###########################################################################
 
         # Path planner
@@ -319,7 +319,9 @@ class LoCoBotBase(Base):
 
         self.base_controller = base_controller
         if base_controller == "ilqr":
-            self.controller = ILQRControl(self.base_state, self.ctrl_pub, self.configs, self._as)
+            self.controller = ILQRControl(
+                self.base_state, self.ctrl_pub, self.configs, self._as
+            )
         elif base_controller == "proportional":
             self.controller = ProportionalControl(
                 self.base_state, self.ctrl_pub, self.configs, self._as
@@ -335,9 +337,8 @@ class LoCoBotBase(Base):
         self.action_in_use = True
         self._go_to_absolute()
 
-    
     def _go_to_absolute(self):
-        
+
         try:
             if self.use_map:
                 assert self.build_map, (
@@ -345,24 +346,29 @@ class LoCoBotBase(Base):
                 )
                 if self.base_controller == "ilqr":
                     goto = partial(
-                        self.go_to_relative, close_loop=self.close_loop, smooth=self.smooth
+                        self.go_to_relative,
+                        close_loop=self.close_loop,
+                        smooth=self.smooth,
                     )
                     result = self.planner.move_to_goal(self.xyt_position, goto)
                 elif self.base_controller == "proportional":
-                    result = self.planner.move_to_goal(xyt_position, self.controller.goto)
+                    result = self.planner.move_to_goal(
+                        xyt_position, self.controller.goto
+                    )
                 elif self.base_controller == "gpmp":
-                    result =  self.controller.go_to_absolute_with_map(
+                    result = self.controller.go_to_absolute_with_map(
                         self.xyt_position, self.close_loop, self.smooth, self.planner
                     )
             else:
-                result =  self.controller.go_to_absolute(self.xyt_position, self.close_loop, self.smooth)
+                result = self.controller.go_to_absolute(
+                    self.xyt_position, self.close_loop, self.smooth
+                )
         except AssertionError as error:
             print(error)
-            result =  False
+            result = False
         except:
             print("Unexpected error encountered during positon control!")
-            result =  False
-
+            result = False
 
         self.action_in_use = False
         if self._as.is_preempt_requested():
@@ -372,12 +378,9 @@ class LoCoBotBase(Base):
         else:
             self._as.set_aborted()
 
-
     def clean_shutdown(self):
         rospy.loginfo("Stopping LoCoBot Base by cancelling goal")
         cancel_last_goal(stop_robot=True)
-
-
 
     def get_state(self, state_type):
         """
@@ -474,14 +477,16 @@ class LoCoBotBase(Base):
         """
 
         if self.action_in_use == True:
-            rospy.logwarn("Base action server already in use by a different goal.\
-                           Please consider using cancel_goal method before calling this method.")
+            rospy.logwarn(
+                "Base action server already in use by a different goal.\
+                           Please consider using cancel_goal method before calling this method."
+            )
             return False
 
         self.xyt_position = np.asarray(xyt_position)
         self.use_map = use_map
         self.smooth = smooth
-        self.close_loop = close_loop        
+        self.close_loop = close_loop
         self._ac.send_goal(FollowJointTrajectoryGoal())
 
         status = self._ac.get_state()
@@ -493,7 +498,6 @@ class LoCoBotBase(Base):
             return True
         else:
             return None
-
 
     def get_last_goal_result(self):
 
@@ -517,7 +521,6 @@ class LoCoBotBase(Base):
 
         return self._ac.get_state()
 
-
     def cancel_last_goal(self, stop_robot=True):
 
         """
@@ -536,7 +539,6 @@ class LoCoBotBase(Base):
 
         if stop_robot:
             self.stop()
-
 
     def track_trajectory(self, states, controls=None, close_loop=True):
         """

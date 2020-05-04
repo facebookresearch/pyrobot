@@ -383,7 +383,6 @@ class MoveBasePlanner:
             return False
 
 
-
 def get_state_trajectory_from_controls(start_pos, dt, controls):
     system = BicycleSystem(dt)
     states = system.unroll(start_pos, controls)
@@ -975,7 +974,6 @@ class SimpleGoalState:
     PENDING = 0
     ACTIVE = 1
     DONE = 2
-
 
 
 def check_server_client_link(client):

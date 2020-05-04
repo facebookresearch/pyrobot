@@ -21,7 +21,7 @@ from pyrobot.locobot.base_control_utils import (
     position_control_init_fn,
     _get_absolute_pose,
     SimpleGoalState,
-    check_server_client_link
+    check_server_client_link,
 )
 from pyrobot.locobot.base_control_utils import build_pose_msg
 from pyrobot.locobot.bicycle_model import BicycleSystem
@@ -127,22 +127,18 @@ class ProportionalControl:
 
             if self._as.is_preempt_requested():
                 rospy.loginfo("%s: Preempted" % self._action_name)
-                
+
                 return False
 
             if self.bot_base.should_stop:
                 if not self.ignore_collisions:
                     rospy.loginfo("curr error = {} meters".format(cur_error))
-                
+
                     self.stop()
                     return False
-                    
-
 
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = self._norm_pose(target_world - self.bot_base.state.theta)
-
-
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.rot_error_thr:
@@ -202,16 +198,15 @@ class ProportionalControl:
 
             if self._as.is_preempt_requested():
                 rospy.loginfo("Preempted the Proportional execution")
-                
+
                 return False
 
             if self.bot_base.should_stop:
                 if not self.ignore_collisions:
                     rospy.loginfo("curr error = {} meters".format(cur_error))
-                
+
                     self.stop()
                     return False
-                    
 
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = abs(
@@ -221,7 +216,6 @@ class ProportionalControl:
                         + (self.bot_base.state.y - init_y) ** 2
                     )
                 )
-
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.dist_error_thr:
@@ -307,8 +301,6 @@ class ProportionalControl:
             return False
 
         return True
-
-
 
     def _get_xyt(self, pose):
         """Processes the pose message to get (x,y,theta)"""
@@ -457,7 +449,7 @@ class ILQRControl(TrajectoryTracker):
         # Compute plan
         plan = self.generate_plan(states, controls)
         if not plan:
-            return
+            return False
         # Execute a plan
         return self.execute_plan(plan, close_loop)
 
@@ -568,7 +560,6 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 from actionlib_msgs.msg import GoalStatus
 
 
-
 class GPMPControl(object):
     """This class encapsulates and provides interface to GPMP controller
     used to control the base
@@ -602,8 +593,6 @@ class GPMPControl(object):
 
         self.goal_tolerance = self.configs.BASE.GOAL_TOLERANCE
         self.exec_time = self.configs.BASE.EXEC_TIME
-
-
 
     def _build_goal_msg(self, pose, vel, tolerance, exec_time):
 
@@ -746,9 +735,9 @@ class GPMPControl(object):
                 )
             )
 
-        result= self.go_to_absolute(xyt_position, wait=True)
+        result = self.go_to_absolute(xyt_position, wait=True)
 
-        if result: 
+        if result:
             return True
         else:
             return False
