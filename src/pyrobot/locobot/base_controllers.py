@@ -584,7 +584,7 @@ class GPMPControl(object):
         self.gpmp_ctrl_client_ = actionlib.SimpleActionClient(
             self.configs.BASE.GPMP_SERVER_NAME, FollowJointTrajectoryAction,
         )
-        self._check_server_client_link(self.gpmp_ctrl_client_)
+        check_server_client_link(self.gpmp_ctrl_client_)
 
         self.traj_client_ = actionlib.SimpleActionClient(
             self.configs.BASE.TURTLEBOT_TRAJ_SERVER_NAME, FollowJointTrajectoryAction,
@@ -621,8 +621,10 @@ class GPMPControl(object):
             return
 
         if self.gpmp_ctrl_client_.simple_state != SimpleGoalState.DONE:
-            self.gpmp_ctrl_client_.cancel_goal()
-            self.traj_client_.cancel_goal()
+            rospy.loginfo("Cancelling GPMP client.") 
+            self.gpmp_ctrl_client_.cancel_all_goals()
+            rospy.loginfo("Cancelling GPMP-Turtlebot_trajectoryclient.") 
+            self.traj_client_.cancel_all_goals()
             self.base.stop()
 
     def update_goal(self, xyt_position, close_loop=True, smooth=True):
@@ -664,9 +666,11 @@ class GPMPControl(object):
                     return False
 
                 if self.base_state.should_stop:
+                    rospy.loginfo("collision detection. Stopping")
                     self.cancel_goal()
                     return False
                 if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                    rospy.loginfo("Error in gpmp sever. Stopping")
                     return False
                 status = self.gpmp_ctrl_client_.get_state()
             return True

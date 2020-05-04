@@ -334,8 +334,8 @@ class Parameters(object):  # TODO: read from yaml file or rosparams
 
     # Fixed window params
     goal_region_threshold = 0.1
-    acceptable_error_threshold = 200
-    sigma_goal = 1
+    acceptable_error_threshold = 400
+    sigma_goal = 4
 
     opt_timeout = 0.2
 

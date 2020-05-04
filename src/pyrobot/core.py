@@ -155,6 +155,8 @@ class Robot:
         # sleep some time for tf listeners in subclasses
         rospy.sleep(2)
 
+    def __del__(self):
+        rospy.signal_shutdown("Shutting down the pyrobot node")
 
 class Base(object):
     """

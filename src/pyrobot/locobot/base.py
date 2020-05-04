@@ -49,7 +49,7 @@ from control_msgs.msg import (
 
 
 from pyrobot.locobot.bicycle_model import wrap_theta
-
+from actionlib_msgs.msg import GoalStatus
 
 class BaseSafetyCallbacks(object):
     """
@@ -281,7 +281,7 @@ class LoCoBotBase(Base):
         self._as.start()
 
         ###################### Action client specific things######################
-        from actionlib_msgs.msg import GoalStatus
+        
 
         self._ac = actionlib.SimpleActionClient(
             self.action_name, FollowJointTrajectoryAction,
@@ -379,8 +379,8 @@ class LoCoBotBase(Base):
             self._as.set_aborted()
 
     def clean_shutdown(self):
-        rospy.loginfo("Stopping LoCoBot Base by cancelling goal")
-        cancel_last_goal(stop_robot=True)
+        rospy.loginfo("Stopping LoCoBot Base.")
+        self.cancel_last_goal(stop_robot=True)
 
     def get_state(self, state_type):
         """
@@ -446,7 +446,7 @@ class LoCoBotBase(Base):
         """
         start_pos = self.base_state.state.state_f.copy()
         goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
-        return self.go_to_absolute(goal_pos, use_map, close_loop, smooth)
+        return self.go_to_absolute(goal_pos, use_map, close_loop, smooth, wait)
 
     def go_to_absolute(
         self, xyt_position, use_map=False, close_loop=True, smooth=False, wait=True
@@ -494,7 +494,7 @@ class LoCoBotBase(Base):
             while status != GoalStatus.SUCCEEDED:
                 if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
                     return False
-                status = self.gpmp_ctrl_client_.get_state()
+                status = self._ac.get_state()
             return True
         else:
             return None

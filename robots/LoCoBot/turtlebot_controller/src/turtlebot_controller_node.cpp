@@ -45,6 +45,10 @@ void TurtlebotController::executeBaseTajectory(const control_msgs::FollowJointTr
       //preempt action server
       base_trajectory_server_->setPreempted();
       ROS_INFO("Turtlebot trajectory server preempted by client");
+      cmd_vel.linear.x = 0.0;
+      cmd_vel.linear.y = 0.0;
+      cmd_vel.angular.z = 0.0;
+      base_vel_pub_.publish(cmd_vel);
       return;
     }
 
