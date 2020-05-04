@@ -484,7 +484,7 @@ class TrajectoryTracker(object):
             for j in range(T):
 
                 if self._as.is_preempt_requested():
-                    rospy.loginfo("Preempted the ILQR execution")
+                    rospy.loginfo("Preempted the ILQR execution. Plan generation failed")
                     return False
 
                 A, B, C, _ = self.system.dynamics_fn(states[j], controls[j])
@@ -554,7 +554,7 @@ class TrajectoryTracker(object):
         for i in range(plan.T):
 
             if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the ILQR execution")
+                rospy.loginfo("Preempted the ILQR execution. Execution failed")
                 return False
 
             if self.should_stop:

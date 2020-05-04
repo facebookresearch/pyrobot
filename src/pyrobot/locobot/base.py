@@ -335,7 +335,56 @@ class LoCoBotBase(Base):
 
     def _execute_controller(self, goal):
         self.action_in_use = True
-        self._go_to_absolute()
+
+        assert self._called_method in ["go_to_absolute", "track_trajectory"], (
+            "Invalid action server method called")
+        if self._called_method == "go_to_absolute":
+            self._go_to_absolute()
+        elif self._called_method == "track_trajectory":
+            self._track_trajectory()
+
+
+
+    def _track_trajectory(self):
+
+
+        try:
+            if self.base_controller == "ilqr":
+                result = self.controller.track_trajectory(self.xyt_states, self.controls, self.close_loop)
+            else:
+                plan_idx = 0
+                result = True
+                while True:
+                    
+                    if self._as.is_preempt_requested():
+                        rospy.loginfo("Preempted the tracjectory execution")
+                        result = False
+                        break
+
+                    plan_idx = min(plan_idx, len(self.xyt_states) - 1)
+                    point = self.xyt_states[plan_idx]
+                    if not self.controller.go_to_absolute(point, close_loop=self.close_loop):
+                        print("hhlhlhlhlhlh")
+                        result = False
+                        break
+                    if plan_idx == len(self.xyt_states) - 1:
+                        break
+                    plan_idx += self.configs.BASE.TRACKED_POINT
+        except AssertionError as error:
+            print(error)
+            result = False
+        except:
+            print("Unexpected error encountered during trajectory tracking!")
+            result = False
+        
+        self.action_in_use = False
+        if self._as.is_preempt_requested():
+            self._as.set_preempted()
+        elif result:
+            self._as.set_succeeded()
+        else:
+            self._as.set_aborted()
+
 
     def _go_to_absolute(self):
 
@@ -487,6 +536,7 @@ class LoCoBotBase(Base):
         self.use_map = use_map
         self.smooth = smooth
         self.close_loop = close_loop
+        self._called_method = "go_to_absolute"
         self._ac.send_goal(FollowJointTrajectoryGoal())
 
         status = self._ac.get_state()
@@ -540,7 +590,7 @@ class LoCoBotBase(Base):
         if stop_robot:
             self.stop()
 
-    def track_trajectory(self, states, controls=None, close_loop=True):
+    def track_trajectory(self, states, controls=None, close_loop=True, wait=True):
         """
         State trajectory that the robot should track.
 
@@ -556,29 +606,33 @@ class LoCoBotBase(Base):
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
-        raise NotImplementedError
-        # if len(states) == 0:
-        #     rospy.loginfo("The given trajectory is empty")
-        #     return
+        
+        if len(states) == 0:
+            rospy.loginfo("The given trajectory is empty")
+            return
 
-        # try:
-        #     if self.base_controller == "ilqr":
-        #         self.controller.track_trajectory(states, controls, close_loop)
-        #     else:
-        #         plan_idx = 0
 
-        #         while True:
-        #             plan_idx = min(plan_idx, len(states) - 1)
-        #             point = states[plan_idx]
-        #             self.controller.go_to_absolute(point, close_loop=close_loop)
+        if self.action_in_use == True:
+            rospy.logwarn(
+                "Base action server already in use by a different goal.\
+                           Please consider using cancel_goal method before calling this method."
+            )
+            return False
 
-        #             if plan_idx == len(states) - 1:
-        #                 break
-        #             plan_idx += self.configs.BASE.TRACKED_POINT
-        # except AssertionError as error:
-        #     print(error)
-        #     return False
-        # except:
-        #     print("Unexpected error encountered during trajectory tracking!")
-        #     return False
-        # return True
+        self.xyt_states = states
+        self.controls = controls
+        self.close_loop = close_loop
+        self._called_method = "track_trajectory"
+        self._ac.send_goal(FollowJointTrajectoryGoal())
+
+        status = self._ac.get_state()
+        if wait:
+            while status != GoalStatus.SUCCEEDED:
+                if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                    return False
+                status = self._ac.get_state()
+            return True
+        else:
+            return None
+
+

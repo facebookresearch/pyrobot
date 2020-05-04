@@ -126,7 +126,7 @@ class ProportionalControl:
         while True:
 
             if self._as.is_preempt_requested():
-                rospy.loginfo("%s: Preempted" % self._action_name)
+                rospy.loginfo("Preempted the Proportional execution")
 
                 return False
 
