@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<robot name="locobot_wheel" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Wheel macro -->
+  <xacro:macro name="locobot_wheel" params="name parent *origin">
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${parent}" />
+      <child link="${name}_link" />
+      <xacro:insert_block name="origin" />
+      <axis xyz="0 0 1" />
+    </joint>
+    <link name="${name}_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wheel.dae"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="0.0206" radius="0.0352"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
+    </link>
+
+    <gazebo reference="${name}_link">
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

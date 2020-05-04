@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<robot name="locobot_cliff" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Cliff macro -->
+  <xacro:macro name="locobot_cliff" params="name parent *origin">
+    <joint name="cliff_sensor_${name}_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}" />
+      <child link="cliff_sensor_${name}_link" />
+    </joint>
+    <link name="cliff_sensor_${name}_link">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+        </inertial>
+    </link>
+
+    <gazebo reference="cliff_sensor_${name}_link">
+        <sensor name="cliff_sensor_${name}" type="ray">
+            <always_on>true</always_on>
+            <update_rate>50</update_rate>
+            <visualize>true</visualize>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>50</samples>
+                        <resolution>1.0</resolution>
+                        <min_angle>-0.0436</min_angle>
+                        <!-- -2.5 degree -->
+                        <max_angle>0.0436</max_angle>
+                        <!-- 2.5 degree -->
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.01</min>
+                    <max>0.15</max>
+                    <resolution>1.0</resolution>
+                </range>
+            </ray>
+        </sensor>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

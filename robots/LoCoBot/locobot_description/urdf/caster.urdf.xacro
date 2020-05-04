@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<robot name="locobot_caster" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Constants -->
+  <xacro:property name="wheel_radius" value="0.017" />
+  <xacro:property name="wheel_length" value="0.0176" />
+
+  <!-- Caster macro -->
+  <xacro:macro name="locobot_caster" params="name parent *origin">
+    <joint name="caster_${name}_joint" type="fixed">
+      <parent link="${parent}" />
+      <child link="caster_${name}_link" />
+      <xacro:insert_block name="origin" />
+    </joint>
+    <link name="caster_${name}_link">
+        <collision>
+            <geometry>
+                <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
+    </link>
+
+  </xacro:macro>
+
+</robot>

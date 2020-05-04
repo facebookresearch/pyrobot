@@ -1,0 +1,340 @@
+<?xml version="1.0"?>
+
+<robot name="locobot_arm" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Arm macro -->
+  <xacro:macro name="locobot_arm" params="name parent *origin">
+    <link name="arm_base_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-1.86027246940057E-08 -1.84987775462994E-08 0.0400356424684456"/>
+            <mass value="0.531491686912019"/>
+            <inertia ixx="0.000533657400855491" ixy="-4.44205269454465E-09" ixz="2.11078566024265E-10" iyy="0.000533665698902565" iyz="5.02029005902419E-11" izz="0.00071572082392375"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/arm_base_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/arm_base_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="arm_base_link_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}" />
+      <child link="arm_base_link" />
+      <axis xyz="0 0 0"/>
+    </joint>
+    <link name="shoulder_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-5.67968980068612E-05 1.09785478984274E-10 0.0228467386735302"/>
+            <mass value="0.119861197293521"/>
+            <inertia ixx="0.000161288180462291" ixy="7.59806211309873E-14" ixz="-1.45323090659527E-07" iyy="5.49696562437107E-05" iyz="1.81052501311883E-13" izz="0.000150800672543169"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/shoulder_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/shoulder_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_1" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.072"/>
+        <parent link="arm_base_link"/>
+        <child link="shoulder_link"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="elbow_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.00959755948481227 -2.30930057287648E-10 0.134296795349987"/>
+            <mass value="0.212482745791037"/>
+            <inertia ixx="0.0011748973771367" ixy="-4.7094567420817E-13" ixz="-0.000132188939134774" iyy="0.00122350302249847" iyz="-5.48932537472287E-12" izz="9.02202689343621E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/elbow_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/elbow_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_2" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.04125"/>
+        <parent link="shoulder_link"/>
+        <child link="elbow_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="10" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="forearm_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.117829826272582 3.09310973110905E-15 -1.26218883678142E-08"/>
+            <mass value="0.18746427435805"/>
+            <inertia ixx="3.94142667601686E-05" ixy="-3.65830967659785E-19" ixz="9.25852572167442E-11" iyy="0.000725209569605637" iyz="-1.05290858715495E-18" izz="0.000737165881391993"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/forearm_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/forearm_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_3" type="revolute">
+        <origin rpy="0 0 0" xyz="0.05 0 0.2"/>
+        <parent link="elbow_link"/>
+        <child link="forearm_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="10" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="wrist_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0429410028407894 4.98644733821042E-05 0.0114266948023652"/>
+            <mass value="0.0605921736680362"/>
+            <inertia ixx="1.84998512056284E-05" ixy="-1.03256667343112E-08" ixz="-1.71865409274096E-06" iyy="2.08955068262134E-05" iyz="5.05203399787143E-09" izz="1.97857037442992E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wrist_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wrist_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_4" type="revolute">
+        <origin rpy="0 0 0" xyz="0.2002 0 0"/>
+        <parent link="forearm_link"/>
+        <child link="wrist_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="gripper_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0311572802112565 -1.25977280754998E-05 0.0092307003092138"/>
+            <mass value="0.0795745052466434"/>
+            <inertia ixx="3.27413333929741E-05" ixy="3.7314060486416E-08" ixz="3.97669066588691E-06" iyy="4.47182985231326E-05" iyz="-9.49992756213297E-09" izz="5.02142570756738E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/gripper_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/gripper_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_5" type="revolute">
+        <origin rpy="0 0 0" xyz="0.063 0.0001 0"/>
+        <parent link="wrist_link"/>
+        <child link="gripper_link"/>
+        <axis xyz="-1 0 0"/>
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="finger_r">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0100191457715113 -0.00843835347348892 -0.00483280251641866"/>
+            <mass value="0.0121931459003602"/>
+            <inertia ixx="6.74016278931418E-07" ixy="-2.36459038775023E-07" ixz="3.1480125304693E-09" iyy="3.10966297287339E-06" iyz="1.19271018871704E-10" izz="2.77935600332309E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_r.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_r.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_6" type="prismatic">
+        <origin rpy="0 0 0" xyz="0.07285 0 0.0050143"/>
+        <parent link="gripper_link"/>
+        <child link="finger_r"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="-1" upper="0" velocity="1"/>
+    </joint>
+    <link name="finger_l">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0100191599590265 0.00643833435729511 -0.00483280251641866"/>
+            <mass value="0.0121931459003603"/>
+            <inertia ixx="6.74017180959932E-07" ixy="2.3646368440071E-07" ixz="3.14801230297432E-09" iyy="3.10966207084492E-06" iyz="-1.19277023229564E-10" izz="2.77935600332313E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_l.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_l.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_7" type="prismatic">
+        <origin rpy="0 0 0" xyz="0.07285 0 0.0050143"/>
+        <parent link="gripper_link"/>
+        <child link="finger_l"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="0" upper="1" velocity="1"/>
+    </joint>
+    <link name="ar_tag">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-1.59182528269852E-09 1.70641183422241E-09 -0.00509579048106218"/>
+            <mass value="0.0202622634619862"/>
+            <inertia ixx="4.71058333074219E-06" ixy="3.03778067070489E-12" ixz="6.65421687578365E-13" iyy="4.05773489073818E-06" iyz="1.37033485576347E-13" izz="7.92378853658606E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/ar_tag.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/ar_tag.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="ar_tag_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0.0269499999999999 0 0.04315"/>
+        <parent link="gripper_link"/>
+        <child link="ar_tag"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
+    <!-- Arm joints -->
+    <transmission name="tran_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_5">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_6">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_7">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_7">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_7">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+  </xacro:macro>
+
+</robot>

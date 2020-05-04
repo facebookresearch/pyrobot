@@ -7,7 +7,7 @@
   <arg name="joint_pub" default="true"/>
   <param
     name="robot_description"
-    textfile="$(find locobot_description)/urdf/locobot_description.urdf" />
+    command="$(find xacro)/xacro $(find locobot_description)/urdf/locobot_description_xacro.urdf.xacro"/>
   <param
     name="use_gui"
     value="$(arg gui)" />
