@@ -15,7 +15,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from numpy import sign
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
-
+import tf
 from pyrobot.locobot.base_control_utils import (
     TrajectoryTracker,
     position_control_init_fn,
@@ -691,15 +691,11 @@ class GPMPControl(object):
 
             if self._as.is_preempt_requested():
                 rospy.loginfo("Preempted the GPMP execution")
+                self.cancel_goal()
                 return False
 
             if self.base_state.should_stop:
                 self.cancel_goal()
-                return False
-
-            status = self.gpmp_ctrl_client_.get_state()
-            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
-                rospy.logerr("GPMP controller failed or interrupted!")
                 return False
 
             plan, plan_status = planner.get_plan_absolute(
@@ -719,7 +715,7 @@ class GPMPControl(object):
                     0,
                 ]
 
-                orientation_q = plan[self.point_idx - 1].pose.pose.orientation
+                orientation_q = plan[self.point_idx - 1].pose.orientation
                 orientation_list = [
                     orientation_q.x,
                     orientation_q.y,
@@ -738,6 +734,12 @@ class GPMPControl(object):
                     [cur_state[0] - xyt_position[0], cur_state[1] - xyt_position[1]]
                 )
             )
+
+            status = self.gpmp_ctrl_client_.get_state()
+            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                rospy.logerr("GPMP controller failed or interrupted!")
+                return False
+
 
         result = self.go_to_absolute(xyt_position, wait=True)
 
