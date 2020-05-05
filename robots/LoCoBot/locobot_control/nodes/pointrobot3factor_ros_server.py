@@ -384,7 +384,7 @@ class GPMPController(object):
                 return
 
             if self._as.is_preempt_requested():
-                rospy.loginfo("%s: Preempted" % self._action_name)
+                rospy.logwarn("##############   %s: Preempted ####################" % self._action_name)
                 self._as.set_preempted()
                 # Note: The trajectory is not cancelled for preempt as updated trajectory would be given
                 return

@@ -31,8 +31,8 @@ from std_msgs.msg import Empty
 from pyrobot.locobot.base_control_utils import (
     MoveBasePlanner,
     _get_absolute_pose,
-    SimpleGoalState,
-    check_server_client_link,
+    LocalActionStatus,
+    LocalActionServer,
 )
 from pyrobot.locobot.base_controllers import (
     ProportionalControl,
@@ -46,7 +46,7 @@ from control_msgs.msg import (
     FollowJointTrajectoryAction,
     FollowJointTrajectoryGoal,
 )
-
+from std_msgs.msg import Empty
 
 from pyrobot.locobot.bicycle_model import wrap_theta
 from actionlib_msgs.msg import GoalStatus
@@ -221,6 +221,8 @@ class BaseState(BaseSafetyCallbacks):
         BaseSafetyCallbacks.__del__(self)
 
 
+
+
 class LoCoBotBase(Base):
     """
     This is a common base class for the locobot and locobot-lite base.
@@ -272,27 +274,26 @@ class LoCoBotBase(Base):
         ###################### Action server specific things######################
 
         self.action_name = "pyrobot/locobot/base/controller_server"
-        self._as = actionlib.SimpleActionServer(
+        self.controller_sub = rospy.Subscriber(
             self.action_name,
-            FollowJointTrajectoryAction,
-            execute_cb=self._execute_controller,
-            auto_start=False,
+            Empty,
+            self._execute_controller,
         )
-        self._as.start()
-
+        self._as = LocalActionServer()
         ###################### Action client specific things######################
         
 
-        self._ac = actionlib.SimpleActionClient(
-            self.action_name, FollowJointTrajectoryAction,
+        self.controller_pub = rospy.Publisher(
+            self.action_name, Empty, queue_size=1
         )
-        check_server_client_link(self._ac)
+        
 
         # class variables shared when communicating between client and server
         self.smooth, self.use_map, self.close_loop = None, None, None
         self.xyt_position = None
+        self.xyt_positions = None
+        self.controls = None
 
-        self.action_in_use = None  # True means action is working on a goal
         ###########################################################################
 
         # Path planner
@@ -334,15 +335,21 @@ class LoCoBotBase(Base):
         rospy.on_shutdown(self.clean_shutdown)
 
     def _execute_controller(self, goal):
-        self.action_in_use = True
-
+        
         assert self._called_method in ["go_to_absolute", "track_trajectory"], (
             "Invalid action server method called")
         if self._called_method == "go_to_absolute":
-            self._go_to_absolute()
+            result = self._go_to_absolute()
         elif self._called_method == "track_trajectory":
-            self._track_trajectory()
+            result = self._track_trajectory()
 
+        if self._as.is_preempt_requested():
+            rospy.logwarn("Current action has been Preempted")
+            self._as.set_preempted()
+        elif result:
+            self._as.set_succeeded()
+        else:
+            self._as.set_aborted()
 
 
     def _track_trajectory(self):
@@ -377,13 +384,8 @@ class LoCoBotBase(Base):
             print("Unexpected error encountered during trajectory tracking!")
             result = False
         
-        self.action_in_use = False
-        if self._as.is_preempt_requested():
-            self._as.set_preempted()
-        elif result:
-            self._as.set_succeeded()
-        else:
-            self._as.set_aborted()
+        return result
+        
 
 
     def _go_to_absolute(self):
@@ -419,16 +421,13 @@ class LoCoBotBase(Base):
             print("Unexpected error encountered during positon control!")
             result = False
 
-        self.action_in_use = False
-        if self._as.is_preempt_requested():
-            self._as.set_preempted()
-        elif result:
-            self._as.set_succeeded()
-        else:
-            self._as.set_aborted()
+        return result
 
     def clean_shutdown(self):
         rospy.loginfo("Stopping LoCoBot Base.")
+
+        if self.base_controller == "gpmp" or self.base_controller ==  "movebase":
+            self.controller.cancel_goal()
         self.cancel_last_goal(stop_robot=True)
 
     def get_state(self, state_type):
@@ -525,26 +524,26 @@ class LoCoBotBase(Base):
         :rtype: bool
         """
 
-        if self.action_in_use == True:
+        if not self._as.is_available():
             rospy.logwarn(
                 "Base action server already in use by a different goal.\
                            Please consider using cancel_goal method before calling this method."
             )
             return False
-
+        self._as.set_active() # block action server and set active
         self.xyt_position = np.asarray(xyt_position)
         self.use_map = use_map
         self.smooth = smooth
         self.close_loop = close_loop
         self._called_method = "go_to_absolute"
-        self._ac.send_goal(FollowJointTrajectoryGoal())
+        self.controller_pub.publish(Empty())
 
-        status = self._ac.get_state()
+        status = self._as.get_state()
         if wait:
             while status != GoalStatus.SUCCEEDED:
                 if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
                     return False
-                status = self._ac.get_state()
+                status = self._as.get_state()
             return True
         else:
             return None
@@ -554,22 +553,18 @@ class LoCoBotBase(Base):
         """
         Returns the status of the commanded goal action.
         None - No last action to report
-        1 - Active
-        2 - Preempted
-        3 - Succeeded
-        4 - Aborted
-        5 - Rejected
-        6 - preempting
-        
-        :rtype: GoalStatus
+        ACTIVE = 1
+        PREEMPTED  = 2
+        SUCCEEDED = 3
+        ABORTED = 4
+        FREE = 5
+        UNKOWN = 6
+        PREEMPTING = 7     
+        :rtype: LocalActionStatus
 
         """
 
-        if not self._ac.gh:
-            rospy.logwarn("No action goal to report")
-            return None
-
-        return self._ac.get_state()
+        return self._as.get_state()
 
     def cancel_last_goal(self, stop_robot=True):
 
@@ -581,11 +576,7 @@ class LoCoBotBase(Base):
         :type stop_robot: bool
         """
 
-        if not self._ac.gh:
-            rospy.logwarn("No action goal to cancel")
-            return
-        if self._ac.simple_state != SimpleGoalState.DONE:
-            self._ac.cancel_goal()
+        self._as.cancel_goal()
 
         if stop_robot:
             self.stop()
@@ -612,25 +603,26 @@ class LoCoBotBase(Base):
             return
 
 
-        if self.action_in_use == True:
+        if not self._as.is_available():
             rospy.logwarn(
                 "Base action server already in use by a different goal.\
                            Please consider using cancel_goal method before calling this method."
             )
             return False
+        self._as.set_active() # block action server and set active
 
         self.xyt_states = states
         self.controls = controls
         self.close_loop = close_loop
         self._called_method = "track_trajectory"
-        self._ac.send_goal(FollowJointTrajectoryGoal())
+        self.controller_pub.publish(Empty())
 
-        status = self._ac.get_state()
+        status = self._as.get_state()
         if wait:
             while status != GoalStatus.SUCCEEDED:
                 if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
                     return False
-                status = self._ac.get_state()
+                status = self._as.get_state()
             return True
         else:
             return None
