@@ -87,7 +87,7 @@ _BASEC.MAX_ABS_TURN_SPEED = 0.5
 _BASEC.PLAN_TOPIC = "/move_base/GlobalPlanner/make_plan"
 # Index of the point to be tracked on the plan.
 # (used by Proportional and ILQR trajectory tracking)
-_BASEC.TRACKED_POINT = 20
+_BASEC.TRACKED_POINT = 8
 # Linear treshold used by trajectory tracking with proportional and ILQR
 _BASEC.TRESHOLD_LIN = 0.15
 # Tolearance to be used by movebase planner while generating plans
