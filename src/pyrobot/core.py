@@ -155,6 +155,18 @@ class Robot:
         # sleep some time for tf listeners in subclasses
         rospy.sleep(2)
 
+
+        # def __del__(self):
+
+        #     if hasattr(self, "base"):
+        #         del self.base 
+        #     if hasattr(self, "arm"):
+        #         del self.arm 
+        #     if hasattr(self, "camera"):
+        #         del self.camera 
+        #     if hasattr(self, "gripper"):
+        #         del self.gripper
+
 class Base(object):
     """
     This is a parent class on which the robot

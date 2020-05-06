@@ -998,6 +998,7 @@ class LocalActionStatus:
         FREE = 5
         UNKOWN = 6
         PREEMPTING = 7
+        DISABLED = 8
 
 import threading
 import copy
@@ -1009,7 +1010,8 @@ class LocalActionServer(object):
         self._state = LocalActionStatus.UNKOWN
     
     def is_preempt_requested(self):
-        if self.get_state() == LocalActionStatus.PREEMPTING:
+        if self.get_state() == LocalActionStatus.PREEMPTING or\
+           self.get_state() == LocalActionStatus.DISABLED:
             return True
         else:
             return False
@@ -1040,10 +1042,21 @@ class LocalActionServer(object):
     def set_active(self):
         self._set_state(LocalActionStatus.ACTIVE)
 
+    def is_disabled(self):
+        state = self.get_state()
+        if state == LocalActionStatus.DISABLED:
+            return True
+        return False
+
+
+    def disable(self):
+        self._set_state(LocalActionStatus.DISABLED)
+
     def is_available(self):
         state = self.get_state()
         if state == LocalActionStatus.ACTIVE or\
-           state == LocalActionStatus.PREEMPTING:
+           state == LocalActionStatus.PREEMPTING or \
+           state == LocalActionStatus.DISABLED:
            return False
         else:
             return True

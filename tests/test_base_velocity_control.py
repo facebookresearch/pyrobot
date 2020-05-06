@@ -9,20 +9,19 @@ import numpy as np
 from pyrobot import Robot
 
 
-@pytest.fixture
-def botname(request):
-    return request.config.getoption("botname")
 
+
+@pytest.fixture(scope="module")
+def create_robot():
+    return Robot("locobot", use_arm=False, use_camera=False)
 
 @pytest.mark.parametrize("base_controller", ["ilqr", "proportional", "movebase"])
 @pytest.mark.parametrize("base_planner", ["movebase", "none"])
-def test_vel_cmd_v(botname, base_controller, base_planner):
-    bot = Robot(
-        botname,
-        base_config={"base_controller": base_controller, "base_planner": base_planner},
-        use_arm=False,
-        use_camera=False,
-    )
+def test_vel_cmd_v(create_robot, base_controller, base_planner):
+    bot = create_robot
+    bot.base.load_controller(base_controller)
+    bot.base.load_planner(base_planner)
+
     state_before = np.array(bot.base.get_state("odom"))
     bot.base.set_vel(fwd_speed=0.2, turn_speed=0.0, exe_time=2)
     bot.base.stop()
@@ -33,13 +32,11 @@ def test_vel_cmd_v(botname, base_controller, base_planner):
 
 @pytest.mark.parametrize("base_controller", ["ilqr", "proportional", "movebase"])
 @pytest.mark.parametrize("base_planner", ["movebase", "none"])
-def test_vel_cmd_w(botname, base_controller, base_planner):
-    bot = Robot(
-        botname,
-        base_config={"base_controller": base_controller, "base_planner": base_planner},
-        use_arm=False,
-        use_camera=False,
-    )
+def test_vel_cmd_w(create_robot, base_controller, base_planner):
+    bot = create_robot
+    bot.base.load_controller(base_controller)
+    bot.base.load_planner(base_planner)
+
     state_before = np.array(bot.base.get_state("odom"))
     bot.base.set_vel(fwd_speed=0.0, turn_speed=0.5, exe_time=2)
     bot.base.stop()

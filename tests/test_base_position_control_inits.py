@@ -88,7 +88,7 @@ def _test_init(init_type, start_pos, goal_pos, reverse):
     _states_close(init_states[-1, :], goal_pos)
 
 
-goal_poss = np.array(
+    goal_poss = np.array(
     [
         [0.0, 0.0, 0.0],
         [1.0, 0.0, 0.0],

@@ -202,7 +202,7 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
     start_conf = start_conf_val
     end_conf = end_conf_val
 
-    avg_vel = (end_conf_val - start_conf_val / params.total_time_step) / params.delta_t
+    avg_vel = np.asarray([0., 0., 0.]) #(end_conf_val - start_conf_val / params.total_time_step) / params.delta_t
 
     # plot param
 
@@ -229,12 +229,12 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
             graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
             graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
 
-        graph.add(VehicleDynamicsFactorVector(key_pos, key_vel, params.cost_sigma))
+        graph.add(VehicleDynamicsFactorVector(key_pos, key_vel, params.vehicle_sigma))
 
         # GP priors and cost factor
         if i > 0:
-            # graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
-            # graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
+            #graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
+            graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
             key_pos1 = symbol(ord("x"), i - 1)
             key_pos2 = symbol(ord("x"), i)
             key_vel1 = symbol(ord("v"), i - 1)
@@ -299,7 +299,7 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
 class Parameters(object):  # TODO: read from yaml file or rosparams
     # settings
     total_time_sec = 5.0
-    total_time_step = 50
+    total_time_step = 20
     total_check_step = 50.0
     delta_t = total_time_sec / total_time_step
     check_inter = int(total_check_step / total_time_step - 1)
@@ -321,12 +321,15 @@ class Parameters(object):  # TODO: read from yaml file or rosparams
     Qc_model = noiseModel_Gaussian.Covariance(Qc)
 
     # Obstacle avoid settings
-    cost_sigma = 0.005
+    cost_sigma = 0.2
     epsilon_dist = 0.1
 
     # prior to start/goal
-    pose_fix = pose_fix_goal = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001)
-    vel_fix = vel_fix_goal = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001)
+    vehicle_sigma = 0.001
+    pose_fix = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001) 
+    vel_fix = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001)
+    pose_fix_goal = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001)
+    vel_fix_goal = noiseModel_Isotropic.Sigma(pR_model.dof(), 0.0001)
 
     use_trustregion_opt = True
 
@@ -334,7 +337,7 @@ class Parameters(object):  # TODO: read from yaml file or rosparams
 
     # Fixed window params
     goal_region_threshold = 0.1
-    acceptable_error_threshold = 400
+    acceptable_error_threshold = 40000
     sigma_goal = 4
 
     opt_timeout = 0.2
@@ -419,7 +422,7 @@ class GPMPController(object):
                 return
 
             self.robot.executeTrajectory(result, self.params)
-            rospy.sleep(0.5)
+            rospy.sleep(0.2)
 
             curstate_val, curstate_vel = self.robot.get_robot_state()
             print("Current State: ", curstate_val, curstate_vel)
