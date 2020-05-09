@@ -4,12 +4,12 @@ TrajectoryPlannerROS:
   sim_time: 1.7
   sim_granularity: 0.025
   dwa: true
-  vx_samples: 3
+  vx_samples: 30
   vtheta_samples: 20
   max_vel_x: 0.25
-  min_vel_x: 0.0
-  max_rotational_vel: 0.23
-  min_in_place_rotational_vel: 0.2
+  min_vel_x: 0.1
+  max_rotational_vel: 0.25
+  min_in_place_rotational_vel: 0.1
   xy_goal_tolerance: 0.1
   yaw_goal_tolerance: 0.1
   goal_distance_bias: 0.2
@@ -18,11 +18,11 @@ TrajectoryPlannerROS:
   heading_lookahead: 0.325
   oscillation_reset_dist: 0.05
   holonomic_robot: true
-  acc_lim_th: 1.0
+  acc_lim_th: 0.5
   acc_lim_x: 0.5
   acc_lim_y: 0.5
   heading_scoring: false
   heading_scoring_timestep: 0.8
   holonomic_robot: true
   simple_attractor: false
-
+  escape_vel: -0.1
