@@ -166,6 +166,7 @@ declare -a ros_package_names=(
 	"ros-$ROS_NAME-orocos-kdl"
 	"ros-$ROS_NAME-python-orocos-kdl"
   	"ros-$ROS_NAME-ddynamic-reconfigure"
+  	"ros-$ROS_NAME-sbpl"
 	#"ros-$ROS_NAME-libcreate"
 	)
 
@@ -259,13 +260,16 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
   	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
   	mkdir thirdparty
   	cd thirdparty
-		git clone https://github.com/AutonomyLab/create_autonomy
-		git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
-		git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
-		git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
-		git clone https://github.com/ros-controls/ros_control.git
-		git clone https://github.com/kalyanvasudev/ORB_SLAM2.git
-		git clone https://github.com/s-gupta/ar_track_alvar.git
+	git clone https://github.com/AutonomyLab/create_autonomy
+	git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
+	git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+	git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
+	git clone https://github.com/ros-controls/ros_control.git
+	git clone https://github.com/kalyanvasudev/ORB_SLAM2.git
+	git clone https://github.com/s-gupta/ar_track_alvar.git
+	git clone https://github.com/ros-planning/navigation_experimental.git
+
+	cd navigation_experimental && git checkout 3f12f155be94135390d6783d1014cc9a47eb1d2d && cd ..
 
 	if [ $ROS_NAME == "kinetic" ]; then
 		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
