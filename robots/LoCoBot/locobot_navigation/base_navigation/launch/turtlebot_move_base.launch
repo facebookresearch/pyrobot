@@ -21,12 +21,12 @@
       <rosparam file="$(find turtlebot_navigation)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
       <rosparam file="$(find base_navigation)/config/turtlebot/local_costmap_params.yaml" command="load" />   
       <rosparam file="$(find base_navigation)/config/turtlebot/global_costmap_params.yaml" command="load" />
-      <rosparam file="$(find sbpl_lattice_planner)/launch/move_base/sbpl_global_params.yaml" command="load" />
-      <rosparam file="$(find sbpl_lattice_planner)/launch/move_base/base_local_planner_params_close.yaml" command="load" />
-      <rosparam file="$(find base_navigation)/config/turtlebot/global_map_extra.yaml"
+      <rosparam file="$(find base_navigation)/config/turtlebot/sbpl_global_params.yaml" command="load" />
+      <rosparam file="$(find base_navigation)/config/turtlebot/base_local_planner_params_close.yaml" command="load" />
+      <rosparam file="$(find base_navigation)/config/turtlebot/map_extra.yaml"
                   command="load"
                   ns="global_costmap" />
-      <rosparam file="$(find base_navigation)/config/turtlebot/local_map_extra.yaml"
+      <rosparam file="$(find base_navigation)/config/turtlebot/map_extra.yaml"
                   command="load"
                   ns="local_costmap" />
       <!-- <param name="recovery_behavior_enabled" value="false"/>  -->
@@ -47,8 +47,8 @@
       <rosparam file="$(find turtlebot_navigation)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
       <rosparam file="$(find base_navigation)/config/turtlebot/local_costmap_params.yaml" command="load" />   
       <rosparam file="$(find base_navigation)/config/turtlebot/global_costmap_params.yaml" command="load" />
-      <rosparam file="$(find sbpl_lattice_planner)/launch/move_base/sbpl_global_params.yaml" command="load" />
-      <rosparam file="$(find sbpl_lattice_planner)/launch/move_base/base_local_planner_params_close.yaml" command="load" />
+      <rosparam file="$(find base_navigation)/config/turtlebot/sbpl_global_params.yaml" command="load" />
+      <rosparam file="$(find base_navigation)/config/turtlebot/base_local_planner_params_close.yaml" command="load" />
       <!-- <param name="recovery_behavior_enabled" value="false"/>  -->
       <remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/>
       <remap from="odom" to="$(arg odom_topic)"/>

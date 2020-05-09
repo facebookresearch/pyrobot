@@ -1,6 +1,6 @@
 global_costmap:
-   global_frame: /map
-   robot_base_frame: /base_link
+   global_frame: map
+   robot_base_frame: base_link
    update_frequency: 1.0
    publish_frequency: 0.5
    static_map: true
@@ -9,6 +9,8 @@ global_costmap:
    rolling_window: false 
    always_send_full_costmap: true
    map_type: costmap
+
+   resolution: 0.025
 
    plugins:
      - {name: static_layer,            type: "costmap_2d::StaticLayer"}

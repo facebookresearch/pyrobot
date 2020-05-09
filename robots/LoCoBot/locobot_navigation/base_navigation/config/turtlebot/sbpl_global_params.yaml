@@ -1,0 +1,6 @@
+SBPLLatticePlanner:
+  environment_type: XYThetaLattice
+  planner_type: ARAPlanner
+  allocated_time: 5.0
+  initial_epsilon: 3.0
+  forward_search: false
