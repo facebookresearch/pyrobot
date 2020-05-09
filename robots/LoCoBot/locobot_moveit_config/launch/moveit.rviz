@@ -1,20 +1,31 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 84
+    Help Height: 78
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Map1
-        - /Pose1
-      Splitter Ratio: 0.742560029
-    Tree Height: 405
-  - Class: rviz/Help
-    Name: Help
+        - /Status1
+      Splitter Ratio: 0.5
+    Tree Height: 281
+  - Class: rviz/Selection
+    Name: Selection
+  - Class: rviz/Tool Properties
+    Expanded:
+      - /2D Pose Estimate1
+      - /2D Nav Goal1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.588679016
   - Class: rviz/Views
     Expanded:
       - /Current View1
     Name: Views
     Splitter Ratio: 0.5
+  - Class: rviz/Time
+    Experimental: false
+    Name: Time
+    SyncMode: 0
+    SyncSource: ""
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -37,6 +48,31 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 0.699999988
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic: /move_base/global_costmap/costmap
+      Unreliable: false
+      Use Timestamp: false
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.100000001
+      Class: rviz/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.300000012
+      Head Radius: 0.100000001
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.0500000007
+      Shape: Arrow
+      Topic: /move_base_simple/goal
+      Unreliable: false
       Value: true
     - Acceleration_Scaling_Factor: 1
       Class: moveit_rviz_plugin/MotionPlanning
@@ -191,7 +227,7 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-        Loop Animation: true
+        Loop Animation: false
         Robot Alpha: 0.5
         Robot Color: 150; 50; 150
         Show Robot Collision: false
@@ -199,7 +235,7 @@ Visualization Manager:
         Show Trail: false
         State Display Time: 0.05 s
         Trail Step Size: 1
-        Trajectory Topic: move_group/display_planned_path
+        Trajectory Topic: /move_group/display_planned_path
       Planning Metrics:
         Payload: 1
         Show Joint Torques: false
@@ -222,7 +258,7 @@ Visualization Manager:
       Planning Scene Topic: move_group/monitored_planning_scene
       Robot Description: robot_description
       Scene Geometry:
-        Scene Alpha: 1
+        Scene Alpha: 0.899999976
         Scene Color: 50; 230; 50
         Scene Display Time: 0.200000003
         Show Scene Geometry: true
@@ -356,35 +392,142 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-        Robot Alpha: 0.5
+        Robot Alpha: 1
         Show Robot Collision: false
         Show Robot Visual: true
       Value: true
       Velocity_Scaling_Factor: 1
-    - Alpha: 0.699999988
-      Class: rviz/Map
-      Color Scheme: map
-      Draw Behind: false
-      Enabled: true
-      Name: Map
-      Topic: /move_base/global_costmap/costmap
-      Unreliable: false
-      Use Timestamp: false
-      Value: true
     - Alpha: 1
-      Axes Length: 1
-      Axes Radius: 0.100000001
-      Class: rviz/Pose
-      Color: 255; 25; 0
+      Buffer Length: 1
+      Class: rviz/Path
+      Color: 25; 255; 0
       Enabled: true
-      Head Length: 0.300000012
-      Head Radius: 0.100000001
-      Name: Pose
-      Shaft Length: 1
-      Shaft Radius: 0.0500000007
-      Shape: Arrow
-      Topic: /move_base/current_goal
+      Head Diameter: 0.300000012
+      Head Length: 0.200000003
+      Length: 0.300000012
+      Line Style: Lines
+      Line Width: 0.0299999993
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.0299999993
+      Shaft Diameter: 0.100000001
+      Shaft Length: 0.100000001
+      Topic: /move_base/SBPLLatticePlanner/plan
       Unreliable: false
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        ar_tag:
+          Value: true
+        arm_base_link:
+          Value: true
+        base_footprint:
+          Value: true
+        base_link:
+          Value: true
+        cam_mount:
+          Value: true
+        camera_color_optical_frame:
+          Value: true
+        camera_link:
+          Value: true
+        caster_back_link:
+          Value: true
+        caster_front_link:
+          Value: true
+        cliff_sensor_front_link:
+          Value: true
+        cliff_sensor_left_link:
+          Value: true
+        cliff_sensor_right_link:
+          Value: true
+        elbow_link:
+          Value: true
+        finger_l:
+          Value: true
+        finger_r:
+          Value: true
+        forearm_link:
+          Value: true
+        gripper_link:
+          Value: true
+        gyro_link:
+          Value: true
+        head_pan_link:
+          Value: true
+        head_tilt_link:
+          Value: true
+        map:
+          Value: true
+        odom:
+          Value: true
+        plate_1:
+          Value: true
+        plate_2:
+          Value: true
+        shoulder_link:
+          Value: true
+        wheel_left_link:
+          Value: true
+        wheel_right_link:
+          Value: true
+        wrist_link:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        map:
+          odom:
+            base_footprint:
+              base_link:
+                cam_mount:
+                  head_pan_link:
+                    head_tilt_link:
+                      camera_link:
+                        camera_color_optical_frame:
+                          {}
+                caster_back_link:
+                  {}
+                caster_front_link:
+                  {}
+                cliff_sensor_front_link:
+                  {}
+                cliff_sensor_left_link:
+                  {}
+                cliff_sensor_right_link:
+                  {}
+                gyro_link:
+                  {}
+                plate_1:
+                  plate_2:
+                    arm_base_link:
+                      shoulder_link:
+                        elbow_link:
+                          forearm_link:
+                            wrist_link:
+                              gripper_link:
+                                ar_tag:
+                                  {}
+                                finger_l:
+                                  {}
+                                finger_r:
+                                  {}
+                wheel_left_link:
+                  {}
+                wheel_right_link:
+                  {}
+      Update Interval: 0
       Value: true
   Enabled: true
   Global Options:
@@ -398,47 +541,58 @@ Visualization Manager:
       Hide Inactive Objects: true
     - Class: rviz/MoveCamera
     - Class: rviz/Select
+    - Class: rviz/FocusCamera
+    - Class: rviz/Measure
+    - Class: rviz/SetInitialPose
+      Topic: /initialpose
     - Class: rviz/SetGoal
-      Topic: goal
+      Topic: /move_base_simple/goal
+    - Class: rviz/PublishPoint
+      Single click: true
+      Topic: /clicked_point
   Value: true
   Views:
     Current:
-      Class: rviz/XYOrbit
-      Distance: 11.3098173
+      Class: rviz/ThirdPersonFollower
+      Distance: 9.70084476
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -3.94351435
-        Y: -0.0675702393
-        Z: 2.23518001e-07
+        X: 0.0215644836
+        Y: 4.74592781
+        Z: 5.0109179e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.639796972
-      Target Frame: base_footprint
-      Value: XYOrbit (rviz)
-      Yaw: 3.12676501
+      Pitch: 0.669796705
+      Target Frame: <Fixed Frame>
+      Value: ThirdPersonFollower (rviz)
+      Yaw: 1.54041469
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1028
-  Help:
-    collapsed: false
+  Height: 1056
   Hide Left Dock: false
   Hide Right Dock: false
   MotionPlanning:
     collapsed: false
-  MotionPlanning - Trajectory Slider:
+  MotionPlanning - Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002ad000003befc0200000007fb000000100044006900730070006c00610079007301000000280000022a000000d700fffffffb0000000800480065006c00700000000342000000bb0000007300fffffffb0000000a0056006900650077007300000003b0000000b0000000ad00fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004a00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000018300ffffff00000471000003be00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000400000000000002ad000003dafc020000000afb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006100fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000028000001a8000000d700fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004a00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000001d60000022c0000018300ffffff000000010000010f00000396fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000002800000396000000ad00fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000009bf0000003efc0100000002fb0000000800540069006d00650000000000000009bf0000030000fffffffb0000000800540069006d006501000000000000045000000000000000000000070c000003da00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Time:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
   Views:
     collapsed: false
-  Width: 1828
-  X: 459
+  Width: 2495
+  X: 65
   Y: 24
