@@ -5,12 +5,14 @@
     <arg name="use_base" default="false"/>
     <arg name="torque_control" default="false"/>
     <arg name="use_sim" default="false"/>
+    <arg name="use_lslam" default="false"/>
     <arg name="teleop" default="false"/>
     <arg name="use_rviz" default="true"/>
     <arg name="base" default="kobuki"/> <!-- Options: create and kobuki -->
 
     <param name="use_camera" value="$(arg use_camera)"/>
     <param name="use_arm" value="$(arg use_arm)"/>
+    <param name="use_vslam" value="$(arg use_vslam)"/>
     <param name="use_vslam" value="$(arg use_vslam)"/>
     <param name="use_sim" value="$(arg use_sim)"/>
     <param name="use_base" value="$(arg use_base)"/>
@@ -76,7 +78,12 @@
     </group>
 
 
+
     <!-- Common -->
+
+    <group if="$(arg use_lslam)">
+        <include file="$(find locobot_control)/launch/hector_slam_rplidar.launch" />
+    </group>
 
     <node name="turtlebot_controller_node" pkg="turtlebot_controller" 
                             type="turtlebot_controller_node"/>
@@ -88,10 +95,11 @@
     <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
                   type="kinematics.py"/>
 
-    
+
+    <arg name="use_map" value="$(eval arg('use_vslam') or arg('use_lslam'))"/>
     <group if="$(eval arg('use_base') or arg('use_sim'))" >
         <include file="$(find base_navigation)/launch/move_base.launch">
-            <arg name="use_map" value="$(arg use_vslam)"/>
+            <arg name="use_map" value="$(arg use_map)"/>
             <arg name="base" value="$(arg base)"/>
         </include>
     </group>
