@@ -420,7 +420,7 @@ if [ $INSTALL_TYPE == "full" ]; then
 	# Setup Lidar Uded rules
 	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty/rplidar_ros/scripts
 	chmod +x create_udev_rules.sh
-	sudo ./create_udev_rules.sh
+	./create_udev_rules.sh
 fi
 
 # Step 8 - Install GPMP specific things
