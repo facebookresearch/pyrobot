@@ -102,9 +102,6 @@ declare -a package_names=(
 	"libusb-1.0-0-dev"
 	"libgtk-3-dev" 
 	"libglfw3-dev"
-	"python-rosdep"
-	"python-rosinstall"
-	"python-vcstools"
 	)
 install_packages "${package_names[@]}"
 
@@ -142,6 +139,7 @@ else
 		if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
 			sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
 		fi
+		sudo apt -y install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
 		sudo rosdep init
 		rosdep update
 		echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
