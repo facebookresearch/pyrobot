@@ -295,7 +295,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 	fi
 fi
 
-cd $LOCOBOT_FOLDER
+cd $LOCOBOT_FOLDER/src/pyrobot
 rosdep update 
 rosdep install --from-paths src -i -y
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
