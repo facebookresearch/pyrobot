@@ -268,8 +268,12 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 	git clone https://github.com/kalyanvasudev/ORB_SLAM2.git
 	git clone https://github.com/s-gupta/ar_track_alvar.git
 	git clone https://github.com/ros-planning/navigation_experimental.git
+	git clone https://github.com/tu-darmstadt-ros-pkg/hector_slam.git
+	git clone https://github.com/Slamtec/rplidar_ros.git
 
 	cd navigation_experimental && git checkout 3f12f155be94135390d6783d1014cc9a47eb1d2d && cd ..
+	cd hector_slam && git checkout 560501f0572183cae48d5c78b18bad3ea393c58e && cd ..
+	cd rplidar_ros && git checkout 4f899e670bec2c9e1f26b0969f2de36d23618ef3 && cd ..
 
 	if [ $ROS_NAME == "kinetic" ]; then
 		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
@@ -411,6 +415,11 @@ if [ $INSTALL_TYPE == "full" ]; then
 	sudo service udev restart
 	sudo udevadm trigger
 	sudo usermod -a -G dialout $USER
+
+	# Setup Lidar Uded rules
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty/rplidar_ros/scripts
+	chmod +x create_udev_rules.sh
+	sudo ./create_udev_rules.sh
 fi
 
 # Step 8 - Install GPMP specific things
