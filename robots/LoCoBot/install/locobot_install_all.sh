@@ -102,6 +102,9 @@ declare -a package_names=(
 	"libusb-1.0-0-dev"
 	"libgtk-3-dev" 
 	"libglfw3-dev"
+	"python-rosdep"
+	"python-rosinstall"
+	"python-vcstools"
 	)
 install_packages "${package_names[@]}"
 
