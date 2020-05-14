@@ -22,7 +22,7 @@ _CAMERAC.ROSTOPIC_CAMERA_RGB_STREAM = "/kinect2/qhd/image_color_rect"
 # topic name of the depth images
 _CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = "/kinect2/qhd/image_depth_rect"
 # depth map factor
-_CAMERAC.DEPTH_MAP_FACTOR = 1.0
+_CAMERAC.DEPTH_MAP_FACTOR = 1000.0
 
 
 def get_cfg():
