@@ -64,7 +64,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 	virtualenv_name="pyenv_pyrobot_python3"
 	VIRTUALENV_FOLDER=~/${virtualenv_name}
 	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-		sudo apt-get -y install software-properties-common python-software-properties
+		sudo apt-get -y install software-properties-common
 		if [ $ubuntu_version == "16.04" ]; then
 			sudo apt-get -y install python-software-properties
 			sudo add-apt-repository -y ppa:fkrull/deadsnakes
@@ -94,8 +94,8 @@ if [ $PYTHON_VERSION == "3" ]; then
 			git clone -b indigo-devel https://github.com/ros/geometry2
 			git clone -b python3_patch https://github.com/kalyanvasudev/vision_opencv.git
 		else
-			git clone https://github.com/ros/geometry
-			git clone https://github.com/ros/geometry2
+			git clone -b melodic-devel https://github.com/ros/geometry
+			git clone -b melodic-devel https://github.com/ros/geometry2
 			git clone -b python3_patch_melodic https://github.com/kalyanvasudev/vision_opencv.git
 		fi
 		
