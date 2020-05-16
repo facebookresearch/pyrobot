@@ -139,6 +139,7 @@ else
 		if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
 			sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
 		fi
+		sudo apt -y install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
 		sudo rosdep init
 		rosdep update
 		echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
@@ -288,7 +289,7 @@ fi
 
 cd $LOCOBOT_FOLDER
 rosdep update 
-rosdep install --from-paths src -i -y
+rosdep install --from-paths src/pyrobot -i -y
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
 chmod +x install_orb_slam2.sh
 source install_orb_slam2.sh
