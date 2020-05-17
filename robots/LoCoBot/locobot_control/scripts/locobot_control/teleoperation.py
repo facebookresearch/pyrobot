@@ -74,7 +74,7 @@ class RobotTeleoperationServer:
             self.cfg = yaml.load(f)
         arm_config = {"control_mode": "position", "use_moveit": False}
 
-        self.use_arm = rospy.get_param("use_arm")
+        self.use_arm = False #rospy.get_param("use_arm")
         self.use_camera = rospy.get_param("use_camera")
         self.use_base = rospy.get_param("use_base")
         self.use_gripper = self.use_arm
@@ -86,6 +86,7 @@ class RobotTeleoperationServer:
             use_camera=self.use_camera,
             use_gripper=self.use_gripper,
             arm_config=arm_config,
+            base_config={"base_planner": "none"},
         )
 
         # Subscribers
@@ -140,8 +141,10 @@ class RobotTeleoperationServer:
         self.start_time = time.time()
 
         self.target_alpha = 0.0
-        self.update_alpha()
-        self.trans, _, _ = self.bot.arm.pose_ee
+
+        if self.use_arm:
+            self.update_alpha()
+            self.trans, _, _ = self.bot.arm.pose_ee
 
         rospy.loginfo("Teleop server ready to accept requests...")
 

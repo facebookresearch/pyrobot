@@ -6,6 +6,7 @@
     <arg name="torque_control" default="false"/>
     <arg name="use_sim" default="false"/>
     <arg name="use_lslam" default="false"/>
+    <arg name="use_rslam" default="false"/>
     <arg name="teleop" default="false"/>
     <arg name="use_rviz" default="true"/>
     <arg name="base" default="kobuki"/> <!-- Options: create and kobuki -->
@@ -85,18 +86,24 @@
         <include file="$(find locobot_control)/launch/hector_slam_rplidar.launch" />
     </group>
 
+
+    <group if="$(arg use_rslam)">
+        <include file="$(find locobot_control)/launch/rtabmap.launch" />
+    </group>
+
+
     <node name="turtlebot_controller_node" pkg="turtlebot_controller" 
                             type="turtlebot_controller_node"/>
 
-    <node name="gpmp_action_server" pkg="locobot_control" 
+<!--     <node name="gpmp_action_server" pkg="locobot_control" 
                             type="pointrobot3factor_ros_server.py"/>
-
+ -->
 
     <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
                   type="kinematics.py"/>
 
 
-    <arg name="use_map" value="$(eval arg('use_vslam') or arg('use_lslam'))"/>
+    <arg name="use_map" value="$(eval arg('use_vslam') or arg('use_lslam') or arg('use_rslam'))"/>
     <group if="$(eval arg('use_base') or arg('use_sim'))" >
         <include file="$(find base_navigation)/launch/move_base.launch">
             <arg name="use_map" value="$(arg use_map)"/>

@@ -1,0 +1,66 @@
+<launch>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find rplidar_ros)/rviz/rplidar.rviz" /> -->	
+  <!-- Start the RPLidar S1 -->
+  <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
+    <param name="serial_port" type="string" value="/dev/rplidar"/> 
+    <param name="serial_baudrate"     type="int"    value="256000"/>
+    <param name="frame_id"            type="string" value="laser"/>
+    <param name="inverted"            type="bool"   value="false"/>
+    <param name="angle_compensate"    type="bool"   value="true"/>
+  </node>
+	
+
+  <include file="$(find locobot_control)/launch/azzure_driver.launch" />
+
+  <!-- Static transforms to laser and Azzure Kinnect -->
+  <node pkg="tf" type="static_transform_publisher" name="laser_transform_broadcaster" args="-0.0062 0.0 0.3756 0.0 -3.141592653589 -3.141592653589 base_footprint laser 100" ns="rtabmap"/>
+  <node pkg="tf" type="static_transform_publisher" name="azzure_transform_broadcaster" args="0.0 0.0 0.35 0.0 0.0 0.0 base_footprint azzure_camera_base 100" ns="rtabmap"/>
+
+
+  <!-- Use RGBD synchronization -->
+  <!-- Here is a general example using a standalone nodelet, 
+       but it is recommended to attach this nodelet to nodelet 
+       manager of the camera to avoid topic serialization -->
+  <node pkg="nodelet" type="nodelet" name="rgbd_sync" args="standalone rtabmap_ros/rgbd_sync" output="screen">
+
+    <remap from="rgb/image"       to="/rgb/image_raw"/>
+    <remap from="depth/image"     to="/depth_to_rgb/image_raw"/>
+    <remap from="rgb/camera_info" to="/rgb/camera_info"/>
+    
+    <remap from="rgbd_image"      to="rgbd_image"/> <!-- output -->
+    
+    <!-- Should be true for not synchronized camera topics 
+         (e.g., false for kinectv2, zed, realsense, true for xtion, kinect360)-->
+    <param name="approx_sync"       value="false"/> 
+  </node>
+
+  <node name="rtabmap" pkg="rtabmap_ros" type="rtabmap" output="screen" args="--delete_db_on_start">
+        <param name="frame_id" type="string" value="base_link"/>
+
+        <param name="subscribe_depth" type="bool" value="false"/>
+        <param name="subscribe_rgbd" type="bool" value="true"/>
+        <param name="subscribe_scan" type="bool" value="true"/>
+
+        <remap from="odom" to="odom"/>
+        <remap from="imu" to="some_imu"/>
+        <remap from="scan" to="scan"/>
+        <remap from="rgbd_image" to="rgbd_image"/>
+
+        <param name="queue_size" type="int" value="10"/>
+
+        <!-- RTAB-Map's parameters -->
+        <param name="RGBD/NeighborLinkRefining" type="string" value="true"/>
+        <param name="RGBD/ProximityBySpace"     type="string" value="true"/>
+        <param name="RGBD/AngularUpdate"        type="string" value="0.01"/>
+        <param name="RGBD/LinearUpdate"         type="string" value="0.01"/>
+        <param name="RGBD/OptimizeFromGraphEnd" type="string" value="false"/>
+        <param name="Grid/FromDepth"            type="string" value="false"/> <!-- occupancy grid from lidar -->
+        <param name="Reg/Force3DoF"             type="string" value="true"/>
+        <param name="Reg/Strategy"              type="string" value="1"/> <!-- 1=ICP -->
+        
+        <!-- ICP parameters -->
+        <param name="Icp/VoxelSize"                 type="string" value="0.05"/>
+        <param name="Icp/MaxCorrespondenceDistance" type="string" value="0.1"/>
+  </node>
+
+</launch>
