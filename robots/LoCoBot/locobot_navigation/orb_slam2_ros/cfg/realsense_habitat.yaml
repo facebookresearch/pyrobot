@@ -6,8 +6,8 @@
 
 Camera.fx: 1000
 Camera.fy: 1000
-Camera.cx: 320.0
-Camera.cy: 240.0
+Camera.cx: 256
+Camera.cy: 256
 
 Camera.k1: 0
 Camera.k2: 0
@@ -15,8 +15,8 @@ Camera.p1: 0
 Camera.p2: 0
 Camera.k3: 0
 
-Camera.width: 640
-Camera.height: 480
+Camera.width: 512
+Camera.height: 512
 
 # Camera frames per second
 Camera.fps: 30.0
