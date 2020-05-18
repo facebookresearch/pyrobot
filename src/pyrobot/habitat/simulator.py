@@ -26,7 +26,7 @@ class HabitatSim(object):
         print(self.sim_config)
 
     def get_agents():
-        """ Return a list of anget objects"""
+        """ Return a list of agent objects"""
         return self.sim.agents
 
     def get_sensors():
