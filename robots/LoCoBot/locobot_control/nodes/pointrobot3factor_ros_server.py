@@ -135,6 +135,18 @@ class Robot(object):
     def get_robot_state(self):
         return self.state.pose, self.state.vel
 
+    def get_local_frame_vels(self, temp_vel,  yaw):
+        # temp_vel is velocity in global frame.
+
+        vel = np.asarray([1.0,1.0,1.0])
+
+        vel[0] = temp_vel[0] * np.cos(yaw) + temp_vel[1]* np.sin(yaw)
+        vel[1] = -1.0 * temp_vel[0] * np.sin(yaw) +  temp_vel[1] * np.cos(yaw)
+        vel[2] = temp_vel[2]
+
+        return vel
+    
+    
     def executeTrajectory(self, result, params):
 
         DOF = 3
@@ -144,7 +156,8 @@ class Robot(object):
         for i in range(params.total_time_step):
 
             pose = result.atVector(symbol(ord("x"), i))
-            vel = result.atVector(symbol(ord("v"), i))
+            vel = self.get_local_frame_vels(result.atVector(symbol(ord("v"), i)), 
+                                            pose[2])
 
             point = JointTrajectoryPoint()
 
