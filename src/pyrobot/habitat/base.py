@@ -43,6 +43,8 @@ class LoCoBotBase(object):
 
         init_rotation = self._rot_matrix(self.init_state.rotation)
 
+        # true position here refers to the relative position from
+        # where `self.init_state` is treated as origin
         true_position = cur_state.position - self.init_state.position
         true_position = np.matmul(init_rotation.transpose(), true_position)
 
@@ -52,8 +54,8 @@ class LoCoBotBase(object):
         (r, pitch, yaw) = euler_from_matrix(cur_rotation, axes="sxzy")
         # Habitat has y perpendicular to map where as ROS has z perpendicular
         # to the map. Where as x is same.
-        # Here ROS_Z = -1 * habitat_z and ROS_Y = habitat_x
-        return (-1 * true_position[2], true_position[0], yaw)
+        # Here ROS_X = -1 * habitat_z and ROS_Y = -1*habitat_x
+        return (-1 * true_position[2], -1* true_position[0], yaw)
 
     def stop(self):
         raise NotImplementedError("Veclocity control is not supported in Habitat-Sim!!")
@@ -174,9 +176,9 @@ class LoCoBotBase(object):
 
         if math.sqrt(rel_x ** 2 + rel_y ** 2) > 0.0:
             # rotate to point to (x, y) point
-            action_name = "turn_right"
+            action_name = "turn_left"
             if rel_y < 0.0:
-                action_name = "turn_left"
+                action_name = "turn_right"
 
             v1 = np.asarray([1, 0])
             v2 = np.asarray([rel_x, rel_y])
