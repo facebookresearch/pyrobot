@@ -1,0 +1,968 @@
+<?xml version="1.0" ?>
+<robot name="locobot">
+    <!-- Kobuki -->
+    <link name="base_footprint"/>
+    <!--
+       Base link is set at the bottom of the base mould.
+       This is done to be compatible with the way base link
+       was configured for turtlebot 1. Refer to
+
+       https://github.com/turtlebot/turtlebot/issues/40
+
+       To put the base link at the more oft used wheel
+       axis, set the z-distance from the base_footprint
+       to 0.352.
+      -->
+    <joint name="base_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.0102"/>
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+    </joint>
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <!-- new mesh -->
+                <mesh filename="package://locobot_description/meshes/main_body.dae"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0.001 0 0.05199"/>
+        </visual>
+        <collision name="base">
+            <geometry>
+                <cylinder length="0.10938" radius="0.178"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0.0 0 0.05949"/>
+        </collision>
+        <inertial>
+            <!-- COM experimentally determined -->
+            <origin xyz="0.01 0 0"/>
+            <mass value="2.4"/>
+            <!-- 2.4/2.6 kg for small/big battery pack -->
+            <!-- Kobuki's inertia tensor is approximated by a cylinder with homogeneous mass distribution
+             More details: http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
+             m = 2.4 kg; h = 0.09 m; r = 0.175 m
+             ixx = 1/12 * m * (3 * r^2 + h^2)
+             iyy = 1/12 * m * (3 * r^2 + h^2)
+             izz = 1/2 * m * r^2
+          -->
+            <inertia ixx="0.019995" ixy="0.0" ixz="0.0" iyy="0.019995" iyz="0.0" izz="0.03675"/>
+        </inertial>
+    </link>
+    <joint name="wheel_left_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_left_link"/>
+        <origin rpy="-1.57079632679 0 0" xyz="0.00 0.115 0.0250"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+    <link name="wheel_left_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wheel.dae"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="0.0206" radius="0.0352"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
+    </link>
+    <joint name="wheel_right_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_right_link"/>
+        <origin rpy="-1.57079632679 0 0" xyz="0.00 -0.115 0.0250"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+    <link name="wheel_right_link">
+        <visual>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wheel.dae"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder length="0.0206" radius="0.0350"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
+    </link>
+    <joint name="caster_front_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="caster_front_link"/>
+        <origin rpy="-1.57079632679 0 0" xyz="0.115 0.0 0.007"/>
+    </joint>
+    <link name="caster_front_link">
+        <collision>
+            <geometry>
+                <cylinder length="0.0176" radius="0.017"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
+    </link>
+    <joint name="caster_back_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="caster_back_link"/>
+        <origin rpy="-1.57079632679 0 0" xyz="-0.135 0.0 0.009"/>
+    </joint>
+    <link name="caster_back_link">
+        <collision>
+            <geometry>
+                <cylinder length="0.0176" radius="0.017"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+        </collision>
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.001" ixy="0.0" ixz="0.0" iyy="0.001" iyz="0.0" izz="0.001"/>
+        </inertial>
+    </link>
+    <!-- Kobuki's sensors -->
+    <joint name="gyro_joint" type="fixed">
+        <axis xyz="0 1 0"/>
+        <origin rpy="0 0 0" xyz="0.056 0.062 0.0202"/>
+        <parent link="base_link"/>
+        <child link="gyro_link"/>
+    </joint>
+    <link name="gyro_link">
+        <inertial>
+            <mass value="0.001"/>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.0001"/>
+        </inertial>
+    </link>
+    <joint name="cliff_sensor_left_joint" type="fixed">
+        <origin rpy="0 1.57079632679 0" xyz="0.08734 0.13601 0.0214"/>
+        <parent link="base_link"/>
+        <child link="cliff_sensor_left_link"/>
+    </joint>
+    <link name="cliff_sensor_left_link">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+        </inertial>
+    </link>
+    <joint name="cliff_sensor_right_joint" type="fixed">
+        <origin rpy="0 1.57079632679 0" xyz="0.085 -0.13601 0.0214"/>
+        <parent link="base_link"/>
+        <child link="cliff_sensor_right_link"/>
+    </joint>
+    <link name="cliff_sensor_right_link">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+        </inertial>
+    </link>
+    <joint name="cliff_sensor_front_joint" type="fixed">
+        <origin rpy="0 1.57079632679 0" xyz="0.156 0.00 0.0214"/>
+        <parent link="base_link"/>
+        <child link="cliff_sensor_front_link"/>
+    </joint>
+    <link name="cliff_sensor_front_link">
+        <inertial>
+            <mass value="0.0001"/>
+            <origin xyz="0 0 0"/>
+            <inertia ixx="0.0001" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.0001"/>
+        </inertial>
+    </link>
+    <!-- plates  -->
+    <link name="plate_1">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.640128902693298"/>
+            <inertia ixx="0.0212697824374231" ixy="-1.84819421839641E-07" ixz="0.00177278831625861" iyy="0.0200161122874848" iyz="1.82514218153984E-07" izz="0.00538401325307411"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="plate_1_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0.0973 0 0.0902375"/>
+        <parent link="base_link"/>
+        <child link="plate_1"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+    <link name="plate_2">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="0.640128902693298"/>
+            <inertia ixx="0.0212697824374231" ixy="-1.84819421839641E-07" ixz="0.00177278831625861" iyy="0.0200161122874848" iyz="1.82514218153984E-07" izz="0.00538401325307411"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/plate.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="plate_2_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.0047625"/>
+        <parent link="plate_1"/>
+        <child link="plate_2"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+    <!-- add arm -->
+    <link name="arm_base_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-1.86027246940057E-08 -1.84987775462994E-08 0.0400356424684456"/>
+            <mass value="0.531491686912019"/>
+            <inertia ixx="0.000533657400855491" ixy="-4.44205269454465E-09" ixz="2.11078566024265E-10" iyy="0.000533665698902565" iyz="5.02029005902419E-11" izz="0.00071572082392375"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/arm_base_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/arm_base_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="arm_base_link_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.001"/>
+        <parent link="plate_2"/>
+        <child link="arm_base_link"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+    <link name="shoulder_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-5.67968980068612E-05 1.09785478984274E-10 0.0228467386735302"/>
+            <mass value="0.119861197293521"/>
+            <inertia ixx="0.000161288180462291" ixy="7.59806211309873E-14" ixz="-1.45323090659527E-07" iyy="5.49696562437107E-05" iyz="1.81052501311883E-13" izz="0.000150800672543169"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/shoulder_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/shoulder_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_1" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.072"/>
+        <parent link="arm_base_link"/>
+        <child link="shoulder_link"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="elbow_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.00959755948481227 -2.30930057287648E-10 0.134296795349987"/>
+            <mass value="0.212482745791037"/>
+            <inertia ixx="0.0011748973771367" ixy="-4.7094567420817E-13" ixz="-0.000132188939134774" iyy="0.00122350302249847" iyz="-5.48932537472287E-12" izz="9.02202689343621E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/elbow_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/elbow_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_2" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.04125"/>
+        <parent link="shoulder_link"/>
+        <child link="elbow_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="10" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="forearm_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.117829826272582 3.09310973110905E-15 -1.26218883678142E-08"/>
+            <mass value="0.18746427435805"/>
+            <inertia ixx="3.94142667601686E-05" ixy="-3.65830967659785E-19" ixz="9.25852572167442E-11" iyy="0.000725209569605637" iyz="-1.05290858715495E-18" izz="0.000737165881391993"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/forearm_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/forearm_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_3" type="revolute">
+        <origin rpy="0 0 0" xyz="0.05 0 0.2"/>
+        <parent link="elbow_link"/>
+        <child link="forearm_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="10" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="wrist_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0429410028407894 4.98644733821042E-05 0.0114266948023652"/>
+            <mass value="0.0605921736680362"/>
+            <inertia ixx="1.84998512056284E-05" ixy="-1.03256667343112E-08" ixz="-1.71865409274096E-06" iyy="2.08955068262134E-05" iyz="5.05203399787143E-09" izz="1.97857037442992E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wrist_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/wrist_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_4" type="revolute">
+        <origin rpy="0 0 0" xyz="0.2002 0 0"/>
+        <parent link="forearm_link"/>
+        <child link="wrist_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="gripper_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0311572802112565 -1.25977280754998E-05 0.0092307003092138"/>
+            <mass value="0.0795745052466434"/>
+            <inertia ixx="3.27413333929741E-05" ixy="3.7314060486416E-08" ixz="3.97669066588691E-06" iyy="4.47182985231326E-05" iyz="-9.49992756213297E-09" izz="5.02142570756738E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/gripper_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/gripper_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_5" type="revolute">
+        <origin rpy="0 0 0" xyz="0.063 0.0001 0"/>
+        <parent link="wrist_link"/>
+        <child link="gripper_link"/>
+        <axis xyz="-1 0 0"/>
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="finger_r">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0100191457715113 -0.00843835347348892 -0.00483280251641866"/>
+            <mass value="0.0121931459003602"/>
+            <inertia ixx="6.74016278931418E-07" ixy="-2.36459038775023E-07" ixz="3.1480125304693E-09" iyy="3.10966297287339E-06" iyz="1.19271018871704E-10" izz="2.77935600332309E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_r.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_r.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_6" type="prismatic">
+        <origin rpy="0 0 0" xyz="0.07285 0 0.0050143"/>
+        <parent link="gripper_link"/>
+        <child link="finger_r"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="-1" upper="0" velocity="1"/>
+    </joint>
+    <link name="finger_l">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0100191599590265 0.00643833435729511 -0.00483280251641866"/>
+            <mass value="0.0121931459003603"/>
+            <inertia ixx="6.74017180959932E-07" ixy="2.3646368440071E-07" ixz="3.14801230297432E-09" iyy="3.10966207084492E-06" iyz="-1.19277023229564E-10" izz="2.77935600332313E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_l.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/finger_l.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="joint_7" type="prismatic">
+        <origin rpy="0 0 0" xyz="0.07285 0 0.0050143"/>
+        <parent link="gripper_link"/>
+        <child link="finger_l"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="0" upper="1" velocity="1"/>
+    </joint>
+    <link name="ar_tag">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-1.59182528269852E-09 1.70641183422241E-09 -0.00509579048106218"/>
+            <mass value="0.0202622634619862"/>
+            <inertia ixx="4.71058333074219E-06" ixy="3.03778067070489E-12" ixz="6.65421687578365E-13" iyy="4.05773489073818E-06" iyz="1.37033485576347E-13" izz="7.92378853658606E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/ar_tag.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/ar_tag.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="ar_tag_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0.0269499999999999 0 0.04315"/>
+        <parent link="gripper_link"/>
+        <child link="ar_tag"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+    <!-- need to add camera assembly -->
+    <link name="cam_mount">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.00357169217419921 -0.000144750803528887 0.178406861295468"/>
+            <mass value="0.508068698311304"/>
+            <inertia ixx="0.0159487749924762" ixy="9.45818767875249E-08" ixz="-0.000266253609478166" iyy="0.0137751425461872" iyz="2.26699147122113E-06" izz="0.00331206257835318"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/cam_mount.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/cam_mount.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="cam_mount_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="-0.03751 0 0.1331"/>
+        <parent link="base_link"/>
+        <child link="cam_mount"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+    <link name="head_pan_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-1.35308431126191E-16 -2.97071395261028E-17 0.0220876265081744"/>
+            <mass value="0.0182769203076134"/>
+            <inertia ixx="1.32243845065555E-05" ixy="5.07660179129181E-13" ixz="1.067515220067E-20" iyy="7.13386116649085E-06" iyz="-1.32882457845217E-20" izz="7.83291781352837E-06"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/tilt_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.250980392156863 0.250980392156863 0.250980392156863 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/tilt_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="head_pan_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0.0240154841629213 -0.000373468229198185 0.4065"/>
+        <parent link="cam_mount"/>
+        <child link="head_pan_link"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="head_tilt_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0.0168744200088311 -0.000442984145897884 -0.00405256422002387"/>
+            <mass value="0.0547677687275323"/>
+            <inertia ixx="1.07071738005716E-05" ixy="-1.46854788384565E-07" ixz="5.59529059364376E-08" iyy="1.77011620295824E-05" iyz="1.27587154712834E-09" izz="2.01583693170578E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/roll_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/roll_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="head_tilt_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0.05"/>
+        <parent link="head_pan_link"/>
+        <child link="head_tilt_link"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1"/>
+    </joint>
+    <link name="camera_link">
+        <inertial>
+            <origin rpy="0 0 0" xyz="-0.0132722976093535 0.00168171470080143 2.49829664994428E-06"/>
+            <mass value="0.0381925651163644"/>
+            <inertia ixx="2.4688255642946E-05" ixy="1.60697655569215E-07" ixz="1.2993241737711E-08" iyy="3.66669176935806E-06" iyz="1.30215657011203E-08" izz="2.48602467766615E-05"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/camera_link.STL"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://locobot_description/meshes/camera_link.STL"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="camera_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0.06705 0 -0.00425"/>
+        <parent link="head_tilt_link"/>
+        <child link="camera_link"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+    <!-- Gazebo Plugins -->
+    <gazebo>
+        <plugin filename="libgazebo_ros_control.so" name="gazebo_ros_control">
+            <robotNamespace>/</robotNamespace>
+            <legacyModeNS>true</legacyModeNS>
+        </plugin>
+    </gazebo>
+    <!-- Camera joints -->
+    <transmission name="tran_head_tilt">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="head_tilt_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="head_tilt_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_head_pan">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="head_pan_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="head_pan_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <!-- Arm joints -->
+    <transmission name="tran_1">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_1">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_2">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_2">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_3">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_3">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_4">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_4">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_5">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_5">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_6">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_6">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="tran_7">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="joint_7">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="motor_7">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <!-- camera -->
+    <gazebo reference="camera_link">
+        <sensor name="camera_frame_sensor" type="depth">
+            <always_on>true</always_on>
+            <update_rate>30.0</update_rate>
+            <camera>
+                <horizontal_fov>0.994837</horizontal_fov>
+                <image>
+                    <format>R8G8B8</format>
+                    <width>640</width>
+                    <height>480</height>
+                </image>
+                <clip>
+                    <near>0.01</near>
+                    <far>10</far>
+                </clip>
+            </camera>
+            <plugin filename="libgazebo_ros_openni_kinect.so" name="camera_frame_controller">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>30.0</updateRate>
+                <cameraName>camera</cameraName>
+                <imageTopicName>color/image_raw</imageTopicName>
+                <cameraInfoTopicName>color/camera_info</cameraInfoTopicName>
+                <depthImageTopicName>aligned_depth_to_color/image_raw</depthImageTopicName>
+                <depthImageCameraInfoTopicName>aligned_depth_to_color/camera_info</depthImageCameraInfoTopicName>
+                <pointCloudTopicName>depth_registered/points</pointCloudTopicName>
+                <frameName>camera_color_optical_frame</frameName>
+                <pointCloudCutoff>0</pointCloudCutoff>
+                <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
+                <distortionK1>0.00000001</distortionK1>
+                <distortionK2>0.00000001</distortionK2>
+                <distortionK3>0.00000001</distortionK3>
+                <distortionT1>0.00000001</distortionT1>
+                <distortionT2>0.00000001</distortionT2>
+                <CxPrime>0</CxPrime>
+                <Cx>0</Cx>
+                <Cy>0</Cy>
+                <focalLength>0</focalLength>
+                <hackBaseline>0</hackBaseline>
+            </plugin>
+        </sensor>
+    </gazebo>
+    <!--      <gazebo reference="cam_mount"><self_collide>true</self_collide></gazebo><self_collide>true</self_collide>-->
+    <!-- Gazebo plugins for the base of the robot -->
+    <!--     <gazebo><plugin name="kobuki_controller" filename="libgazebo_ros_kobuki.so"><publish_tf>1</publish_tf><left_wheel_joint_name>wheel_left_joint</left_wheel_joint_name><right_wheel_joint_name>wheel_right_joint</right_wheel_joint_name><wheel_separation>.230</wheel_separation><wheel_diameter>0.070</wheel_diameter><torque>1.0</torque><velocity_command_timeout>0.6</velocity_command_timeout><cliff_sensor_left_name>cliff_sensor_left</cliff_sensor_left_name><cliff_sensor_center_name>cliff_sensor_front</cliff_sensor_center_name><cliff_sensor_right_name>cliff_sensor_right</cliff_sensor_right_name><cliff_detection_threshold>0.04</cliff_detection_threshold><bumper_name>bumpers</bumper_name><imu_name>imu</imu_name></plugin></gazebo>-->
+    
+
+
+    <gazebo reference="wheel_left_link">
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
+    <gazebo reference="wheel_right_link">
+        <mu1>1.0</mu1>
+        <mu2>1.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
+    <gazebo reference="caster_front_link">
+        <mu1>0.0</mu1>
+        <mu2>0.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
+	
+   <gazebo reference="caster_back_link">
+        <mu1>0.0</mu1>
+        <mu2>0.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
+
+
+    <gazebo reference="cliff_sensor_left_link">
+        <sensor name="cliff_sensor_left" type="ray">
+            <always_on>true</always_on>
+            <update_rate>50</update_rate>
+            <visualize>true</visualize>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>50</samples>
+                        <resolution>1.0</resolution>
+                        <min_angle>-0.0436</min_angle>
+                        <!-- -2.5 degree -->
+                        <max_angle>0.0436</max_angle>
+                        <!-- 2.5 degree -->
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.01</min>
+                    <max>0.15</max>
+                    <resolution>1.0</resolution>
+                </range>
+            </ray>
+        </sensor>
+    </gazebo>
+    <gazebo reference="cliff_sensor_right_link">
+        <sensor name="cliff_sensor_right" type="ray">
+            <always_on>true</always_on>
+            <update_rate>50</update_rate>
+            <visualize>true</visualize>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>50</samples>
+                        <resolution>1.0</resolution>
+                        <min_angle>-0.0436</min_angle>
+                        <!-- -2.5 degree -->
+                        <max_angle>0.0436</max_angle>
+                        <!-- 2.5 degree -->
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.01</min>
+                    <max>0.15</max>
+                    <resolution>1.0</resolution>
+                </range>
+            </ray>
+        </sensor>
+    </gazebo>
+    <gazebo reference="cliff_sensor_front_link">
+        <sensor name="cliff_sensor_front" type="ray">
+            <always_on>true</always_on>
+            <update_rate>50</update_rate>
+            <visualize>true</visualize>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>50</samples>
+                        <resolution>1.0</resolution>
+                        <min_angle>-0.0436</min_angle>
+                        <!-- -2.5 degree -->
+                        <max_angle>0.0436</max_angle>
+                        <!-- 2.5 degree -->
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.01</min>
+                    <max>0.15</max>
+                    <resolution>1.0</resolution>
+                </range>
+            </ray>
+        </sensor>
+    </gazebo>
+
+    <gazebo reference="base_link">
+        <mu1>0.3</mu1>
+        <mu2>0.3</mu2>
+        <sensor type="contact" name="bumpers">
+          <always_on>1</always_on>
+          <update_rate>50.0</update_rate>
+          <visualize>true</visualize>
+          <contact>
+            <collision>base_footprint</collision>
+          </contact>
+        </sensor>
+      </gazebo>
+
+
+    <gazebo reference="gyro_link">
+        <sensor name="imu" type="imu">
+            <always_on>true</always_on>
+            <update_rate>50</update_rate>
+            <visualize>false</visualize>
+            <imu>
+                <noise>
+                    <type>gaussian</type>
+                    <rate>
+                        <mean>0.0</mean>
+                        <stddev>0.00000196</stddev>
+                        <!-- 0.25 x 0.25 (deg/s) -->
+                        <bias_mean>0.0</bias_mean>
+                        <bias_stddev>0.0</bias_stddev>
+                    </rate>
+                    <accel>
+                        <!-- not used in the plugin and real robot, hence using tutorial values -->
+                        <mean>0.0</mean>
+                        <stddev>1.7e-2</stddev>
+                        <bias_mean>0.1</bias_mean>
+                        <bias_stddev>0.001</bias_stddev>
+                    </accel>
+                </noise>
+            </imu>
+        </sensor>
+    </gazebo>
+
+    <gazebo>
+        <self_collide>true</self_collide>
+    </gazebo>
+
+<!--     <gazebo>
+	    <plugin name="kobuki_controller" filename="libgazebo_ros_kobuki.so">
+	      <publish_tf>1</publish_tf>
+	      <publish_joint_states>0</publish_joint_states>
+	      <left_wheel_joint_name>wheel_left_joint</left_wheel_joint_name>
+	      <right_wheel_joint_name>wheel_right_joint</right_wheel_joint_name>
+	      <wheel_separation>.230</wheel_separation>
+	      <wheel_diameter>0.070</wheel_diameter>
+	      <torque>1.0</torque>
+	      <velocity_command_timeout>0.6</velocity_command_timeout>
+	      <cliff_sensor_left_name>cliff_sensor_left</cliff_sensor_left_name>
+	      <cliff_sensor_center_name>cliff_sensor_front</cliff_sensor_center_name>
+	      <cliff_sensor_right_name>cliff_sensor_right</cliff_sensor_right_name>
+	      <cliff_detection_threshold>0.04</cliff_detection_threshold>
+	      <bumper_name>bumpers</bumper_name>
+	      <robotNamespace>/base</robotNamespace>
+        <imu_name>imu</imu_name>
+	    </plugin>
+	 </gazebo> -->
+
+
+      <gazebo>  
+         <plugin filename="libgazebo_ros_diff_drive.so" name="differential_drive_controller">   
+             <alwaysOn>true</alwaysOn>  
+             <legacyMode>false</legacyMode> 
+            <updateRate>40</updateRate> 
+            <leftJoint>wheel_left_joint</leftJoint> 
+            <rightJoint>wheel_right_joint</rightJoint>  
+            <wheelSeparation>0.230</wheelSeparation>    
+            <wheelDiameter>0.070</wheelDiameter>    
+            <wheelTorque>1.0</wheelTorque>  
+            <!--wheelAcceleration>${wheel_accel}</wheelAcceleration-->  
+            <commandTopic>mobile_base/commands/velocity</commandTopic>  
+            <odometryTopic>odom</odometryTopic> 
+            <odometryFrame>odom</odometryFrame> 
+            <robotBaseFrame>base_footprint</robotBaseFrame> 
+            <publishWheelJointState>true</publishWheelJointState>
+        </plugin>   
+        <plugin filename="libgazebo_ros_p3d.so" name="p3d_base_controller"> 
+            <alwaysOn>true</alwaysOn>   
+            <updateRate>100.0</updateRate>  
+            <bodyName>base_link</bodyName>  
+            <topicName>base/absolute_position</topicName>   
+            <gaussianNoise>0</gaussianNoise>    
+            <frameName>map</frameName>  
+            <xyzOffsets>0 0 0</xyzOffsets>  
+            <rpyOffsets>0 0 0</rpyOffsets>  
+            <!--<interface:position name="p3d_base_position"/>-->   
+        </plugin>   
+    </gazebo>
+</robot>

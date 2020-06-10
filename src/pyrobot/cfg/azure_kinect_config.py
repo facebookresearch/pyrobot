@@ -22,7 +22,7 @@ _CAMERAC.ROSTOPIC_CAMERA_RGB_STREAM = "/rgb/image_raw"
 # topic name of the depth images
 _CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = "/depth_to_rgb/image_raw"
 # depth map factor
-_CAMERAC.DEPTH_MAP_FACTOR = 1000.0
+_CAMERAC.DEPTH_MAP_FACTOR = 1.0
 
 
 def get_cfg():
