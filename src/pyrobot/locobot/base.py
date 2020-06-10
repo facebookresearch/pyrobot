@@ -33,7 +33,6 @@ from pyrobot.locobot.base_controllers import (
     ProportionalControl,
     ILQRControl,
     MoveBaseControl,
-    GPMPControl,
 )
 from pyrobot.locobot.bicycle_model import wrap_theta
 
@@ -273,9 +272,9 @@ class LoCoBotBase(Base):
         # Set up low-level controllers.
         if base_controller is None:
             base_controller = configs.BASE.BASE_CONTROLLER
-        assert base_controller in ["proportional", "ilqr", "movebase", "gpmp"], (
+        assert base_controller in ["proportional", "ilqr", "movebase"], (
             "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
-            "movebase, gpmp but is {:s}".format(base_controller)
+            "movebase but is {:s}".format(base_controller)
         )
 
         self.base_controller = base_controller
@@ -287,14 +286,12 @@ class LoCoBotBase(Base):
             )
         elif base_controller == "movebase":
             self.controller = MoveBaseControl(self.base_state, self.configs)
-        elif base_controller == "gpmp":
-            self.controller = GPMPControl(self, self.base_state, self.configs)
 
         rospy.on_shutdown(self.clean_shutdown)
 
     def clean_shutdown(self):
         rospy.loginfo("Stop LoCoBot Base")
-        if self.base_controller == "movebase" or self.base_controller == "gpmp":
+        if self.base_controller == "movebase" :
             self.controller.cancel_goal()
         self.stop()
 
