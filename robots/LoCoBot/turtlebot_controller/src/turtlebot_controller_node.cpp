@@ -16,7 +16,8 @@ TurtlebotController::TurtlebotController(ros::NodeHandle nh)
     TrajectoryServer(nh, "/turtle/base_controller/trajectory",
     boost::bind(&TurtlebotController::executeBaseTajectory, this, _1), false));
   base_trajectory_server_->start();
-  base_vel_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd_vel_mux/input/navi", 1);
+  base_vel_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+  //base_vel_pub_ = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
 }
 
 /* ************************************************************************** */
@@ -39,7 +40,10 @@ void TurtlebotController::executeBaseTajectory(const control_msgs::FollowJointTr
   double for_start_time;
   double cur_time;
   double acc_x;
+  double acc_y;
   double acc_theta;
+
+   ROS_INFO("Started Turtlebot server with delta: %f and size %d", sec, goal->trajectory.points.size());
 
   for (int i=0; i<goal->trajectory.points.size()-1; i++)
   {
@@ -50,29 +54,37 @@ void TurtlebotController::executeBaseTajectory(const control_msgs::FollowJointTr
 
       //preempt action server
       base_trajectory_server_->setPreempted();
-      ROS_INFO("Turtlebot trajectory server preempted by client");
+     
+
+      ROS_INFO("Turtlebot trajectory server preempted by client. With delta: %f and at step: %d", sec, i);
       /*cmd_vel.linear.x = 0.0;
       cmd_vel.linear.y = 0.0;
       cmd_vel.angular.z = 0.0;
       base_vel_pub_.publish(cmd_vel);*/
       return;
     }
-
-    acc_x = (goal->trajectory.points[i+1].velocities[0] - goal->trajectory.points[i].velocities[0])/sec;
-    acc_theta = (goal->trajectory.points[i+1].velocities[2] - goal->trajectory.points[i].velocities[2])/sec;
-    
     //cmd_vel.linear.x = goal->trajectory.points[i].velocities[0];
     //cmd_vel.angular.z = goal->trajectory.points[i].velocities[2];
-    cmd_vel.linear.y = 0.0;//goal->trajectory.points[i].velocities[1];
+    //cmd_vel.linear.y = 0.0;//goal->trajectory.points[i].velocities[1];
 
+    cmd_vel.linear.x  = goal->trajectory.points[i].velocities[0];
+    cmd_vel.linear.y  = goal->trajectory.points[i].velocities[1];
+    cmd_vel.angular.z = goal->trajectory.points[i].velocities[2];
+    base_vel_pub_.publish(cmd_vel);
+    rate.sleep();
+
+
+    /*acc_x = (goal->trajectory.points[i+1].velocities[0] - goal->trajectory.points[i].velocities[0])/sec;
+    acc_y = (goal->trajectory.points[i+1].velocities[1] - goal->trajectory.points[i].velocities[1])/sec;
+    acc_theta = (goal->trajectory.points[i+1].velocities[2] - goal->trajectory.points[i].velocities[2])/sec;
     cur_time = ros::Time::now().toSec();
-
     while (cur_time - for_start_time < sec)
     {
 
-      ROS_INFO("Turtlebot tr");
+      //ROS_INFO("Turtlebot tr");
       base_vel_pub_.publish(cmd_vel);
       cmd_vel.linear.x  = goal->trajectory.points[i].velocities[0] + acc_x *(cur_time - for_start_time);
+      cmd_vel.linear.y  = goal->trajectory.points[i].velocities[1] + acc_y *(cur_time - for_start_time);
       cmd_vel.angular.z = goal->trajectory.points[i].velocities[2] + acc_theta *(cur_time - for_start_time);
       base_vel_pub_.publish(cmd_vel);
       cur_time = ros::Time::now().toSec();
@@ -82,15 +94,14 @@ void TurtlebotController::executeBaseTajectory(const control_msgs::FollowJointTr
       {
         //preempt action server
         base_trajectory_server_->setPreempted();
-        ROS_INFO("Turtlebot trajectory server preempted by client");
-      /*  cmd_vel.linear.x = 0.0;
+        ROS_INFO("Turtlebot trajectory server preempted by client at index : %d", i);
+        cmd_vel.linear.x = 0.0;
         cmd_vel.linear.y = 0.0;
         cmd_vel.angular.z = 0.0;
-        base_vel_pub_.publish(cmd_vel);*/
+        base_vel_pub_.publish(cmd_vel);
         return;
       }
-
-    } 
+    } */
   }
 
   control_msgs::FollowJointTrajectoryResult result;

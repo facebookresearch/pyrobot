@@ -9,6 +9,8 @@
   <!-- Run a static transform between /odom and /map -->
   <node pkg="tf" type="static_transform_publisher" name="odom_map_broadcaster" args="0 0 0 0 0 0 /map /odom 100" />
 
+  <node pkg="tf" type="static_transform_publisher" name="odom_map_sfsbroadcaster" args="0 0 0 0 0 0 /map /base_footprint 100" />
+
   <group if="$(eval base =='create')">
     <include file="$(find base_navigation)/launch/create_move_base.launch">
       <arg name="use_map" value="$(arg use_map)"/>

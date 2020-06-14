@@ -230,11 +230,12 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
             graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
 
         graph.add(VehicleDynamicsFactorVector(key_pos, key_vel, params.vehicle_sigma))
+        # grpah.add(VelocityLimitFactorVector(key_vel, params.vehicle_sigma, 0.3, Vector limit_thresh)
 
         # GP priors and cost factor
         if i > 0:
             #graph.push_back(PriorFactorVector(key_pos, end_conf, params.pose_fix_goal))
-            graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
+            #graph.push_back(PriorFactorVector(key_vel, end_vel, params.vel_fix_goal))
             key_pos1 = symbol(ord("x"), i - 1)
             key_pos2 = symbol(ord("x"), i)
             key_vel1 = symbol(ord("v"), i - 1)
@@ -246,35 +247,35 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
             graph.push_back(temp)
 
             #% cost factor
-            graph.push_back(
-                ObstaclePlanarSDFFactorPointRobot(
-                    key_pos,
-                    params.pR_model,
-                    sdf,
-                    params.cost_sigma,
-                    params.epsilon_dist,
-                )
-            )
+            # graph.push_back(
+            #     ObstaclePlanarSDFFactorPointRobot(
+            #         key_pos,
+            #         params.pR_model,
+            #         sdf,
+            #         params.cost_sigma,
+            #         params.epsilon_dist,
+            #     )
+            # )
 
-            #% GP cost factor
-            if params.use_GP_inter and params.check_inter > 0:
-                for j in range(1, params.check_inter + 1):
-                    tau = j * (params.total_time_sec / params.total_check_step)
-                    graph.add(
-                        ObstaclePlanarSDFFactorGPPointRobot(
-                            key_pos1,
-                            key_vel1,
-                            key_pos2,
-                            key_vel2,
-                            params.pR_model,
-                            sdf,
-                            params.cost_sigma,
-                            params.epsilon_dist,
-                            params.Qc_model,
-                            params.delta_t,
-                            tau,
-                        )
-                    )
+            # #% GP cost factor
+            # if params.use_GP_inter and params.check_inter > 0:
+            #     for j in range(1, params.check_inter + 1):
+            #         tau = j * (params.total_time_sec / params.total_check_step)
+            #         graph.add(
+            #             ObstaclePlanarSDFFactorGPPointRobot(
+            #                 key_pos1,
+            #                 key_vel1,
+            #                 key_pos2,
+            #                 key_vel2,
+            #                 params.pR_model,
+            #                 sdf,
+            #                 params.cost_sigma,
+            #                 params.epsilon_dist,
+            #                 params.Qc_model,
+            #                 params.delta_t,
+            #                 tau,
+            #             )
+            #         )
 
     if params.use_trustregion_opt:
         parameters = DoglegParams()
@@ -298,13 +299,13 @@ def get_plan(start_conf_val, start_vel, end_conf_val, end_vel, sdf, params):
 
 class Parameters(object):  # TODO: read from yaml file or rosparams
     # settings
-    total_time_sec = 5.0
-    total_time_step = 20
+    total_time_sec = 1.0
+    total_time_step = 40
     total_check_step = 50.0
     delta_t = total_time_sec / total_time_step
     check_inter = int(total_check_step / total_time_step - 1)
 
-    use_GP_inter = True
+    use_GP_inter = False
 
     # point robot model
     pR = PointRobot(3, 1)
@@ -338,7 +339,7 @@ class Parameters(object):  # TODO: read from yaml file or rosparams
     # Fixed window params
     goal_region_threshold = 0.1
     acceptable_error_threshold = 40000
-    sigma_goal = 4
+    sigma_goal = 0.01
 
     opt_timeout = 0.2
 
@@ -422,7 +423,7 @@ class GPMPController(object):
                 return
 
             self.robot.executeTrajectory(result, self.params)
-            rospy.sleep(0.2)
+            rospy.sleep(0.5)
 
             curstate_val, curstate_vel = self.robot.get_robot_state()
             print("Current State: ", curstate_val, curstate_vel)

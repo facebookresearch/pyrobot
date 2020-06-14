@@ -627,11 +627,11 @@ class GPMPControl(object):
             self.traj_client_.cancel_all_goals()
             self.base.stop()
 
-    def update_goal(self, xyt_position, close_loop=True, smooth=True):
+    def update_goal(self, xyt_position, close_loop=True, smooth=True, wait=True):
         """Updates the the goal state while GPMP 
         controller is in execution of previous goal"""
         self.gpmp_ctrl_client_.cancel_goal()
-        self.go_to_absolute(xyt_position, close_loop, smooth)
+        self.go_to_absolute(xyt_position, close_loop, smooth, wait=wait)
 
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=True, wait=True):
         """
@@ -653,7 +653,7 @@ class GPMPControl(object):
         assert close_loop, "GPMP controller cannot work in open loop"
         self.gpmp_ctrl_client_.send_goal(
             self._build_goal_msg(
-                xyt_position, [0, 0, 0], self.goal_tolerance, self.exec_time
+                xyt_position, [0.0, 0.0, 0.0], self.goal_tolerance, self.exec_time
             )
         )
 
@@ -726,8 +726,8 @@ class GPMPControl(object):
                     orientation_list
                 )
 
-            self.go_to_absolute(point, wait=False)
-
+            self.update_goal(point, wait=False)
+            print(point)
             cur_state = self.base.get_state("odom")
             g_distance = np.linalg.norm(
                 np.asarray(
@@ -739,6 +739,7 @@ class GPMPControl(object):
             if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
                 rospy.logerr("GPMP controller failed or interrupted!")
                 return False
+            rospy.sleep(0.2)
 
 
         result = self.go_to_absolute(xyt_position, wait=True)

@@ -229,7 +229,7 @@ def pix_to_3dpt(depth_im, rs, cs, intrinsic_mat, depth_map_factor, reduce=None, 
                 "none", "mean", "max", "min"
             )
         )
-
+    print("yoyoyoyoyoy")
     depth = depth_im.reshape(-1) / depth_map_factor
     img_pixs = np.stack((rs, cs)).reshape(2, -1)
     img_pixs[[0, 1], :] = img_pixs[[1, 0], :]

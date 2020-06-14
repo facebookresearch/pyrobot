@@ -445,16 +445,45 @@ class LoCoBotBase(Base):
                 result = self.planner.move_to_goal(self.xyt_position, goto)
             elif self.base_controller == "proportional":
                 result = self.planner.move_to_goal(
-                    xyt_position, self.controller.goto
+                    self.xyt_position, self.controller.goto
                 )
             elif self.base_controller == "gpmp":
                 result = self.controller.go_to_absolute_with_map(
                     self.xyt_position, self.close_loop, self.smooth, self.planner
                 )
         else:
-            result = self.controller.go_to_absolute(
-                self.xyt_position, self.close_loop, self.smooth
-            )
+
+            if self.base_controller == "ilqr":
+                goto = partial(
+                    self.go_to_relative,
+                    close_loop=self.close_loop,
+                    smooth=self.smooth,
+                )
+                result = self.planner.move_to_goal(self.xyt_position, goto)
+            elif self.base_controller == "proportional":
+                result = self.planner.move_to_goal(
+                    self.xyt_position, self.controller.goto
+                )
+            elif self.base_controller == "gpmp":
+
+                goto = partial(
+                    self.go_to_relative,
+                    close_loop=self.close_loop,
+                    smooth=self.smooth,
+                    wait=True,
+                )
+                # result = self.planner.move_to_goal(self.xyt_position, goto)
+
+                result = self.controller.go_to_absolute_with_map(
+                    self.xyt_position, self.close_loop, self.smooth, self.planner
+                )
+                # result = self.controller.go_to_absolute(
+                #     self.xyt_position, self.close_loop, self.smooth
+                # )
+            else:
+                result = self.controller.go_to_absolute(
+                    self.xyt_position, self.close_loop, self.smooth
+                )
         # except AssertionError as error:
         #     print(error)
         #     result = False

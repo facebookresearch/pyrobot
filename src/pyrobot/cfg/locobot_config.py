@@ -74,7 +74,7 @@ _BASEC.ROSTOPIC_MOVE_BASE_STATUS = "/move_base/status"
 # Rostopic on which the command to cancel the goal sent to movebase should be
 _BASEC.ROSTOPIC_GOAL_CANCEL = "/move_base/cancel"
 # world frame name
-_BASEC.MAP_FRAME = "/map"
+_BASEC.MAP_FRAME = "map"
 # Rosaction topic for movebase
 _BASEC.ROSTOPIC_BASE_ACTION_COMMAND = "move_base"
 # Rate of control for ILQR
@@ -84,14 +84,14 @@ _BASEC.MAX_ABS_FWD_SPEED = 0.2
 # Maximum rotational velocity for velocity control and ILQR
 _BASEC.MAX_ABS_TURN_SPEED = 0.5
 # ROSTOPIC to send movebase (x,ym theta) planner request
-_BASEC.PLAN_TOPIC = "/move_base/GlobalPlanner/make_plan"
+_BASEC.PLAN_TOPIC = "/move_base/make_plan"
 # Index of the point to be tracked on the plan.
 # (used by Proportional and ILQR trajectory tracking)
-_BASEC.TRACKED_POINT = 8
+_BASEC.TRACKED_POINT = 7
 # Linear treshold used by trajectory tracking with proportional and ILQR
-_BASEC.TRESHOLD_LIN = 0.15
+_BASEC.TRESHOLD_LIN = 0.1
 # Tolearance to be used by movebase planner while generating plans
-_BASEC.PLAN_TOL = 0.1
+_BASEC.PLAN_TOL = 0.05
 # z minimum cut-off height for slam-based costmap computation
 _BASEC.Z_MIN_TRESHOLD_OCC_MAP = 0.1
 # z maximum cut-off height for slam-based costmap computation
@@ -103,7 +103,7 @@ _BASEC.MAX_ABS_TURN_SPEED_P_CONTROLLER = 1
 # proportional control specific ignore translation treshold
 _BASEC.TRANSLATION_TRESHOLD = 0.01
 # GPMP control requires the goal acceptable error
-_BASEC.GOAL_TOLERANCE = 0.1
+_BASEC.GOAL_TOLERANCE = 0.01
 # GPMP control requires the maximum allowable execution time in seconds
 _BASEC.EXEC_TIME = 600
 # GPMP control requires the GPMP action server name
@@ -124,7 +124,7 @@ _BASEC.VSLAM.VSLAM_BASE_FRAME = "/base_link"
 # RGB camera center frame name
 _BASEC.VSLAM.RGB_CAMERA_CENTER_FRAME = "/camera_color_optical_frame"
 # minimum depth values to be considered as valid
-_BASEC.VSLAM.DEPTH_MIN = 0.2
+_BASEC.VSLAM.DEPTH_MIN = 0.0
 # maximum depth values to be considered as valid
 _BASEC.VSLAM.DEPTH_MAX = 1.5
 # configuration file name for ORB-SLAM2
