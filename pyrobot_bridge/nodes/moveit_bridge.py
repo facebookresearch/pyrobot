@@ -38,24 +38,23 @@ class MoveitInterface(object):
 
     def __init__(self):
         self.init_node = False
-        
+
         rospy.init_node("pyrobot_moveit")
 
         self.moveit_server_ = actionlib.SimpleActionServer(
-            "/pyrobot/moveit_server", 
+            "/pyrobot/moveit_server",
             MoveitAction,
             execute_cb=self.moveit_cb,
             auto_start=False,
         )
-        self.moveit_server_.start()    
-        
+        self.moveit_server_.start()
+
         self._traj_action = actionlib.SimpleActionClient(
             "execute_trajectory", ExecuteTrajectoryAction
         )
 
         rospy.sleep(0.1)  # Ensures client spins up properly
         rospy.spin()
-
 
     def _init_moveit(self):
 
@@ -69,7 +68,7 @@ class MoveitInterface(object):
         self.moveit_group.set_planner_id(self.moveit_planner)
         self.scene = moveit_commander.PlanningSceneInterface()
 
-        self.init_node = True    
+        self.init_node = True
 
     def _compute_plan(self, target_joint):
         """
@@ -84,61 +83,10 @@ class MoveitInterface(object):
         if isinstance(target_joint, np.ndarray):
             target_joint = target_joint.tolist()
         self.moveit_group.set_joint_value_target(target_joint)
-        rospy.loginfo('Moveit Motion Planning...')
+        rospy.loginfo("Moveit Motion Planning...")
         return self.moveit_group.plan()
 
-    def _set_joint_positions(self, goal):
-        try:
-            moveit_plan = self._compute_plan(goal.values)
-
-            if len(plan.joint_trajectory.points) < 1:
-                rospy.logwarn('No motion plan found. No execution attempted')
-                self.moveit_server_.set_aborted()
-                return
-
-            action_req = ExecuteTrajectoryGoal()
-            action_req.trajectory = moveit_plan
-            self._traj_action.send_goal(action_req)
-        except:
-            rospy.logerr("PyRobot-Moveit:Unexpected error in move_ee_xyx")
-            self.moveit_server_.set_aborted()
-            return
-
-        status =  self._traj_action.get_state()
-        while status != GoalStatus.SUCCEEDED:
-            if self.moveit_server_.is_preempt_requested():
-                rospy.loginfo("Preempted the Moveit execution by PyRobot")
-                self._traj_action.cancel_all_goals()
-                self.moveit_server_.set_preempted()
-                return
-            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
-                rospy.loginfo("Moveit trajectory execution aborted.")
-                self.moveit_server_.set_aborted()
-                return
-            status =  self._traj_action.get_state()
-        self.moveit_server_.set_succeeded()
-
-    def _move_ee_xyz(self, goal):
-        try:
-            (moveit_plan, fraction) = self.moveit_group.compute_cartesian_path(
-                goal.waypoints,  # waypoints to follow
-                goal.eef_step,  # eef_step
-                0.0)  # jump_threshold
-
-
-            if len(plan.joint_trajectory.points) < 1:
-                rospy.logwarn('No motion plan found. No execution attempted')
-                self.moveit_server_.set_aborted()
-                return
-
-            action_req = ExecuteTrajectoryGoal()
-            action_req.trajectory = moveit_plan
-            self._traj_action.send_goal(action_req)
-        except:
-            rospy.logerr("PyRobot-Moveit:Unexpected error in move_ee_xyx")
-            self.moveit_server_.set_aborted()
-            return
-                
+    def wait(self):
         status = self._traj_action.get_state()
         while status != GoalStatus.SUCCEEDED:
             if self.moveit_server_.is_preempt_requested():
@@ -150,11 +98,51 @@ class MoveitInterface(object):
                 rospy.loginfo("Moveit trajectory execution aborted.")
                 self.moveit_server_.set_aborted()
                 return
-            status =  self._traj_action.get_state()
+            status = self._traj_action.get_state()
         self.moveit_server_.set_succeeded()
 
+    def _set_joint_positions(self, goal):
+        try:
+            moveit_plan = self._compute_plan(goal.values)
+
+            if len(plan.joint_trajectory.points) < 1:
+                rospy.logwarn("No motion plan found. No execution attempted")
+                self.moveit_server_.set_aborted()
+                return
+
+            action_req = ExecuteTrajectoryGoal()
+            action_req.trajectory = moveit_plan
+            self._traj_action.send_goal(action_req)
+        except:
+            rospy.logerr("PyRobot-Moveit:Unexpected error in move_ee_xyx")
+            self.moveit_server_.set_aborted()
+            return
+
+        self.wait()
+
+    def _move_ee_xyz(self, goal):
+        try:
+            (moveit_plan, fraction) = self.moveit_group.compute_cartesian_path(
+                goal.waypoints, goal.eef_step, 0.0  # waypoints to follow  # eef_step
+            )  # jump_threshold
+
+            if len(plan.joint_trajectory.points) < 1:
+                rospy.logwarn("No motion plan found. No execution attempted")
+                self.moveit_server_.set_aborted()
+                return
+
+            action_req = ExecuteTrajectoryGoal()
+            action_req.trajectory = moveit_plan
+            self._traj_action.send_goal(action_req)
+        except:
+            rospy.logerr("PyRobot-Moveit:Unexpected error in move_ee_xyx")
+            self.moveit_server_.set_aborted()
+            return
+
+        self.wait()
+
     def moveit_cb(self, goal):
-        
+
         if not self.init_node:
             self._init_moveit()
 
@@ -163,12 +151,11 @@ class MoveitInterface(object):
         elif goal.action_type == "move_ee_xyz":
             self._move_ee_xyz(goal)
         else:
-            rospy.logerr("Invalid PyRobot-Moveit Action Name, {}".format(goal.action_type))
+            rospy.logerr(
+                "Invalid PyRobot-Moveit Action Name, {}".format(goal.action_type)
+            )
             self.moveit_server_.set_aborted()
             return
-
-        
-
 
 
 if __name__ == "__main__":

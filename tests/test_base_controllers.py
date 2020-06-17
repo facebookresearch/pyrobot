@@ -29,7 +29,9 @@ def create_robot():
 @pytest.mark.parametrize("base_controller", ["ilqr"])
 @pytest.mark.parametrize("base_planner", ["none"])
 @pytest.mark.parametrize("close_loop", [True, False])
-def test_trajectory_tracking_circle(create_robot, base_controller, base_planner, close_loop):
+def test_trajectory_tracking_circle(
+    create_robot, base_controller, base_planner, close_loop
+):
     bot = create_robot
     bot.base.load_controller(base_controller)
     bot.base.load_planner(base_planner)
@@ -44,9 +46,6 @@ def test_trajectory_tracking_circle(create_robot, base_controller, base_planner,
     end_state = np.array(bot.base.get_state("odom"))
     dist = np.linalg.norm(states[-1, :2] - end_state[:2])
     assert dist < 0.1
-
-
-
 
 
 def _test_relative_position_control(
@@ -99,6 +98,7 @@ def test_relative_position_control1(
         posn, create_robot, base_controller, base_planner, close_loop, smooth, 0.05, 10
     )
 
+
 @pytest.mark.parametrize("base_controller", ["movebase"])
 @pytest.mark.parametrize("base_planner", ["none"])
 @pytest.mark.parametrize("close_loop", [True])
@@ -121,6 +121,7 @@ def test_relative_position_control2_close_sharp(
     _test_relative_position_control(
         posn, create_robot, base_controller, base_planner, True, False, 0.05, 10
     )
+
 
 @pytest.mark.parametrize("base_controller", ["ilqr"])
 @pytest.mark.parametrize("base_planner", ["none"])
@@ -168,8 +169,6 @@ def test_relative_position_control2_open_sharp(
 #     )
 
 
-
-
 ###################################################
 # # Note: This is a redundant test
 ###################################################
@@ -197,7 +196,6 @@ def test_relative_position_control2_open_sharp(
 #     end_state = np.array(bot.base.get_state("odom"))
 #     dist = np.linalg.norm(states[-1, :2] - end_state[:2])
 #     assert dist < 0.1
-
 
 
 # @pytest.mark.parametrize("base_controller", ["proportional", "ilqr"])

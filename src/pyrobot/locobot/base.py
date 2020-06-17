@@ -51,6 +51,7 @@ from std_msgs.msg import Empty
 from pyrobot.locobot.bicycle_model import wrap_theta
 from actionlib_msgs.msg import GoalStatus
 
+
 class BaseSafetyCallbacks(object):
     """
     This class encapsulates and provides interface to bumper, cliff and
@@ -221,8 +222,6 @@ class BaseState(BaseSafetyCallbacks):
         BaseSafetyCallbacks.__del__(self)
 
 
-
-
 class LoCoBotBase(Base):
     """
     This is a common base class for the locobot and locobot-lite base.
@@ -275,14 +274,10 @@ class LoCoBotBase(Base):
 
         self.action_name = "pyrobot/locobot/base/controller_server"
         self.controller_sub = rospy.Subscriber(
-            self.action_name,
-            Empty,
-            self._execute_controller,
+            self.action_name, Empty, self._execute_controller,
         )
         self._as = LocalActionServer()
-        self.controller_pub = rospy.Publisher(
-            self.action_name, Empty, queue_size=1
-        )
+        self.controller_pub = rospy.Publisher(self.action_name, Empty, queue_size=1)
         # class variables shared when communicating between client and server
         self.smooth, self.use_map, self.close_loop = None, None, None
         self.xyt_position = None
@@ -293,8 +288,7 @@ class LoCoBotBase(Base):
         self.load_controller(base_controller)
         rospy.on_shutdown(self.clean_shutdown)
 
-
-    # TODO: change this to a planner object. 
+    # TODO: change this to a planner object.
     # This requires uniformity across all controllers
     def load_planner(self, base_planner=None):
 
@@ -328,7 +322,7 @@ class LoCoBotBase(Base):
 
         rospy.sleep(2)
 
-    # TODO: change this to a controller object. 
+    # TODO: change this to a controller object.
     # This requires uniformity across all controllers
     def load_controller(self, base_controller=None):
 
@@ -367,16 +361,14 @@ class LoCoBotBase(Base):
         elif base_controller == "gpmp":
             self.controller = GPMPControl(self, self.base_state, self.configs, self._as)
 
-
         rospy.sleep(2)
 
-
-
-
     def _execute_controller(self, goal):
-        
-        assert self._called_method in ["go_to_absolute", "track_trajectory"], (
-            "Invalid action server method called")
+
+        assert self._called_method in [
+            "go_to_absolute",
+            "track_trajectory",
+        ], "Invalid action server method called"
         if self._called_method == "go_to_absolute":
             result = self._go_to_absolute()
         elif self._called_method == "track_trajectory":
@@ -392,18 +384,18 @@ class LoCoBotBase(Base):
         else:
             self._as.set_aborted()
 
-
     def _track_trajectory(self):
-
 
         try:
             if self.base_controller == "ilqr":
-                result = self.controller.track_trajectory(self.xyt_states, self.controls, self.close_loop)
+                result = self.controller.track_trajectory(
+                    self.xyt_states, self.controls, self.close_loop
+                )
             else:
                 plan_idx = 0
                 result = True
                 while True:
-                    
+
                     if self._as.is_preempt_requested():
                         rospy.loginfo("Preempted the tracjectory execution")
                         result = False
@@ -411,7 +403,9 @@ class LoCoBotBase(Base):
 
                     plan_idx = min(plan_idx, len(self.xyt_states) - 1)
                     point = self.xyt_states[plan_idx]
-                    if not self.controller.go_to_absolute(point, close_loop=self.close_loop):
+                    if not self.controller.go_to_absolute(
+                        point, close_loop=self.close_loop
+                    ):
                         print("hhlhlhlhlhlh")
                         result = False
                         break
@@ -424,23 +418,19 @@ class LoCoBotBase(Base):
         except:
             print("Unexpected error encountered during trajectory tracking!")
             result = False
-        
-        return result
-        
 
+        return result
 
     def _go_to_absolute(self):
 
-        #try:
+        # try:
         if self.use_map:
             assert self.build_map, (
                 "Error: Cannot use map without " "enabling build map feature"
             )
             if self.base_controller == "ilqr":
                 goto = partial(
-                    self.go_to_relative,
-                    close_loop=self.close_loop,
-                    smooth=self.smooth,
+                    self.go_to_relative, close_loop=self.close_loop, smooth=self.smooth,
                 )
                 result = self.planner.move_to_goal(self.xyt_position, goto)
             elif self.base_controller == "proportional":
@@ -464,17 +454,16 @@ class LoCoBotBase(Base):
 
         return result
 
-
     def clean_shutdown(self):
         rospy.loginfo("Stopping LoCoBot Base. Waiting for base thread to finish")
         self._as.disable()
         self.stop()
         self.controller_sub.unregister()
-        
-        if self.base_controller == "gpmp" or self.base_controller ==  "movebase":
+
+        if self.base_controller == "gpmp" or self.base_controller == "movebase":
             self.controller.cancel_goal()
-        
-        #del self._as
+
+        # del self._as
 
     def get_state(self, state_type):
         """
@@ -511,15 +500,16 @@ class LoCoBotBase(Base):
             raise ValueError("Failed to find a valid plan!")
         return self.planner.parse_plan(plan)
 
-
     def _wait(self, wait):
 
         status = self._as.get_state()
         if wait:
             while status != LocalActionStatus.SUCCEEDED:
-                if status == LocalActionStatus.ABORTED or \
-                    status == LocalActionStatus.PREEMPTED or\
-                    status == LocalActionStatus.DISABLED:
+                if (
+                    status == LocalActionStatus.ABORTED
+                    or status == LocalActionStatus.PREEMPTED
+                    or status == LocalActionStatus.DISABLED
+                ):
                     return False
                 status = self._as.get_state()
             return True
@@ -591,7 +581,7 @@ class LoCoBotBase(Base):
                            Please consider using cancel_goal method before calling this method."
             )
             return False
-        self._as.set_active() # block action server and set active
+        self._as.set_active()  # block action server and set active
         self.xyt_position = np.asarray(xyt_position)
         self.use_map = use_map
         self.smooth = smooth
@@ -600,8 +590,6 @@ class LoCoBotBase(Base):
         self.controller_pub.publish(Empty())
 
         self._wait(wait)
-
-
 
     def get_last_goal_result(self):
 
@@ -652,11 +640,10 @@ class LoCoBotBase(Base):
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
-        
+
         if len(states) == 0:
             rospy.loginfo("The given trajectory is empty")
             return
-
 
         if not self._as.is_available():
             rospy.logwarn(
@@ -664,7 +651,7 @@ class LoCoBotBase(Base):
                            Please consider using cancel_goal method before calling this method."
             )
             return False
-        self._as.set_active() # block action server and set active
+        self._as.set_active()  # block action server and set active
 
         self.xyt_states = states
         self.controls = controls

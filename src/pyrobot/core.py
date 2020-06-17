@@ -39,6 +39,7 @@ from pyrobot_bridge.msg import (
 )
 from actionlib_msgs.msg import GoalStatus
 
+
 class Robot:
     """
     This is the main interface class that is composed of
@@ -160,6 +161,7 @@ class Robot:
 
         # sleep some time for tf listeners in subclasses
         rospy.sleep(2)
+
 
 class Base(object):
     """
@@ -452,7 +454,7 @@ class Arm(object):
         self.configs = configs
         self.moveit_planner = moveit_planner
         self.planning_time = planning_time
-        
+
         self.use_moveit = use_moveit
 
         self.joint_state_lock = threading.RLock()
@@ -752,8 +754,9 @@ class Arm(object):
         """
         self._pub_joint_torques(torques)
 
-    def set_ee_pose(self, position, orientation, plan=True,
-                    wait=True, numerical=True, **kwargs):
+    def set_ee_pose(
+        self, position, orientation, plan=True, wait=True, numerical=True, **kwargs
+    ):
         """
         Commands robot arm to desired end-effector pose
         (w.r.t. 'ARM_BASE_FRAME').
@@ -780,14 +783,12 @@ class Arm(object):
         :return: Returns True if command succeeded, False otherwise
         :rtype: bool
         """
-        joint_positions = self.compute_ik(position, orientation,
-                                          numerical=numerical)
+        joint_positions = self.compute_ik(position, orientation, numerical=numerical)
         result = False
         if joint_positions is None:
-            rospy.logerr('No IK solution found; check if target_pose is valid')
+            rospy.logerr("No IK solution found; check if target_pose is valid")
         else:
-            result = self.set_joint_positions(joint_positions,
-                                              plan=plan, wait=wait)
+            result = self.set_joint_positions(joint_positions, plan=plan, wait=wait)
         return result
 
     def make_plan_pose(
@@ -843,7 +844,13 @@ class Arm(object):
         # return [p.positions for p in result]
 
     def move_ee_xyz(
-        self, displacement, eef_step=0.005, numerical=True, plan=True, wait = True, **kwargs,
+        self,
+        displacement,
+        eef_step=0.005,
+        numerical=True,
+        plan=True,
+        wait=True,
+        **kwargs,
     ):
         """
         Keep the current orientation fixed, move the end
@@ -877,7 +884,7 @@ class Arm(object):
 
             if not wait:
                 raise NotImplementedError(
-                   "Not wait is supported only in plan=True case."
+                    "Not wait is supported only in plan=True case."
                 )
 
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
@@ -914,7 +921,7 @@ class Arm(object):
                     " initialized, did you pass "
                     "in use_moveit=True?"
                 )
-            
+
             self._cancel_moveit_goal()
 
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
@@ -937,7 +944,6 @@ class Arm(object):
                 wpose.orientation.z = cur_quat[2]
                 wpose.orientation.w = cur_quat[3]
                 moveit_waypoints.append(copy.deepcopy(wpose))
-
 
             moveit_goal = MoveitGoal()
             moveit_goal.wait = wait
@@ -965,17 +971,12 @@ class Arm(object):
                     success = False
                 return success
 
-
-
     def _cancel_moveit_goal(self):
         if not self._moveit_client.gh:
             return
         # 2 is for "Done" state of action
         if self._moveit_client.simple_state != 2:
             self._moveit_client.cancel_all_goals()
-
-
-
 
     def compute_fk_position(self, joint_positions, des_frame):
         """
@@ -1180,7 +1181,8 @@ class Arm(object):
         rospy.set_param("pyrobot/moveit_planner", self.moveit_planner)
         rospy.set_param("pyrobot/move_group_name", self.configs.ARM.MOVEGROUP_NAME)
         self._moveit_client = actionlib.SimpleActionClient(
-            "/pyrobot/moveit_server", MoveitAction)
+            "/pyrobot/moveit_server", MoveitAction
+        )
 
         rospy.sleep(0.1)  # Ensures client spins up properly
         server_up = self._moveit_client.wait_for_server(timeout=rospy.Duration(10.0))

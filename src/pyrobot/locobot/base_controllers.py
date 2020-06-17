@@ -621,9 +621,9 @@ class GPMPControl(object):
             return
 
         if self.gpmp_ctrl_client_.simple_state != SimpleGoalState.DONE:
-            rospy.loginfo("Cancelling GPMP client.") 
+            rospy.loginfo("Cancelling GPMP client.")
             self.gpmp_ctrl_client_.cancel_all_goals()
-            rospy.loginfo("Cancelling GPMP-Turtlebot_trajectoryclient.") 
+            rospy.loginfo("Cancelling GPMP-Turtlebot_trajectoryclient.")
             self.traj_client_.cancel_all_goals()
             self.base.stop()
 
@@ -740,7 +740,6 @@ class GPMPControl(object):
                 rospy.logerr("GPMP controller failed or interrupted!")
                 return False
             rospy.sleep(0.2)
-
 
         result = self.go_to_absolute(xyt_position, wait=True)
 
