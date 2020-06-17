@@ -30,7 +30,7 @@ from pyrobot_bridge.msg import (
     MoveitGoal,
 )
 from actionlib_msgs.msg import GoalStatus, GoalStatusArray
-from moveit_msgs.msg import ExecuteTrajectoryAction
+from moveit_msgs.msg import ExecuteTrajectoryAction, ExecuteTrajectoryGoal
 
 
 class MoveitInterface(object):
@@ -41,8 +41,6 @@ class MoveitInterface(object):
         
         rospy.init_node("pyrobot_moveit")
 
-        self.lock = threading.RLock()
-
         self.moveit_server_ = actionlib.SimpleActionServer(
             "/pyrobot/moveit_server", 
             MoveitAction,
@@ -50,12 +48,12 @@ class MoveitInterface(object):
             auto_start=False,
         )
         self.moveit_server_.start()    
-        self.execution_state = GoalStatus.PENDING    
-        rospy.Subscriber(
-            "/execute_trajectory/status", GoalStatusArray, self._traj_execution_state_cb
+        
+        self._traj_action = actionlib.SimpleActionClient(
+            "execute_trajectory", ExecuteTrajectoryAction
         )
-        rospy.sleep(0.1)  # Ensures client spins up properly
 
+        rospy.sleep(0.1)  # Ensures client spins up properly
         rospy.spin()
 
 
@@ -71,23 +69,8 @@ class MoveitInterface(object):
         self.moveit_group.set_planner_id(self.moveit_planner)
         self.scene = moveit_commander.PlanningSceneInterface()
 
-
         self.init_node = True    
 
-    def _traj_execution_state_cb(self, msg):
-
-        self.lock.acquire()
-        if len(msg.status_list) < 1:
-            self.execution_state = GoalStatus.PENDING
-        else:
-            self.execution_state = msg.status_list[0].status
-        self.lock.release()
-
-    def get_execution_state(self):
-         self.lock.acquire()
-         state = self.execution_state
-         self.lock.release()
-         return state
     def _compute_plan(self, target_joint):
         """
         Computes motion plan to achieve desired target_joint
@@ -130,15 +113,16 @@ class MoveitInterface(object):
     def _set_joint_positions(self, goal):
         try:
             moveit_plan = self._compute_plan(goal.values)
-            self._execute_plan(moveit_plan, wait=False)
+            action_req = ExecuteTrajectoryGoal()
+            action_req.trajectory = moveit_plan
+            self._traj_action.send_goal(action_req)
         except:
             rospy.logerr("PyRobot-Moveit:Unexpected error in move_ee_xyx")
             self.moveit_server_.set_aborted()
             return
 
-        status =  self.get_execution_state()
+        status =  self._traj_action.get_state()
         while status != GoalStatus.SUCCEEDED:
-            rospy.logerr(status)
             if self.moveit_server_.is_preempt_requested():
                 rospy.loginfo("Preempted the Moveit execution by PyRobot")
                 self.moveit_group.stop()
@@ -148,23 +132,24 @@ class MoveitInterface(object):
                 rospy.loginfo("Moveit trajectory execution aborted.")
                 self.moveit_server_.set_aborted()
                 return
-            status =  self.get_execution_state()
+            status =  self._traj_action.get_state()
         self.moveit_server_.set_succeeded()
-        rospy.logwarn("Done set _joint pos")
 
     def _move_ee_xyz(self, goal):
         try:
-            (plan, fraction) = self.moveit_group.compute_cartesian_path(
+            (moveit_plan, fraction) = self.moveit_group.compute_cartesian_path(
                 goal.waypoints,  # waypoints to follow
                 goal.eef_step,  # eef_step
                 0.0)  # jump_threshold
-            self._execute_plan(plan, wait=False)
+            action_req = ExecuteTrajectoryGoal()
+            action_req.trajectory = moveit_plan
+            self._traj_action.send_goal(action_req)
         except:
             rospy.logerr("PyRobot-Moveit:Unexpected error in move_ee_xyx")
             self.moveit_server_.set_aborted()
             return
                 
-        status =  self.get_execution_state()
+        status = self._traj_action.get_state()
         while status != GoalStatus.SUCCEEDED:
             rospy.logwarn(status)
             if self.moveit_server_.is_preempt_requested():
@@ -176,7 +161,7 @@ class MoveitInterface(object):
                 rospy.loginfo("Moveit trajectory execution aborted.")
                 self.moveit_server_.set_aborted()
                 return
-            status =  self.get_execution_state()
+            status =  self._traj_action.get_state()
         self.moveit_server_.set_succeeded()
 
         rospy.logwarn("Done")

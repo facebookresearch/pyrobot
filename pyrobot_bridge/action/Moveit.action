@@ -6,7 +6,7 @@ bool wait
 float64[] values
 
 # used by move_ee_xyz
-geometry_msgs/PoseStamped[] waypoints
+geometry_msgs/Pose[] waypoints
 float64 eef_step
 float64 jump_th
 
