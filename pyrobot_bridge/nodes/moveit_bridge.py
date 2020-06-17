@@ -87,32 +87,15 @@ class MoveitInterface(object):
         rospy.loginfo('Moveit Motion Planning...')
         return self.moveit_group.plan()
 
-    def _execute_plan(self, plan, wait=False):
-        """
-        Executes plan on arm controller
-        :param plan: motion plan to execute
-        :param wait: True if blocking call and will return after
-                     target_joint is achieved, False otherwise
-        :type plan: moveit_msgs.msg.RobotTrajectory
-        :type wait: bool
-        :return: True if arm executed plan, False otherwise
-        :rtype: bool
-        """
-        result = False
-
-        if len(plan.joint_trajectory.points) < 1:
-            rospy.logwarn('No motion plan found. No execution attempted')
-            self.moveit_server_.set_aborted()
-        else:
-            rospy.loginfo('Executing...')
-            result = self.moveit_group.execute(plan, wait=wait)
-        return result
-
-
-
     def _set_joint_positions(self, goal):
         try:
             moveit_plan = self._compute_plan(goal.values)
+
+            if len(plan.joint_trajectory.points) < 1:
+                rospy.logwarn('No motion plan found. No execution attempted')
+                self.moveit_server_.set_aborted()
+                return
+
             action_req = ExecuteTrajectoryGoal()
             action_req.trajectory = moveit_plan
             self._traj_action.send_goal(action_req)
@@ -125,7 +108,7 @@ class MoveitInterface(object):
         while status != GoalStatus.SUCCEEDED:
             if self.moveit_server_.is_preempt_requested():
                 rospy.loginfo("Preempted the Moveit execution by PyRobot")
-                self.moveit_group.stop()
+                self._traj_action.cancel_all_goals()
                 self.moveit_server_.set_preempted()
                 return
             if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
@@ -141,6 +124,13 @@ class MoveitInterface(object):
                 goal.waypoints,  # waypoints to follow
                 goal.eef_step,  # eef_step
                 0.0)  # jump_threshold
+
+
+            if len(plan.joint_trajectory.points) < 1:
+                rospy.logwarn('No motion plan found. No execution attempted')
+                self.moveit_server_.set_aborted()
+                return
+
             action_req = ExecuteTrajectoryGoal()
             action_req.trajectory = moveit_plan
             self._traj_action.send_goal(action_req)
@@ -151,10 +141,9 @@ class MoveitInterface(object):
                 
         status = self._traj_action.get_state()
         while status != GoalStatus.SUCCEEDED:
-            rospy.logwarn(status)
             if self.moveit_server_.is_preempt_requested():
                 rospy.loginfo("Preempted the Moveit execution by PyRobot")
-                self.moveit_group.stop()
+                self._traj_action.cancel_all_goals()
                 self.moveit_server_.set_preempted()
                 return
             if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
@@ -163,8 +152,6 @@ class MoveitInterface(object):
                 return
             status =  self._traj_action.get_state()
         self.moveit_server_.set_succeeded()
-
-        rospy.logwarn("Done")
 
     def moveit_cb(self, goal):
         
@@ -178,6 +165,7 @@ class MoveitInterface(object):
         else:
             rospy.logerr("Invalid PyRobot-Moveit Action Name, {}".format(goal.action_type))
             self.moveit_server_.set_aborted()
+            return
 
         
 
