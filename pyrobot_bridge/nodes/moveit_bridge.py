@@ -105,7 +105,7 @@ class MoveitInterface(object):
         try:
             moveit_plan = self._compute_plan(goal.values)
 
-            if len(plan.joint_trajectory.points) < 1:
+            if len(moveit_plan.joint_trajectory.points) < 1:
                 rospy.logwarn("No motion plan found. No execution attempted")
                 self.moveit_server_.set_aborted()
                 return
@@ -126,7 +126,7 @@ class MoveitInterface(object):
                 goal.waypoints, goal.eef_step, 0.0  # waypoints to follow  # eef_step
             )  # jump_threshold
 
-            if len(plan.joint_trajectory.points) < 1:
+            if len(moveit_plan.joint_trajectory.points) < 1:
                 rospy.logwarn("No motion plan found. No execution attempted")
                 self.moveit_server_.set_aborted()
                 return
