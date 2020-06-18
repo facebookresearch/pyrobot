@@ -32,7 +32,7 @@ def main():
         },
     ]
 
-    bot = Robot("locobot")
+    bot = Robot("locobot", use_base=False)
     bot.arm.go_home()
 
     for pose in target_poses:

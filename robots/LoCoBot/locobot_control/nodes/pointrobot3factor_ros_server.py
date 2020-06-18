@@ -121,16 +121,12 @@ class Robot(object):
         self.state.pose = np.asarray([x, y, yaw])
         self.state.vel = np.asarray([x_vel, y_vel, ang_vel])
 
-    def set_vel(self, vel, exe_time):
+    def stop(self):
+        rospy.loginfo("Stopping base!")
         msg = Twist()
-        msg.linear.x = vel[0]
-        msg.angular.z = vel[2]
-
-        start_time = rospy.get_time()
+        msg.linear.x = 0
+        msg.angular.z = 0
         self.ctrl_pub.publish(msg)
-        while rospy.get_time() - start_time < exe_time:
-            self.ctrl_pub.publish(msg)
-            rospy.sleep(1.0 / 10)
 
     def get_robot_state(self):
         return self.state.pose, self.state.vel
@@ -351,8 +347,8 @@ class Parameters(object):  # TODO: read from yaml file or rosparams
 
     # Fixed window params
     goal_region_threshold = 0.1
-    acceptable_error_threshold = 200
-    sigma_goal = 1
+    acceptable_error_threshold = 400
+    sigma_goal = 4
 
     opt_timeout = 0.2
 
@@ -396,12 +392,15 @@ class GPMPController(object):
                     " Consider increasing the time"
                 )
                 self.robot.traj_client_.cancel_goal()
-                self.robot.set_vel([0, 0, 0], 0.1)
+                self.robot.stop()
                 self._as.set_aborted()
                 return
 
             if self._as.is_preempt_requested():
-                rospy.loginfo("%s: Preempted" % self._action_name)
+                rospy.logwarn(
+                    "##############   %s: Preempted ####################"
+                    % self._action_name
+                )
                 self._as.set_preempted()
                 # Note: The trajectory is not cancelled for preempt as updated trajectory would be given
                 return
@@ -431,7 +430,7 @@ class GPMPController(object):
             if not res_flag:
                 rospy.logerr("GPMP optimizer failed to produce an acceptable plan")
                 self.robot.traj_client_.cancel_goal()
-                self.robot.set_vel([0, 0, 0], 0.1)
+                self.robot.stop()
                 self._as.set_aborted()
                 return
 

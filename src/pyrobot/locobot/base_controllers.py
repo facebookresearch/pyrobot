@@ -15,11 +15,13 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from numpy import sign
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
-
+import tf
 from pyrobot.locobot.base_control_utils import (
     TrajectoryTracker,
     position_control_init_fn,
     _get_absolute_pose,
+    SimpleGoalState,
+    check_server_client_link,
 )
 from pyrobot.locobot.base_control_utils import build_pose_msg
 from pyrobot.locobot.bicycle_model import BicycleSystem
@@ -47,7 +49,7 @@ class ProportionalControl:
     controller used to control the base
     """
 
-    def __init__(self, bot_base, ctrl_pub, configs):
+    def __init__(self, bot_base, ctrl_pub, configs, action_server):
         """
         The constructor for ProportionalControl class.
 
@@ -61,6 +63,7 @@ class ProportionalControl:
         :type base_state: BaseState
         :type ctrl_pub: rospy.Publisher
         """
+        self._as = action_server
 
         self.configs = configs
         self.bot_base = bot_base
@@ -121,17 +124,21 @@ class ProportionalControl:
         ret_val = True
 
         while True:
+
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the Proportional execution")
+
+                return False
+
+            if self.bot_base.should_stop:
+                if not self.ignore_collisions:
+                    rospy.loginfo("curr error = {} meters".format(cur_error))
+
+                    self.stop()
+                    return False
+
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = self._norm_pose(target_world - self.bot_base.state.theta)
-
-                if self.bot_base.should_stop:
-                    if not self.ignore_collisions:
-                        rospy.loginfo(
-                            "curr error = {} degrees".format(degrees(cur_error))
-                        )
-                        self.stop()
-                        ret_val = False
-                        break
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.rot_error_thr:
@@ -188,6 +195,19 @@ class ProportionalControl:
         self.bot_base.should_stop = False
         ret_val = True
         while True:
+
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the Proportional execution")
+
+                return False
+
+            if self.bot_base.should_stop:
+                if not self.ignore_collisions:
+                    rospy.loginfo("curr error = {} meters".format(cur_error))
+
+                    self.stop()
+                    return False
+
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = abs(
                     abs(target)
@@ -196,13 +216,6 @@ class ProportionalControl:
                         + (self.bot_base.state.y - init_y) ** 2
                     )
                 )
-
-                if self.bot_base.should_stop:
-                    if not self.ignore_collisions:
-                        rospy.loginfo("curr error = {} meters".format(cur_error))
-                        self.stop()
-                        ret_val = False
-                        break
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.dist_error_thr:
@@ -278,11 +291,15 @@ class ProportionalControl:
 
         theta_2 = -theta_1 + rot
         # first rotate by theta1
-        self._step_angle(theta_1)
+        if not self._step_angle(theta_1):
+            return False
         # move the distance
-        self._step_x(dist)
+        if not self._step_x(dist):
+            return False
         # second rotate by theta2
-        self._step_angle(theta_2)
+        if not self._step_angle(theta_2):
+            return False
+
         return True
 
     def _get_xyt(self, pose):
@@ -337,7 +354,7 @@ class ILQRControl(TrajectoryTracker):
     on top of mobile bases.
     """
 
-    def __init__(self, bot_base, ctrl_pub, configs):
+    def __init__(self, bot_base, ctrl_pub, configs, action_server):
         """
         Constructor for ILQR based Control.
 
@@ -349,7 +366,7 @@ class ILQRControl(TrajectoryTracker):
         :type base_state: BaseState
         :type ctrl_pub: rospy.Publisher
         """
-
+        self._as = action_server
         self.configs = configs
         self.max_v = self.configs.BASE.MAX_ABS_FWD_SPEED
         self.min_v = -self.configs.BASE.MAX_ABS_FWD_SPEED
@@ -431,7 +448,8 @@ class ILQRControl(TrajectoryTracker):
         """
         # Compute plan
         plan = self.generate_plan(states, controls)
-
+        if not plan:
+            return False
         # Execute a plan
         return self.execute_plan(plan, close_loop)
 
@@ -441,7 +459,7 @@ class MoveBaseControl(object):
     used to control the base
     """
 
-    def __init__(self, base_state, configs):
+    def __init__(self, base_state, configs, action_server):
         """
         The constructor for MoveBaseControl class.
 
@@ -450,7 +468,7 @@ class MoveBaseControl(object):
         :type configs: dict
         :type base_state: BaseState
         """
-
+        self._as = action_server
         self.configs = configs
         self.base_state = base_state
         self.MAP_FRAME = self.configs.BASE.MAP_FRAME
@@ -493,16 +511,20 @@ class MoveBaseControl(object):
         rospy.sleep(0.1)
         rospy.loginfo("Waiting for the Result")
         while True:
-            assert (
-                self.execution_status is not 4
-            ), "move_base failed to find a valid plan to goal"
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the Movebase execution")
+                self.cancel_goal()
+                return False
+            if self.execution_status is 4:
+                rospy.loginfo("move_base failed to find a valid plan to goal")
+                return False
             if self.execution_status is 3:
                 rospy.loginfo("Base reached the goal state")
-                return
+                return True
             if self.base_state.should_stop:
                 rospy.loginfo("Base asked to stop. Cancelling goal sent to move_base.")
                 self.cancel_goal()
-                return
+                return False
 
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=False):
         """
@@ -522,7 +544,7 @@ class MoveBaseControl(object):
         """
         assert not smooth, "movebase controller cannot generate smooth motion"
         assert close_loop, "movebase controller cannot work in open loop"
-        self._send_action_goal(
+        return self._send_action_goal(
             xyt_position[0], xyt_position[1], xyt_position[2], self.MAP_FRAME
         )
 
@@ -538,18 +560,12 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 from actionlib_msgs.msg import GoalStatus
 
 
-class SimpleGoalState:
-    PENDING = 0
-    ACTIVE = 1
-    DONE = 2
-
-
 class GPMPControl(object):
     """This class encapsulates and provides interface to GPMP controller
     used to control the base
     """
 
-    def __init__(self, base, base_state, configs):
+    def __init__(self, base, base_state, configs, action_server):
         """
         The constructor for MoveBaseControl class.
 
@@ -558,6 +574,7 @@ class GPMPControl(object):
         :type configs: dict
         :type base_state: BaseState
         """
+        self._as = action_server
         self.base = base
         self.base_state = base_state
         self.configs = configs
@@ -567,27 +584,15 @@ class GPMPControl(object):
         self.gpmp_ctrl_client_ = actionlib.SimpleActionClient(
             self.configs.BASE.GPMP_SERVER_NAME, FollowJointTrajectoryAction,
         )
-        self._check_server_client_link(self.gpmp_ctrl_client_)
+        check_server_client_link(self.gpmp_ctrl_client_)
 
         self.traj_client_ = actionlib.SimpleActionClient(
             self.configs.BASE.TURTLEBOT_TRAJ_SERVER_NAME, FollowJointTrajectoryAction,
         )
-        self._check_server_client_link(self.traj_client_)
+        check_server_client_link(self.traj_client_)
 
         self.goal_tolerance = self.configs.BASE.GOAL_TOLERANCE
         self.exec_time = self.configs.BASE.EXEC_TIME
-
-    def _check_server_client_link(self, client):
-        rospy.sleep(0.1)  # Ensures client spins up properly
-        server_up = client.wait_for_server(timeout=rospy.Duration(10.0))
-        if not server_up:
-            rospy.logerr(
-                "Timed out waiting for the client"
-                " Action Server to connect. Start the action server"
-                " before running example."
-            )
-            rospy.signal_shutdown("Timed out waiting for Action Server")
-            sys.exit(1)
 
     def _build_goal_msg(self, pose, vel, tolerance, exec_time):
 
@@ -616,15 +621,17 @@ class GPMPControl(object):
             return
 
         if self.gpmp_ctrl_client_.simple_state != SimpleGoalState.DONE:
-            self.gpmp_ctrl_client_.cancel_goal()
-            self.traj_client_.cancel_goal()
-            self.base.set_vel(0, 0, 0.1)
+            rospy.loginfo("Cancelling GPMP client.")
+            self.gpmp_ctrl_client_.cancel_all_goals()
+            rospy.loginfo("Cancelling GPMP-Turtlebot_trajectoryclient.")
+            self.traj_client_.cancel_all_goals()
+            self.base.stop()
 
-    def update_goal(self, xyt_position, close_loop=True, smooth=True):
+    def update_goal(self, xyt_position, close_loop=True, smooth=True, wait=True):
         """Updates the the goal state while GPMP 
         controller is in execution of previous goal"""
         self.gpmp_ctrl_client_.cancel_goal()
-        self.go_to_absolute(xyt_position, close_loop, smooth)
+        self.go_to_absolute(xyt_position, close_loop, smooth, wait=wait)
 
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=True, wait=True):
         """
@@ -646,19 +653,29 @@ class GPMPControl(object):
         assert close_loop, "GPMP controller cannot work in open loop"
         self.gpmp_ctrl_client_.send_goal(
             self._build_goal_msg(
-                xyt_position, [0, 0, 0], self.goal_tolerance, self.exec_time
+                xyt_position, [0.0, 0.0, 0.0], self.goal_tolerance, self.exec_time
             )
         )
 
         status = self.gpmp_ctrl_client_.get_state()
         if wait:
             while status != GoalStatus.SUCCEEDED:
-                if self.base_state.should_stop:
+                if self._as.is_preempt_requested():
+                    rospy.loginfo("Preempted the GPMP execution")
                     self.cancel_goal()
-                    return
+                    return False
+
+                if self.base_state.should_stop:
+                    rospy.loginfo("collision detection. Stopping")
+                    self.cancel_goal()
+                    return False
                 if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
-                    break
+                    rospy.loginfo("Error in gpmp sever. Stopping")
+                    return False
                 status = self.gpmp_ctrl_client_.get_state()
+            return True
+        else:
+            return None
 
     def go_to_absolute_with_map(
         self, xyt_position, close_loop=True, smooth=True, planner=None
@@ -672,20 +689,22 @@ class GPMPControl(object):
 
         while g_distance > self.configs.BASE.TRESHOLD_LIN:
 
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the GPMP execution")
+                self.cancel_goal()
+                return False
+
             if self.base_state.should_stop:
                 self.cancel_goal()
-                return
-            status = self.gpmp_ctrl_client_.get_state()
-            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
-                rospy.logerr("GPMP controller failed or interrupted!")
-                return
+                return False
 
             plan, plan_status = planner.get_plan_absolute(
                 xyt_position[0], xyt_position[1], xyt_position[2]
             )
             if not plan_status:
                 rospy.logerr("Failed to find a valid plan!")
-                return
+                self.cancel_goal()
+                return False
 
             if len(plan) < self.point_idx:
                 point = list(xyt_position)
@@ -696,7 +715,7 @@ class GPMPControl(object):
                     0,
                 ]
 
-                orientation_q = plan[self.point_idx - 1].pose.pose.orientation
+                orientation_q = plan[self.point_idx - 1].pose.orientation
                 orientation_list = [
                     orientation_q.x,
                     orientation_q.y,
@@ -707,8 +726,8 @@ class GPMPControl(object):
                     orientation_list
                 )
 
-            self.go_to_absolute(point, wait=False)
-
+            self.update_goal(point, wait=False)
+            print(point)
             cur_state = self.base.get_state("odom")
             g_distance = np.linalg.norm(
                 np.asarray(
@@ -716,4 +735,15 @@ class GPMPControl(object):
                 )
             )
 
-        self.go_to_absolute(xyt_position, wait=True)
+            status = self.gpmp_ctrl_client_.get_state()
+            if status == GoalStatus.ABORTED or status == GoalStatus.PREEMPTED:
+                rospy.logerr("GPMP controller failed or interrupted!")
+                return False
+            rospy.sleep(0.2)
+
+        result = self.go_to_absolute(xyt_position, wait=True)
+
+        if result:
+            return True
+        else:
+            return False

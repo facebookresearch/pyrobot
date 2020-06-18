@@ -52,7 +52,7 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            export PYTHONPATH=$PYTHONPATH:/usr/local/cython
+            export PYTHONPATH=$PYTHONPATH:/usr/local/cython #Put GPMP on path
             roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
@@ -122,7 +122,7 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            export PYTHONPATH=$PYTHONPATH:/usr/local/cython
+            export PYTHONPATH=$PYTHONPATH:/usr/local/cython #Put GPMP on path
             roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
