@@ -43,17 +43,19 @@ class LoCoBotBase(object):
 
         init_rotation = self._rot_matrix(self.init_state.rotation)
 
+        # true position here refers to the relative position from
+        # where `self.init_state` is treated as origin
         true_position = cur_state.position - self.init_state.position
-        true_position = np.matmul(init_rotation.transpose(), true_position)
+        true_position = np.matmul(init_rotation.transpose(), true_position, dtype=np.float64)
 
         cur_rotation = self._rot_matrix(cur_state.rotation)
-        cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation)
+        cur_rotation = np.matmul(init_rotation.transpose(), cur_rotation, dtype=np.float64)
 
         (r, pitch, yaw) = euler_from_matrix(cur_rotation, axes="sxzy")
         # Habitat has y perpendicular to map where as ROS has z perpendicular
         # to the map. Where as x is same.
-        # Here ROS_Z = -1 * habitat_z and ROS_Y = habitat_x
-        return (-1 * true_position[2], true_position[0], yaw)
+        # Here ROS_X = -1 * habitat_z and ROS_Y = -1*habitat_x
+        return (-1 * true_position[2], -1 * true_position[0], yaw)
 
     def stop(self):
         raise NotImplementedError("Veclocity control is not supported in Habitat-Sim!!")
@@ -171,15 +173,22 @@ class LoCoBotBase(object):
         return did_collide
 
     def _go_to_relative_pose(self, rel_x, rel_y, abs_yaw):
+        # clip relative movements beyond 10 micrometer precision
+        # this is done to improve determinism, as habitat-sim doesn't
+        # seem to precisely move the robot beyond sub milimeter precision anyways
+        if abs(rel_x) < 1e-5:
+            rel_x = 0
+        if abs(rel_y) < 1e-5:
+            rel_y = 0
 
         if math.sqrt(rel_x ** 2 + rel_y ** 2) > 0.0:
             # rotate to point to (x, y) point
-            action_name = "turn_right"
+            action_name = "turn_left"
             if rel_y < 0.0:
-                action_name = "turn_left"
+                action_name = "turn_right"
 
-            v1 = np.asarray([1, 0])
-            v2 = np.asarray([rel_x, rel_y])
+            v1 = np.asarray([1, 0], dtype=np.float64)
+            v2 = np.asarray([rel_x, rel_y], dtype=np.float64)
             cosine_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
             angle = np.arccos(cosine_angle)
 
@@ -197,6 +206,10 @@ class LoCoBotBase(object):
         # rotate to match the final yaw!
         (cur_x, cur_y, cur_yaw) = self.get_state()
         rel_yaw = abs_yaw - cur_yaw
+
+        # clip to micro-degree precision to preserve determinism
+        if abs(rel_yaw) < 1e-4:
+            rel_yaw = 0
 
         action_name = "turn_left"
         if rel_yaw < 0.0:

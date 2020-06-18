@@ -6,13 +6,16 @@ jobs:
     resource_class: xlarge
     docker:
       - image: ros:kinetic-robot-xenial
-
+      
     steps:
       - checkout            
       - run:
           name: Installer Python2
           command: |
             sudo apt-get install -y python-rosdep
+            sudo rm -rf /etc/apt/sources.list.d/ros1-latest.list*
+            # https://answers.ros.org/question/325039/apt-update-fails-cannot-install-pkgs-key-not-working/
+            sudo apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2 -l cmu

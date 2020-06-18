@@ -12,18 +12,21 @@ class HabitatSim(object):
     """Class that interfaces with Habitat sim"""
 
     def __init__(
-        self, configs, scene_path=None, seed=0
+            self, configs, scene_path=None, physics_config=None, seed=0
     ):  # TODO: extend the arguments of constructor
         self.sim_config = copy.deepcopy(configs.COMMON.SIMULATOR)
         self.sim_config.defrost()
         if scene_path is not None:
             self.sim_config.SCENE_ID = scene_path
+        if physics_config is not None:
+            self.sim_config.PHYSICS_CONFIG_FILE = physics_config
+            self.sim_config.PHYSICS = True
         self.sim = habitat_sim.Simulator(make_cfg(self.sim_config))
         self.set_seed(seed)  # TODO: Not working!! Check with abhishek
         print(self.sim_config)
 
     def get_agents():
-        """ Return a list of anget objects"""
+        """ Return a list of agent objects"""
         return self.sim.agents
 
     def get_sensors():

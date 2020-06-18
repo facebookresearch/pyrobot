@@ -45,6 +45,8 @@ _CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = "/camera/aligned_depth_to_color/image_ra
 _CAMERAC.ROSTOPIC_SET_PAN = "/pan/command"
 # topic name to set tilt angle
 _CAMERAC.ROSTOPIC_SET_TILT = "/tilt/command"
+# Factor to scale depth image by to convert it into meters
+_CAMERAC.DEPTH_MAP_FACTOR = 1000
 
 _BASEC = _C.BASE
 # BASE class name
