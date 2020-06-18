@@ -132,7 +132,7 @@ def test_ee_xyz_control(create_robot, plan):
     rot_similarity = quat_diff[3]
 
     rot_thresh = 0.98
-    pos_thresh = 0.01
+    pos_thresh = 0.02
     assert rot_similarity > rot_thresh and pos_error < pos_thresh
 
 

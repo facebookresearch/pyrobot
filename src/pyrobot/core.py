@@ -851,7 +851,7 @@ class Arm(object):
         numerical=True,
         plan=True,
         wait=True,
-        **kwargs,
+        **kwargs
     ):
         """
         Keep the current orientation fixed, move the end
