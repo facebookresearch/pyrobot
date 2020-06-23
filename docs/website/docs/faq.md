@@ -31,12 +31,12 @@ When any one of the arm's dynamixel motors shutsdown, the entire robot controlle
 
 There are several possiblities. 
 * Check if the camera connection is good.
-* You might need to update the realsense firmware. Instructions can be found in Page 8 to Page 9 in this [document](https://www.intel.com/content/dam/support/us/en/documents/emerging-technologies/intel-realsense-technology/Linux-RealSense-D400-DFU-Guide.pdf). Steps are also summarized below.
+* You might need to update the realsense firmware. Instructions can be found below.
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Update realsense firmware-->
 ```bash
-echo 'deb http://realsense-hwpublic.s3.amazonaws.com/Debian/apt-repo xenial main' | sudo tee /etc/apt/sources.list.d/realsense-public.list
+echo 'deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main' | sudo tee /etc/apt/sources.list.d/realsense-public.list
 sudo apt-key adv --keyserver keys.gnupg.net --recv-key 6F3EFCDE
 sudo apt-get update
 sudo apt-get install intel-realsense-dfu*
