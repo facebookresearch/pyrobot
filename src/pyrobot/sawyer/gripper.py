@@ -13,8 +13,7 @@ class SawyerGripper(Gripper):
     Interface for gripper.
     """
 
-    def __init__(self, configs, ee_name="right_gripper",
-                 calibrate=True, wait_time=3):
+    def __init__(self, configs, ee_name="right_gripper", calibrate=True, wait_time=3):
         """
         :param configs: configurations for the robot
         :param ee_name: robot gripper name (default: "right_gripper")
@@ -28,8 +27,7 @@ class SawyerGripper(Gripper):
         """
         super(SawyerGripper, self).__init__(configs=configs)
         self.wait_time = wait_time
-        self.gripper = intera_interface.Gripper(ee_name=ee_name,
-                                                calibrate=calibrate)
+        self.gripper = intera_interface.Gripper(ee_name=ee_name, calibrate=calibrate)
 
     def open(self, position=None, wait=True):
         """

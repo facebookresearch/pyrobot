@@ -20,6 +20,7 @@ from nav_msgs.msg import Odometry
 
 try:
     from orb_slam2_ros.vslam import VisualSLAM
+
     USE_ORB_SLAM2 = True
 except:
     USE_ORB_SLAM2 = False
@@ -27,9 +28,13 @@ except:
 from pyrobot.core import Base
 from std_msgs.msg import Empty
 
-from base_control_utils import MoveBasePlanner, _get_absolute_pose
-from base_controllers import ProportionalControl, ILQRControl, MoveBaseControl
-from bicycle_model import wrap_theta
+from pyrobot.locobot.base_control_utils import MoveBasePlanner, _get_absolute_pose
+from pyrobot.locobot.base_controllers import (
+    ProportionalControl,
+    ILQRControl,
+    MoveBaseControl,
+)
+from pyrobot.locobot.bicycle_model import wrap_theta
 
 
 class BaseSafetyCallbacks(object):
@@ -46,32 +51,46 @@ class BaseSafetyCallbacks(object):
         self.wheel_drop = False
         self.subscribers = []
 
-        if base == 'create':
-            s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_BUMPER, Bumper,
-                                 self.bumper_callback_create)
+        if base == "create":
+            s = rospy.Subscriber(
+                self.configs.BASE.ROSTOPIC_BUMPER, Bumper, self.bumper_callback_create
+            )
             self.subscribers.append(s)
-            s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_CLIFF, Empty,
-                                 self.cliff_callback)
+            s = rospy.Subscriber(
+                self.configs.BASE.ROSTOPIC_CLIFF, Empty, self.cliff_callback
+            )
             self.subscribers.append(s)
-            s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_WHEELDROP, Empty,
-                                 self.wheeldrop_callback)
+            s = rospy.Subscriber(
+                self.configs.BASE.ROSTOPIC_WHEELDROP, Empty, self.wheeldrop_callback
+            )
             self.subscribers.append(s)
         else:
-            s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_BUMPER,
-                                 BumperEvent, self.bumper_callback_kobuki)
+            s = rospy.Subscriber(
+                self.configs.BASE.ROSTOPIC_BUMPER,
+                BumperEvent,
+                self.bumper_callback_kobuki,
+            )
             self.subscribers.append(s)
-            s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_CLIFF,
-                                 CliffEvent, self.cliff_callback)
+            s = rospy.Subscriber(
+                self.configs.BASE.ROSTOPIC_CLIFF, CliffEvent, self.cliff_callback
+            )
             self.subscribers.append(s)
-            s = rospy.Subscriber(self.configs.BASE.ROSTOPIC_WHEELDROP,
-                                 WheelDropEvent, self.wheeldrop_callback)
+            s = rospy.Subscriber(
+                self.configs.BASE.ROSTOPIC_WHEELDROP,
+                WheelDropEvent,
+                self.wheeldrop_callback,
+            )
             self.subscribers.append(s)
 
     def bumper_callback_create(self, data):
         bumped = data.is_left_pressed or data.is_right_pressed
-        to_bump = data.is_light_left or data.is_light_center_left or \
-                  data.is_light_center_right or data.is_light_front_right or \
-                  data.is_light_right
+        to_bump = (
+            data.is_light_left
+            or data.is_light_center_left
+            or data.is_light_center_right
+            or data.is_light_front_right
+            or data.is_light_right
+        )
         if bumped or to_bump:
             if self.bumper is False:
                 rospy.loginfo("Bumper Detected")
@@ -108,12 +127,11 @@ class XYTState(object):
     """
 
     def __init__(self):
-        self.x = 0.
-        self.y = 0.
-        self.theta = 0.
+        self.x = 0.0
+        self.y = 0.0
+        self.theta = 0.0
         self.old_theta = 0
-        self._state_f = np.array([self.x, self.y, self.theta],
-                                 dtype=np.float32).T
+        self._state_f = np.array([self.x, self.y, self.theta], dtype=np.float32).T
         self.update_called = False
 
     def update(self, x, y, theta):
@@ -123,14 +141,13 @@ class XYTState(object):
         self.theta = theta
         self.x = x
         self.y = y
-        self._state_f = np.array([self.x, self.y, self.theta],
-                                 dtype=np.float32).T
+        self._state_f = np.array([self.x, self.y, self.theta], dtype=np.float32).T
         self.update_called = True
 
     @property
     def state_f(self):
         """Returns the current state as a numpy array."""
-        assert (self.update_called), "Odometry callback hasn't been called."
+        assert self.update_called, "Odometry callback hasn't been called."
         return self._state_f
 
 
@@ -140,7 +157,7 @@ class BaseState(BaseSafetyCallbacks):
         self.configs = configs
         self.build_map = build_map
         if self.build_map:
-            assert (USE_ORB_SLAM2), 'Error: Failed to import orb_slam2_ros'
+            assert USE_ORB_SLAM2, "Error: Failed to import orb_slam2_ros"
             self.vslam = VisualSLAM(
                 map_img_dir=map_img_dir,
                 cam_pose_tp=self.configs.BASE.VSLAM.ROSTOPIC_CAMERA_POSE,
@@ -149,12 +166,16 @@ class BaseState(BaseSafetyCallbacks):
                 camera_frame=self.configs.BASE.VSLAM.RGB_CAMERA_CENTER_FRAME,
                 occ_map_rate=self.configs.BASE.VSLAM.OCCUPANCY_MAP_RATE,
                 z_min=self.configs.BASE.Z_MIN_TRESHOLD_OCC_MAP,
-                z_max=self.configs.BASE.Z_MAX_TRESHOLD_OCC_MAP)
+                z_max=self.configs.BASE.Z_MAX_TRESHOLD_OCC_MAP,
+            )
 
         # Setup odometry callback.
         self.state = XYTState()
-        s = rospy.Subscriber(configs.BASE.ROSTOPIC_ODOMETRY, Odometry,
-                             lambda msg: self._odometry_callback(msg, 'state'))
+        s = rospy.Subscriber(
+            configs.BASE.ROSTOPIC_ODOMETRY,
+            Odometry,
+            lambda msg: self._odometry_callback(msg, "state"),
+        )
         self.subscribers = [s]
 
         BaseSafetyCallbacks.__init__(self, base)
@@ -172,9 +193,9 @@ class BaseState(BaseSafetyCallbacks):
             orientation_q.x,
             orientation_q.y,
             orientation_q.z,
-            orientation_q.w]
-        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-            orientation_list)
+            orientation_q.w,
+        ]
+        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
         state = copy.deepcopy(getattr(self, state_var))
         state.update(msg.pose.pose.position.x, msg.pose.pose.position.y, yaw)
         setattr(self, state_var, state)
@@ -191,13 +212,14 @@ class LoCoBotBase(Base):
     This is a common base class for the locobot and locobot-lite base.
     """
 
-    def __init__(self,
-                 configs,
-                 map_img_dir=None,
-                 base_controller='ilqr',
-                 base_planner=None,
-                 base=None,
-                 ):
+    def __init__(
+        self,
+        configs,
+        map_img_dir=None,
+        base_controller="ilqr",
+        base_planner=None,
+        base=None,
+    ):
         """
         The constructor for LoCoBotBase class.
 
@@ -209,35 +231,40 @@ class LoCoBotBase(Base):
         :type map_img_dir: string
         """
         super(LoCoBotBase, self).__init__(configs=configs)
-        use_base = rospy.get_param(
-            'use_base', False) or rospy.get_param(
-            'use_sim', False)
+        use_base = rospy.get_param("use_base", False) or rospy.get_param(
+            "use_sim", False
+        )
         if not use_base:
             rospy.logwarn(
-                'Neither use_base, nor use_sim, is not set to True '
-                'when the LoCoBot driver is launched. '
-                'You may not be able to command the base '
-                'correctly using PyRobot!')
+                "Neither use_base, nor use_sim, is not set to True "
+                "when the LoCoBot driver is launched. "
+                "You may not be able to command the base "
+                "correctly using PyRobot!"
+            )
             return
         if base is None:
             base = configs.BASE.BASE_TYPE
-        assert (base in ['kobuki', 'create', ]), \
-            'BASE should be one of kobuki, create but is {:s}'.format(base)
+        assert base in [
+            "kobuki",
+            "create",
+        ], "BASE should be one of kobuki, create but is {:s}".format(base)
 
         if map_img_dir is None:
-            map_img_dir = os.path.join(expanduser("~"), '.ros/Imgs')
+            map_img_dir = os.path.join(expanduser("~"), ".ros/Imgs")
 
-        self.build_map = rospy.get_param('use_vslam', False)
+        self.build_map = rospy.get_param("use_vslam", False)
         self.base_state = BaseState(base, self.build_map, map_img_dir, configs)
 
         # Path planner
         if base_planner is None:
             base_planner = configs.BASE.BASE_PLANNER
-        assert (base_planner in ['movebase', 'none']), \
-            'BASE.[BASE_PLANNER] should be movebase or none.'
-        if base_planner == 'movebase':
+        assert base_planner in [
+            "movebase",
+            "none",
+        ], "BASE.[BASE_PLANNER] should be movebase or none."
+        if base_planner == "movebase":
             self.planner = MoveBasePlanner(self.configs)
-        elif base_planner == 'none':
+        elif base_planner == "none":
             # No path planning is done here.
             self.planner = None
         self.base_planner = base_planner
@@ -245,26 +272,26 @@ class LoCoBotBase(Base):
         # Set up low-level controllers.
         if base_controller is None:
             base_controller = configs.BASE.BASE_CONTROLLER
-        assert (base_controller in ['proportional', 'ilqr', 'movebase']), \
-            'BASE.BASE_CONTROLLER should be one of proportional, ilqr, ' \
-            'movebase but is {:s}'.format(base_controller)
+        assert base_controller in ["proportional", "ilqr", "movebase"], (
+            "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
+            "movebase but is {:s}".format(base_controller)
+        )
 
         self.base_controller = base_controller
-        if base_controller == 'ilqr':
-            self.controller = ILQRControl(
-                self.base_state, self.ctrl_pub, self.configs)
-        elif base_controller == 'proportional':
+        if base_controller == "ilqr":
+            self.controller = ILQRControl(self.base_state, self.ctrl_pub, self.configs)
+        elif base_controller == "proportional":
             self.controller = ProportionalControl(
-                self.base_state, self.ctrl_pub, self.configs)
-        elif base_controller == 'movebase':
+                self.base_state, self.ctrl_pub, self.configs
+            )
+        elif base_controller == "movebase":
             self.controller = MoveBaseControl(self.base_state, self.configs)
 
         rospy.on_shutdown(self.clean_shutdown)
-        
 
     def clean_shutdown(self):
         rospy.loginfo("Stop LoCoBot Base")
-        if self.base_controller == 'movebase':
+        if self.base_controller == "movebase":
             self.controller.cancel_goal()
         self.stop()
 
@@ -279,12 +306,13 @@ class LoCoBotBase(Base):
         :return: pose of the form [x, y, yaw]
         :rtype: list
         """
-        if state_type == 'odom':
+        if state_type == "odom":
             return self.base_state._get_odom_state()
-        elif state_type == 'vslam':
-            assert self.build_map, "Error: Cannot vslam state " \
-                                   "without enabling build map feature"
-            assert self.build_map, 'build_map was set to False'
+        elif state_type == "vslam":
+            assert self.build_map, (
+                "Error: Cannot vslam state " "without enabling build map feature"
+            )
+            assert self.build_map, "build_map was set to False"
             return self.base_state.vslam.base_pose
 
     def _get_plan(self, xyt_position):
@@ -296,17 +324,15 @@ class LoCoBotBase(Base):
         :type xyt_position: list
         """
         plan, status = self.planner.get_plan_absolute(
-            xyt_position[0], xyt_position[1], xyt_position[2])
+            xyt_position[0], xyt_position[1], xyt_position[2]
+        )
         if not status:
             raise ValueError("Failed to find a valid plan!")
         return self.planner.parse_plan(plan)
 
     def go_to_relative(
-            self,
-            xyt_position,
-            use_map=False,
-            close_loop=True,
-            smooth=False):
+        self, xyt_position, use_map=False, close_loop=True, smooth=False
+    ):
         """
         Moves the robot to the robot to given goal state
         relative to its initial pose.
@@ -333,11 +359,8 @@ class LoCoBotBase(Base):
         return self.go_to_absolute(goal_pos, use_map, close_loop, smooth)
 
     def go_to_absolute(
-            self,
-            xyt_position,
-            use_map=False,
-            close_loop=True,
-            smooth=False):
+        self, xyt_position, use_map=False, close_loop=True, smooth=False
+    ):
         """
         Moves the robot to the robot to given goal state in the world frame.
 
@@ -364,17 +387,16 @@ class LoCoBotBase(Base):
 
         try:
             if use_map:
-                assert (
-                    self.build_map), 'Error: Cannot use map without ' \
-                                     'enabling build map feature'
-                if self.base_controller == 'ilqr':
+                assert self.build_map, (
+                    "Error: Cannot use map without " "enabling build map feature"
+                )
+                if self.base_controller == "ilqr":
                     goto = partial(
-                        self.go_to_relative,
-                        close_loop=close_loop,
-                        smooth=smooth)
+                        self.go_to_relative, close_loop=close_loop, smooth=smooth
+                    )
                     self.planner.move_to_goal(xyt_position, goto)
                     return
-                elif self.base_controller == 'proportional':
+                elif self.base_controller == "proportional":
                     self.planner.move_to_goal(xyt_position, self.controller.goto)
                     return
 
@@ -386,7 +408,6 @@ class LoCoBotBase(Base):
             print("Unexpected error encountered during positon control!")
             return False
         return True
-
 
     def track_trajectory(self, states, controls=None, close_loop=True):
         """
@@ -410,7 +431,7 @@ class LoCoBotBase(Base):
             return
 
         try:
-            if self.base_controller == 'ilqr':
+            if self.base_controller == "ilqr":
                 self.controller.track_trajectory(states, controls, close_loop)
             else:
                 plan_idx = 0

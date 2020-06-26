@@ -15,16 +15,16 @@ from pyrobot import Robot
 def main():
     # Example poses
     target_poses = [
-        {'position': np.array([0.28, 0.17, 0.22]),
-         'pitch': 0.5,
-         'numerical': False},
-        {'position': np.array([0.28, -0.17, 0.22]),
-         'pitch': 0.5,
-         'roll': 0.5,
-         'numerical': False}
+        {"position": np.array([0.28, 0.17, 0.22]), "pitch": 0.5, "numerical": False},
+        {
+            "position": np.array([0.28, -0.17, 0.22]),
+            "pitch": 0.5,
+            "roll": 0.5,
+            "numerical": False,
+        },
     ]
 
-    bot = Robot('locobot')
+    bot = Robot("locobot")
     bot.arm.go_home()
 
     for pose in target_poses:

@@ -3,6 +3,9 @@ id: sim2real
 title: Running sim2real for arm
 sidebar_label: [Advanced] Sim2Real
 ---
+
+**Note** This tutorial is tested to work only with Python2.7 version on PyRobot
+
 ## What is Sim2Real?
 
 In this section we will train a simple RL policy which will learn inverse kinematics for the arm using RL(TD3). The input to the

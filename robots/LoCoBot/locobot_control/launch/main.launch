@@ -50,7 +50,6 @@
             <include file="$(find locobot_control)/launch/dynamixel_controllers.launch">
                 <arg name="dynamixel_info" value="$(find locobot_control)/config/dynamixels_teleop.yaml"/>
             </include>
-            <node name="robot_teleop_server" pkg="locobot_control" type="robot_teleop_server.py" output="screen"/>
         </group>
         <group unless="$(arg teleop)">
             <group if="$(eval arg('use_arm') or arg('use_camera') or arg('use_vslam'))">
@@ -73,14 +72,15 @@
         <include file="$(find locobot_gazebo)/launch/gazebo_locobot_control.launch"/>
         <node name="locobot_gazebo" pkg="locobot_gazebo" type="locobot_gazebo" 
             respawn="true" output="screen"/> 
-        <group if="$(arg teleop)">
-            <node name="robot_teleop_server" pkg="locobot_control"
-                  type="robot_teleop_server.py" output="screen"/>
-        </group>
+
     </group>
 
 
     <!-- Common -->
+
+    <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
+                  type="kinematics.py"/>
+
     
     <group if="$(eval arg('use_base') or arg('use_sim'))" >
         <include file="$(find base_navigation)/launch/move_base.launch">

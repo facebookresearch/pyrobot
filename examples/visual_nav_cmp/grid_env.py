@@ -6,8 +6,9 @@
 import numpy as np
 
 
-def generate_goal_images(map_scales, map_crop_sizes, n_ori, goal_dist,
-                         goal_theta, rel_goal_orientation):
+def generate_goal_images(
+    map_scales, map_crop_sizes, n_ori, goal_dist, goal_theta, rel_goal_orientation
+):
     goal_dist = goal_dist[:, 0]
     goal_theta = goal_theta[:, 0]
     rel_goal_orientation = rel_goal_orientation[:, 0]
@@ -15,10 +16,11 @@ def generate_goal_images(map_scales, map_crop_sizes, n_ori, goal_dist,
     goals = []
     # Generate the map images.
     for i, (sc, map_crop_size) in enumerate(zip(map_scales, map_crop_sizes)):
-        goal_i = np.zeros((goal_dist.shape[0], map_crop_size, map_crop_size, n_ori),
-                          dtype=np.float32)
-        x = goal_dist * np.cos(goal_theta) * sc + (map_crop_size - 1.) / 2.
-        y = goal_dist * np.sin(goal_theta) * sc + (map_crop_size - 1.) / 2.
+        goal_i = np.zeros(
+            (goal_dist.shape[0], map_crop_size, map_crop_size, n_ori), dtype=np.float32
+        )
+        x = goal_dist * np.cos(goal_theta) * sc + (map_crop_size - 1.0) / 2.0
+        y = goal_dist * np.sin(goal_theta) * sc + (map_crop_size - 1.0) / 2.0
 
         for j in range(goal_dist.shape[0]):
             gc = rel_goal_orientation[j]
@@ -57,8 +59,8 @@ class GridEnv(object):
 
     def __init__(self):
         # Goal and state are maintained in cm.
-        self.theta_unit = np.pi / 2.
-        self.xy_unit = 5.
+        self.theta_unit = np.pi / 2.0
+        self.xy_unit = 5.0
         None
 
     def _get_relative_goal_loc(self, goal_loc, loc, theta):
@@ -75,7 +77,7 @@ class GridEnv(object):
         theta = t * self.theta_unit
         loc = np.concatenate((x, y), axis=1)
         x_axis = np.concatenate((np.cos(theta), np.sin(theta)), axis=1)
-        thetay = theta + np.pi / 2.
+        thetay = theta + np.pi / 2.0
         y_axis = np.concatenate((np.cos(thetay), np.sin(thetay)), axis=1)
         return loc, x_axis, y_axis, theta
 
@@ -105,7 +107,7 @@ class GridEnv(object):
         return out1
 
     def pre_features(self, inputs):
-        inputs['imgs'] = image_pre(inputs['imgs'], 'rgb')
+        inputs["imgs"] = image_pre(inputs["imgs"], "rgb")
         return inputs
 
     def take_action(self, action):
@@ -132,37 +134,38 @@ class GridEnv(object):
     def _get_goal_images(self):
         loc, x_axis, y_axis, theta = self._get_loc_axis(self.state)
         goal_loc, _, _, _ = self._get_loc_axis(self.goal)
-        rel_goal_orientation = np.mod(
-            np.int32(self.state[:, 2:] - self.goal[:, 2:]), 4)
-        goal_dist, goal_theta = self._get_relative_goal_loc(
-            goal_loc, loc, theta)
+        rel_goal_orientation = np.mod(np.int32(self.state[:, 2:] - self.goal[:, 2:]), 4)
+        goal_dist, goal_theta = self._get_relative_goal_loc(goal_loc, loc, theta)
 
         n_ori = 4
         map_crop_sizes = [16 for __ in range(3)]
-        map_scales = [np.power(2., i - 5) for i in range(3)]
+        map_scales = [np.power(2.0, i - 5) for i in range(3)]
 
-        goals = generate_goal_images(map_scales, map_crop_sizes, n_ori, goal_dist,
-                                     goal_theta, rel_goal_orientation)
+        goals = generate_goal_images(
+            map_scales,
+            map_crop_sizes,
+            n_ori,
+            goal_dist,
+            goal_theta,
+            rel_goal_orientation,
+        )
         outs = {}
         for i in range(len(map_scales)):
-            outs['ego_goal_imgs_{:d}'.format(
-                i)] = np.expand_dims(goals[i], axis=1)
+            outs["ego_goal_imgs_{:d}".format(i)] = np.expand_dims(goals[i], axis=1)
         return outs
 
     def _get_incremental_pose(self):
         loc, _, _, theta = self._get_loc_axis(self.state)
-        previous_loc, _, _, previous_theta = self._get_loc_axis(
-            self.previous_state)
+        previous_loc, _, _, previous_theta = self._get_loc_axis(self.previous_state)
         incremental_locs_ = np.reshape(loc - previous_loc, [1, 1, -1])
         t = -np.pi / 2 + np.reshape(theta * 1, [1, 1, -1])
         incremental_locs = incremental_locs_ * 1
         cossin = np.concatenate((np.cos(t), np.sin(t)), axis=-1)
         incremental_locs[:, :, 0] = np.sum(incremental_locs_ * cossin, axis=-1)
-        cossin = np.concatenate(
-            [np.cos(t + np.pi / 2), np.sin(t + np.pi / 2)], axis=-1)
+        cossin = np.concatenate([np.cos(t + np.pi / 2), np.sin(t + np.pi / 2)], axis=-1)
         incremental_locs[:, :, 1] = np.sum(incremental_locs_ * cossin, axis=-1)
         incremental_thetas = np.reshape(theta - previous_theta, [1, 1, -1])
         outs = {}
-        outs['incremental_locs'] = incremental_locs
-        outs['incremental_thetas'] = incremental_thetas
+        outs["incremental_locs"] = incremental_locs
+        outs["incremental_thetas"] = incremental_thetas
         return outs

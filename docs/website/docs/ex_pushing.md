@@ -11,6 +11,8 @@ Here is a demo video showing what one can accomplish through this tutorial.
 
 ## Get Started
 
+**Note** This tutorial is tested to work only with Python2.7 version on PyRobot
+
 * Make sure robot is turned ON
 
 * Launch the robot driver

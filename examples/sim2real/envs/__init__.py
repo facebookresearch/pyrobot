@@ -6,6 +6,5 @@
 from gym.envs.registration import register
 
 register(
-    id='LocoBotEnv-v0',
-    entry_point='envs.locobotEnv:LocobotGymEnv',
+    id="LocoBotEnv-v0", entry_point="envs.locobotEnv:LocobotGymEnv",
 )

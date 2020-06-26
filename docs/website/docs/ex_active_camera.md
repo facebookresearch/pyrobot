@@ -14,21 +14,21 @@ Here is a demo video showing what one can accomplish through this tutorial.
 
 * Make sure robot is turned ON
 
-* Start the python virtual environment
-
-<!--DOCUSAURUS_CODE_TABS-->
-<!--Source virtual env-->
-```bash
-source ~/pyenv_pyrobot/bin/activate
-```
-<!--END_DOCUSAURUS_CODE_TABS--> 
-
 * Launch the robot driver
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--Launch driver-->
 ```bash
 roslaunch locobot_control main.launch use_camera:=true
+```
+<!--END_DOCUSAURUS_CODE_TABS--> 
+
+* Start the python virtual environment
+
+<!--DOCUSAURUS_CODE_TABS-->
+<!--Source virtual env-->
+```bash
+load_pyrobot_env
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
@@ -69,14 +69,18 @@ bot.camera.set_pan_tilt(camera_pose[0], camera_pose[1], wait=True)
 <!--DOCUSAURUS_CODE_TABS-->
 <!--RGB-->
 ```py
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 rgb = bot.camera.get_rgb()
 cv2.imshow('Color', rgb[:, :, ::-1])
 cv2.waitKey(3000)
 ```
 <!--Depth-->
 ```py
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 import numpy as np
 depth = bot.camera.get_depth()
 actual_depth_values = depth.astype(np.float64) / 1000.0
@@ -85,7 +89,9 @@ cv2.waitKey(3000)
 ``` 
 <!--RGB and Depth-->
 ```py
-import cv2
+from pyrobot.utils.util import try_cv2_import
+cv2 = try_cv2_import()
+
 rgb, depth = bot.camera.get_rgb_depth()
 cv2.imshow('Color', rgb[:, :, ::-1])
 cv2.imshow('Depth', depth)

@@ -11,8 +11,8 @@ from torchvision.models.resnet import ResNet, BasicBlock, model_urls
 
 
 class CrashDetectorNet(ResNet):
-    '''
-    '''
+    """
+    """
 
     def __init__(self, pretrained_resnet18=True, H=32, **kwargs):
         super(CrashDetectorNet, self).__init__(BasicBlock, [2, 2, 2, 2])
@@ -47,5 +47,5 @@ class CrashDetectorNet(ResNet):
         return x
 
     def load_from_pretrained_resnet18(self):
-        print('Loading pretrained resnet18')
-        self.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+        print("Loading pretrained resnet18")
+        self.load_state_dict(model_zoo.load_url(model_urls["resnet18"]))

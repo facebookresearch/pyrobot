@@ -25,31 +25,38 @@ from tf import TransformListener
 
 from grasp_samplers.grasp_model import GraspModel
 
-MODEL_URL = 'https://www.dropbox.com/s/fta8zebyzfrt3fw/checkpoint.pth.20?dl=0'
+MODEL_URL = "https://www.dropbox.com/s/fta8zebyzfrt3fw/checkpoint.pth.20?dl=0"
 BB_SIZE = 5
 MAX_DEPTH = 3.0
-BASE_FRAME = 'base_link'
-KINECT_FRAME = 'camera_color_optical_frame'
+BASE_FRAME = "base_link"
+KINECT_FRAME = "camera_color_optical_frame"
 DEFAULT_PITCH = 1.57
 MIN_DEPTH = 0.1
 N_SAMPLES = 100
 PATCH_SIZE = 100
 
 from IPython import embed
-import cv2
+from pyrobot.utils.util import try_cv2_import
+
+cv2 = try_cv2_import()
+
 # DEFAULT_PITCH_EPSILON = 0.02
+
 
 class Grasper(object):
     """
     This class contains functionality to make the LoCoBot grasp objects placed in front of it.
     """
 
-    def __init__(self,
-                 url=MODEL_URL,
-                 model_name='model.pth',
-                 n_samples=N_SAMPLES,
-                 patch_size=PATCH_SIZE,
-                 *kargs, **kwargs):
+    def __init__(
+        self,
+        url=MODEL_URL,
+        model_name="model.pth",
+        n_samples=N_SAMPLES,
+        patch_size=PATCH_SIZE,
+        *kargs,
+        **kwargs
+    ):
         """ 
         The constructor for :class:`Grasper` class. 
 
@@ -64,18 +71,18 @@ class Grasper(object):
         """
 
         # TODO - use planning_mode=no_plan, its better
-        self.robot = Robot('locobot_kobuki', arm_config={
-            'use_moveit': True,
-            'moveit_planner': 'ESTkConfigDefault'})
-        self.grasp_model = GraspModel(model_name=model_name,
-                                      url=url,
-                                      nsamples=n_samples,
-                                      patchsize=patch_size)
+        self.robot = Robot(
+            "locobot_kobuki",
+            arm_config={"use_moveit": True, "moveit_planner": "ESTkConfigDefault"},
+        )
+        self.grasp_model = GraspModel(
+            model_name=model_name, url=url, nsamples=n_samples, patchsize=patch_size
+        )
         self.pregrasp_height = 0.2
         self.grasp_height = 0.13
-        self.default_Q = Quaternion(0.0, 0., 0., 1.0)
-        self.grasp_Q = Quaternion(0.0, 0.707, 0., 0.707)
-        self.retract_position = list([-1.5, 0.5, 0.3, -0.7, 0.])
+        self.default_Q = Quaternion(0.0, 0.0, 0.0, 1.0)
+        self.grasp_Q = Quaternion(0.0, 0.707, 0.0, 0.707)
+        self.retract_position = list([-1.5, 0.5, 0.3, -0.7, 0.0])
         self.reset_pan = 0.0
         self.reset_tilt = 0.8
         self.n_tries = 5
@@ -102,12 +109,12 @@ class Grasper(object):
     def _process_depth(self, cur_depth=None):
         if cur_depth is None:
             cur_depth = self.robot.camera.get_depth()
-        cur_depth = cur_depth / 1000.  # conversion from mm to m
-        cur_depth[cur_depth > MAX_DEPTH] = 0.
+        cur_depth = cur_depth / 1000.0  # conversion from mm to m
+        cur_depth[cur_depth > MAX_DEPTH] = 0.0
         return cur_depth
 
     def _get_z_mean(self, depth, pt, bb=BB_SIZE):
-        sum_z = 0.
+        sum_z = 0.0
         nps = 0
         for i in range(bb * 2):
             for j in range(bb * 2):
@@ -119,8 +126,8 @@ class Grasper(object):
                         nps += 1
                 except:
                     pass
-        if nps == 0.:
-            return 0.
+        if nps == 0.0:
+            return 0.0
         else:
             return sum_z / nps
 
@@ -128,15 +135,15 @@ class Grasper(object):
         assert len(pt) == 2
         cur_depth = self._process_depth()
         z = self._get_z_mean(cur_depth, [pt[0], pt[1]])
-        rospy.loginfo('depth of point is : {}'.format(z))
-        if z == 0.:
+        rospy.loginfo("depth of point is : {}".format(z))
+        if z == 0.0:
             raise RuntimeError
         if norm_z is not None:
             z = z / norm_z
         u = pt[1]
         v = pt[0]
         P = copy.deepcopy(self.robot.camera.camera_P)
-        rospy.loginfo('P is: {}'.format(P))
+        rospy.loginfo("P is: {}".format(P))
         P_n = np.zeros((3, 3))
         P_n[:, :2] = P[:, :2]
         P_n[:, 2] = P[:, 3] + P[:, 2] * z
@@ -148,20 +155,25 @@ class Grasper(object):
 
     def _convert_frames(self, pt):
         assert len(pt) == 3
-        rospy.loginfo('Point to convert: {}'.format(pt))
+        rospy.loginfo("Point to convert: {}".format(pt))
         ps = PointStamped()
         ps.header.frame_id = KINECT_FRAME
         ps.point.x, ps.point.y, ps.point.z = pt
         base_ps = self._transform_listener.transformPoint(BASE_FRAME, ps)
         rospy.loginfo(
-            'transform : {}'.format(self._transform_listener.lookupTransform(BASE_FRAME, KINECT_FRAME, rospy.Time(0))))
+            "transform : {}".format(
+                self._transform_listener.lookupTransform(
+                    BASE_FRAME, KINECT_FRAME, rospy.Time(0)
+                )
+            )
+        )
         base_pt = np.array([base_ps.point.x, base_ps.point.y, base_ps.point.z])
-        rospy.loginfo('Base point to convert: {}'.format(base_pt))
+        rospy.loginfo("Base point to convert: {}".format(base_pt))
         return base_pt
 
     def get_3D(self, pt, z_norm=None):
         temp_p = self._get_3D_camera(pt, z_norm)
-        rospy.loginfo('temp_p: {}'.format(temp_p))
+        rospy.loginfo("temp_p: {}".format(temp_p))
         base_pt = self._convert_frames(temp_p)
         return base_pt
 
@@ -179,10 +191,10 @@ class Grasper(object):
         """
 
         img = self.robot.camera.get_rgb()
-        img = img[dims[0][0]:dims[0][1], dims[1][0]:dims[1][1]]
+        img = img[dims[0][0] : dims[0][1], dims[1][0] : dims[1][1]]
         # selected_grasp = [183, 221, -1.5707963267948966, 1.0422693]
         selected_grasp = list(self.grasp_model.predict(img))
-        rospy.loginfo('Pixel grasp: {}'.format(selected_grasp))
+        rospy.loginfo("Pixel grasp: {}".format(selected_grasp))
         img_grasp = copy.deepcopy(selected_grasp)
         selected_grasp[0] += dims[0][0]
         selected_grasp[1] += dims[1][0]
@@ -205,37 +217,35 @@ class Grasper(object):
         :rtype: bool
         """
 
-        pregrasp_position = [grasp_pose[0],
-                             grasp_pose[1],
-                             self.pregrasp_height]
+        pregrasp_position = [grasp_pose[0], grasp_pose[1], self.pregrasp_height]
         # pregrasp_pose = Pose(Point(*pregrasp_position), self.default_Q)
         grasp_angle = self.get_grasp_angle(grasp_pose)
         grasp_position = [grasp_pose[0], grasp_pose[1], self.grasp_height]
         # grasp_pose = Pose(Point(*grasp_position), self.grasp_Q)
 
-        rospy.loginfo('Going to pre-grasp pose:\n\n {} \n'.format(pregrasp_position))
+        rospy.loginfo("Going to pre-grasp pose:\n\n {} \n".format(pregrasp_position))
         result = self.set_pose(pregrasp_position, roll=grasp_angle)
         if not result:
             return False
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Going to grasp pose:\n\n {} \n'.format(grasp_position))
+        rospy.loginfo("Going to grasp pose:\n\n {} \n".format(grasp_position))
         result = self.set_pose(grasp_position, roll=grasp_angle)
         if not result:
             return False
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Closing gripper')
+        rospy.loginfo("Closing gripper")
         self.robot.gripper.close()
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Going to pre-grasp pose')
+        rospy.loginfo("Going to pre-grasp pose")
         result = self.set_pose(pregrasp_position, roll=grasp_angle)
         if not result:
             return False
         time.sleep(self._sleep_time)
 
-        rospy.loginfo('Opening gripper')
+        rospy.loginfo("Opening gripper")
         self.robot.gripper.open()
         return True
         time.sleep(self._sleep_time)
@@ -259,11 +269,9 @@ class Grasper(object):
         success = 0
         for _ in range(self.n_tries):
             position = np.array(position)
-            success = self.robot.arm.set_ee_pose_pitch_roll(position=position,
-                                                            pitch=pitch,
-                                                            roll=roll,
-                                                            plan=False,
-                                                            numerical=False)
+            success = self.robot.arm.set_ee_pose_pitch_roll(
+                position=position, pitch=pitch, roll=roll, plan=False, numerical=False
+            )
             if success == 1:
                 break
         return success
@@ -294,7 +302,7 @@ class Grasper(object):
         Graceful exit.
         """
 
-        rospy.loginfo('Exiting...')
+        rospy.loginfo("Exiting...")
         self.reset()
         sys.exit(0)
 
@@ -313,23 +321,39 @@ def main(args):
     grasper = Grasper(n_samples=args.n_samples, patch_size=args.patch_size)
     signal.signal(signal.SIGINT, grasper.signal_handler)
     for i in range(args.n_grasps):
-        rospy.loginfo('Grasp attempt #{}'.format(i + 1))
+        rospy.loginfo("Grasp attempt #{}".format(i + 1))
         success = grasper.reset()
         if not success:
-            rospy.logerr('Arm reset failed')
+            rospy.logerr("Arm reset failed")
             continue
         grasp_pose = grasper.compute_grasp(display_grasp=args.no_visualize)
-        print('\n\n Grasp Pose: \n\n {} \n\n'.format(grasp_pose))
+        print("\n\n Grasp Pose: \n\n {} \n\n".format(grasp_pose))
         grasper.grasp(grasp_pose)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process args for grasper")
-    parser.add_argument('--n_grasps', help='Number of grasps for inference', type=int, default=5)
-    parser.add_argument('--n_samples', help='Number of samples for a single grasp inference', type=int, default=N_SAMPLES)
-    parser.add_argument('--patch_size', help='Size of a sampled grasp patch', type=int, default=PATCH_SIZE)
-    parser.add_argument('--no_visualize', help='False to visualize grasp at each iteration, True otherwise',
-                        dest='display_grasp', action='store_false')
+    parser.add_argument(
+        "--n_grasps", help="Number of grasps for inference", type=int, default=5
+    )
+    parser.add_argument(
+        "--n_samples",
+        help="Number of samples for a single grasp inference",
+        type=int,
+        default=N_SAMPLES,
+    )
+    parser.add_argument(
+        "--patch_size",
+        help="Size of a sampled grasp patch",
+        type=int,
+        default=PATCH_SIZE,
+    )
+    parser.add_argument(
+        "--no_visualize",
+        help="False to visualize grasp at each iteration, True otherwise",
+        dest="display_grasp",
+        action="store_false",
+    )
     parser.set_defaults(no_visualize=True)
 
     args = parser.parse_args()

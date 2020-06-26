@@ -16,10 +16,13 @@ from numpy import sign
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
 
-from base_control_utils import TrajectoryTracker, position_control_init_fn, \
-    _get_absolute_pose
-from base_control_utils import build_pose_msg
-from bicycle_model import BicycleSystem
+from pyrobot.locobot.base_control_utils import (
+    TrajectoryTracker,
+    position_control_init_fn,
+    _get_absolute_pose,
+)
+from pyrobot.locobot.base_control_utils import build_pose_msg
+from pyrobot.locobot.bicycle_model import BicycleSystem
 
 # if robot rotates by this much amount, then we considered that its moving
 # at that speed
@@ -101,7 +104,7 @@ class ProportionalControl:
         # convert angle to +pi to -pi
         return atan2(sin(data), cos(data))
 
-    def _step_angle(self, action=0.):
+    def _step_angle(self, action=0.0):
         # target is absolute orientation wrt to current orientation
         # target is in radian
         target = action
@@ -119,14 +122,13 @@ class ProportionalControl:
 
         while True:
             if time.time() - prev_time > (1.0 / self.hz):
-                cur_error = self._norm_pose(
-                    target_world - self.bot_base.state.theta)
+                cur_error = self._norm_pose(target_world - self.bot_base.state.theta)
 
                 if self.bot_base.should_stop:
                     if not self.ignore_collisions:
                         rospy.loginfo(
-                            "curr error = {} degrees".format(
-                                degrees(cur_error)))
+                            "curr error = {} degrees".format(degrees(cur_error))
+                        )
                         self.stop()
                         ret_val = False
                         break
@@ -134,15 +136,12 @@ class ProportionalControl:
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.rot_error_thr:
                     rospy.loginfo("Reached goal")
-                    rospy.loginfo(
-                        "curr_error = {} degrees".format(
-                            degrees(cur_error)))
+                    rospy.loginfo("curr_error = {} degrees".format(degrees(cur_error)))
                     self._cmd_vel(rot_vel=0.0)
                     break
 
                 # for getting the min velocity at wchich bot starts to move
-                if not (got_min_vel) and abs(
-                        cur_error - init_err) > self.rot_move_thr:
+                if not (got_min_vel) and abs(cur_error - init_err) > self.rot_move_thr:
                     got_min_vel = True
                     min_vel = abs(cmd_vel)
 
@@ -174,7 +173,7 @@ class ProportionalControl:
         self.bot_base.should_stop = False
         return ret_val
 
-    def _step_x(self, action=0.):
+    def _step_x(self, action=0.0):
         # target is the distance in x direction that robot has to move
         # target is in meter(only works for positive )
         target = action
@@ -190,16 +189,17 @@ class ProportionalControl:
         ret_val = True
         while True:
             if time.time() - prev_time > (1.0 / self.hz):
-                cur_error = abs(abs(target) -
-                                sqrt((self.bot_base.state.x -
-                                      init_x) ** 2 +
-                                     (self.bot_base.state.y -
-                                      init_y) ** 2))
+                cur_error = abs(
+                    abs(target)
+                    - sqrt(
+                        (self.bot_base.state.x - init_x) ** 2
+                        + (self.bot_base.state.y - init_y) ** 2
+                    )
+                )
 
                 if self.bot_base.should_stop:
                     if not self.ignore_collisions:
-                        rospy.loginfo(
-                            "curr error = {} meters".format(cur_error))
+                        rospy.loginfo("curr error = {} meters".format(cur_error))
                         self.stop()
                         ret_val = False
                         break
@@ -212,8 +212,7 @@ class ProportionalControl:
                     break
 
                 # for getting the min velocity at wchich bot starts to move
-                if not (got_min_vel) and abs(
-                        cur_error - init_err) > self.lin_move_thr:
+                if not (got_min_vel) and abs(cur_error - init_err) > self.lin_move_thr:
                     got_min_vel = True
                     min_vel = abs(cmd_vel)
                     # rospy.loginfo("min vel = ", min_vel)
@@ -256,13 +255,13 @@ class ProportionalControl:
         :type xyt_position: list
         """
         if xyt_position is None:
-            xyt_position = [0., 0., 0.]
-        rospy.loginfo('BASE goto, cmd: {}'.format(xyt_position))
+            xyt_position = [0.0, 0.0, 0.0]
+        rospy.loginfo("BASE goto, cmd: {}".format(xyt_position))
         x = xyt_position[0]
         y = xyt_position[1]
         rot = xyt_position[2]
 
-        if (sqrt(x*x + y*y) < self.translation_treshold):
+        if sqrt(x * x + y * y) < self.translation_treshold:
             self._step_angle(rot)
             return True
 
@@ -277,7 +276,7 @@ class ProportionalControl:
             theta_1 = theta_1 + pi
             dist = -dist
 
-        theta_2 = - theta_1 + rot
+        theta_2 = -theta_1 + rot
         # first rotate by theta1
         self._step_angle(theta_1)
         # move the distance
@@ -292,7 +291,8 @@ class ProportionalControl:
             pose.pose.orientation.x,
             pose.pose.orientation.y,
             pose.pose.orientation.z,
-            pose.pose.orientation.w]
+            pose.pose.orientation.w,
+        ]
         (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
         goal_position = [pose.pose.position.x, pose.pose.position.y, yaw]
         return goal_position
@@ -314,17 +314,20 @@ class ProportionalControl:
         :type close_loop: bool
         :type smooth: bool
         """
-        assert (not smooth), "Proportional controller \
+        assert (
+            not smooth
+        ), "Proportional controller \
                         cannot generate smooth motion"
-        assert (close_loop), "Proportional controller \
+        assert (
+            close_loop
+        ), "Proportional controller \
                         cannot work in open loop"
         pose_stamped = build_pose_msg(
-            xyt_position[0],
-            xyt_position[1],
-            xyt_position[2],
-            self.MAP_FRAME)
+            xyt_position[0], xyt_position[1], xyt_position[2], self.MAP_FRAME
+        )
         base_pose = self._transform_listener.transformPose(
-            self.BASE_FRAME, pose_stamped)
+            self.BASE_FRAME, pose_stamped
+        )
         return self.goto(self._get_xyt(base_pose))
 
 
@@ -353,13 +356,14 @@ class ILQRControl(TrajectoryTracker):
         self.max_w = self.configs.BASE.MAX_ABS_TURN_SPEED
         self.min_w = -self.configs.BASE.MAX_ABS_TURN_SPEED
         self.rate = rospy.Rate(self.configs.BASE.BASE_CONTROL_RATE)
-        self.dt = 1. / self.configs.BASE.BASE_CONTROL_RATE
+        self.dt = 1.0 / self.configs.BASE.BASE_CONTROL_RATE
 
         self.ctrl_pub = ctrl_pub
 
         self.bot_base = bot_base
-        self.system = BicycleSystem(self.dt, self.min_v, self.max_v,
-                                    self.min_w, self.max_w)
+        self.system = BicycleSystem(
+            self.dt, self.min_v, self.max_v, self.min_w, self.max_w
+        )
 
     @property
     def should_stop(self):
@@ -401,16 +405,15 @@ class ILQRControl(TrajectoryTracker):
         start_pos = self.state.state_f.copy()
         goal_pos = copy.deepcopy(xyt_position)
         reverse = self.min_v < 0
-        states = self._compute_trajectory_no_map(start_pos, goal_pos, smooth,
-                                                 reverse)
+        states = self._compute_trajectory_no_map(start_pos, goal_pos, smooth, reverse)
         # Compute and execute the plan.
         return self.track_trajectory(states, close_loop=close_loop)
 
     def _compute_trajectory_no_map(self, start_pos, goal_pos, smooth, reverse):
-        typ = 'smooth' if smooth else 'sharp'
-        init_states = position_control_init_fn(typ, start_pos, goal_pos,
-                                               self.dt, self.max_v, self.max_w,
-                                               reverse)
+        typ = "smooth" if smooth else "sharp"
+        init_states = position_control_init_fn(
+            typ, start_pos, goal_pos, self.dt, self.max_v, self.max_w, reverse
+        )
         return init_states
 
     def track_trajectory(self, states, controls=None, close_loop=True):
@@ -453,12 +456,17 @@ class MoveBaseControl(object):
         self.MAP_FRAME = self.configs.BASE.MAP_FRAME
         self.BASE_FRAME = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
         self.move_base_sac = actionlib.SimpleActionClient(
-            self.configs.BASE.ROSTOPIC_BASE_ACTION_COMMAND, MoveBaseAction)
+            self.configs.BASE.ROSTOPIC_BASE_ACTION_COMMAND, MoveBaseAction
+        )
 
-        rospy.Subscriber(self.configs.BASE.ROSTOPIC_MOVE_BASE_STATUS,
-                         GoalStatusArray, self._move_base_status_callback)
+        rospy.Subscriber(
+            self.configs.BASE.ROSTOPIC_MOVE_BASE_STATUS,
+            GoalStatusArray,
+            self._move_base_status_callback,
+        )
         self.move_base_cancel_goal_pub = rospy.Publisher(
-            self.configs.BASE.ROSTOPIC_GOAL_CANCEL, GoalID, queue_size=1)
+            self.configs.BASE.ROSTOPIC_GOAL_CANCEL, GoalID, queue_size=1
+        )
 
         self.execution_status = None
 
@@ -486,14 +494,13 @@ class MoveBaseControl(object):
         rospy.loginfo("Waiting for the Result")
         while True:
             assert (
-                    self.execution_status is not 4), \
-                "move_base failed to find a valid plan to goal"
+                self.execution_status is not 4
+            ), "move_base failed to find a valid plan to goal"
             if self.execution_status is 3:
                 rospy.loginfo("Base reached the goal state")
                 return
             if self.base_state.should_stop:
-                rospy.loginfo(
-                    "Base asked to stop. Cancelling goal sent to move_base.")
+                rospy.loginfo("Base asked to stop. Cancelling goal sent to move_base.")
                 self.cancel_goal()
                 return
 
@@ -516,7 +523,5 @@ class MoveBaseControl(object):
         assert not smooth, "movebase controller cannot generate smooth motion"
         assert close_loop, "movebase controller cannot work in open loop"
         self._send_action_goal(
-            xyt_position[0],
-            xyt_position[1],
-            xyt_position[2],
-            self.MAP_FRAME)
+            xyt_position[0], xyt_position[1], xyt_position[2], self.MAP_FRAME
+        )

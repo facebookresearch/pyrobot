@@ -19,9 +19,7 @@ class SawyerArm(Arm):
     This class has functionality to control a Sawyer manipulator.
     """
 
-    def __init__(self,
-                 configs,
-                 moveit_planner='ESTkConfigDefault'):
+    def __init__(self, configs, moveit_planner="ESTkConfigDefault"):
         """
         The constructor for LoCoBotArm class.
 
@@ -31,16 +29,15 @@ class SawyerArm(Arm):
         :type configs: YACS CfgNode
         :type moveit_planner: string
         """
-        super(SawyerArm, self).__init__(configs=configs,
-                                        moveit_planner=moveit_planner,
-                                        use_moveit=True)
+        super(SawyerArm, self).__init__(
+            configs=configs, moveit_planner=moveit_planner, use_moveit=True
+        )
         rs = intera_interface.RobotEnable(CHECK_VERSION)
         rs.enable()
         cos_state = self.configs.ARM.ROSTOPIC_COLLISION_STATE
-        self.collision_state_sub = rospy.Subscriber(cos_state,
-                                                    CollisionDetectionState,
-                                                    self._callback_collision,
-                                                    queue_size=1)
+        self.collision_state_sub = rospy.Subscriber(
+            cos_state, CollisionDetectionState, self._callback_collision, queue_size=1
+        )
 
     def go_home(self):
         """
@@ -67,7 +64,8 @@ class SawyerArm(Arm):
 
     def _setup_joint_pub(self):
         self.joint_pub = rospy.Publisher(
-            self.configs.ARM.ROSTOPIC_SET_JOINT, JointCommand, queue_size=1)
+            self.configs.ARM.ROSTOPIC_SET_JOINT, JointCommand, queue_size=1
+        )
 
     def _callback_collision(self, data):
         self._collision_state = data.collision_state

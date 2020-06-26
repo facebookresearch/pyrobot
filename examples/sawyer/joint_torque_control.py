@@ -16,7 +16,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    print("Exit")
     sys.exit(0)
 
 
@@ -30,11 +30,9 @@ def spring_damping(position_err, velocity_err, spring_coef, damping_coef):
 
 
 def main():
-    bot = Robot('sawyer',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=True)
+    bot = Robot(
+        "sawyer", use_arm=True, use_base=False, use_camera=False, use_gripper=True
+    )
     bot.arm.move_to_neutral()
     ini_joint_angles = np.array(bot.arm.get_joint_angles())
 
