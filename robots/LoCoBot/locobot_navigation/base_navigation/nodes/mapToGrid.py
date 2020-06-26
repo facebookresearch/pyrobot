@@ -22,9 +22,11 @@ MAP_TOPIC = "/occupancy_map"
 class PcdToOcGrid:
     def __init__(self, z_lower_treshold, z_upper_treshold, x_min, y_min, x_max, y_max):
 
+
         self.bot = Robot(
             "locobot", base_config={"build_map": True, "base_planner": "none"}
         )
+
 
         self.ocGrid = None  #
         self.points = None  # these are the points from orbslam
