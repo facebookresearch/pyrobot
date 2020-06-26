@@ -8,21 +8,30 @@ base_config_dict={'base_controller': 'ilqr'}
 
 # crate the Robot object with the specified base_config
 robot = Robot('locobot', base_config=base_config_dict)
-.
+
 print(robot.base)
 
+home = [0,0,0]
 
-# target position we want the base to go to
-pos1 = [.3,.3,0] # this is a 2D pose of the form [x, y, yaw]
+# linear_velocity in m/s
+linear_velocity = 5 
+
+# rotational_velocity in radian / s
+rotational_velocity = 0 
+
+#robot.base.set_vel(fwd_speed=linear_velocity, 
+#                   turn_speed=rotational_velocity,
+#		   exe_time=6)
+
 
 # Now command the robot to go to the target pose in the enviroment
 # 'go_to_absolute' assumes that the target is in world frame.
-robot.base.go_to_absolute(pos1) 
+robot.base.go_to_relative([1, 0, 0])
 
 
 time.sleep(2) 
 #robot.base.go_to_relative([0,0,1])
-robot.base.go_to_absolute([0,0,0])
+robot.base.go_to_absolute(home)
 
 
 # Targets can be specified in robot's coordinate frame.
