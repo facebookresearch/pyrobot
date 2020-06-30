@@ -11,14 +11,11 @@ from pyrobot import Robot
 
 
 def main():
-    target_joints = [
-        [0.408, 0.721, -0.471, -1.4, 0.920],
-        [-0.675, 0, 0.23, 1, -0.70]
-    ]
+    target_joints = [[0.408, 0.721, -0.471, -1.4, 0.920], [-0.675, 0, 0.23, 1, -0.70]]
 
-    config = dict(moveit_planner='ESTkConfigDefault')
+    config = dict(moveit_planner="ESTkConfigDefault")
 
-    bot = Robot('locobot', arm_config=config)
+    bot = Robot("locobot", arm_config=config)
     bot.arm.go_home()
 
     for joint in target_joints:

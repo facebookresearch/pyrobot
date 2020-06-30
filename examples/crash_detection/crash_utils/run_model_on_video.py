@@ -3,22 +3,27 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+
+cv2 = try_cv2_import()
+
 import torch
 
 from test import Tester
 
-model_path = 'models/1_2_CWneg_0_8_EPS_100/checkpoint.pth.bst'
-video_path = '/home/senthil/projects/caffe2pytorch/video_2.mp4'
-save_path = 'video_net_2_bst_epochs.avi'
+model_path = "models/1_2_CWneg_0_8_EPS_100/checkpoint.pth.bst"
+video_path = "/home/senthil/projects/caffe2pytorch/video_2.mp4"
+save_path = "video_net_2_bst_epochs.avi"
 frame_skip = 2
 
 M = torch.load(model_path)
 E = Tester(M)
 cap = cv2.VideoCapture(video_path)
-out = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (1280, 720))
+out = cv2.VideoWriter(
+    save_path, cv2.VideoWriter_fourcc("M", "J", "P", "G"), 10, (1280, 720)
+)
 
-while (cap.isOpened()):
+while cap.isOpened():
     for _ in range(frame_skip):
         ret, frame = cap.read()
     ret, frame = cap.read()

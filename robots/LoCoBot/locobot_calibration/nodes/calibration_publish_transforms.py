@@ -15,12 +15,12 @@ import json
 import rospy
 import tf
 
-DEFAULT_CONFIG_FNAME = 'default.json'
-CALIBRATED_CONFIG_FNAME = 'calibrated.json'
+DEFAULT_CONFIG_FNAME = "default.json"
+CALIBRATED_CONFIG_FNAME = "calibrated.json"
 
 
 def get_abs_path(file_name):
-    return os.path.join(os.environ['HOME'], '.robot', file_name)
+    return os.path.join(os.environ["HOME"], ".robot", file_name)
 
 
 class CalibrationTransformPublisher(object):
@@ -38,34 +38,34 @@ class CalibrationTransformPublisher(object):
             if os.path.exists(get_abs_path(CALIBRATED_CONFIG_FNAME)):
                 file_name = CALIBRATED_CONFIG_FNAME
             else:
-                rospy.logerr('Using default camera calibration')
-                rospy.logerr('For better performance, calibrate your system.')
+                rospy.logerr("Using default camera calibration")
+                rospy.logerr("For better performance, calibrate your system.")
                 file_name = DEFAULT_CONFIG_FNAME
         file_path = get_abs_path(file_name)
         if os.path.exists(file_path):
-            rospy.loginfo('Loading transforms from {:}'.format(file_path))
-            with open(file_path, 'r') as f:
+            rospy.loginfo("Loading transforms from {:}".format(file_path))
+            with open(file_path, "r") as f:
                 params = json.load(f)
             self.params = params
-            rospy.logwarn('Will publish: ')
+            rospy.logwarn("Will publish: ")
             for t in self.params.values():
-                rospy.logwarn('  {} to {}'.format(t['from'], t['to']))
+                rospy.logwarn("  {} to {}".format(t["from"], t["to"]))
             self.br = tf.TransformBroadcaster()
             self.publish_transforms()
         else:
-            rospy.logerr(
-                'Unable to find calibration config file {}'.format(file_path))
+            rospy.logerr("Unable to find calibration config file {}".format(file_path))
             sys.exit(0)
 
     def publish_transforms(self):
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
             for t in self.params.values():
-                self.br.sendTransform(t['trans'], t['quat'],
-                                      rospy.Time.now(), t['to'], t['from'])
+                self.br.sendTransform(
+                    t["trans"], t["quat"], rospy.Time.now(), t["to"], t["from"]
+                )
             rate.sleep()
 
 
 if __name__ == "__main__":
-    rospy.init_node('calibration_tf_broadcaster')
+    rospy.init_node("calibration_tf_broadcaster")
     ctp = CalibrationTransformPublisher()

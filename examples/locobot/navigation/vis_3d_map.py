@@ -14,7 +14,7 @@ from pyrobot import Robot
 
 
 def signal_handler(sig, frame):
-    print('Exit')
+    print("Exit")
     sys.exit(0)
 
 
@@ -22,7 +22,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 def main():
-    bot = Robot('locobot')
+    bot = Robot("locobot")
     vis = open3d.Visualizer()
     vis.create_window("3D Map")
     pcd = open3d.PointCloud()

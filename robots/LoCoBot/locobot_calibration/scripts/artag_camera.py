@@ -8,18 +8,14 @@ import rospy
 import copy
 from ar_track_alvar_msgs.msg import AlvarMarkers
 
-ROSTOPIC_AR_POSE_MARKER = '/ar_pose_marker'
+ROSTOPIC_AR_POSE_MARKER = "/ar_pose_marker"
 
 
 class ARTagCamera(object):
-
     def __init__(self, configs):
         self.ar_tag_pose = None
         self.ar_tag_lock = threading.RLock()
-        rospy.Subscriber(
-            ROSTOPIC_AR_POSE_MARKER,
-            AlvarMarkers,
-            self.alvar_callback)
+        rospy.Subscriber(ROSTOPIC_AR_POSE_MARKER, AlvarMarkers, self.alvar_callback)
 
     def alvar_callback(self, msg):
         self.ar_tag_lock.acquire()

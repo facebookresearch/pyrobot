@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 # Copyright (c) Facebook, Inc. and its affiliates.
 
 # This source code is licensed under the MIT license found in the
@@ -20,7 +21,7 @@ import TD3
 
 # Runs policy for X episodes and returns average reward
 def evaluate_policy(policy, eval_episodes=100):
-    avg_reward = 0.
+    avg_reward = 0.0
     for _ in xrange(eval_episodes):
         obs = env.reset()
         done = False
@@ -51,23 +52,32 @@ def evaluate_policy(policy, eval_episodes=100):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env_name", default="LocoBotEnv-v0")  # OpenAI gym environment name
-    parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds
-    parser.add_argument("--eval_episodes", default=1e2, type=float)  # How often (time steps) we evaluate
-    parser.add_argument("--valid_goals", action="store_true")  # Frequency of delayed policy updates
+    parser.add_argument(
+        "--env_name", default="LocoBotEnv-v0"
+    )  # OpenAI gym environment name
+    parser.add_argument(
+        "--seed", default=0, type=int
+    )  # Sets Gym, PyTorch and Numpy seeds
+    parser.add_argument(
+        "--eval_episodes", default=1e2, type=float
+    )  # How often (time steps) we evaluate
+    parser.add_argument(
+        "--valid_goals", action="store_true"
+    )  # Frequency of delayed policy updates
     parser.add_argument("--use_real_robot", action="store_true")
     parser.add_argument("--file_name", type=str)  # Frequency of delayed policy updates
     parser.add_argument("--directory", type=str)  # Frequency of delayed policy updates
 
     args = parser.parse_args()
 
-    root_path = '/'.join(i for i in os.path.abspath(__file__).split('/')[:-1])
+    root_path = "/".join(i for i in os.path.abspath(__file__).split("/")[:-1])
     sys.path.insert(0, root_path)
     import envs
 
     env = gym.make(args.env_name)
     env._renders = True
-    if args.valid_goals:    env._valid_goal = True
+    if args.valid_goals:
+        env._valid_goal = True
     if args.use_real_robot:
         env._use_real_robot = True
         env._max_episode_steps = 10
@@ -83,6 +93,6 @@ if __name__ == "__main__":
 
     # Initialize policy
     policy = TD3.TD3(state_dim, action_dim, max_action)
-    device = None if torch.cuda.is_available() else 'cpu'
+    device = None if torch.cuda.is_available() else "cpu"
     policy.load(args.file_name, args.directory, map_location=device)
     evaluate_policy(policy)

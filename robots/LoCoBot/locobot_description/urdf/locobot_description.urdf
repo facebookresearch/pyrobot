@@ -767,7 +767,8 @@
                 <depthImageCameraInfoTopicName>aligned_depth_to_color/camera_info</depthImageCameraInfoTopicName>
                 <pointCloudTopicName>depth_registered/points</pointCloudTopicName>
                 <frameName>camera_color_optical_frame</frameName>
-                <pointCloudCutoff>10</pointCloudCutoff>
+                <pointCloudCutoff>0</pointCloudCutoff>
+                <pointCloudCutoffMax>10.0</pointCloudCutoffMax>
                 <distortionK1>0.00000001</distortionK1>
                 <distortionK2>0.00000001</distortionK2>
                 <distortionK3>0.00000001</distortionK3>
@@ -804,6 +805,15 @@
         <maxVel>1.0</maxVel>
     </gazebo>
     <gazebo reference="caster_front_link">
+        <mu1>0.0</mu1>
+        <mu2>0.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>1.0</maxVel>
+    </gazebo>
+	
+   <gazebo reference="caster_back_link">
         <mu1>0.0</mu1>
         <mu2>0.0</mu2>
         <kp>1000000.0</kp>

@@ -1,0 +1,9 @@
+# This message is used to send position command to dynamixel
+
+float64[] pose
+float64[] tolerance
+float64[] init_joint_positions
+
+---
+bool success # 1 if success
+float64[] joint_positions

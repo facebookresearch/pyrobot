@@ -14,21 +14,19 @@ from pyrobot import Robot
 
 def main():
     np.set_printoptions(precision=4, suppress=True)
-    bot = Robot('sawyer',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=True)
+    bot = Robot(
+        "sawyer", use_arm=True, use_base=False, use_camera=False, use_gripper=True
+    )
     plan = False
     bot.arm.move_to_neutral()
     time.sleep(1)
     displacement = np.array([0.15, 0, 0])
     bot.arm.move_ee_xyz(displacement, plan=plan)
     time.sleep(1)
-    displacement = np.array([0., 0.15, 0])
+    displacement = np.array([0.0, 0.15, 0])
     bot.arm.move_ee_xyz(displacement, plan=plan)
     time.sleep(1)
-    displacement = np.array([0., 0., 0.15])
+    displacement = np.array([0.0, 0.0, 0.15])
     bot.arm.move_ee_xyz(displacement, plan=plan)
     time.sleep(1)
     bot.arm.go_home()

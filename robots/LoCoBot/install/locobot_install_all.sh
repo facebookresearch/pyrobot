@@ -34,6 +34,20 @@ if [ $PYTHON_VERSION != "2" ] && [ $PYTHON_VERSION != "3" ]; then
    helpFunction
 fi
 
+ubuntu_version="$(lsb_release -r -s)"
+
+if [ $ubuntu_version == "16.04" ]; then
+	ROS_NAME="kinetic"
+elif [ $ubuntu_version == "18.04" ]; then
+	ROS_NAME="melodic"
+else
+	echo -e "Unsupported Ubuntu verison: $ubuntu_version"
+	echo -e "pyRobot only works with 16.04 or 18.04"
+	exit 1
+fi
+
+echo "Ubuntu $ubuntu_version detected. ROS-$ROS_NAME chosen for installation.";
+
 echo "$INSTALL_TYPE installation type is chosen for LoCoBot."
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
 
@@ -66,6 +80,8 @@ fi
 
 # STEP 1 - Install basic dependencies
 declare -a package_names=(
+	"python-tk"
+	"python-sip"
 	"vim" 
 	"git" 
 	"terminator"
@@ -86,42 +102,62 @@ sudo python -m easy_install --upgrade pyOpenSSL
 sudo pip install --upgrade pip
 
 
-# STEP 2 - Install ROS Kinetic
-if [ $(dpkg-query -W -f='${Status}' ros-kinetic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
-	echo "Installing ROS..."
-	sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-	sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
-	sudo apt-get update
-	sudo apt-get -y install ros-kinetic-desktop-full
-	if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
-	    sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
+# STEP 2 - Install ROS 
+
+if [ $ROS_NAME == "kinetic" ]; then
+
+	if [ $(dpkg-query -W -f='${Status}' ros-kinetic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
+		echo "Installing ROS..."
+		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+		sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+		sudo apt-get update
+		sudo apt-get -y install ros-kinetic-desktop-full
+		if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
+		    sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
+		fi
+		sudo rosdep init
+		rosdep update
+		echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+	else
+		echo "ros-kinetic-desktop-full is already installed";
 	fi
-	sudo rosdep init
-	rosdep update
-	echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
 else
-	echo "ros-kinetic-desktop-full is already installed";
+	if [ $(dpkg-query -W -f='${Status}' ros-melodic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
+		echo "Installing ROS..."
+		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+		sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+		sudo apt-get update
+		sudo apt-get -y install ros-melodic-desktop-full
+		if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
+			sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
+		fi
+		sudo rosdep init
+		rosdep update
+		echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
+	else
+		echo "ros-melodic-desktop-full is already installed";
+	fi
 fi
-source /opt/ros/kinetic/setup.bash
+
+source /opt/ros/$ROS_NAME/setup.bash
 
 
 # STEP 3 - Install ROS debian dependencies
 declare -a ros_package_names=(
-	"ros-kinetic-dynamixel-motor" 
-	"ros-kinetic-moveit" 
-	"ros-kinetic-trac-ik"
-	"ros-kinetic-ar-track-alvar"
-	"ros-kinetic-turtlebot-*"
-	"ros-kinetic-move-base"
-	"ros-kinetic-ros-control"
-	"ros-kinetic-gazebo-ros-control"
-	"ros-kinetic-ros-controllers"
-	"ros-kinetic-navigation"
-	"ros-kinetic-rgbd-launch"
-	"ros-kinetic-kdl-parser-py"
-	"ros-kinetic-orocos-kdl"
-	"ros-kinetic-python-orocos-kdl"
-	"ros-kinetic-turtlebot"
+	"ros-$ROS_NAME-dynamixel-motor" 
+	"ros-$ROS_NAME-moveit" 
+	"ros-$ROS_NAME-trac-ik"
+	"ros-$ROS_NAME-ar-track-alvar"
+	"ros-$ROS_NAME-move-base"
+	"ros-$ROS_NAME-ros-control"
+	"ros-$ROS_NAME-gazebo-ros-control"
+	"ros-$ROS_NAME-ros-controllers"
+	"ros-$ROS_NAME-navigation"
+	"ros-$ROS_NAME-rgbd-launch"
+	"ros-$ROS_NAME-kdl-parser-py"
+	"ros-$ROS_NAME-orocos-kdl"
+	"ros-$ROS_NAME-python-orocos-kdl"
+	#"ros-$ROS_NAME-libcreate"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -182,12 +218,44 @@ if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
 fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
-	git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
-	if [ $PYTHON_VERSION == "3" ]; then
-		cd pyrobot
-		git checkout python3
+	git clone https://github.com/facebookresearch/pyrobot.git
+	cd pyrobot
+	git checkout master
+	git submodule update --init --recursive
+fi
+
+if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
+
+  	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+  	mkdir thirdparty
+  	cd thirdparty
+		git clone https://github.com/AutonomyLab/create_autonomy
+		git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
+		git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+		git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
+		git clone https://github.com/ros-controls/ros_control.git
+		git clone https://github.com/kalyanvasudev/ORB_SLAM2.git
+		git clone https://github.com/s-gupta/ar_track_alvar.git
+
+	if [ $ROS_NAME == "kinetic" ]; then
+		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
+		cd dynamixel-workbench && git checkout bf60cf8f17e8385f623cbe72236938b5950d3b56 && cd ..
+		cd DynamixelSDK && git checkout 05dcc5c551598b4d323bf1fb4b9d1ee03ad1dfd9 && cd ..
+		cd dynamixel-workbench-msgs && git checkout 93856f5d3926e4d7a63055c04a3671872799cc86 && cd ..
+		cd ros_control && git checkout 44cf68aab6cb1293e91f69ef7efe30b80195356b && cd ..
+		cd ORB_SLAM2 && git checkout ec8d750d3fc813fe5cef82f16d5cc11ddfc7bb3d && cd ..
+		cd ar_track_alvar && git checkout 625a3cf928552ee5bf97453897af6790d523962f && cd ..
+	else
+		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
+		cd dynamixel-workbench && git checkout bf60cf8f17e8385f623cbe72236938b5950d3b56 && cd ..
+		cd DynamixelSDK && git checkout 05dcc5c551598b4d323bf1fb4b9d1ee03ad1dfd9 && cd ..
+		cd dynamixel-workbench-msgs && git checkout 93856f5d3926e4d7a63055c04a3671872799cc86 && cd ..
+		cd ros_control && git checkout cd39acfdb2d08dc218d04ff98856b0e6a525e702 && cd ..
+		cd ORB_SLAM2 && git checkout ec8d750d3fc813fe5cef82f16d5cc11ddfc7bb3d && cd ..
+		cd ar_track_alvar && git checkout a870d5f00a548acb346bfcc89d42b997771d71a3 && cd ..
 	fi
 fi
+
 cd $LOCOBOT_FOLDER
 rosdep update 
 rosdep install --from-paths src -i -y
@@ -201,13 +269,93 @@ fi
 if [ -d "$LOCOBOT_FOLDER/build" ]; then
 	rm -rf $LOCOBOT_FOLDER/build
 fi
-catkin_make
-echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
-source $LOCOBOT_FOLDER/devel/setup.bash
+
+if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
+	cd $LOCOBOT_FOLDER/src/
+	mkdir turtlebot
+	cd turtlebot
+
+	git clone https://github.com/turtlebot/turtlebot_simulator
+	git clone https://github.com/turtlebot/turtlebot.git
+	git clone https://github.com/turtlebot/turtlebot_apps.git
+	git clone https://github.com/turtlebot/turtlebot_msgs.git
+	git clone https://github.com/turtlebot/turtlebot_interactions.git
+
+	git clone https://github.com/toeklk/orocos-bayesian-filtering.git
+	cd orocos-bayesian-filtering/orocos_bfl/
+	./configure
+	make
+	sudo make install
+	cd ../
+	make
+	cd ../
+
+	git clone https://github.com/udacity/robot_pose_ekf
+	git clone https://github.com/ros-perception/depthimage_to_laserscan.git
+
+	git clone https://github.com/yujinrobot/kobuki_msgs.git
+	git clone https://github.com/yujinrobot/kobuki_desktop.git
+	cd kobuki_desktop/
+	rm -r kobuki_qtestsuite
+	cd -
+	git clone https://github.com/yujinrobot/kobuki.git
+	cd kobuki && git checkout $ROS_NAME && cd ..
+	mv kobuki/kobuki_description kobuki/kobuki_bumper2pc \
+	  kobuki/kobuki_node kobuki/kobuki_keyop \
+	  kobuki/kobuki_safety_controller ./
+	
+	#rm -r kobuki
+
+	git clone https://github.com/yujinrobot/yujin_ocs.git
+	mv yujin_ocs/yocs_cmd_vel_mux yujin_ocs/yocs_controllers .
+	mv yujin_ocs/yocs_safety_controller yujin_ocs/yocs_velocity_smoother .
+	rm -rf yujin_ocs
+
+	sudo apt-get install ros-$ROS_NAME-kobuki-* -y
+	sudo apt-get install ros-$ROS_NAME-ecl-streams -y
+fi
+
+# STEP 6 - Make a virtual env to install other dependencies (with pip)
+if [ $PYTHON_VERSION == "2" ]; then
+	cd $LOCOBOT_FOLDER/src/pyrobot
+	chmod +x install_pyrobot.sh
+	source install_pyrobot.sh  -p 2
+	
+	virtualenv_name="pyenv_pyrobot_python2"
+	source ~/${virtualenv_name}/bin/activate
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	pip install --ignore-installed -r requirements_python2.txt
+	
+	cd $LOCOBOT_FOLDER
+	source /opt/ros/$ROS_NAME/setup.bash
+	pip install catkin_pkg pyyaml empy rospkg
+	catkin_make
+	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
+	source $LOCOBOT_FOLDER/devel/setup.bash
+	deactivate
+fi
+if [ $PYTHON_VERSION == "3" ]; then
+	cd $LOCOBOT_FOLDER
+	source /opt/ros/$ROS_NAME/setup.bash
+	catkin_make
+	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
+	source $LOCOBOT_FOLDER/devel/setup.bash
+	
+	cd $LOCOBOT_FOLDER/src/pyrobot
+	chmod +x install_pyrobot.sh
+	source install_pyrobot.sh  -p 3
+
+	virtualenv_name="pyenv_pyrobot_python3"
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	source ~/${virtualenv_name}/bin/activate
+	pip3 install --ignore-installed -r requirements_python3.txt
+	deactivate
+fi
 
 
 if [ $INSTALL_TYPE == "full" ]; then
-	# STEP 6 - Dependencies and config for calibration
+	# STEP 7 - Dependencies and config for calibration
+	cd $LOCOBOT_FOLDER
 	chmod +x src/pyrobot/robots/LoCoBot/locobot_navigation/orb_slam2_ros/scripts/gen_cfg.py
 	rosrun orb_slam2_ros gen_cfg.py
 	HIDDEN_FOLDER=~/.robot
@@ -215,38 +363,17 @@ if [ $INSTALL_TYPE == "full" ]; then
 		mkdir ~/.robot
 		cp $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_calibration/config/default.json ~/.robot/
 	fi
+	
+	# STEP 8 - Setup udev rules
+	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+	sudo cp udev_rules/*.rules /etc/udev/rules.d
+	sudo service udev reload
+	sudo service udev restart
+	sudo udevadm trigger
+	sudo usermod -a -G dialout $USER
 fi
-
-# STEP 7 - Make a virtual env to install other dependencies (with pip)
-if [ $PYTHON_VERSION == "2" ]; then
-	virtualenv_name="pyenv_pyrobot"
-	VIRTUALENV_FOLDER=~/${virtualenv_name}
-	if [ ! -d "$VIRTUALENV_FOLDER" ]; then
-		virtualenv --system-site-packages -p python2.7 $VIRTUALENV_FOLDER
-		source ~/${virtualenv_name}/bin/activate
-		cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-		pip install --ignore-installed -r requirements.txt
-		cd $LOCOBOT_FOLDER/src/pyrobot/
-		pip install .
-		deactivate
-	fi
-fi
-if [ $PYTHON_VERSION == "3" ]; then
-	cd $LOCOBOT_FOLDER/src/pyrobot
-	chmod +x install_pyrobot.sh
-	source install_pyrobot.sh
-fi
-
-# STEP 8 - Setup udev rules
-cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
-sudo cp thirdparty/udev_rules/*.rules /etc/udev/rules.d
-sudo service udev reload
-sudo service udev restart
-sudo udevadm trigger
-sudo usermod -a -G dialout $USER
 
 end_time="$(date -u +%s)"
-
 elapsed="$(($end_time-$start_time))"
 
 echo "Installation complete, took $elapsed seconds in total"

@@ -9,7 +9,10 @@ Class definition for Predictors
 """
 import copy
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+
+cv2 = try_cv2_import()
+
 import numpy as np
 
 n_class = 18
@@ -80,17 +83,18 @@ class Predictors:
         w_range = self.img_w - patch_size - 2
 
         # Initialize random patch points
-        patch_hs = np.random.randint(h_range,
-                                     size=num_samples) + half_patch_size
-        patch_ws = np.random.randint(w_range,
-                                     size=num_samples) + half_patch_size
+        patch_hs = np.random.randint(h_range, size=num_samples) + half_patch_size
+        patch_ws = np.random.randint(w_range, size=num_samples) + half_patch_size
 
-        patch_Is = np.zeros((num_samples, patch_size,
-                             patch_size, self.img_c))
-        patch_Is_resized = np.zeros((num_samples,
-                                     self.grasp_obj.image_size,
-                                     self.grasp_obj.image_size,
-                                     self.img_c))
+        patch_Is = np.zeros((num_samples, patch_size, patch_size, self.img_c))
+        patch_Is_resized = np.zeros(
+            (
+                num_samples,
+                self.grasp_obj.image_size,
+                self.grasp_obj.image_size,
+                self.img_c,
+            )
+        )
         for looper in xrange(num_samples):
             isWhiteFlag = 1
             while isWhiteFlag == 1:
@@ -98,8 +102,9 @@ class Predictors:
                 patch_ws[looper] = np.random.randint(w_range) + half_patch_size
                 h_b = patch_hs[looper] - half_patch_size
                 w_b = patch_ws[looper] - half_patch_size
-                patch_Is[looper] = self.img[h_b: h_b + patch_size,
-                                   w_b: w_b + patch_size]
+                patch_Is[looper] = self.img[
+                    h_b : h_b + patch_size, w_b : w_b + patch_size
+                ]
                 # Make sure that the input has a minimal
                 # amount of standard deviation from mean. If
                 # not resample
@@ -107,19 +112,22 @@ class Predictors:
                     isWhiteFlag = 0
                 else:
                     isWhiteFlag = 1
-            patch_Is_resized[looper] = cv2.resize(patch_Is[looper],
-                                                  (self.grasp_obj.image_size,
-                                                   self.grasp_obj.image_size),
-                                                  interpolation=cv2.INTER_CUBIC)
+            patch_Is_resized[looper] = cv2.resize(
+                patch_Is[looper],
+                (self.grasp_obj.image_size, self.grasp_obj.image_size),
+                interpolation=cv2.INTER_CUBIC,
+            )
         angle_labels = [0 for _ in patch_Is_resized]
         robot_labels = [0 for _ in patch_Is_resized]
         full_x = np.array([self.img for _ in patch_Is_resized])
-        param_dict = {'x': patch_Is_resized,
-                      'h': patch_hs,
-                      'w': patch_ws,
-                      'angle_labels': angle_labels,
-                      'robot_labels': robot_labels,
-                      'full_x': full_x}
+        param_dict = {
+            "x": patch_Is_resized,
+            "h": patch_hs,
+            "w": patch_ws,
+            "angle_labels": angle_labels,
+            "robot_labels": robot_labels,
+            "full_x": full_x,
+        }
         self.vals = self.grasp_obj.test_one_batch(**param_dict)
 
         # Normalizing angle uncertainity
@@ -127,11 +135,11 @@ class Predictors:
         self.norm_vals = copy.deepcopy(self.vals)
         for looper in xrange(num_samples):
             for norm_looper in xrange(n_class):
-                n_val = (wf[1] * self.norm_vals[looper, norm_looper] +
-                         wf[0] * self.norm_vals[looper, (norm_looper -
-                                                         1) % n_class] +
-                         wf[2] * self.norm_vals[looper, (norm_looper + 1) %
-                                                n_class])
+                n_val = (
+                    wf[1] * self.norm_vals[looper, norm_looper]
+                    + wf[0] * self.norm_vals[looper, (norm_looper - 1) % n_class]
+                    + wf[2] * self.norm_vals[looper, (norm_looper + 1) % n_class]
+                )
                 self.norm_vals[looper, norm_looper] = n_val
         self.patch_hs = patch_hs
         self.patch_ws = patch_ws
