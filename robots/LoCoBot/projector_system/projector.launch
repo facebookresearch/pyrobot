@@ -1,0 +1,16 @@
+<launch>
+	<!-- Different animations --> 
+
+	<arg name="countdown_anim" default="false"/>
+	<arg name="arrow_anim" default="false"/>
+
+	<param name="countdown_anim" value="$(arg countdown_anim)"/>
+	<param name="arrow_anim" value="$(arg arrow_anim)"/>
+
+
+	<group if="$(countdown_anim == 'true')">
+		<node name="countdown_node" pkg="projector_system" type="circle_anim.py"/>
+	</group>	
+
+
+</launch>	
