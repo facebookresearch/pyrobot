@@ -7,7 +7,12 @@ project(projector_system)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED 
+message_generation
+rospy
+std_msgs
+)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -50,11 +55,10 @@ find_package(catkin REQUIRED)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   Service1.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -101,7 +105,7 @@ find_package(catkin REQUIRED)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES projector_system
-#  CATKIN_DEPENDS other_catkin_pkg
+    CATKIN_DEPENDS message_runtime
 #  DEPENDS system_lib
 )
 
