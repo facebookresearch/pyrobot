@@ -57,7 +57,7 @@ roscpp
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-  Countdown.srv
+  RobotMoving.srv
   AddTwoInts.srv
  )
 

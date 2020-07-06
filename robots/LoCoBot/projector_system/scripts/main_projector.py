@@ -3,7 +3,7 @@ import rospy
 from std_msgs.msg import String
 from nav_msgs.msg import Odometry
 from pyrobot import Robot
-from projector_system.srv import countdown, countdownResponse
+from projector_system.srv import RobotMoving, RobotMovingResponse
 
 import time
 import sys
@@ -31,8 +31,8 @@ import sys
 
 
 def countdown_server():
-    rospy.init_node('countdown_server')
-    s = rospy.Service('countdown', countdown, motion_check)
+    rospy.init_node('robot_moving_server')
+    s = rospy.Service('robot_moving', RobotMoving, motion_check)
     print("Ready to check for robot motion.")
     rospy.spin()
 
@@ -50,6 +50,6 @@ def motion_check(req):
 
 if __name__ == '__main__':
     if sys.argv[0] == "countdown":
-        motion_check()
+        countdown_server()
 
     #elif sys.argv[0] == "arrow":

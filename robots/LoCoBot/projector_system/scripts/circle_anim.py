@@ -10,18 +10,18 @@ from matplotlib import pyplot as plt
 
 
 # Client side for countdown service:
-check_robot(bool_req):
-    rospy.wait_for_service('countdown')
+def check_robot(bool_req):
+    rospy.wait_for_service('robot_moving')
     try:
-        countdown = rospy.ServiceProxy('countdown', countdown)
-        response = countdown(bool_req)
+        robot_moving = rospy.ServiceProxy('robot_moving', RobotMoving)
+        response = robot_moving(bool_req)
         return response.robot_moving
     except rospy.ServiceException as e:
         print("Service call failed: %s"%e)
 
 
 # Function for animation
-countdown_animation():
+def countdown_animation():
     # Need to find a way to get these values - currently hard-coded
     velocity = 0.2
     distance = 1.8
