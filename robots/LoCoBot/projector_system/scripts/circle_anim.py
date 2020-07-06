@@ -1,19 +1,36 @@
-import numpy as np
-from matplotlib import pyplot as plt
+#!/usr/bin/env python
+
+import sys
+import rospy
 import time
+import numpy as np
+
+from projector_system.srv import *
+from matplotlib import pyplot as plt
 
 
-# Running script in conjuction with command to move robot
-# Will have to subscribe to something that tells me when the robot *actually* starts to move
+# Client side for countdown service:
+check_robot(bool_req):
+    rospy.wait_for_service('countdown')
+    try:
+        countdown = rospy.ServiceProxy('countdown', countdown)
+        response = countdown(bool_req)
+        return response.robot_moving
+    except rospy.ServiceException as e:
+        print("Service call failed: %s"%e)
 
-robot_started = True
-velocity = 0.2
-distance = 1.8
-time_to_goal = distance/velocity
-init_time = int(time_to_goal)
-fig, ax = plt.subplots()
 
-if robot_started:
+# Function for animation
+countdown_animation():
+    # Need to find a way to get these values - currently hard-coded
+    velocity = 0.2
+    distance = 1.8
+
+
+    time_to_goal = distance/velocity
+    init_time = int(time_to_goal)
+    fig, ax = plt.subplots()
+
     start_time = time.time()
 
     # Initial plot
@@ -42,5 +59,20 @@ if robot_started:
     ax.plot(3 * np.cos(an), 3 * np.sin(an), linewidth=6, color='green')
     ann = plt.annotate(xy=[-0.9,0], s="Goal", size=25)
     plt.gcf().canvas.draw()
-    plt.pause(1)
+    plt.pause(2)
+
+
+
+
+
+if __name__ == "__main__":
+    robot_moving = check_robot(True)
+    
+    if robot_moving:
+        countdown_animation()
+
+
+
+
+
 

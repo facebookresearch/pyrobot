@@ -11,6 +11,7 @@ find_package(catkin REQUIRED
 message_generation
 rospy
 std_msgs
+roscpp
 )
 
 
@@ -48,16 +49,16 @@ std_msgs
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+ add_message_files(
+   FILES
+   Num.msg
+ )
 
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
-   AddTwoInts.srv
+  Countdown.srv
+  AddTwoInts.srv
  )
 
 ## Generate actions in the 'action' folder
@@ -68,10 +69,10 @@ std_msgs
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+ generate_messages(
+   DEPENDENCIES
+   std_msgs  # Or other packages containing msgs
+ )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
