@@ -11,24 +11,20 @@ import sys
 
 
 
-#def callback(data):
-#    linear = [data.twist.twist.linear.x, data.twist.twist.linear.y, data.twist.twist.linear.z]
-#    angular = [data.twist.twist.angular.x, data.twist.twist.angular.y, data.twist.twist.angular.z]
-#	
-#	# Countdown
-#	if sys.argv[0] == "countdown":
-#		if linear !=[0,0,0] or angular !=[0,0,0]:
-#        	# Call circle_anim - or possibly create a publisher that tells circle_anim to start, as we've already launched it in the launch file
-#			# but then circle_anim has a subscriber, which at that point why wouldn't we just subscribe to /odom? Runs into issues of the script constantly running like callback does here
-#			execfile('circle_anim.py')
+def odom_callback(data):
+    pub = rospy.Publisher('proj_odom', Odometry, queue_size=10)
+    rospy.init_node('odom_talker', anonymous=True)
+    rate = rospy.Rate(10) 
+    
+    while not rospy.is_shutdown():
+        rospy.loginfo(data)
+        pub.publish(data)
+        rate.sleep()
 
-#	elif sys.argv[0] == "arrow":
-#		# Create a publisher that publishes angular component of /odom and 
-
-#def listener():
-#	rospy.init_node('listener', anonymous=True)
-#    rospy.Subscriber("odom", Odometry, callback)
-#    rospy.spin()
+def odom_listener():
+    rospy.init_node('odom_listener', anonymous=True)
+    rospy.Subscriber("/odom", Odometry, odom_callback)
+    rospy.spin()
 
 
 def countdown_server():
@@ -53,6 +49,18 @@ def motion_check(req):
 
 
 if __name__ == '__main__':
-    countdown_server()
+    
+    print(sys.argv[0])
+    
+    if sys.argv[0] == "countdown":
+		countdown_server()
 
     #elif sys.argv[0] == "arrow":
+	#	try:
+    #    	talker()
+    # 	except rospy.ROSInterruptException:
+    #    	pass
+
+
+
+
