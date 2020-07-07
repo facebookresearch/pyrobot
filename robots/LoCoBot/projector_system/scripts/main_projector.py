@@ -5,6 +5,7 @@ from nav_msgs.msg import Odometry
 from pyrobot import Robot
 from projector_system.srv import RobotMoving, RobotMovingResponse
 
+
 import time
 import sys
 
@@ -42,14 +43,16 @@ def motion_check(req):
     angular = [0,0,0]
 
     while linear==[0,0,0] and angular==[0,0,0]:
-        message = rospy.wait
+        data = rospy.wait_for_message("/odom", Odometry)
+        linear = [data.twist.twist.linear.x, data.twist.twist.linear.y, data.twist.twist.linear.z]
+        angular = [data.twist.twist.angular.x, data.twist.twist.angular.y, data.twist.twist.angular.z]
+
 
     if linear !=[0,0,0] or angular !=[0,0,0]:
-		return countdownResponse(True)
+		return RobotMovingResponse(True)
 
 
 if __name__ == '__main__':
-    if sys.argv[0] == "countdown":
-        countdown_server()
+    countdown_server()
 
     #elif sys.argv[0] == "arrow":

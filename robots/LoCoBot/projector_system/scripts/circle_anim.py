@@ -8,7 +8,6 @@ import numpy as np
 from projector_system.srv import *
 from matplotlib import pyplot as plt
 
-
 # Client side for countdown service:
 def check_robot(bool_req):
     rospy.wait_for_service('robot_moving')
