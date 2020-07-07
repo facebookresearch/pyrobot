@@ -50,10 +50,10 @@ def motion_check(req):
 
 if __name__ == '__main__':
     
-    print(sys.argv[0])
-    
-    if sys.argv[0] == "countdown":
-		countdown_server()
+    odom_listener()
+
+    #if sys.argv[0] == "countdown":
+		#countdown_server()
 
     #elif sys.argv[0] == "arrow":
 	#	try:
