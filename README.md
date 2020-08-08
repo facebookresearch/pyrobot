@@ -1,6 +1,6 @@
 <a href="https://www.pyrobot.org/"><img class="doc_vid" src="docs/website/website/static/img/pyrobot.svg"></a>
 
-[PyRobot](https://www.pyrobot.org/) is a light weight, high-level interface which provides hardware independent APIs for robotic manipulation and navigation. This repository also contains the low-level stack for [LoCoBot](http://locobot.org), a low cost mobile manipulator hardware platform.
+[PyRobot](https://www.pyrobot.org/) is a light weight, high-level interface which provides hardware independent API's for robotic manipulation and navigation. This repository also contains the low-level stack for [LoCoBot](http://locobot.org)which is a low cost mobile manipulator hardware platform.
 
 - [What can you do with PyRobot?](#what-can-you-do-with-pyrobot)
 - [Installation](#installation)
