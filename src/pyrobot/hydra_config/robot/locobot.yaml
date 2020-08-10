@@ -4,16 +4,33 @@
 ros_manager: null
 
 
-# # whether the robot has an arm or not
-# HAS_ARM : False
-# # whether the robot has a mobile base or not
-# HAS_BASE: True
-# # whether the robot has a camera or not
-# HAS_CAMERA : False
-# # whether the robot has a gripper or not
-# HAS_GRIPPER : False
-# # whether the robot has a common shared class among all components
-# HAS_COMMON : False
+# Common contains all the commonly shared objects
+common:
+  VSLAM:
+    # topic name of the camera pose
+    ROSTOPIC_CAMERA_POSE : "/orb_slam2_rgbd/slam/camera_pose"
+    # topic name of the camera trajectory
+    ROSTOPIC_CAMERA_TRAJ : "/orb_slam2_rgbd/slam/camera_traj"
+    # reference link name of the visual SLAM system, the pose of this frame
+    # in the first time step will be used to define
+    # the origin/orientation of the world frame
+    VSLAM_BASE_FRAME : "/base_link"
+    # RGB camera center frame name
+    RGB_CAMERA_CENTER_FRAME : "/camera_color_optical_frame"
+    # minimum depth values to be considered as valid
+    DEPTH_MIN : 0.2
+    # maximum depth values to be considered as valid
+    DEPTH_MAX : 1.5
+    # configuration file name for ORB-SLAM2
+    CFG_FILENAME : "realsense_d435.yaml"
+    # sample every n pixels in depth images during
+    # reconstruction (to save computation time)
+    SUBSAMPLE_PIXS : 1
+    # publishing frequence of the occupancy map
+    OCCUPANCY_MAP_RATE : 0.5
+
+
+
 ns: ''
 name: 'locobot'
 modules:
@@ -144,28 +161,7 @@ modules:
       TURTLEBOT_TRAJ_SERVER_NAME : "/turtle/base_controller/trajectory"
 
       # TODO: move vslam to algorithms!
-      VSLAM : 
-        # topic name of the camera pose
-        ROSTOPIC_CAMERA_POSE : "/orb_slam2_rgbd/slam/camera_pose"
-        # topic name of the camera trajectory
-        ROSTOPIC_CAMERA_TRAJ : "/orb_slam2_rgbd/slam/camera_traj"
-        # reference link name of the visual SLAM system, the pose of this frame
-        # in the first time step will be used to define
-        # the origin/orientation of the world frame
-        VSLAM_BASE_FRAME : "/base_link"
-        # RGB camera center frame name
-        RGB_CAMERA_CENTER_FRAME : "/camera_color_optical_frame"
-        # minimum depth values to be considered as valid
-        DEPTH_MIN : 0.2
-        # maximum depth values to be considered as valid
-        DEPTH_MAX : 1.5
-        # configuration file name for ORB-SLAM2
-        CFG_FILENAME : "realsense_d435.yaml"
-        # sample every n pixels in depth images during
-        # reconstruction (to save computation time)
-        SUBSAMPLE_PIXS : 1
-        # publishing frequence of the occupancy map
-        OCCUPANCY_MAP_RATE : 0.5
+      VSLAM : ${common.VSLAM}
 
 
   - object:
@@ -189,43 +185,46 @@ modules:
       ROSTOPIC_GRIPPER_STATE: "/gripper/state"
 
 
-  # - object:
-  #     target: pyrobot.robots.locobot.camera.LoCoBotCamera
-  #     params: 
-  #   ns: ''
-  #   transform:
-  #     use_udf: True 
-  #     position: null
-  #     rotation: null
-  #     frame: null
-  #   name : 'camera'
-  #   conf:
-  #     # CAMERA class name
-  #     CLASS : "LoCoBotCamera"
-  #     # minimum pan value allowed for the camera platform
-  #     MIN_PAN : -2.7
-  #     # maximum pan value allowed for the camera platform
-  #     MAX_PAN : 2.6
-  #     # minimum tilt value allowed for the camera platform
-  #     MIN_TILT : -1.4
-  #     # maximum tilt value allowed for the camera platform
-  #     MAX_TILT : 1.75
-  #     # reset value for the pan
-  #     RESET_PAN : 0.0
-  #     # reset value for the tilt
-  #     RESET_TILT : 0.0
-  #     # topic name of the camera info
-  #     ROSTOPIC_CAMERA_INFO_STREAM : "/camera/color/camera_info"
-  #     # topic name of the RGB images
-  #     ROSTOPIC_CAMERA_RGB_STREAM : "/camera/color/image_raw"
-  #     # topic name of the depth images
-  #     ROSTOPIC_CAMERA_DEPTH_STREAM : "/camera/aligned_depth_to_color/image_raw"
-  #     # topic name to set pan angle
-  #     ROSTOPIC_SET_PAN : "/pan/command"
-  #     # topic name to set tilt angle
-  #     ROSTOPIC_SET_TILT : "/tilt/command"
-  #     # Factor to scale depth image by to convert it into meters
-  #     DEPTH_MAP_FACTOR : 1000
+  - object:
+      target: pyrobot.robots.locobot.camera.LoCoBotCamera
+      params: 
+    ns: ''
+    transform:
+      use_udf: True 
+      position: null
+      rotation: null
+      frame: null
+    name : 'camera'
+    conf:
+      # CAMERA class name
+      CLASS : "LoCoBotCamera"
+      # minimum pan value allowed for the camera platform
+      MIN_PAN : -2.7
+      # maximum pan value allowed for the camera platform
+      MAX_PAN : 2.6
+      # minimum tilt value allowed for the camera platform
+      MIN_TILT : -1.4
+      # maximum tilt value allowed for the camera platform
+      MAX_TILT : 1.75
+      # reset value for the pan
+      RESET_PAN : 0.0
+      # reset value for the tilt
+      RESET_TILT : 0.0
+      # topic name of the camera info
+      ROSTOPIC_CAMERA_INFO_STREAM : "/camera/color/camera_info"
+      # topic name of the RGB images
+      ROSTOPIC_CAMERA_RGB_STREAM : "/camera/color/image_raw"
+      # topic name of the depth images
+      ROSTOPIC_CAMERA_DEPTH_STREAM : "/camera/aligned_depth_to_color/image_raw"
+      # topic name to set pan angle
+      ROSTOPIC_SET_PAN : "/pan/command"
+      # topic name to set tilt angle
+      ROSTOPIC_SET_TILT : "/tilt/command"
+      # Factor to scale depth image by to convert it into meters
+      DEPTH_MAP_FACTOR : 1000
+
+      ROSTOPIC_JOINT_STATES : "/joint_states"
+      VSLAM : ${common.VSLAM}
 
 
   # TODO: break the above camera class into arm and camera

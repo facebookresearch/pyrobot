@@ -14,7 +14,7 @@ import numpy as np
 import pyrobot.utils.util as prutil
 import rospy
 
-from pyrobot.core import Camera
+from pyrobot.sensors.camera import Camera
 from sensor_msgs.msg import CameraInfo
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import JointState
@@ -55,15 +55,15 @@ class SimpleCamera(Camera):
         super(SimpleCamera, self).__init__(configs=configs)
         self._tf_listener = TransformListener()
         depth_threshold = (
-            self.configs.BASE.VSLAM.DEPTH_MIN,
-            self.configs.BASE.VSLAM.DEPTH_MAX,
+            self.configs.VSLAM.DEPTH_MIN,
+            self.configs.VSLAM.DEPTH_MAX,
         )
-        cfg_filename = self.configs.BASE.VSLAM.CFG_FILENAME
+        cfg_filename = self.configs.VSLAM.CFG_FILENAME
         self.depth_cam = DepthImgProcessor(
             subsample_pixs=1, depth_threshold=depth_threshold, cfg_filename=cfg_filename
         )
-        self.cam_cf = self.configs.BASE.VSLAM.RGB_CAMERA_CENTER_FRAME
-        self.base_f = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
+        self.cam_cf = self.configs.VSLAM.RGB_CAMERA_CENTER_FRAME
+        self.base_f = self.configs.VSLAM.VSLAM_BASE_FRAME
 
     def get_current_pcd(self, in_cam=True):
         """
@@ -200,16 +200,16 @@ class LoCoBotCamera(SimpleCamera):
         super(LoCoBotCamera, self).__init__(configs=configs)
 
         rospy.Subscriber(
-            self.configs.ARM.ROSTOPIC_JOINT_STATES,
+            self.configs.ROSTOPIC_JOINT_STATES,
             JointState,
             self._camera_pose_callback,
         )
 
         self.set_pan_pub = rospy.Publisher(
-            self.configs.CAMERA.ROSTOPIC_SET_PAN, Float64, queue_size=1
+            self.configs.ROSTOPIC_SET_PAN, Float64, queue_size=1
         )
         self.set_tilt_pub = rospy.Publisher(
-            self.configs.CAMERA.ROSTOPIC_SET_TILT, Float64, queue_size=1
+            self.configs.ROSTOPIC_SET_TILT, Float64, queue_size=1
         )
         self.pan = None
         self.tilt = None
@@ -277,8 +277,8 @@ class LoCoBotCamera(SimpleCamera):
         """
         pan = constrain_within_range(
             np.mod(pan + np.pi, 2 * np.pi) - np.pi,
-            self.configs.CAMERA.MIN_PAN,
-            self.configs.CAMERA.MAX_PAN,
+            self.configs.MIN_PAN,
+            self.configs.MAX_PAN,
         )
         self.set_pan_pub.publish(pan)
         if wait:
@@ -300,8 +300,8 @@ class LoCoBotCamera(SimpleCamera):
         """
         tilt = constrain_within_range(
             np.mod(tilt + np.pi, 2 * np.pi) - np.pi,
-            self.configs.CAMERA.MIN_TILT,
-            self.configs.CAMERA.MAX_TILT,
+            self.configs.MIN_TILT,
+            self.configs.MAX_TILT,
         )
         self.set_tilt_pub.publish(tilt)
         if wait:
@@ -325,13 +325,13 @@ class LoCoBotCamera(SimpleCamera):
         """
         pan = constrain_within_range(
             np.mod(pan + np.pi, 2 * np.pi) - np.pi,
-            self.configs.CAMERA.MIN_PAN,
-            self.configs.CAMERA.MAX_PAN,
+            self.configs.MIN_PAN,
+            self.configs.MAX_PAN,
         )
         tilt = constrain_within_range(
             np.mod(tilt + np.pi, 2 * np.pi) - np.pi,
-            self.configs.CAMERA.MIN_TILT,
-            self.configs.CAMERA.MAX_TILT,
+            self.configs.MIN_TILT,
+            self.configs.MAX_TILT,
         )
         self.set_pan_pub.publish(pan)
         self.set_tilt_pub.publish(tilt)
@@ -349,7 +349,7 @@ class LoCoBotCamera(SimpleCamera):
         This function resets the pan and tilt joints by actuating
         them to their home configuration.
         """
-        self.set_pan_tilt(self.configs.CAMERA.RESET_PAN, self.configs.CAMERA.RESET_TILT)
+        self.set_pan_tilt(self.configs.RESET_PAN, self.configs.RESET_TILT)
 
 
 class DepthImgProcessor:
