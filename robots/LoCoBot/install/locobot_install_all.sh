@@ -170,7 +170,6 @@ declare -a ros_package_names=(
 	"ros-$ROS_NAME-orocos-kdl"
 	"ros-$ROS_NAME-python-orocos-kdl"
   	"ros-$ROS_NAME-ddynamic-reconfigure"
-	#"ros-$ROS_NAME-libcreate"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -263,7 +262,6 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
   	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
   	mkdir thirdparty
   	cd thirdparty
-		git clone https://github.com/AutonomyLab/create_autonomy
 		git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench.git
 		git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
 		git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
@@ -272,7 +270,6 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 		git clone https://github.com/s-gupta/ar_track_alvar.git
 
 	if [ $ROS_NAME == "kinetic" ]; then
-		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
 		cd dynamixel-workbench && git checkout bf60cf8f17e8385f623cbe72236938b5950d3b56 && cd ..
 		cd DynamixelSDK && git checkout 05dcc5c551598b4d323bf1fb4b9d1ee03ad1dfd9 && cd ..
 		cd dynamixel-workbench-msgs && git checkout 93856f5d3926e4d7a63055c04a3671872799cc86 && cd ..
@@ -280,7 +277,6 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
 		cd ORB_SLAM2 && git checkout ec8d750d3fc813fe5cef82f16d5cc11ddfc7bb3d && cd ..
 		cd ar_track_alvar && git checkout 625a3cf928552ee5bf97453897af6790d523962f && cd ..
 	else
-		cd create_autonomy && git checkout 90e597ea4d85cde1ec32a1d43ea2dd0b4cbf481c && cd ..
 		cd dynamixel-workbench && git checkout bf60cf8f17e8385f623cbe72236938b5950d3b56 && cd ..
 		cd DynamixelSDK && git checkout 05dcc5c551598b4d323bf1fb4b9d1ee03ad1dfd9 && cd ..
 		cd dynamixel-workbench-msgs && git checkout 93856f5d3926e4d7a63055c04a3671872799cc86 && cd ..
