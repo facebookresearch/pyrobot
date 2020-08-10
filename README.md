@@ -15,6 +15,11 @@ New fatures,
 
 
 TODO List:
+- Code:
+  - Google Python standards
+  - Heavy and very detailed documentation.
+  - all prints are move to logging (hydra plugins should be enabled for logging)
+
 - ROS-Launch Manager 
   - Takes care of sequence to launch.
   - All launches happen from single python process.
