@@ -1,3 +1,41 @@
+## API Re-Factoring
+
+This branch is for the new API re-factoring of PyRobot.
+
+Extra install instructions,
+- Install Hydra 1.0 version: pip install hydra-core --pre --upgrade
+
+
+New fatures,
+
+- Hydra Configs
+- More programatically composable environment and robot objects!!
+- Cleaner interface objects linking robots and algorithms.
+  - TODO: cleaner command interface to send commands
+
+
+TODO List:
+- ROS-Launch Manager 
+  - Takes care of sequence to launch.
+  - All launches happen from single python process.
+  - Accounts for name spaces and already running nodes, robots, sensors and algorithms.
+
+- Clean up installation
+  - Installation check through test catkin package.
+  - Modular Installation based on the Algorithm used.
+  - Conda environment instead of PIP ?
+
+- Testing
+  - Isolated tests 
+    - Use rosbags for real sensors and real robot modules!!
+  - Unit tests
+    - For non-ros modules
+  - End-to-End tests in Habitat.
+    - For active functions on the robot that interact with robot
+  - Habiat ROS node for Franka and LoCoBot
+
+- Robot web-visualizer!
+
 <a href="https://www.pyrobot.org/"><img class="doc_vid" src="docs/website/website/static/img/pyrobot.svg"></a>
 
 [PyRobot](https://www.pyrobot.org/) is a light weight, high-level interface which provides hardware independent APIs for robotic manipulation and navigation. This repository also contains the low-level stack for [LoCoBot](http://locobot.org), a low cost mobile manipulator hardware platform.

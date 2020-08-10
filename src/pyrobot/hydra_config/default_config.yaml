@@ -1,0 +1,6 @@
+defaults:
+  - env: simple_env
+
+
+  # Only for debugging now
+  # - env/robot: locobot

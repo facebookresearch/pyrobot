@@ -7,7 +7,7 @@ import threading
 
 import numpy as np
 import rospy
-from pyrobot.core import Gripper
+from pyrobot.robots.gripper import Gripper
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Empty
 from std_msgs.msg import Int8
@@ -33,13 +33,13 @@ class LoCoBotGripper(Gripper):
         # Publishers and subscribers
         self.wait_time = wait_time
         self.pub_gripper_close = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1
+            self.configs.ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1
         )
         self.pub_gripper_open = rospy.Publisher(
-            self.configs.GRIPPER.ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1
+            self.configs.ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1
         )
         rospy.Subscriber(
-            self.configs.GRIPPER.ROSTOPIC_GRIPPER_STATE,
+            self.configs.ROSTOPIC_GRIPPER_STATE,
             Int8,
             self._callback_gripper_state,
         )

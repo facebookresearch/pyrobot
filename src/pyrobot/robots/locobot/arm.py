@@ -7,7 +7,7 @@ import numpy as np
 import rospy
 from locobot_control.analytic_ik import AnalyticInverseKinematics as AIK
 from locobot_control.srv import JointCommand
-from pyrobot.core import Arm
+from pyrobot.robots.arm import Arm
 from std_msgs.msg import Empty
 
 
@@ -60,16 +60,16 @@ class LoCoBotArm(Arm):
         )
 
         self.joint_stop_pub = rospy.Publisher(
-            self.configs.ARM.ROSTOPIC_STOP_EXECUTION, Empty, queue_size=1
+            self.configs.ROSTOPIC_STOP_EXECUTION, Empty, queue_size=1
         )
         # Services
         if self.mode_control == self.CONTROL_MODES["position"]:
             self.joint_cmd_srv = rospy.ServiceProxy(
-                self.configs.ARM.ROSSERVICE_JOINT_COMMAND, JointCommand
+                self.configs.ROSSERVICE_JOINT_COMMAND, JointCommand
             )
         elif self.mode_control == self.CONTROL_MODES["torque"]:
             self.torque_cmd_srv = rospy.ServiceProxy(
-                self.configs.ARM.ROSTOPIC_TORQUE_COMMAND, JointCommand
+                self.configs.ROSTOPIC_TORQUE_COMMAND, JointCommand
             )
 
     def set_joint_velocities(self, velocities, **kwargs):
@@ -124,7 +124,7 @@ class LoCoBotArm(Arm):
         """
         position = np.array(position).flatten()
         base_offset, _, _ = self.get_transform(
-            self.configs.ARM.ARM_BASE_FRAME, "arm_base_link"
+            self.configs.ARM_BASE_FRAME, "arm_base_link"
         )
         yaw = np.arctan2(position[1] - base_offset[1], position[0] - base_offset[0])
         if roll is None:

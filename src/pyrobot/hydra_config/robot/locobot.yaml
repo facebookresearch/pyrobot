@@ -1,0 +1,241 @@
+
+
+# TODO: to be filled by ros-control manager
+ros_manager: null
+
+
+# # whether the robot has an arm or not
+# HAS_ARM : False
+# # whether the robot has a mobile base or not
+# HAS_BASE: True
+# # whether the robot has a camera or not
+# HAS_CAMERA : False
+# # whether the robot has a gripper or not
+# HAS_GRIPPER : False
+# # whether the robot has a common shared class among all components
+# HAS_COMMON : False
+ns: ''
+name: 'locobot'
+modules:
+
+  - object:
+      target: pyrobot.robots.locobot.arm.LoCoBotArm
+      params: 
+    ns: ''
+    transform:
+      use_udf: True 
+      position: null
+      rotation: null
+      frame: null
+    name : 'arm'
+    conf:
+      # ARM class name
+      CLASS : "LoCoBotArm"
+      # robot description parameter name for the arm
+      ARM_ROBOT_DSP_PARAM_NAME : "/robot_description"
+      # moveit group name for the arm
+      MOVEGROUP_NAME : "arm"
+      # base frame for the arm
+      ARM_BASE_FRAME : "base_link"
+      # end-effector frame of the arm
+      EE_FRAME : "gripper_link"
+      # inverse kinematics position tolerance (m)
+      IK_POSITION_TOLERANCE : 0.01
+      # inverse kinematics orientation toelrance (rad)
+      IK_ORIENTATION_TOLERANCE : 0.1
+      # maximum allowed joint error for checking if the target joint value is reached
+      MAX_JOINT_ERROR : 0.09
+      # maximum allowed end-effector position error in `move_ee_xyz`
+      MAX_EE_ERROR : 0.03
+      # minimum waiting time to check again if the set command is complete
+      WAIT_MIN_TIME : 0.05
+      # joint states topic name for the arm
+      ROSTOPIC_JOINT_STATES : "/joint_states"
+      # topic name to set joint position/velocity/torque
+      ROSTOPIC_SET_JOINT : "/goal_dynamixel_position"
+
+      ROSSRV_CART_PATH : "/compute_cartesian_path"
+
+      ROSSRV_MP_PATH : "/plan_kinematic_path"
+
+      # individual joint motor control command
+      ROSSERVICE_JOINT_COMMAND : "/joint_command"
+      # stop command for all motors
+      ROSTOPIC_STOP_EXECUTION : "/stop_execution"
+      # topic name to do torque control on LoCoBot
+      ROSTOPIC_TORQUE_COMMAND : "/torque_command"
+      # Arm Joint Names (Consistent with moveit group)
+      JOINT_NAMES : ["joint_1", "joint_2", "joint_3", "joint_4", "joint_5"]
+
+
+  - object:
+      target: pyrobot.robots.locobot.base.LoCoBotBase
+      params:
+    ns: ''
+    transform:
+      use_udf: True 
+      position: null
+      rotation: null
+      frame: null
+    name : 'base'
+    conf:
+      # BASE class name
+      CLASS : "LoCoBotBase"
+      # Type of base being used 'kobuki' or 'create'
+      BASE_TYPE : "kobuki"
+      # Type of contrller being used for postion control
+      # 'ilqr' or 'proportional' or 'movebase'
+      BASE_CONTROLLER : "ilqr"
+      # Type of planner being used for slam base path planning 'movebase'
+      BASE_PLANNER : "movebase"
+      # Rostopic on which the velocity commands to be published
+      ROSTOPIC_BASE_COMMAND : "/navigation_velocity_smoother/raw_cmd_vel"
+      # Rostopic on which the wheel-encoder-based odommetry is available
+      ROSTOPIC_ODOMETRY : "/odom"
+      # Rostopic on which base bumper sensor informations is available
+      ROSTOPIC_BUMPER : "/mobile_base/events/bumper"
+      # Rosotopic on which base cliff sensor information is available
+      ROSTOPIC_CLIFF : "/mobile_base/events/cliff"
+      # Rostopic on whihc the base wheeldrop sensor info is available
+      ROSTOPIC_WHEELDROP : "/mobile_base/events/wheel_drop"
+
+      # Rostopic on which movebase goal to be pusblished
+      ROSTOPIC_MOVE_BASE_GOAL : "/move_base_simple/goal"
+      # Rostopic on which the movebase execution status is available
+      ROSTOPIC_MOVE_BASE_STATUS : "/move_base/status"
+      # Rostopic on which the command to cancel the goal sent to movebase should be
+      ROSTOPIC_GOAL_CANCEL : "/move_base/cancel"
+      # world frame name
+      MAP_FRAME : "map"
+      # Rosaction topic for movebase
+      ROSTOPIC_BASE_ACTION_COMMAND : "move_base"
+      # Rate of control for ILQR
+      BASE_CONTROL_RATE : 10
+      # Maximum linear for velocity control and ILQR
+      MAX_ABS_FWD_SPEED : 0.2
+      # Maximum rotational velocity for velocity control and ILQR
+      MAX_ABS_TURN_SPEED : 0.5
+      # ROSTOPIC to send movebase (x,ym theta) planner request
+      PLAN_TOPIC : "/move_base/GlobalPlanner/make_plan"
+      # Index of the point to be tracked on the plan.
+      # (used by Proportional and ILQR trajectory tracking)
+      TRACKED_POINT : 8
+      # Linear treshold used by trajectory tracking with proportional and ILQR
+      TRESHOLD_LIN : 0.15
+      # Tolearance to be used by movebase planner while generating plans
+      PLAN_TOL : 0.1
+      # z minimum cut-off height for slam-based costmap computation
+      Z_MIN_TRESHOLD_OCC_MAP : 0.1
+      # z maximum cut-off height for slam-based costmap computation
+      Z_MAX_TRESHOLD_OCC_MAP : 0.8
+      # proportional control specific max linear velocity
+      MAX_ABS_FWD_SPEED_P_CONTROLLER : 0.5
+      # proportional control specific max angular velocity
+      MAX_ABS_TURN_SPEED_P_CONTROLLER : 1
+      # proportional control specific ignore translation treshold
+      TRANSLATION_TRESHOLD : 0.01
+      # GPMP control requires the goal acceptable error
+      GOAL_TOLERANCE : 0.1
+      # GPMP control requires the maximum allowable execution time in seconds
+      EXEC_TIME : 600
+      # GPMP control requires the GPMP action server name
+      GPMP_SERVER_NAME : "/gpmp_controller"
+      # GPMP control requires the turtlebot trajectory server name
+      TURTLEBOT_TRAJ_SERVER_NAME : "/turtle/base_controller/trajectory"
+
+      # TODO: move vslam to algorithms!
+      VSLAM : 
+        # topic name of the camera pose
+        ROSTOPIC_CAMERA_POSE : "/orb_slam2_rgbd/slam/camera_pose"
+        # topic name of the camera trajectory
+        ROSTOPIC_CAMERA_TRAJ : "/orb_slam2_rgbd/slam/camera_traj"
+        # reference link name of the visual SLAM system, the pose of this frame
+        # in the first time step will be used to define
+        # the origin/orientation of the world frame
+        VSLAM_BASE_FRAME : "/base_link"
+        # RGB camera center frame name
+        RGB_CAMERA_CENTER_FRAME : "/camera_color_optical_frame"
+        # minimum depth values to be considered as valid
+        DEPTH_MIN : 0.2
+        # maximum depth values to be considered as valid
+        DEPTH_MAX : 1.5
+        # configuration file name for ORB-SLAM2
+        CFG_FILENAME : "realsense_d435.yaml"
+        # sample every n pixels in depth images during
+        # reconstruction (to save computation time)
+        SUBSAMPLE_PIXS : 1
+        # publishing frequence of the occupancy map
+        OCCUPANCY_MAP_RATE : 0.5
+
+
+  - object:
+      target: pyrobot.robots.locobot.gripper.LoCoBotGripper
+      params: 
+    ns: ''
+    transform:
+      use_udf: True 
+      position: null
+      rotation: null
+      frame: null
+    name : 'gripper'
+    conf:
+      # GRIPPER class name
+      CLASS: "LoCoBotGripper"
+      # topic name to open gripper
+      ROSTOPIC_GRIPPER_OPEN : "/gripper/open"
+      # topic name to close gripper
+      ROSTOPIC_GRIPPER_CLOSE: "/gripper/close"
+      # joint names of the gripper joints
+      ROSTOPIC_GRIPPER_STATE: "/gripper/state"
+
+
+  # - object:
+  #     target: pyrobot.robots.locobot.camera.LoCoBotCamera
+  #     params: 
+  #   ns: ''
+  #   transform:
+  #     use_udf: True 
+  #     position: null
+  #     rotation: null
+  #     frame: null
+  #   name : 'camera'
+  #   conf:
+  #     # CAMERA class name
+  #     CLASS : "LoCoBotCamera"
+  #     # minimum pan value allowed for the camera platform
+  #     MIN_PAN : -2.7
+  #     # maximum pan value allowed for the camera platform
+  #     MAX_PAN : 2.6
+  #     # minimum tilt value allowed for the camera platform
+  #     MIN_TILT : -1.4
+  #     # maximum tilt value allowed for the camera platform
+  #     MAX_TILT : 1.75
+  #     # reset value for the pan
+  #     RESET_PAN : 0.0
+  #     # reset value for the tilt
+  #     RESET_TILT : 0.0
+  #     # topic name of the camera info
+  #     ROSTOPIC_CAMERA_INFO_STREAM : "/camera/color/camera_info"
+  #     # topic name of the RGB images
+  #     ROSTOPIC_CAMERA_RGB_STREAM : "/camera/color/image_raw"
+  #     # topic name of the depth images
+  #     ROSTOPIC_CAMERA_DEPTH_STREAM : "/camera/aligned_depth_to_color/image_raw"
+  #     # topic name to set pan angle
+  #     ROSTOPIC_SET_PAN : "/pan/command"
+  #     # topic name to set tilt angle
+  #     ROSTOPIC_SET_TILT : "/tilt/command"
+  #     # Factor to scale depth image by to convert it into meters
+  #     DEPTH_MAP_FACTOR : 1000
+
+
+  # TODO: break the above camera class into arm and camera
+  # - object: 
+  #     target: pyrobot.robots.locobot.camera.LoCoBotCameraArm
+  #     params: 
+  #   ns: ''
+  #   transform:
+  #     use_udf: True 
+  #     position: null
+  #     rotation: null
+  #     frame: null
+

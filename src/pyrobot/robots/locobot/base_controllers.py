@@ -16,15 +16,15 @@ from numpy import sign
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
 import tf
-from pyrobot.locobot.base_control_utils import (
+from pyrobot.robots.locobot.base_control_utils import (
     TrajectoryTracker,
     position_control_init_fn,
     _get_absolute_pose,
     SimpleGoalState,
     check_server_client_link,
 )
-from pyrobot.locobot.base_control_utils import build_pose_msg
-from pyrobot.locobot.bicycle_model import BicycleSystem
+from pyrobot.robots.locobot.base_control_utils import build_pose_msg
+from pyrobot.robots.locobot.bicycle_model import BicycleSystem
 
 # if robot rotates by this much amount, then we considered that its moving
 # at that speed
@@ -68,8 +68,8 @@ class ProportionalControl:
         self.configs = configs
         self.bot_base = bot_base
 
-        self.MAP_FRAME = self.configs.BASE.MAP_FRAME
-        self.BASE_FRAME = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
+        self.MAP_FRAME = self.configs.MAP_FRAME
+        self.BASE_FRAME = self.configs.VSLAM.VSLAM_BASE_FRAME
 
         self.ctrl_pub = ctrl_pub
 
@@ -78,9 +78,9 @@ class ProportionalControl:
         # moving
         self.lin_move_thr = LIN_MOVE_THR
 
-        self.rot_max_vel = self.configs.BASE.MAX_ABS_TURN_SPEED_P_CONTROLLER
-        self.lin_max_vel = self.configs.BASE.MAX_ABS_FWD_SPEED_P_CONTROLLER
-        self.translation_treshold = self.configs.BASE.TRANSLATION_TRESHOLD
+        self.rot_max_vel = self.configs.MAX_ABS_TURN_SPEED_P_CONTROLLER
+        self.lin_max_vel = self.configs.MAX_ABS_FWD_SPEED_P_CONTROLLER
+        self.translation_treshold = self.configs.TRANSLATION_TRESHOLD
 
         # threshold between which if error lies, we think of task being don
         self.rot_error_thr = ROT_ERR_THR
@@ -368,12 +368,12 @@ class ILQRControl(TrajectoryTracker):
         """
         self._as = action_server
         self.configs = configs
-        self.max_v = self.configs.BASE.MAX_ABS_FWD_SPEED
-        self.min_v = -self.configs.BASE.MAX_ABS_FWD_SPEED
-        self.max_w = self.configs.BASE.MAX_ABS_TURN_SPEED
-        self.min_w = -self.configs.BASE.MAX_ABS_TURN_SPEED
-        self.rate = rospy.Rate(self.configs.BASE.BASE_CONTROL_RATE)
-        self.dt = 1.0 / self.configs.BASE.BASE_CONTROL_RATE
+        self.max_v = self.configs.MAX_ABS_FWD_SPEED
+        self.min_v = -self.configs.MAX_ABS_FWD_SPEED
+        self.max_w = self.configs.MAX_ABS_TURN_SPEED
+        self.min_w = -self.configs.MAX_ABS_TURN_SPEED
+        self.rate = rospy.Rate(self.configs.BASE_CONTROL_RATE)
+        self.dt = 1.0 / self.configs.BASE_CONTROL_RATE
 
         self.ctrl_pub = ctrl_pub
 
@@ -471,19 +471,19 @@ class MoveBaseControl(object):
         self._as = action_server
         self.configs = configs
         self.base_state = base_state
-        self.MAP_FRAME = self.configs.BASE.MAP_FRAME
-        self.BASE_FRAME = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
+        self.MAP_FRAME = self.configs.MAP_FRAME
+        self.BASE_FRAME = self.configs.VSLAM.VSLAM_BASE_FRAME
         self.move_base_sac = actionlib.SimpleActionClient(
-            self.configs.BASE.ROSTOPIC_BASE_ACTION_COMMAND, MoveBaseAction
+            self.configs.ROSTOPIC_BASE_ACTION_COMMAND, MoveBaseAction
         )
 
         rospy.Subscriber(
-            self.configs.BASE.ROSTOPIC_MOVE_BASE_STATUS,
+            self.configs.ROSTOPIC_MOVE_BASE_STATUS,
             GoalStatusArray,
             self._move_base_status_callback,
         )
         self.move_base_cancel_goal_pub = rospy.Publisher(
-            self.configs.BASE.ROSTOPIC_GOAL_CANCEL, GoalID, queue_size=1
+            self.configs.ROSTOPIC_GOAL_CANCEL, GoalID, queue_size=1
         )
 
         self.execution_status = None
@@ -579,20 +579,20 @@ class GPMPControl(object):
         self.base_state = base_state
         self.configs = configs
 
-        self.point_idx = self.configs.BASE.TRACKED_POINT
+        self.point_idx = self.configs.TRACKED_POINT
 
         self.gpmp_ctrl_client_ = actionlib.SimpleActionClient(
-            self.configs.BASE.GPMP_SERVER_NAME, FollowJointTrajectoryAction,
+            self.configs.GPMP_SERVER_NAME, FollowJointTrajectoryAction,
         )
         check_server_client_link(self.gpmp_ctrl_client_)
 
         self.traj_client_ = actionlib.SimpleActionClient(
-            self.configs.BASE.TURTLEBOT_TRAJ_SERVER_NAME, FollowJointTrajectoryAction,
+            self.configs.TURTLEBOT_TRAJ_SERVER_NAME, FollowJointTrajectoryAction,
         )
         check_server_client_link(self.traj_client_)
 
-        self.goal_tolerance = self.configs.BASE.GOAL_TOLERANCE
-        self.exec_time = self.configs.BASE.EXEC_TIME
+        self.goal_tolerance = self.configs.GOAL_TOLERANCE
+        self.exec_time = self.configs.EXEC_TIME
 
     def _build_goal_msg(self, pose, vel, tolerance, exec_time):
 
@@ -687,7 +687,7 @@ class GPMPControl(object):
             np.asarray([cur_state[0] - xyt_position[0], cur_state[1] - xyt_position[1]])
         )
 
-        while g_distance > self.configs.BASE.TRESHOLD_LIN:
+        while g_distance > self.configs.TRESHOLD_LIN:
 
             if self._as.is_preempt_requested():
                 rospy.loginfo("Preempted the GPMP execution")

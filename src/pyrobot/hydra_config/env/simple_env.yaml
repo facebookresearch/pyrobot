@@ -1,0 +1,34 @@
+environment:
+  world_frame: 'map'
+
+  robots:
+    - robot: 'locobot'
+      overrides: []
+      ns: ''
+      transform: 
+        position: [0.0,0.0,0.0]
+        rotation: [0.0,0.0,0.0,1.0]
+        frame: 'map'
+
+  sensors: null
+  # sensors: 
+  #   - sensor: 'azure_kinect_camera'
+  #     overrides: []
+  #     ns: ''
+  #     transform: 
+  #       position: [0.0,0.0,0.0]
+  #       rotation: [0.0,0.0,0.0,1.0]
+  #       frame: 'map'
+
+  
+  # TODO: This will be populated by any default table tops, maps etc.  
+  obstacles: null
+
+
+  # TODO: Will depend on the robots and sensors available
+  algorithms: null
+
+
+  # If sim, add any simulator related config
+  simulator: null
+

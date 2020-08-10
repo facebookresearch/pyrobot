@@ -25,16 +25,16 @@ try:
 except:
     USE_ORB_SLAM2 = False
 
-from pyrobot.core import Base
+from pyrobot.robots.base import Base
 from std_msgs.msg import Empty
 
-from pyrobot.locobot.base_control_utils import (
+from pyrobot.robots.locobot.base_control_utils import (
     MoveBasePlanner,
     _get_absolute_pose,
     LocalActionStatus,
     LocalActionServer,
 )
-from pyrobot.locobot.base_controllers import (
+from pyrobot.robots.locobot.base_controllers import (
     ProportionalControl,
     ILQRControl,
     MoveBaseControl,
@@ -48,7 +48,7 @@ from control_msgs.msg import (
 )
 from std_msgs.msg import Empty
 
-from pyrobot.locobot.bicycle_model import wrap_theta
+from pyrobot.robots.locobot.bicycle_model import wrap_theta
 from actionlib_msgs.msg import GoalStatus
 
 
@@ -68,30 +68,30 @@ class BaseSafetyCallbacks(object):
 
         if base == "create":
             s = rospy.Subscriber(
-                self.configs.BASE.ROSTOPIC_BUMPER, Bumper, self.bumper_callback_create
+                self.configs.ROSTOPIC_BUMPER, Bumper, self.bumper_callback_create
             )
             self.subscribers.append(s)
             s = rospy.Subscriber(
-                self.configs.BASE.ROSTOPIC_CLIFF, Empty, self.cliff_callback
+                self.configs.ROSTOPIC_CLIFF, Empty, self.cliff_callback
             )
             self.subscribers.append(s)
             s = rospy.Subscriber(
-                self.configs.BASE.ROSTOPIC_WHEELDROP, Empty, self.wheeldrop_callback
+                self.configs.ROSTOPIC_WHEELDROP, Empty, self.wheeldrop_callback
             )
             self.subscribers.append(s)
         else:
             s = rospy.Subscriber(
-                self.configs.BASE.ROSTOPIC_BUMPER,
+                self.configs.ROSTOPIC_BUMPER,
                 BumperEvent,
                 self.bumper_callback_kobuki,
             )
             self.subscribers.append(s)
             s = rospy.Subscriber(
-                self.configs.BASE.ROSTOPIC_CLIFF, CliffEvent, self.cliff_callback
+                self.configs.ROSTOPIC_CLIFF, CliffEvent, self.cliff_callback
             )
             self.subscribers.append(s)
             s = rospy.Subscriber(
-                self.configs.BASE.ROSTOPIC_WHEELDROP,
+                self.configs.ROSTOPIC_WHEELDROP,
                 WheelDropEvent,
                 self.wheeldrop_callback,
             )
@@ -175,19 +175,19 @@ class BaseState(BaseSafetyCallbacks):
             assert USE_ORB_SLAM2, "Error: Failed to import orb_slam2_ros"
             self.vslam = VisualSLAM(
                 map_img_dir=map_img_dir,
-                cam_pose_tp=self.configs.BASE.VSLAM.ROSTOPIC_CAMERA_POSE,
-                cam_traj_tp=self.configs.BASE.VSLAM.ROSTOPIC_CAMERA_TRAJ,
-                base_frame=self.configs.BASE.VSLAM.VSLAM_BASE_FRAME,
-                camera_frame=self.configs.BASE.VSLAM.RGB_CAMERA_CENTER_FRAME,
-                occ_map_rate=self.configs.BASE.VSLAM.OCCUPANCY_MAP_RATE,
-                z_min=self.configs.BASE.Z_MIN_TRESHOLD_OCC_MAP,
-                z_max=self.configs.BASE.Z_MAX_TRESHOLD_OCC_MAP,
+                cam_pose_tp=self.configs.VSLAM.ROSTOPIC_CAMERA_POSE,
+                cam_traj_tp=self.configs.VSLAM.ROSTOPIC_CAMERA_TRAJ,
+                base_frame=self.configs.VSLAM.VSLAM_BASE_FRAME,
+                camera_frame=self.configs.VSLAM.RGB_CAMERA_CENTER_FRAME,
+                occ_map_rate=self.configs.VSLAM.OCCUPANCY_MAP_RATE,
+                z_min=self.configs.Z_MIN_TRESHOLD_OCC_MAP,
+                z_max=self.configs.Z_MAX_TRESHOLD_OCC_MAP,
             )
 
         # Setup odometry callback.
         self.state = XYTState()
         s = rospy.Subscriber(
-            configs.BASE.ROSTOPIC_ODOMETRY,
+            configs.ROSTOPIC_ODOMETRY,
             Odometry,
             lambda msg: self._odometry_callback(msg, "state"),
         )
@@ -258,7 +258,7 @@ class LoCoBotBase(Base):
             )
             return
         if base is None:
-            base = configs.BASE.BASE_TYPE
+            base = configs.BASE_TYPE
         assert base in [
             "kobuki",
             "create",
@@ -308,7 +308,7 @@ class LoCoBotBase(Base):
             return False
 
         if base_planner is None:
-            base_planner = self.configs.BASE.BASE_PLANNER
+            base_planner = self.configs.BASE_PLANNER
         assert base_planner in [
             "movebase",
             "none",
@@ -342,7 +342,7 @@ class LoCoBotBase(Base):
 
         # Set up low-level controllers.
         if base_controller is None:
-            base_controller = self.configs.BASE.BASE_CONTROLLER
+            base_controller = self.configs.BASE_CONTROLLER
         assert base_controller in ["proportional", "ilqr", "movebase", "gpmp"], (
             "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
             "movebase, gpmp but is {:s}".format(base_controller)
@@ -411,7 +411,7 @@ class LoCoBotBase(Base):
                         break
                     if plan_idx == len(self.xyt_states) - 1:
                         break
-                    plan_idx += self.configs.BASE.TRACKED_POINT
+                    plan_idx += self.configs.TRACKED_POINT
         except AssertionError as error:
             print(error)
             result = False

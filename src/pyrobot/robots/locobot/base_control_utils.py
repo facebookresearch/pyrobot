@@ -13,7 +13,7 @@ from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from nav_msgs.srv import GetPlan
 
-from pyrobot.locobot.bicycle_model import wrap_theta, Foo, BicycleSystem
+from pyrobot.robots.locobot.bicycle_model import wrap_theta, Foo, BicycleSystem
 
 ANGLE_THRESH = 0.05
 
@@ -239,15 +239,15 @@ class MoveBasePlanner:
     def __init__(self, configs, action_server):
         self._as = action_server
         self.configs = configs
-        self.ROT_VEL = self.configs.BASE.MAX_ABS_TURN_SPEED
-        self.LIN_VEL = self.configs.BASE.MAX_ABS_FWD_SPEED
-        self.MAP_FRAME = self.configs.BASE.MAP_FRAME
-        self.BASE_FRAME = self.configs.BASE.VSLAM.VSLAM_BASE_FRAME
-        self.point_idx = self.configs.BASE.TRACKED_POINT
+        self.ROT_VEL = self.configs.MAX_ABS_TURN_SPEED
+        self.LIN_VEL = self.configs.MAX_ABS_FWD_SPEED
+        self.MAP_FRAME = self.configs.MAP_FRAME
+        self.BASE_FRAME = self.configs.VSLAM.VSLAM_BASE_FRAME
+        self.point_idx = self.configs.TRACKED_POINT
 
-        rospy.wait_for_service(self.configs.BASE.PLAN_TOPIC, timeout=3)
+        rospy.wait_for_service(self.configs.PLAN_TOPIC, timeout=3)
         try:
-            self.plan_srv = rospy.ServiceProxy(self.configs.BASE.PLAN_TOPIC, GetPlan)
+            self.plan_srv = rospy.ServiceProxy(self.configs.PLAN_TOPIC, GetPlan)
         except rospy.ServiceException:
             rospy.logerr(
                 "Timed out waiting for the planning service. \
@@ -255,7 +255,7 @@ class MoveBasePlanner:
                            use_map in roslauch are set to the same value"
             )
         self.start_state = build_pose_msg(0, 0, 0, self.BASE_FRAME)
-        self.tolerance = self.configs.BASE.PLAN_TOL
+        self.tolerance = self.configs.PLAN_TOL
         self._transform_listener = tf.TransformListener()
 
     def _compute_relative_ang_dist(self, point2):
@@ -336,7 +336,7 @@ class MoveBasePlanner:
 
         g_angle, g_distance = self._compute_relative_ang_dist(goal)
 
-        while g_distance > self.configs.BASE.TRESHOLD_LIN:
+        while g_distance > self.configs.TRESHOLD_LIN:
 
             plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
 
