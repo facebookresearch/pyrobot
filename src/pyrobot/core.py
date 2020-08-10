@@ -78,6 +78,7 @@ class World(object):
     def __init__(self, configs_path=None, config_name=None, node_ns=''):
 
 
+        # TODO: see if ros can be made optional
         try:
             rospy.init_node("pyrobot", anonymous=True)
         except rospy.exceptions.ROSException:
@@ -107,7 +108,6 @@ class World(object):
 
             if world_config.environment.robots is not None:
                 for robot in world_config.environment.robots:
-                    print("youyoyyo")
                     self.add_robot(robot.robot, robot.overrides)
 
             if world_config.environment.sensors is not None:
