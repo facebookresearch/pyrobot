@@ -14,19 +14,19 @@ print(robot.base)
 home = [0,0,0]
 
 # linear_velocity in m/s
-linear_velocity = 5 
+linear_velocity = 2
 
 # rotational_velocity in radian / s
 rotational_velocity = 0 
 
-#robot.base.set_vel(fwd_speed=linear_velocity, 
-#                   turn_speed=rotational_velocity,
-#		   exe_time=6)
+robot.base.set_vel(fwd_speed=linear_velocity, 
+                   turn_speed=rotational_velocity,
+		   exe_time=0)
 
 
 # Now command the robot to go to the target pose in the enviroment
 # 'go_to_absolute' assumes that the target is in world frame.
-robot.base.go_to_relative([0.5, 0, 0])
+robot.base.go_to_relative([1, 0, 0])
 
 
 time.sleep(2) 
