@@ -100,4 +100,4 @@ We are planning several features, namely:
 }
 ```
 ## License
-PyRobot is under MIT license, as found in the LICENSE file.
+PyRobot is under MIT license, as found in the **[LICENSE](https://github.com/facebookresearch/pyrobot/blob/master/LICENSE)** file.
