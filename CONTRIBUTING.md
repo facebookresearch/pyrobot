@@ -81,4 +81,4 @@ The python code uses [Flake8](https://pypi.org/project/flake8/) style. [autopep8
 
 ## License
 By contributing to **PyRobot**, you agree that your contributions will be licensed
-under the LICENSE file in the root directory of this source tree.
+under the **[LICENSE](https://github.com/facebookresearch/pyrobot/blob/master/LICENSE)** file in the root directory of this source tree.
