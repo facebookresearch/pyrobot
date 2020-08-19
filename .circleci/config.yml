@@ -31,20 +31,20 @@ jobs:
             
             
     
-      - run:
-          name: Sip 4.17 VM Bug fix
-          command: |
-            cd ~/
-            source ~/pyenv_pyrobot_python2/bin/activate
-            wget http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.zip
-            unzip sip-4.17.zip
-            cd sip-4.17/
-            python configure.py --incdir=~/pyenv_pyrobot_python2/include/python2.7
-            make
-            make install
-            cd ..
-            pip install lxml
-            deactivate
+      #- run:
+      #    name: Sip 4.17 VM Bug fix
+      #    command: |
+      #      cd ~/
+      #      source ~/pyenv_pyrobot_python2/bin/activate
+      #      wget http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.zip
+      #      unzip sip-4.17.zip
+      #      cd sip-4.17/
+      #      python configure.py --incdir=~/pyenv_pyrobot_python2/include/python2.7
+      #      make
+      #      make install
+      #      cd ..
+      #      pip install lxml
+      #      deactivate
 
 
       - run:
