@@ -65,7 +65,7 @@ jobs:
           command: |
             cd ~/
             source ~/.bashrc
-            source /opt/ros/$ROS_DISTRO/setup.bash
+            source /opt/ros/kinetic/setup.bash
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
@@ -73,7 +73,7 @@ jobs:
             pip install cmake # Inside PyRobot Virtual Environment
 
             sudo apt-get install -y software-properties-common
-            sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
             sudo apt update
             sudo apt install g++-7 -y
             sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
@@ -85,7 +85,7 @@ jobs:
             pip install -r requirements.txt
             sudo apt-get install -y --no-install-recommends \
                 libjpeg-dev libglm-dev libgl1-mesa-glx libegl1-mesa-dev mesa-utils xorg-dev freeglut3-dev
-            sudo apt-get install libbullet-dev
+            sudo apt-get install -y libbullet-dev
             python setup.py install --headless --with-cuda --bullet
       - run:
           name: Run tests
