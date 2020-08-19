@@ -86,7 +86,23 @@ jobs:
             sudo apt-get install -y --no-install-recommends \
                 libjpeg-dev libglm-dev libgl1-mesa-glx libegl1-mesa-dev mesa-utils xorg-dev freeglut3-dev
             sudo apt-get install -y libbullet-dev
+            export PATH=/usr/local/cuda/bin:$PATH
             python setup.py install --headless --with-cuda --bullet
+
+      - run:
+          name: Run roscore in background
+          command: |
+            #sudo apt-get install -y xvfb
+            #Xvfb :1 -screen 0 1600x1200x16  &
+            #export DISPLAY=:1.0
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            #export PYTHONPATH=$PYTHONPATH:/usr/local/cython #Put GPMP on path
+            roscore
+          no_output_timeout: 1.00h
+          background: true
+          
       - run:
           name: Run tests
           command: |
@@ -96,6 +112,7 @@ jobs:
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
+            export PATH=/usr/local/cuda/bin:$PATH
             cd ~/project/tests/
             pytest test_habitat_locobot.py -v
             
