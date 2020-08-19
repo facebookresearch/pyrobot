@@ -9,14 +9,14 @@ jobs:
 
     steps:
       - checkout
-      - run:
-          name: Python-TK and Python-SIM install (VM Bug)
-          command: |
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - #Chrome linux keys error fix
-            sudo apt-get update
-            sudo apt-get install sip-dev
-            sudo apt-get install tk-dev
-            pyenv install -f 2.7.12
+      #- run:
+      #    name: Python-TK and Python-SIM install (VM Bug)
+      #    command: |
+      #      wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - #Chrome linux keys error fix
+      #      sudo apt-get update
+      #      sudo apt-get install sip-dev
+      #      sudo apt-get install tk-dev
+      #      pyenv install -f 2.7.12
             
 
       - run:
