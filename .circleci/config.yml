@@ -23,6 +23,7 @@ jobs:
           name: Installer Python3
           command: |
             pip install --upgrade pip
+            sudo apt-get install --reinstall python-catkin-pkg
             source ~/.bashrc
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
