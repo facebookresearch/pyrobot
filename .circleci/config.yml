@@ -1,7 +1,100 @@
 version: 2.1
 
 jobs:
-  
+  kinetic_ubuntu_16_habitat:
+    resource_class: gpu.small
+    machine:
+      image: ubuntu-1604:201903-01
+      #docker_layer_caching: true    # default - false
+
+    steps:
+      - checkout
+      - run:
+          name: Python-TK and Python-SIM install (VM Bug)
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add - #Chrome linux keys error fix
+            sudo apt-get update
+            sudo apt-get install sip-dev
+            sudo apt-get install tk-dev
+            pyenv install -f 2.7.12
+            
+
+      - run:
+          name: Installer Python3
+          command: |
+            pip install --upgrade pip
+            source ~/.bashrc
+            cd ~/project/robots/LoCoBot/install
+            chmod +x locobot_install_all.sh
+            ./locobot_install_all.sh -t sim_only -p 3 -l interbotix
+            
+            
+    
+      - run:
+          name: Sip 4.17 VM Bug fix
+          command: |
+            cd ~/
+            source ~/pyenv_pyrobot_python2/bin/activate
+            wget http://sourceforge.net/projects/pyqt/files/sip/sip-4.17/sip-4.17.zip
+            unzip sip-4.17.zip
+            cd sip-4.17/
+            python configure.py --incdir=~/pyenv_pyrobot_python2/include/python2.7
+            make
+            make install
+            cd ..
+            pip install lxml
+            deactivate
+
+
+      - run:
+          name: Install cuda
+          no_output_timeout: 20m
+          background: true
+          command: |
+              wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.44-1_amd64.deb
+              sudo dpkg -i cuda-repo-ubuntu1604_8.0.44-1_amd64.deb
+              sudo apt-get update || true
+              sudo apt-get --yes --force-yes install cuda
+              touch ./cuda_installed
+              nvidia-smi
+
+      - run:
+          name: Install Habitat headless with cuda
+          command: |
+            cd ~/
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
+            
+            pip install cmake # Inside PyRobot Virtual Environment
+
+            sudo apt-get install -y software-properties-common
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+            sudo apt update
+            sudo apt install g++-7 -y
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
+                         --slave /usr/bin/g++ g++ /usr/bin/g++-7 
+            sudo update-alternatives --config gcc
+
+            git clone --branch stable https://github.com/facebookresearch/habitat-sim.git
+            cd habitat-sim
+            pip install -r requirements.txt
+            sudo apt-get install -y --no-install-recommends \
+                libjpeg-dev libglm-dev libgl1-mesa-glx libegl1-mesa-dev mesa-utils xorg-dev freeglut3-dev
+            sudo apt-get install libbullet-dev
+            python setup.py install --headless --with-cuda --bullet
+      - run:
+          name: Run tests
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            
+            #cd ~/project/tests/
+            #chmod +x circleci_tests.sh
+            #./circleci_tests.sh
+       
   kinetic_install_ubuntu_16:
     resource_class: xlarge
     docker:
@@ -159,3 +252,4 @@ workflows:
     jobs:
       - kinetic_install_ubuntu_16
       - melodic_install_ubuntu_18
+      - kinetic_ubuntu_16_habitat
