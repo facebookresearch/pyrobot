@@ -373,6 +373,7 @@ if [ $PYTHON_VERSION == "3" ]; then
   	if [ $INSTALL_TYPE == "full" ]; then
     	        source $CAMERA_FOLDER/devel/setup.bash
   	fi
+	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash
