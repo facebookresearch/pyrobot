@@ -1,0 +1,1 @@
+SUBSYSTEMS=="usb", ATTRS{manufacturer}=="FTDI", ATTRS{product}=="USB <-> Serial Converter", SYMLINK+="ttyUSB_dyna"

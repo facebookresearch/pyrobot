@@ -22,52 +22,81 @@ from tensorflow.contrib.slim.nets import resnet_v2
 resnet_v2_50 = resnet_v2.resnet_v2_50
 
 
-def custom_residual_block(x, neurons, kernel_size, stride, name, is_training,
-                          wt_decay=0.0001, use_residual=True,
-                          residual_stride_conv=True, conv_fn=slim.conv2d,
-                          batch_norm_param=None):
+def custom_residual_block(
+    x,
+    neurons,
+    kernel_size,
+    stride,
+    name,
+    is_training,
+    wt_decay=0.0001,
+    use_residual=True,
+    residual_stride_conv=True,
+    conv_fn=slim.conv2d,
+    batch_norm_param=None,
+):
     # batch norm x and relu
     init_var = np.sqrt(2.0 / (kernel_size ** 2) / neurons)
-    with arg_scope([conv_fn],
-                   weights_regularizer=slim.l2_regularizer(wt_decay),
-                   weights_initializer=tf.random_normal_initializer(
-                       stddev=init_var),
-                   biases_initializer=tf.zeros_initializer()):
+    with arg_scope(
+        [conv_fn],
+        weights_regularizer=slim.l2_regularizer(wt_decay),
+        weights_initializer=tf.random_normal_initializer(stddev=init_var),
+        biases_initializer=tf.zeros_initializer(),
+    ):
 
         if batch_norm_param is None:
-            batch_norm_param = {'center': True, 'scale': False,
-                                'activation_fn': tf.nn.relu,
-                                'is_training': is_training}
+            batch_norm_param = {
+                "center": True,
+                "scale": False,
+                "activation_fn": tf.nn.relu,
+                "is_training": is_training,
+            }
 
-        y = slim.batch_norm(x, scope=name + '_bn', **batch_norm_param)
+        y = slim.batch_norm(x, scope=name + "_bn", **batch_norm_param)
 
-        y = conv_fn(y, num_outputs=neurons, kernel_size=kernel_size, stride=stride,
-                    activation_fn=None, scope=name + '_1',
-                    normalizer_fn=slim.batch_norm,
-                    normalizer_params=batch_norm_param)
+        y = conv_fn(
+            y,
+            num_outputs=neurons,
+            kernel_size=kernel_size,
+            stride=stride,
+            activation_fn=None,
+            scope=name + "_1",
+            normalizer_fn=slim.batch_norm,
+            normalizer_params=batch_norm_param,
+        )
 
-        y = conv_fn(y, num_outputs=neurons, kernel_size=kernel_size,
-                    stride=1, activation_fn=None, scope=name + '_2')
+        y = conv_fn(
+            y,
+            num_outputs=neurons,
+            kernel_size=kernel_size,
+            stride=1,
+            activation_fn=None,
+            scope=name + "_2",
+        )
 
         if use_residual:
             if stride != 1 or x.get_shape().as_list()[-1] != neurons:
                 batch_norm_param_ = dict(batch_norm_param)
-                batch_norm_param_['activation_fn'] = None
-                x = conv_fn(x, num_outputs=neurons, kernel_size=1,
-                            stride=stride if residual_stride_conv else 1,
-                            activation_fn=None, scope=name + '_0_1x1',
-                            normalizer_fn=slim.batch_norm,
-                            normalizer_params=batch_norm_param_)
+                batch_norm_param_["activation_fn"] = None
+                x = conv_fn(
+                    x,
+                    num_outputs=neurons,
+                    kernel_size=1,
+                    stride=stride if residual_stride_conv else 1,
+                    activation_fn=None,
+                    scope=name + "_0_1x1",
+                    normalizer_fn=slim.batch_norm,
+                    normalizer_params=batch_norm_param_,
+                )
                 if not residual_stride_conv:
-                    x = slim.avg_pool2d(x, 1, stride=stride,
-                                        scope=name + '_0_avg')
+                    x = slim.avg_pool2d(x, 1, stride=stride, scope=name + "_0_avg")
 
-            y = tf.add(x, y, name=name + '_add')
+            y = tf.add(x, y, name=name + "_add")
 
         return y
 
 
-def dense_resample(im, flow_im, output_valid_mask, name='dense_resample'):
+def dense_resample(im, flow_im, output_valid_mask, name="dense_resample"):
     """ Resample reward at particular locations.
     Args:
       im:      ...xHxWxC matrix to sample from.
@@ -86,20 +115,26 @@ def dense_resample(im, flow_im, output_valid_mask, name='dense_resample'):
         channels = shape[-1]
         width = shape[-2]
         height = shape[-3]
-        num_batch = tf.cast(tf.reduce_prod(tf.stack(shape[:-3])), 'int32')
+        num_batch = tf.cast(tf.reduce_prod(tf.stack(shape[:-3])), "int32")
         zero = tf.constant(0, dtype=tf.int32)
 
         # Round up and down.
-        x0 = tf.cast(tf.floor(x), 'int32')
+        x0 = tf.cast(tf.floor(x), "int32")
         x1 = x0 + 1
-        y0 = tf.cast(tf.floor(y), 'int32')
+        y0 = tf.cast(tf.floor(y), "int32")
         y1 = y0 + 1
 
         if output_valid_mask:
             valid_mask = tf.logical_and(
-                tf.logical_and(tf.less_equal(x, tf.cast(
-                    width, tf.float32) - 1.), tf.greater_equal(x, 0.)),
-                tf.logical_and(tf.less_equal(y, tf.cast(height, tf.float32) - 1.), tf.greater_equal(y, 0.)))
+                tf.logical_and(
+                    tf.less_equal(x, tf.cast(width, tf.float32) - 1.0),
+                    tf.greater_equal(x, 0.0),
+                ),
+                tf.logical_and(
+                    tf.less_equal(y, tf.cast(height, tf.float32) - 1.0),
+                    tf.greater_equal(y, 0.0),
+                ),
+            )
             valid_mask = tf.reshape(valid_mask, shape=shape[:-1] + [1])
 
         x0 = tf.clip_by_value(x0, zero, width - 1)
@@ -112,8 +147,7 @@ def dense_resample(im, flow_im, output_valid_mask, name='dense_resample'):
 
         # Create base index
         base = tf.reshape(tf.range(num_batch) * dim1, shape=[-1, 1])
-        base = base + \
-               tf.expand_dims(tf.zeros([height * width], dtype=tf.int32), 0)
+        base = base + tf.expand_dims(tf.zeros([height * width], dtype=tf.int32), 0)
         base = tf.reshape(base, shape=[-1])
         # base = tf.reshape(tf.tile(base, [tf.constant(1), height*width], name='tttile'), shape=[-1])
 
@@ -141,13 +175,12 @@ def dense_resample(im, flow_im, output_valid_mask, name='dense_resample'):
         wc = tf.expand_dims(((1.0 - (x1_f - x)) * (y1_f - y)), 1)
         wd = tf.expand_dims(((1.0 - (x1_f - x)) * (1.0 - (y1_f - y))), 1)
 
-        output = tf.add_n([wa * pixel_a, wb * pixel_b,
-                           wc * pixel_c, wd * pixel_d])
+        output = tf.add_n([wa * pixel_a, wb * pixel_b, wc * pixel_c, wd * pixel_d])
         output = tf.reshape(output, shape=tf.shape(im))
         return output, valid_mask
 
 
-def get_flow(t, theta, map_size, name_scope='gen_flow'):
+def get_flow(t, theta, map_size, name_scope="gen_flow"):
     """
     Rotates the map by theta and translates the rotated map by t.
 
@@ -170,13 +203,21 @@ def get_flow(t, theta, map_size, name_scope='gen_flow'):
     with tf.name_scope(name_scope):
         tx, ty = tf.unstack(tf.reshape(t, shape=[-1, 1, 1, 1, 2]), axis=4)
         theta = tf.reshape(theta, shape=[-1, 1, 1, 1])
-        c = tf.constant((map_size - 1.) / 2., dtype=tf.float32)
+        c = tf.constant((map_size - 1.0) / 2.0, dtype=tf.float32)
 
         x, y = np.meshgrid(np.arange(map_size), np.arange(map_size))
-        x = tf.constant(x[np.newaxis, :, :, np.newaxis], dtype=tf.float32, name='x',
-                        shape=[1, map_size, map_size, 1])
-        y = tf.constant(y[np.newaxis, :, :, np.newaxis], dtype=tf.float32, name='y',
-                        shape=[1, map_size, map_size, 1])
+        x = tf.constant(
+            x[np.newaxis, :, :, np.newaxis],
+            dtype=tf.float32,
+            name="x",
+            shape=[1, map_size, map_size, 1],
+        )
+        y = tf.constant(
+            y[np.newaxis, :, :, np.newaxis],
+            dtype=tf.float32,
+            name="y",
+            shape=[1, map_size, map_size, 1],
+        )
 
         x = x - (-tx + c)
         y = y - (-ty + c)
@@ -191,54 +232,74 @@ def get_flow(t, theta, map_size, name_scope='gen_flow'):
 
         flow = tf.stack([xr, yr], axis=-1)
         sh = tf.unstack(tf.shape(t), axis=0)
-        sh = tf.stack(sh[:-1] + [tf.constant(_, dtype=tf.int32)
-                                 for _ in [map_size, map_size, 2]])
+        sh = tf.stack(
+            sh[:-1] + [tf.constant(_, dtype=tf.int32) for _ in [map_size, map_size, 2]]
+        )
         flow = tf.reshape(flow, shape=sh)
         return flow
 
 
-def fc_network(x, neurons, wt_decay, name, num_pred=None, offset=0,
-               batch_norm_param=None, dropout_ratio=0.0, is_training=None):
+def fc_network(
+    x,
+    neurons,
+    wt_decay,
+    name,
+    num_pred=None,
+    offset=0,
+    batch_norm_param=None,
+    dropout_ratio=0.0,
+    is_training=None,
+):
     if dropout_ratio > 0:
-        assert (is_training is not None), \
-            'is_training needs to be defined when trainnig with dropout.'
+        assert (
+            is_training is not None
+        ), "is_training needs to be defined when trainnig with dropout."
 
     repr = []
     for i, neuron in enumerate(neurons):
         init_var = np.sqrt(2.0 / neuron)
         if batch_norm_param is not None:
-            x = slim.fully_connected(x, neuron, activation_fn=None,
-                                     weights_initializer=tf.random_normal_initializer(
-                                         stddev=init_var),
-                                     weights_regularizer=slim.l2_regularizer(
-                                         wt_decay),
-                                     normalizer_fn=slim.batch_norm,
-                                     normalizer_params=batch_norm_param,
-                                     biases_initializer=tf.zeros_initializer(),
-                                     scope='{:s}_{:d}'.format(name, offset + i))
+            x = slim.fully_connected(
+                x,
+                neuron,
+                activation_fn=None,
+                weights_initializer=tf.random_normal_initializer(stddev=init_var),
+                weights_regularizer=slim.l2_regularizer(wt_decay),
+                normalizer_fn=slim.batch_norm,
+                normalizer_params=batch_norm_param,
+                biases_initializer=tf.zeros_initializer(),
+                scope="{:s}_{:d}".format(name, offset + i),
+            )
         else:
-            x = slim.fully_connected(x, neuron, activation_fn=tf.nn.relu,
-                                     weights_initializer=tf.random_normal_initializer(
-                                         stddev=init_var),
-                                     weights_regularizer=slim.l2_regularizer(
-                                         wt_decay),
-                                     biases_initializer=tf.zeros_initializer(),
-                                     scope='{:s}_{:d}'.format(name, offset + i))
+            x = slim.fully_connected(
+                x,
+                neuron,
+                activation_fn=tf.nn.relu,
+                weights_initializer=tf.random_normal_initializer(stddev=init_var),
+                weights_regularizer=slim.l2_regularizer(wt_decay),
+                biases_initializer=tf.zeros_initializer(),
+                scope="{:s}_{:d}".format(name, offset + i),
+            )
         if dropout_ratio > 0:
-            x = slim.dropout(x, keep_prob=1 - dropout_ratio, is_training=is_training,
-                             scope='{:s}_{:d}'.format('dropout_' + name, offset + i))
+            x = slim.dropout(
+                x,
+                keep_prob=1 - dropout_ratio,
+                is_training=is_training,
+                scope="{:s}_{:d}".format("dropout_" + name, offset + i),
+            )
         repr.append(x)
 
     if num_pred is not None:
         init_var = np.sqrt(2.0 / num_pred)
-        x = slim.fully_connected(x, num_pred,
-                                 weights_regularizer=slim.l2_regularizer(
-                                     wt_decay),
-                                 weights_initializer=tf.random_normal_initializer(
-                                     stddev=init_var),
-                                 biases_initializer=tf.zeros_initializer(),
-                                 activation_fn=None,
-                                 scope='{:s}_pred'.format(name))
+        x = slim.fully_connected(
+            x,
+            num_pred,
+            weights_regularizer=slim.l2_regularizer(wt_decay),
+            weights_initializer=tf.random_normal_initializer(stddev=init_var),
+            biases_initializer=tf.zeros_initializer(),
+            activation_fn=None,
+            scope="{:s}_pred".format(name),
+        )
     return x, repr
 
 
@@ -256,5 +317,6 @@ def prepare_feed_dict(input_tensors, inputs):
     feed_dict = {}
     for n in input_tensors.keys():
         feed_dict[input_tensors[n]] = inputs[n].astype(
-            input_tensors[n].dtype.as_numpy_dtype)
+            input_tensors[n].dtype.as_numpy_dtype
+        )
     return feed_dict

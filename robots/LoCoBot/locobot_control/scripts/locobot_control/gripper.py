@@ -12,9 +12,9 @@ Wrapper for robot gripper
 import rospy
 from std_msgs.msg import Empty
 
-ROSTOPIC_GRIPPER_OPEN = '/gripper/open'
-ROSTOPIC_GRIPPER_CLOSE = '/gripper/close'
-ROSTOPIC_GRIPPER_STATE = '/gripper/state'
+ROSTOPIC_GRIPPER_OPEN = "/gripper/open"
+ROSTOPIC_GRIPPER_CLOSE = "/gripper/close"
+ROSTOPIC_GRIPPER_STATE = "/gripper/state"
 
 
 class Gripper(object):
@@ -26,9 +26,11 @@ class Gripper(object):
 
         # Publishers and subscribers
         self.pub_gripper_close = rospy.Publisher(
-            ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1)
+            ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1
+        )
         self.pub_gripper_open = rospy.Publisher(
-            ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1)
+            ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1
+        )
 
     def gripper_state_callback(self, msg):
         """
@@ -73,5 +75,5 @@ class Gripper(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node('gripper_node', anonymous=True)
+    rospy.init_node("gripper_node", anonymous=True)
     gripper = Gripper()

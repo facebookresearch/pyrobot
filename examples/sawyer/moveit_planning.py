@@ -15,16 +15,18 @@ from pyrobot import Robot
 def main():
     target_joints = [
         [0.704, -0.455, -0.159, 1.395, -1.240, 1.069, 2.477],
-        [-0.341, -0.384, -0.018, 1.533, -0.977, -1.492, -1.084]
+        [-0.341, -0.384, -0.018, 1.533, -0.977, -1.492, -1.084],
     ]
 
-    config = dict(moveit_planner_type='ESTkConfigDefault')
-    bot = Robot('sawyer',
-                use_arm=True,
-                use_base=False,
-                use_camera=False,
-                use_gripper=True,
-                arm_config=config)
+    config = dict(moveit_planner_type="ESTkConfigDefault")
+    bot = Robot(
+        "sawyer",
+        use_arm=True,
+        use_base=False,
+        use_camera=False,
+        use_gripper=True,
+        arm_config=config,
+    )
     bot.arm.go_home()
 
     time.sleep(1)

@@ -12,7 +12,7 @@ from pyrobot import Robot
 
 def main():
     np.set_printoptions(precision=4, suppress=True)
-    bot = Robot('locobot')
+    bot = Robot("locobot")
     bot.arm.go_home()
     displacement = np.array([0, 0, -0.15])
     bot.arm.move_ee_xyz(displacement, plan=True)

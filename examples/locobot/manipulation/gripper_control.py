@@ -10,7 +10,7 @@ from __future__ import print_function
 from pyrobot import Robot
 
 if __name__ == "__main__":
-    bot = Robot('locobot')
+    bot = Robot("locobot")
 
     print("Opening gripper")
     bot.gripper.open()

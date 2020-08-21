@@ -26,7 +26,7 @@ task_params.img_channels = 3
 task_params.num_actions = 4
 task_params.batch_size = 1
 task_params.map_crop_sizes = [16 for _ in range(3)]
-task_params.map_scales = [np.power(2., i - 5) for i in range(3)]
+task_params.map_scales = [np.power(2.0, i - 5) for i in range(3)]
 task_params.map_channels = 8
 task_params.num_steps = 40
 task_params.goal_channels = 4
@@ -40,11 +40,11 @@ solver = CN()
 solver.seed = 0
 solver.wt_decay = 0.001
 solver.freeze_conv = True
-solver.pretrained_path = ''
+solver.pretrained_path = ""
 _C.solver = solver
 
 batch_norm_param = CN()
-batch_norm_param.activation_fn = 'relu'
+batch_norm_param.activation_fn = "relu"
 batch_norm_param.scale = True
 batch_norm_param.center = True
 
@@ -55,10 +55,10 @@ mapper_arch.dim_reduce_neurons = 64
 mapper_arch.fc_neurons = [1024, 1024]
 mapper_arch.fc_out_neurons = 64
 mapper_arch.deconv_strides = [1, 2, 1]
-mapper_arch.encoder = 'resnet_v2_50'
+mapper_arch.encoder = "resnet_v2_50"
 mapper_arch.deconv_neurons = [192, 96, 48]
 mapper_arch.fc_dropout = 0.5
-mapper_arch.combine_type = 'wt_avg_logits'
+mapper_arch.combine_type = "wt_avg_logits"
 mapper_arch.fc_out_size = 8
 mapper_arch.deconv_layers_per_block = 2
 mapper_arch.batch_norm_param = batch_norm_param
@@ -66,7 +66,7 @@ mapper_arch.batch_norm_param = batch_norm_param
 _C.mapper_arch = mapper_arch
 
 pred_batch_norm_param = CN()
-pred_batch_norm_param.activation_fn = 'relu'
+pred_batch_norm_param.activation_fn = "relu"
 pred_batch_norm_param.scale = True
 pred_batch_norm_param.center = True
 
@@ -77,7 +77,7 @@ arch.pred_batch_norm_param = pred_batch_norm_param
 arch.vin_val_neurons = 3
 arch.fr_neurons = 16
 arch.fr_inside_neurons = 32
-arch.fr_ver = 'v2'
+arch.fr_ver = "v2"
 arch.vin_share_wts = False
 arch.value_crop_size = 8
 arch.crop_remove_each = 4
@@ -93,6 +93,7 @@ def get_cfg_defaults():
     # Return a clone so that the defaults will not be altered
     # This is for the "local variable" use pattern
     return _C.clone()
+
 
 # Alternatively, provide a way to import the defaults as
 # a global singleton:

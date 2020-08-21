@@ -1,0 +1,161 @@
+version: 2.1
+
+jobs:
+  
+  kinetic_install_ubuntu_16:
+    resource_class: xlarge
+    docker:
+      - image: ros:kinetic-robot-xenial
+      
+    steps:
+      - checkout            
+      - run:
+          name: Installer Python2
+          command: |
+            sudo apt-get install -y python-rosdep
+            sudo rm -rf /etc/apt/sources.list.d/ros1-latest.list*
+            # https://answers.ros.org/question/325039/apt-update-fails-cannot-install-pkgs-key-not-working/
+            sudo apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
+            cd ~/project/robots/LoCoBot/install
+            chmod +x locobot_install_all.sh
+            ./locobot_install_all.sh -t sim_only -p 2 -l cmu
+ 
+      - run:
+          name: Installer Python3
+          command: |
+            sudo apt-get install -y software-properties-common
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            cd ~/project
+            chmod +x install_pyrobot.sh
+            ./install_pyrobot.sh -p 3
+            cd ~/project/robots/LoCoBot
+            source ~/pyenv_pyrobot_python3/bin/activate
+            pip3 install --ignore-installed -r requirements_python3.txt
+            deactivate
+
+      - run:
+          name: Gazebo 7 VM bug fix
+          command: |
+            sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+            wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+            sudo apt-get update
+            sudo apt-get install gazebo7 -y
+        
+      - run:
+          name: Run Gazebo in the background
+          command: |
+            sudo apt-get install -y xvfb
+            Xvfb :1 -screen 0 1600x1200x16  &
+            export DISPLAY=:1.0
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            export PYTHONPATH=$PYTHONPATH:/usr/local/cython
+            roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
+          no_output_timeout: 1.00h
+          background: true
+
+      - run:
+          name: Run tests in Python2
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python2/bin/activate
+            cd ~/project/tests/
+            chmod +x circleci_tests.sh
+            ./circleci_tests.sh
+
+      - run:
+          name: Run tests in Python3
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
+            cd ~/project/tests/
+            chmod +x circleci_tests.sh
+            ./circleci_tests.sh
+
+
+  melodic_install_ubuntu_18:
+    resource_class: xlarge
+    docker:
+      - image: ros:melodic-robot-bionic
+
+    steps:
+      - checkout            
+      - run:
+          name: Installer Python2
+          command: |
+            sudo apt-get install -y python-rosdep
+            cd ~/project/robots/LoCoBot/install
+            chmod +x locobot_install_all.sh
+            ./locobot_install_all.sh -t sim_only -p 2 -l interbotix
+ 
+      - run:
+          name: Installer Python3
+          command: |
+            sudo apt-get install -y software-properties-common
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            cd ~/project
+            chmod +x install_pyrobot.sh
+            ./install_pyrobot.sh -p 3
+            cd ~/project/robots/LoCoBot
+            source ~/pyenv_pyrobot_python3/bin/activate
+            pip3 install --ignore-installed -r requirements_python3.txt
+            deactivate
+                       
+      - run:
+          name: Run Gazebo in the background
+          command: |
+            sudo apt-get install -y xvfb
+            Xvfb :1 -screen 0 1600x1200x16  &
+            export DISPLAY=:1.0
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            export PYTHONPATH=$PYTHONPATH:/usr/local/cython
+            roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
+          no_output_timeout: 1.00h
+          background: true
+      
+      - run:
+          name: Run tests in Python2
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python2/bin/activate
+            cd ~/project/tests/
+            chmod +x circleci_tests.sh
+            ./circleci_tests.sh
+
+      - run:
+          name: Run tests in Python3
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
+            cd ~/project/tests/
+            chmod +x circleci_tests.sh
+            ./circleci_tests.sh
+
+
+workflows:
+  version: 2
+  kinetic_and_melodic:
+    jobs:
+      - kinetic_install_ubuntu_16
+      - melodic_install_ubuntu_18

@@ -6,24 +6,27 @@
 import os
 import pytest
 
-import cv2
+from pyrobot.utils.util import try_cv2_import
+
+cv2 = try_cv2_import()
+
 import numpy as np
 
 from cmp_runner import CMPRunner
 
 
-@pytest.mark.parametrize("test_dir", ['test-data/v0/'])
+@pytest.mark.parametrize("test_dir", ["test-data/v0/"])
 def test_cmp_tfcode(test_dir):
-    action_strings = {0: 'stay', 1: 'right', 2: 'left', 3: 'forward'}
-    cmp_runner = CMPRunner('./model.ckpt-120003')
+    action_strings = {0: "stay", 1: "right", 2: "left", 3: "forward"}
+    cmp_runner = CMPRunner("./model.ckpt-120003")
     tt = os.listdir(test_dir)
-    tt = filter(lambda x: 'jpg' in x, tt)
+    tt = filter(lambda x: "jpg" in x, tt)
     tt.sort()
-    goal = np.loadtxt(os.path.join(test_dir, 'goal.txt'))
+    goal = np.loadtxt(os.path.join(test_dir, "goal.txt"))
     cmp_runner.set_new_goal(goal.tolist())
 
     for i in range(len(tt)):
-        gt_action = tt[i].split('_')[1].split('.')[0]
+        gt_action = tt[i].split("_")[1].split(".")[0]
         img = cv2.imread(os.path.join(test_dir, tt[i]))
         img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
         img = img[np.newaxis, np.newaxis, np.newaxis, :, :, ::-1]
@@ -34,5 +37,5 @@ def test_cmp_tfcode(test_dir):
         assert action_strings[model_action] == gt_action
 
 
-if __name__ == '__main__':
-    test_cmp_tfcode('test-data/v0')
+if __name__ == "__main__":
+    test_cmp_tfcode("test-data/v0")
