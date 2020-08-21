@@ -26,7 +26,7 @@ bot = Robot("habitat", common_config=common_config)
 visualize(bot)
 
 # Execute an action on the base to move forward
-bot.base.execute_action("move_forward")
+bot.base.execute_action("move_forward", actuation = 0.1)
 print("Move forward using discreate actions")
 visualize(bot)
 
