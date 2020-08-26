@@ -49,18 +49,18 @@ def motion_check(req):
 
 
 if __name__ == '__main__':
-    
-    odom_listener()
 
-    #if sys.argv[0] == "countdown":
-		#countdown_server()
+
+    # Want to get it to an if statement that distinguishes between argument values "countdown" and "arrow" being passed
+    # Something is being passed but I can't see what it is - can't figure out how to print statement the sys.argv[0]
+    
+    #countdown_server()
+
+    if sys.argv[0]:
+		countdown_server()
 
     #elif sys.argv[0] == "arrow":
-	#	try:
-    #    	talker()
-    # 	except rospy.ROSInterruptException:
-    #    	pass
-
-
-
-
+        #try:
+            #talker()
+     	#except rospy.ROSInterruptException:
+        	#pass

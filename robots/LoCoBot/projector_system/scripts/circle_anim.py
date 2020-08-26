@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+    
 import sys
 import rospy
 import time
@@ -7,6 +7,7 @@ import numpy as np
 
 from projector_system.srv import *
 from matplotlib import pyplot as plt
+
 
 # Client side for countdown service:
 def check_robot(bool_req):

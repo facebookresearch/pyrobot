@@ -1,0 +1,1653 @@
+Script started on Wed 26 Aug 2020 10:42:44 AM MDT
+l]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[00m$ lclear
+No command 'lclear' found, did you mean:
+ Command 'clear' from package 'ncurses-bin' (main)
+lclear: command not found
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[00m$ clear
+[3;J[H[2J]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[00m$ cd scripts/
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/scripts[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/scripts[00m$ ls
+[0m[01;32madd_two_ints_client.py[0m  [01;32madd_two_ints_server.py[0m  [01;32marrow_anim.py[0m  [01;32mcircle_anim.py[0m  [01;32minteg_ex.py[0m  [01;32mmain_projector.py[0m
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/scripts[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/scripts[00m$ cd ..
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[00m$ ls
+CMakeLists.txt  [0m[01;34mlaunch[0m  [01;34mmsg[0m  package.xml  [01;34mscripts[0m  [01;34msrv[0m  typescript
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system[00m$ cd launch/
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ ls
+projector.launch
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ roslaunch projector.launch 
+... logging to /home/locobot/.ros/log/430cbd36-e7bb-11ea-a475-48f17fdefd69/roslaunch-locobot-15782.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;projector.launch
+[1mstarted roslaunch server http://locobot:40435/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /animation: 
+ * /rosdistro: kinetic
+ * /rosversion: 1.12.14
+
+NODES
+  /
+    main_projector (projector_system/main_projector.py)
+
+auto-starting new master
+[1mprocess[master]: started with pid [15793][0m
+[1mROS_MASTER_URI=http://localhost:11311[0m
+]2;projector.launch http://localhost:11311
+[1msetting /run_id to 430cbd36-e7bb-11ea-a475-48f17fdefd69[0m
+[1mprocess[rosout-1]: started with pid [15806][0m
+started core service [/rosout]
+[1mprocess[main_projector-2]: started with pid [15809][0m
+^C[main_projector-2] killing on exit
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ ls
+projector.launch
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ vim projector.launch 
+[?1049h[?1h=[2;1H▽[6n[2;1H  [1;1H]11;?[1;54r[?12;25h[?12l[?25h[27m[23m[m[H[2J[?25l[54;1H"projector.launch" 24L, 981C[>c[1;1H<launch>
+    <!-- Different animations -->[4;5H<arg name="animation" default=""/>[6;5H<param name="animation" value="$(arg animation)"/>[9;5H<!-- Need to launch a file to process the /odom topic with arguments for which animation is desired -->[11;5H<node name="main_projector" pkg="projector_system" type="main_projector.py" args="$(arg animation)"/>[13;5H<!-- This file needs a single signal from main_projector that the robot has started the move, then can disconnect from topics -->
+    <group if="$(eval animation == 'countdown')">[15;9H<node name="countdown_node" pkg="projector_system" type="circle_anim.py"/>
+    </group>[18;5H<!-- This file needs continuous communication from main_projector to communicate the angle of the wheels, and can end when the robot has reached its goal -->
+    <group if="$(eval animation == 'arrow')">[20;9H<!-- Arrow animation file not yet made -->[21;9H<node name="arrow_node" pkg="projector_system" type="arrow_anim.py" />
+    </group>
+
+</launch>
+[94m~                                                                                                                                                                                                                   [26;1H~                                                                                                                                                                                                                   [27;1H~                                                                                                                                                                                                                   [28;1H~                                                                                                                                                                                                                   [29;1H~                                                                                                                                                                                                                   [30;1H~                                                                                                                                                                                                                   [31;1H~                                                                                                                                                                                                                   [32;1H~                                                                                                                                                                                                                   [33;1H~                                                                                                                                                                                                                   [34;1H~                                                                                                                                                                                                                   [35;1H~                                                                                                                                                                                                                   [36;1H~                                                                                                                                                                                                                   [37;1H~                                                                                                                                                                                                                   [38;1H~                                                                                                                                                                                                                   [39;1H~                                                                                                                                                                                                                   [40;1H~                                                                                                                                                                                                                   [41;1H~                                                                                                                                                                                                                   [42;1H~                                                                                                                                                                                                                   [43;1H~                                                                                                                                                                                                                   [44;1H~                                                                                                                                                                                                                   [45;1H~                                                                                                                                                                                                                   [46;1H~                                                                                                                                                                                                                   [47;1H~                                                                                                                                                                                                                   [48;1H~                                                                                                                                                                                                                   [49;1H~                                                                                                                                                                                                                   [50;1H~                                                                                                                                                                                                                   [51;1H~                                                                                                                                                                                                                   [52;1H~                                                                                                                                                                                                                   [53;1H~                                                                                                                                                                                                                   [m[54;195H1,1[11CAll[1;1H[?12l[?25h[27m[23m[m[H[2J[?25l[1;1H<launch>
+    <!-- Different animations -->[4;5H<arg name="animation" default=""/>[6;5H<param name="animation" value="$(arg animation)"/>[9;5H<!-- Need to launch a file to process the /odom topic with arguments for which animation is desired -->[11;5H<node name="main_projector" pkg="projector_system" type="main_projector.py" args="$(arg animation)"/>[13;5H<!-- This file needs a single signal from main_projector that the robot has started the move, then can disconnect from topics -->
+    <group if="$(eval animation == 'countdown')">[15;9H<node name="countdown_node" pkg="projector_system" type="circle_anim.py"/>
+    </group>[18;5H<!-- This file needs continuous communication from main_projector to communicate the angle of the wheels, and can end when the robot has reached its goal -->
+    <group if="$(eval animation == 'arrow')">[20;9H<!-- Arrow animation file not yet made -->[21;9H<node name="arrow_node" pkg="projector_system" type="arrow_anim.py" />
+    </group>
+
+</launch>
+[94m~                                                                                                                                                                                                                   [26;1H~                                                                                                                                                                                                                   [27;1H~                                                                                                                                                                                                                   [28;1H~                                                                                                                                                                                                                   [29;1H~                                                                                                                                                                                                                   [30;1H~                                                                                                                                                                                                                   [31;1H~                                                                                                                                                                                                                   [32;1H~                                                                                                                                                                                                                   [33;1H~                                                                                                                                                                                                                   [34;1H~                                                                                                                                                                                                                   [35;1H~                                                                                                                                                                                                                   [36;1H~                                                                                                                                                                                                                   [37;1H~                                                                                                                                                                                                                   [38;1H~                                                                                                                                                                                                                   [39;1H~                                                                                                                                                                                                                   [40;1H~                                                                                                                                                                                                                   [41;1H~                                                                                                                                                                                                                   [42;1H~                                                                                                                                                                                                                   [43;1H~                                                                                                                                                                                                                   [44;1H~                                                                                                                                                                                                                   [45;1H~                                                                                                                                                                                                                   [46;1H~                                                                                                                                                                                                                   [47;1H~                                                                                                                                                                                                                   [48;1H~                                                                                                                                                                                                                   [49;1H~                                                                                                                                                                                                                   [50;1H~                                                                                                                                                                                                                   [51;1H~                                                                                                                                                                                                                   [52;1H~                                                                                                                                                                                                                   [53;1H~                                                                                                                                                                                                                   [m[54;195H1,1[11CAll"projector.launch" 24L, 981C[1;1HP+q436f\P+q6b75\P+q6b64\P+q6b72\P+q6b6c\P+q2332\P+q2334\P+q2569\P+q2a37\P+q6b31\[?12l[?25h[?25l[54;1H[K[54;1H:[?12l[?25hq[?25l[?12l[?25h[?25l[54;1H[K[54;1H[?1l>[?12l[?25h[?1049l]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ ro[K[Khistory | r[Kgrep roslaunch
+ 1013  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1014  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=trueexit
+ 1015  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1386  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1392  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1429  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1432  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1434  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1442  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1451  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1454  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1459  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1462  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1464  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1475  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1477  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1479  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1481  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1483  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1486  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1488  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1536  [01;31m[Kroslaunch[m[K projector_system projector.launch animation animation:="countdown"
+ 1537  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1580  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1605  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1622  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1626  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1635  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1640  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1642  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1645  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1648  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1652  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1654  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:="countdown"
+ 1692  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1700  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1702  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1704  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1706  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1718  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1720  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1727  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1731  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1736  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1741  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1744  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1746  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1755  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1763  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1767  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=countdown
+ 1801  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=arrow
+ 1806  [01;31m[Kroslaunch[m[K projector_system projector.launch animation:=arrow
+ 1816  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 1974  [01;31m[Kroslaunch[m[K locobot_control main.launch use_base:=true
+ 2007  [01;31m[Kroslaunch[m[K projector.launch 
+ 2010  history | grep [01;31m[Kroslaunch[m[K
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ roslaunch locobot_control main.launch use+b[K[K_base:=true
+... logging to /home/locobot/.ros/log/6f3374b8-e7bb-11ea-a475-48f17fdefd69/roslaunch-locobot-15887.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_control/launch/main.launch
+[1mstarted roslaunch server http://locobot:45841/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /bumper2pointcloud/pointcloud_radius: 0.24
+ * /cmd_vel_mux/yaml_cfg_file: /opt/ros/kinetic/...
+ * /diagnostic_aggregator/analyzers/input_ports/contains: ['Digital Input',...
+ * /diagnostic_aggregator/analyzers/input_ports/path: Input Ports
+ * /diagnostic_aggregator/analyzers/input_ports/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/input_ports/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/input_ports/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/analyzers/kobuki/contains: ['Watchdog', 'Mot...
+ * /diagnostic_aggregator/analyzers/kobuki/path: Kobuki
+ * /diagnostic_aggregator/analyzers/kobuki/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/kobuki/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/kobuki/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/analyzers/power/contains: ['Battery', 'Lapt...
+ * /diagnostic_aggregator/analyzers/power/path: Power System
+ * /diagnostic_aggregator/analyzers/power/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/power/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/power/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/analyzers/sensors/contains: ['Cliff Sensor', ...
+ * /diagnostic_aggregator/analyzers/sensors/path: Sensors
+ * /diagnostic_aggregator/analyzers/sensors/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/sensors/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/sensors/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/base_path: 
+ * /diagnostic_aggregator/pub_rate: 1.0
+ * /mobile_base/base_frame: base_footprint
+ * /mobile_base/battery_capacity: 16.5
+ * /mobile_base/battery_dangerous: 13.2
+ * /mobile_base/battery_low: 14.0
+ * /mobile_base/cmd_vel_timeout: 0.6
+ * /mobile_base/device_port: /dev/kobuki
+ * /mobile_base/odom_frame: odom
+ * /mobile_base/publish_tf: True
+ * /mobile_base/use_imu_heading: True
+ * /mobile_base/wheel_left_joint_name: wheel_left_joint
+ * /mobile_base/wheel_right_joint_name: wheel_right_joint
+ * /move_base/DWAPlannerROS/acc_lim_theta: 2.0
+ * /move_base/DWAPlannerROS/acc_lim_x: 1.0
+ * /move_base/DWAPlannerROS/acc_lim_y: 0.0
+ * /move_base/DWAPlannerROS/forward_point_distance: 0.325
+ * /move_base/DWAPlannerROS/global_frame_id: odom
+ * /move_base/DWAPlannerROS/goal_distance_bias: 24.0
+ * /move_base/DWAPlannerROS/latch_xy_goal_tolerance: True
+ * /move_base/DWAPlannerROS/max_rot_vel: 2.0
+ * /move_base/DWAPlannerROS/max_scaling_factor: 0.2
+ * /move_base/DWAPlannerROS/max_trans_vel: 0.1
+ * /move_base/DWAPlannerROS/max_vel_x: 0.15
+ * /move_base/DWAPlannerROS/max_vel_y: 0.0
+ * /move_base/DWAPlannerROS/min_rot_vel: 1.0
+ * /move_base/DWAPlannerROS/min_trans_vel: 0.1
+ * /move_base/DWAPlannerROS/min_vel_x: 0.1
+ * /move_base/DWAPlannerROS/min_vel_y: 0.0
+ * /move_base/DWAPlannerROS/occdist_scale: 0.5
+ * /move_base/DWAPlannerROS/oscillation_reset_dist: 0.05
+ * /move_base/DWAPlannerROS/path_distance_bias: 64.0
+ * /move_base/DWAPlannerROS/publish_cost_grid_pc: True
+ * /move_base/DWAPlannerROS/publish_traj_pc: True
+ * /move_base/DWAPlannerROS/rot_stopped_vel: 0.5
+ * /move_base/DWAPlannerROS/scaling_speed: 0.25
+ * /move_base/DWAPlannerROS/sim_time: 1.0
+ * /move_base/DWAPlannerROS/stop_time_buffer: 0.2
+ * /move_base/DWAPlannerROS/trans_stopped_vel: 0.1
+ * /move_base/DWAPlannerROS/vtheta_samples: 20
+ * /move_base/DWAPlannerROS/vx_samples: 20
+ * /move_base/DWAPlannerROS/vy_samples: 1
+ * /move_base/DWAPlannerROS/xy_goal_tolerance: 0.15
+ * /move_base/DWAPlannerROS/yaw_goal_tolerance: 0.15
+ * /move_base/GlobalPlanner/allow_unknown: True
+ * /move_base/GlobalPlanner/cost_factor: 3.0
+ * /move_base/GlobalPlanner/default_tolerance: 0.0
+ * /move_base/GlobalPlanner/lethal_cost: 253
+ * /move_base/GlobalPlanner/neutral_cost: 50
+ * /move_base/GlobalPlanner/old_navfn_behavior: False
+ * /move_base/GlobalPlanner/planner_costmap_publish_frequency: 0.0
+ * /move_base/GlobalPlanner/planner_window_x: 0.0
+ * /move_base/GlobalPlanner/planner_window_y: 0.0
+ * /move_base/GlobalPlanner/publish_potential: True
+ * /move_base/GlobalPlanner/publish_scale: 100
+ * /move_base/GlobalPlanner/use_dijkstra: True
+ * /move_base/GlobalPlanner/use_grid_path: False
+ * /move_base/GlobalPlanner/use_quadratic: True
+ * /move_base/NavfnROS/allow_unknown: False
+ * /move_base/NavfnROS/default_tolerance: 0.0
+ * /move_base/NavfnROS/planner_window_x: 0.0
+ * /move_base/NavfnROS/planner_window_y: 0.0
+ * /move_base/NavfnROS/visualize_potential: False
+ * /move_base/TrajectoryPlannerROS/acc_lim_theta: 1.0
+ * /move_base/TrajectoryPlannerROS/acc_lim_x: 0.3
+ * /move_base/TrajectoryPlannerROS/acc_lim_y: 0.0
+ * /move_base/TrajectoryPlannerROS/angular_sim_granularity: 0.025
+ * /move_base/TrajectoryPlannerROS/dwa: True
+ * /move_base/TrajectoryPlannerROS/escape_vel: -0.15
+ * /move_base/TrajectoryPlannerROS/gdist_scale: 0.7
+ * /move_base/TrajectoryPlannerROS/heading_lookahead: 0.375
+ * /move_base/TrajectoryPlannerROS/heading_scoring: False
+ * /move_base/TrajectoryPlannerROS/heading_scoring_timestep: 0.8
+ * /move_base/TrajectoryPlannerROS/holonomic_robot: False
+ * /move_base/TrajectoryPlannerROS/latch_xy_goal_tolerance: True
+ * /move_base/TrajectoryPlannerROS/max_vel_theta: 0.7
+ * /move_base/TrajectoryPlannerROS/max_vel_x: 0.36
+ * /move_base/TrajectoryPlannerROS/max_vel_y: 0.0
+ * /move_base/TrajectoryPlannerROS/meter_scoring: True
+ * /move_base/TrajectoryPlannerROS/min_in_place_vel_theta: 0.5
+ * /move_base/TrajectoryPlannerROS/min_vel_theta: -0.7
+ * /move_base/TrajectoryPlannerROS/min_vel_x: 0.2
+ * /move_base/TrajectoryPlannerROS/min_vel_y: 0.0
+ * /move_base/TrajectoryPlannerROS/occdist_scale: 0.01
+ * /move_base/TrajectoryPlannerROS/oscillation_reset_dist: 0.05
+ * /move_base/TrajectoryPlannerROS/pdist_scale: 0.6
+ * /move_base/TrajectoryPlannerROS/prune_plan: True
+ * /move_base/TrajectoryPlannerROS/publish_cost_grid_pc: False
+ * /move_base/TrajectoryPlannerROS/sim_granularity: 0.025
+ * /move_base/TrajectoryPlannerROS/simple_attractor: False
+ * /move_base/TrajectoryPlannerROS/vtheta_samples: 40
+ * /move_base/TrajectoryPlannerROS/vx_samples: 28
+ * /move_base/TrajectoryPlannerROS/vy_samples: 0
+ * /move_base/TrajectoryPlannerROS/xy_goal_tolerance: 0.2
+ * /move_base/TrajectoryPlannerROS/yaw_goal_tolerance: 0.2
+ * /move_base/base_global_planner: global_planner/Gl...
+ * /move_base/base_local_planner: base_local_planne...
+ * /move_base/controller_frequency: 5.0
+ * /move_base/controller_patience: 1.0
+ * /move_base/global_costmap/always_send_full_costmap: True
+ * /move_base/global_costmap/global_frame: map
+ * /move_base/global_costmap/height: 100.0
+ * /move_base/global_costmap/inflation_layer/cost_scaling_factor: 5.0
+ * /move_base/global_costmap/inflation_layer/enabled: True
+ * /move_base/global_costmap/inflation_layer/inflation_radius: 0.5
+ * /move_base/global_costmap/map_type: costmap
+ * /move_base/global_costmap/max_obstacle_height: 0.6
+ * /move_base/global_costmap/obstacle_layer/bump/clearing: False
+ * /move_base/global_costmap/obstacle_layer/bump/data_type: PointCloud2
+ * /move_base/global_costmap/obstacle_layer/bump/marking: True
+ * /move_base/global_costmap/obstacle_layer/bump/max_obstacle_height: 0.15
+ * /move_base/global_costmap/obstacle_layer/bump/min_obstacle_height: 0.0
+ * /move_base/global_costmap/obstacle_layer/bump/topic: mobile_base/senso...
+ * /move_base/global_costmap/obstacle_layer/combination_method: 1
+ * /move_base/global_costmap/obstacle_layer/enabled: True
+ * /move_base/global_costmap/obstacle_layer/mark_threshold: 0
+ * /move_base/global_costmap/obstacle_layer/max_obstacle_height: 0.6
+ * /move_base/global_costmap/obstacle_layer/observation_sources: scan bump
+ * /move_base/global_costmap/obstacle_layer/obstacle_range: 2.5
+ * /move_base/global_costmap/obstacle_layer/origin_z: 0.0
+ * /move_base/global_costmap/obstacle_layer/publish_voxel_map: False
+ * /move_base/global_costmap/obstacle_layer/raytrace_range: 3.0
+ * /move_base/global_costmap/obstacle_layer/scan/clearing: True
+ * /move_base/global_costmap/obstacle_layer/scan/data_type: LaserScan
+ * /move_base/global_costmap/obstacle_layer/scan/marking: True
+ * /move_base/global_costmap/obstacle_layer/scan/max_obstacle_height: 0.35
+ * /move_base/global_costmap/obstacle_layer/scan/min_obstacle_height: 0.25
+ * /move_base/global_costmap/obstacle_layer/scan/topic: scan
+ * /move_base/global_costmap/obstacle_layer/track_unknown_space: True
+ * /move_base/global_costmap/obstacle_layer/unknown_threshold: 15
+ * /move_base/global_costmap/obstacle_layer/z_resolution: 0.2
+ * /move_base/global_costmap/obstacle_layer/z_voxels: 2
+ * /move_base/global_costmap/plugins: [{'type': 'costma...
+ * /move_base/global_costmap/publish_frequency: 0.5
+ * /move_base/global_costmap/resolution: 0.2
+ * /move_base/global_costmap/robot_base_frame: base_footprint
+ * /move_base/global_costmap/robot_radius: 0.2
+ * /move_base/global_costmap/rolling_window: True
+ * /move_base/global_costmap/static_layer/enabled: True
+ * /move_base/global_costmap/static_map: True
+ * /move_base/global_costmap/transform_tolerance: 0.5
+ * /move_base/global_costmap/update_frequency: 1.0
+ * /move_base/global_costmap/width: 100.0
+ * /move_base/local_costmap/always_send_full_costmap: True
+ * /move_base/local_costmap/global_frame: odom
+ * /move_base/local_costmap/height: 4.0
+ * /move_base/local_costmap/inflation_layer/cost_scaling_factor: 5.0
+ * /move_base/local_costmap/inflation_layer/enabled: True
+ * /move_base/local_costmap/inflation_layer/inflation_radius: 0.5
+ * /move_base/local_costmap/map_type: costmap
+ * /move_base/local_costmap/max_obstacle_height: 0.6
+ * /move_base/local_costmap/obstacle_layer/bump/clearing: False
+ * /move_base/local_costmap/obstacle_layer/bump/data_type: PointCloud2
+ * /move_base/local_costmap/obstacle_layer/bump/marking: True
+ * /move_base/local_costmap/obstacle_layer/bump/max_obstacle_height: 0.15
+ * /move_base/local_costmap/obstacle_layer/bump/min_obstacle_height: 0.0
+ * /move_base/local_costmap/obstacle_layer/bump/topic: mobile_base/senso...
+ * /move_base/local_costmap/obstacle_layer/combination_method: 1
+ * /move_base/local_costmap/obstacle_layer/enabled: True
+ * /move_base/local_costmap/obstacle_layer/mark_threshold: 0
+ * /move_base/local_costmap/obstacle_layer/max_obstacle_height: 0.6
+ * /move_base/local_costmap/obstacle_layer/observation_sources: scan bump
+ * /move_base/local_costmap/obstacle_layer/obstacle_range: 2.5
+ * /move_base/local_costmap/obstacle_layer/origin_z: 0.0
+ * /move_base/local_costmap/obstacle_layer/publish_voxel_map: False
+ * /move_base/local_costmap/obstacle_layer/raytrace_range: 3.0
+ * /move_base/local_costmap/obstacle_layer/scan/clearing: True
+ * /move_base/local_costmap/obstacle_layer/scan/data_type: LaserScan
+ * /move_base/local_costmap/obstacle_layer/scan/marking: True
+ * /move_base/local_costmap/obstacle_layer/scan/max_obstacle_height: 0.35
+ * /move_base/local_costmap/obstacle_layer/scan/min_obstacle_height: 0.25
+ * /move_base/local_costmap/obstacle_layer/scan/topic: scan
+ * /move_base/local_costmap/obstacle_layer/track_unknown_space: True
+ * /move_base/local_costmap/obstacle_layer/unknown_threshold: 15
+ * /move_base/local_costmap/obstacle_layer/z_resolution: 0.2
+ * /move_base/local_costmap/obstacle_layer/z_voxels: 2
+ * /move_base/local_costmap/plugins: [{'type': 'costma...
+ * /move_base/local_costmap/publish_frequency: 2.0
+ * /move_base/local_costmap/resolution: 0.01
+ * /move_base/local_costmap/robot_base_frame: base_footprint
+ * /move_base/local_costmap/robot_radius: 0.2
+ * /move_base/local_costmap/rolling_window: True
+ * /move_base/local_costmap/static_layer/enabled: True
+ * /move_base/local_costmap/static_map: False
+ * /move_base/local_costmap/transform_tolerance: 0.5
+ * /move_base/local_costmap/update_frequency: 5.0
+ * /move_base/local_costmap/width: 4.0
+ * /move_base/oscillation_distance: 0.2
+ * /move_base/oscillation_timeout: 10.0
+ * /move_base/planner_frequency: 1.0
+ * /move_base/planner_patience: 1.0
+ * /move_base/recovery_behavior_enabled: False
+ * /move_base/shutdown_costmaps: False
+ * /move_group/allow_trajectory_execution: True
+ * /move_group/arm/default_planner_config: RRTConnectkConfig...
+ * /move_group/arm/longest_valid_segment_fraction: 0.005
+ * /move_group/arm/planner_configs: ['SBLkConfigDefau...
+ * /move_group/arm/projection_evaluator: joints(joint_1,jo...
+ * /move_group/capabilities: 
+ * /move_group/controller_list: [{'default': True...
+ * /move_group/disable_capabilities: 
+ * /move_group/gripper/default_planner_config: ESTkConfigDefault
+ * /move_group/gripper/longest_valid_segment_fraction: 0.005
+ * /move_group/gripper/planner_configs: ['SBLkConfigDefau...
+ * /move_group/gripper/projection_evaluator: joints(joint_6,jo...
+ * /move_group/jiggle_fraction: 0.05
+ * /move_group/max_range: 5.0
+ * /move_group/max_safe_path_cost: 1
+ * /move_group/moveit_controller_manager: moveit_simple_con...
+ * /move_group/moveit_manage_controllers: True
+ * /move_group/octomap_resolution: 0.025
+ * /move_group/planner_configs/BFMTkConfigDefault/balanced: 0
+ * /move_group/planner_configs/BFMTkConfigDefault/cache_cc: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/extended_fmt: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/heuristics: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/nearest_k: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/num_samples: 1000
+ * /move_group/planner_configs/BFMTkConfigDefault/optimality: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/radius_multiplier: 1.0
+ * /move_group/planner_configs/BFMTkConfigDefault/type: geometric::BFMT
+ * /move_group/planner_configs/BKPIECEkConfigDefault/border_fraction: 0.9
+ * /move_group/planner_configs/BKPIECEkConfigDefault/failed_expansion_score_factor: 0.5
+ * /move_group/planner_configs/BKPIECEkConfigDefault/min_valid_path_fraction: 0.5
+ * /move_group/planner_configs/BKPIECEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/BKPIECEkConfigDefault/type: geometric::BKPIECE
+ * /move_group/planner_configs/BiESTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/BiESTkConfigDefault/type: geometric::BiEST
+ * /move_group/planner_configs/BiTRRTkConfigDefault/cost_threshold: 1e300
+ * /move_group/planner_configs/BiTRRTkConfigDefault/frountier_node_ratio: 0.1
+ * /move_group/planner_configs/BiTRRTkConfigDefault/frountier_threshold: 0.0
+ * /move_group/planner_configs/BiTRRTkConfigDefault/init_temperature: 100
+ * /move_group/planner_configs/BiTRRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/BiTRRTkConfigDefault/temp_change_factor: 0.1
+ * /move_group/planner_configs/BiTRRTkConfigDefault/type: geometric::BiTRRT
+ * /move_group/planner_configs/ESTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/ESTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/ESTkConfigDefault/type: geometric::EST
+ * /move_group/planner_configs/FMTkConfigDefault/cache_cc: 1
+ * /move_group/planner_configs/FMTkConfigDefault/extended_fmt: 1
+ * /move_group/planner_configs/FMTkConfigDefault/heuristics: 0
+ * /move_group/planner_configs/FMTkConfigDefault/nearest_k: 1
+ * /move_group/planner_configs/FMTkConfigDefault/num_samples: 1000
+ * /move_group/planner_configs/FMTkConfigDefault/radius_multiplier: 1.1
+ * /move_group/planner_configs/FMTkConfigDefault/type: geometric::FMT
+ * /move_group/planner_configs/KPIECEkConfigDefault/border_fraction: 0.9
+ * /move_group/planner_configs/KPIECEkConfigDefault/failed_expansion_score_factor: 0.5
+ * /move_group/planner_configs/KPIECEkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/KPIECEkConfigDefault/min_valid_path_fraction: 0.5
+ * /move_group/planner_configs/KPIECEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/KPIECEkConfigDefault/type: geometric::KPIECE
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/border_fraction: 0.9
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/min_valid_path_fraction: 0.5
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/type: geometric::LBKPIECE
+ * /move_group/planner_configs/LBTRRTkConfigDefault/epsilon: 0.4
+ * /move_group/planner_configs/LBTRRTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/LBTRRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/LBTRRTkConfigDefault/type: geometric::LBTRRT
+ * /move_group/planner_configs/LazyPRMkConfigDefault/range: 0.0
+ * /move_group/planner_configs/LazyPRMkConfigDefault/type: geometric::LazyPRM
+ * /move_group/planner_configs/LazyPRMstarkConfigDefault/type: geometric::LazyPR...
+ * /move_group/planner_configs/PDSTkConfigDefault/type: geometric::PDST
+ * /move_group/planner_configs/PRMkConfigDefault/max_nearest_neighbors: 10
+ * /move_group/planner_configs/PRMkConfigDefault/type: geometric::PRM
+ * /move_group/planner_configs/PRMstarkConfigDefault/type: geometric::PRMstar
+ * /move_group/planner_configs/ProjESTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/ProjESTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/ProjESTkConfigDefault/type: geometric::ProjEST
+ * /move_group/planner_configs/RRTConnectkConfigDefault/range: 0.0
+ * /move_group/planner_configs/RRTConnectkConfigDefault/type: geometric::RRTCon...
+ * /move_group/planner_configs/RRTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/RRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/RRTkConfigDefault/type: geometric::RRT
+ * /move_group/planner_configs/RRTstarkConfigDefault/delay_collision_checking: 1
+ * /move_group/planner_configs/RRTstarkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/RRTstarkConfigDefault/range: 0.0
+ * /move_group/planner_configs/RRTstarkConfigDefault/type: geometric::RRTstar
+ * /move_group/planner_configs/SBLkConfigDefault/range: 0.0
+ * /move_group/planner_configs/SBLkConfigDefault/type: geometric::SBL
+ * /move_group/planner_configs/SPARSkConfigDefault/dense_delta_fraction: 0.001
+ * /move_group/planner_configs/SPARSkConfigDefault/max_failures: 1000
+ * /move_group/planner_configs/SPARSkConfigDefault/sparse_delta_fraction: 0.25
+ * /move_group/planner_configs/SPARSkConfigDefault/stretch_factor: 3.0
+ * /move_group/planner_configs/SPARSkConfigDefault/type: geometric::SPARS
+ * /move_group/planner_configs/SPARStwokConfigDefault/dense_delta_fraction: 0.001
+ * /move_group/planner_configs/SPARStwokConfigDefault/max_failures: 5000
+ * /move_group/planner_configs/SPARStwokConfigDefault/sparse_delta_fraction: 0.25
+ * /move_group/planner_configs/SPARStwokConfigDefault/stretch_factor: 3.0
+ * /move_group/planner_configs/SPARStwokConfigDefault/type: geometric::SPARStwo
+ * /move_group/planner_configs/STRIDEkConfigDefault/degree: 16
+ * /move_group/planner_configs/STRIDEkConfigDefault/estimated_dimension: 0.0
+ * /move_group/planner_configs/STRIDEkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/STRIDEkConfigDefault/max_degree: 18
+ * /move_group/planner_configs/STRIDEkConfigDefault/max_pts_per_leaf: 6
+ * /move_group/planner_configs/STRIDEkConfigDefault/min_degree: 12
+ * /move_group/planner_configs/STRIDEkConfigDefault/min_valid_path_fraction: 0.2
+ * /move_group/planner_configs/STRIDEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/STRIDEkConfigDefault/type: geometric::STRIDE
+ * /move_group/planner_configs/STRIDEkConfigDefault/use_projected_distance: 0
+ * /move_group/planner_configs/TRRTkConfigDefault/frountierNodeRatio: 0.1
+ * /move_group/planner_configs/TRRTkConfigDefault/frountier_threshold: 0.0
+ * /move_group/planner_configs/TRRTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/TRRTkConfigDefault/init_temperature: 10e-6
+ * /move_group/planner_configs/TRRTkConfigDefault/k_constant: 0.0
+ * /move_group/planner_configs/TRRTkConfigDefault/max_states_failed: 10
+ * /move_group/planner_configs/TRRTkConfigDefault/min_temperature: 10e-10
+ * /move_group/planner_configs/TRRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/TRRTkConfigDefault/temp_change_factor: 2.0
+ * /move_group/planner_configs/TRRTkConfigDefault/type: geometric::TRRT
+ * /move_group/planning_plugin: ompl_interface/OM...
+ * /move_group/planning_scene_monitor/publish_geometry_updates: True
+ * /move_group/planning_scene_monitor/publish_planning_scene: True
+ * /move_group/planning_scene_monitor/publish_state_updates: True
+ * /move_group/planning_scene_monitor/publish_transforms_updates: True
+ * /move_group/request_adapters: default_planner_r...
+ * /move_group/sensors: [{'point_subsampl...
+ * /move_group/start_state_max_bounds_error: 0.1
+ * /move_group/trajectory_execution/allowed_execution_duration_scaling: 1.2
+ * /move_group/trajectory_execution/allowed_goal_duration_margin: 0.5
+ * /move_group/trajectory_execution/allowed_start_tolerance: 0.0
+ * /navigation_velocity_smoother/accel_lim_v: 1.0
+ * /navigation_velocity_smoother/accel_lim_w: 2.0
+ * /navigation_velocity_smoother/decel_factor: 1.5
+ * /navigation_velocity_smoother/frequency: 20.0
+ * /navigation_velocity_smoother/robot_feedback: 2
+ * /navigation_velocity_smoother/speed_lim_v: 0.8
+ * /navigation_velocity_smoother/speed_lim_w: 5.4
+ * /robot/name: turtlebot
+ * /robot/type: turtlebot
+ * /robot_description: <?xml version="1....
+ * /robot_description_kinematics/arm/kinematics_solver: trac_ik_kinematic...
+ * /robot_description_kinematics/arm/kinematics_solver_attempts: 3
+ * /robot_description_kinematics/arm/kinematics_solver_search_resolution: 0.005
+ * /robot_description_kinematics/arm/kinematics_solver_timeout: 0.005
+ * /robot_description_planning/joint_limits/joint_1/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_1/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_1/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_1/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_2/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_2/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_2/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_2/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_3/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_3/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_3/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_3/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_4/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_4/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_4/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_4/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_5/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_5/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_5/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_5/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_6/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_6/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_6/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_6/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_7/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_7/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_7/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_7/max_velocity: 1
+ * /robot_description_semantic: <?xml version="1....
+ * /rosdistro: kinetic
+ * /rosversion: 1.12.14
+ * /rviz_locobot_15887_5481149914106200393/arm/kinematics_solver: trac_ik_kinematic...
+ * /rviz_locobot_15887_5481149914106200393/arm/kinematics_solver_attempts: 3
+ * /rviz_locobot_15887_5481149914106200393/arm/kinematics_solver_search_resolution: 0.005
+ * /rviz_locobot_15887_5481149914106200393/arm/kinematics_solver_timeout: 0.005
+ * /teleop: False
+ * /torque_control: False
+ * /use_arm: False
+ * /use_base: True
+ * /use_camera: False
+ * /use_sim: False
+ * /use_sim_time: False
+ * /use_vslam: False
+
+NODES
+  /
+    bumper2pointcloud (nodelet/nodelet)
+    calibration_tf_broadcaster (locobot_calibration/calibration_publish_transforms.py)
+    cmd_vel_mux (nodelet/nodelet)
+    diagnostic_aggregator (diagnostic_aggregator/aggregator_node)
+    map_server (map_server/map_server)
+    mobile_base (nodelet/nodelet)
+    mobile_base_nodelet_manager (nodelet/nodelet)
+    move_base (move_base/move_base)
+    move_group (moveit_ros_move_group/move_group)
+    navigation_velocity_smoother (nodelet/nodelet)
+    odom_map_broadcaster (tf/static_transform_publisher)
+    pyrobot_kinematics (pyrobot_bridge/kinematics.py)
+    robot_state_publisher (robot_state_publisher/robot_state_publisher)
+    rviz_locobot_15887_5481149914106200393 (rviz/rviz)
+
+auto-starting new master
+[1mprocess[master]: started with pid [15897][0m
+[1mROS_MASTER_URI=http://localhost:11311[0m
+]2;/home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_control/launch/main.launch http://localhost:11311
+[1msetting /run_id to 6f3374b8-e7bb-11ea-a475-48f17fdefd69[0m
+[1mprocess[rosout-1]: started with pid [15910][0m
+started core service [/rosout]
+[1mprocess[diagnostic_aggregator-2]: started with pid [15927][0m
+[1mprocess[mobile_base_nodelet_manager-3]: started with pid [15928][0m
+[1mprocess[mobile_base-4]: started with pid [15929][0m
+[1mprocess[bumper2pointcloud-5]: started with pid [15930][0m
+[1mprocess[cmd_vel_mux-6]: started with pid [15931][0m
+[1mprocess[calibration_tf_broadcaster-7]: started with pid [15945][0m
+[1mprocess[pyrobot_kinematics-8]: started with pid [15952][0m
+[1mprocess[map_server-9]: started with pid [15967][0m
+[1mprocess[odom_map_broadcaster-10]: started with pid [15991][0m
+[1mprocess[navigation_velocity_smoother-11]: started with pid [16000][0m
+[1mprocess[move_base-12]: started with pid [16009][0m
+[1mprocess[robot_state_publisher-13]: started with pid [16028][0m
+[1mprocess[move_group-14]: started with pid [16037][0m
+[1mprocess[rviz_locobot_15887_5481149914106200393-15]: started with pid [16060][0m
+[0m[ INFO] [1598460281.333227364]: Loading robot model 'locobot'...[0m
+[0m[ INFO] [1598460281.333310621]: No root/virtual joint specified in SRDF. Assuming fixed joint[0m
+QXcbConnection: Could not connect to display 
+[0m[ INFO] [1598460281.757720881]: Using plugin "static_layer"[0m
+[0m[ INFO] [1598460281.781031365]: Requesting the map...[0m
+[31m[ERROR] [1598460281.796560746]: Kobuki : malformed sub-payload detected. [34][170][22 AA 55 67 01 0F D8 4E 00 00 00 ][0m
+[0m[ INFO] [1598460281.984473658]: Resizing static layer to 600 X 600 at 0.010000 m/pix[0m
+[0m[ INFO] [1598460282.084288732]: Received a 600 X 600 map at 0.010000 m/pix[0m
+[0m[ INFO] [1598460282.088188767]: Using plugin "obstacle_layer"[0m
+[0m[ INFO] [1598460282.090596297]:     Subscribed to Topics: scan bump[0m
+[33m[WARN] [1598460282.121380]: Will publish: 
+[0m[33m[WARN] [1598460282.121725]:   head_tilt_link to camera_link
+[0m[33m[WARN] [1598460282.121995]:   plate_2 to arm_base_link
+[0m[0m[ INFO] [1598460282.139606618]: Using plugin "inflation_layer"[0m
+[0m[ INFO] [1598460282.218967052]: Using plugin "static_layer"[0m
+[0m[ INFO] [1598460282.222045840]: Requesting the map...[0m
+[0m[ INFO] [1598460282.224022699]: Resizing static layer to 600 X 600 at 0.010000 m/pix[0m
+[0m[ INFO] [1598460282.309646579]: IK Using joint shoulder_link -1.57 1.57[0m
+[0m[ INFO] [1598460282.309679483]: IK Using joint elbow_link -1.57 1.57[0m
+[0m[ INFO] [1598460282.309696325]: IK Using joint forearm_link -1.57 1.57[0m
+[0m[ INFO] [1598460282.309710686]: IK Using joint wrist_link -1.57 1.57[0m
+[0m[ INFO] [1598460282.309723729]: IK Using joint gripper_link -1.57 1.57[0m
+[0m[ INFO] [1598460282.309738362]: Looking in common namespaces for param name: arm/position_only_ik[0m
+[0m[ INFO] [1598460282.311328896]: Looking in common namespaces for param name: arm/solve_type[0m
+[0m[ INFO] [1598460282.312922742]: Using solve type Speed[0m
+[0m[ INFO] [1598460282.323881199]: Received a 600 X 600 map at 0.010000 m/pix[0m
+[0m[ INFO] [1598460282.327975454]: Using plugin "obstacle_layer"[0m
+[0m[ INFO] [1598460282.330418603]:     Subscribed to Topics: scan bump[0m
+[0m[ INFO] [1598460282.373435125]: Using plugin "inflation_layer"[0m
+[0m[ INFO] [1598460282.428927919]: Created local_planner base_local_planner/TrajectoryPlannerROS[0m
+[0m[ INFO] [1598460282.439141125]: Sim period is set to 0.20[0m
+[0m[ INFO] [1598460283.225581660]: Recovery behavior will clear layer obstacles[0m
+[0m[ INFO] [1598460283.232215676]: Recovery behavior will clear layer obstacles[0m
+[31m[rviz_locobot_15887_5481149914106200393-15] process has died [pid 16060, exit code -6, cmd /opt/ros/kinetic/lib/rviz/rviz -d /home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_moveit_config/launch/moveit.rviz __name:=rviz_locobot_15887_5481149914106200393 __log:=/home/locobot/.ros/log/6f3374b8-e7bb-11ea-a475-48f17fdefd69/rviz_locobot_15887_5481149914106200393-15.log].
+log file: /home/locobot/.ros/log/6f3374b8-e7bb-11ea-a475-48f17fdefd69/rviz_locobot_15887_5481149914106200393-15*.log[0m
+[0m[ INFO] [1598460283.268832390]: odom received![0m
+[0m[ INFO] [1598460283.875887503]: Publishing maintained planning scene on 'monitored_planning_scene'[0m
+[0m[ INFO] [1598460283.878370550]: MoveGroup debug mode is ON[0m
+[96mStarting context monitors...
+[0m[0m[ INFO] [1598460283.878409568]: Starting scene monitor[0m
+[0m[ INFO] [1598460283.880656252]: Listening to '/planning_scene'[0m
+[0m[ INFO] [1598460283.880681485]: Starting world geometry monitor[0m
+[0m[ INFO] [1598460283.882949153]: Listening to '/collision_object' using message notifier with target frame '/base_footprint '[0m
+[0m[ INFO] [1598460283.885193337]: Listening to '/planning_scene_world' for planning scene world geometry[0m
+[0m[ INFO] [1598460293.362981317]: Listening to '/head_mount_kinect/depth_registered/points' using message filter with target frame '/base_footprint '[0m
+[0m[ INFO] [1598460293.367503305]: Listening to '/attached_collision_object' for attached collision objects[0m
+[96mContext monitors started.
+[0m[0m[ INFO] [1598460293.505938337]: Initializing OMPL interface using ROS parameters[0m
+[0m[ INFO] [1598460293.563689493]: Using planning interface 'OMPL'[0m
+[0m[ INFO] [1598460293.574057294]: Param 'default_workspace_bounds' was not set. Using default value: 10[0m
+[0m[ INFO] [1598460293.575157963]: Param 'start_state_max_bounds_error' was set to 0.1[0m
+[0m[ INFO] [1598460293.576172144]: Param 'start_state_max_dt' was not set. Using default value: 0.5[0m
+[0m[ INFO] [1598460293.577223728]: Param 'start_state_max_dt' was not set. Using default value: 0.5[0m
+[0m[ INFO] [1598460293.578172567]: Param 'jiggle_fraction' was set to 0.05[0m
+[0m[ INFO] [1598460293.579274653]: Param 'max_sampling_attempts' was not set. Using default value: 100[0m
+[0m[ INFO] [1598460293.579402249]: Using planning request adapter 'Add Time Parameterization'[0m
+[0m[ INFO] [1598460293.579448288]: Using planning request adapter 'Fix Workspace Bounds'[0m
+[0m[ INFO] [1598460293.579486902]: Using planning request adapter 'Fix Start State Bounds'[0m
+[0m[ INFO] [1598460293.579577130]: Using planning request adapter 'Fix Start State In Collision'[0m
+[0m[ INFO] [1598460293.579616691]: Using planning request adapter 'Fix Start State Path Constraints'[0m
+[33m[ WARN] [1598460298.630962685]: Waiting for locobot_arm/joint_controller/trajectory to come up[0m
+[33m[ WARN] [1598460304.631374772]: Waiting for locobot_arm/joint_controller/trajectory to come up[0m
+[31m[ERROR] [1598460310.631776193]: Action client not connected: locobot_arm/joint_controller/trajectory[0m
+[0m[ INFO] [1598460310.744333509]: Returned 0 controllers in list[0m
+[0m[ INFO] [1598460310.789015823]: Trajectory execution is managing controllers[0m
+[96mLoading 'move_group/ApplyPlanningSceneService'...
+[0m[96mLoading 'move_group/ClearOctomapService'...
+[0m[96mLoading 'move_group/MoveGroupCartesianPathService'...
+[0m[96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...
+[0m[96mLoading 'move_group/MoveGroupGetPlanningSceneService'...
+[0m[96mLoading 'move_group/MoveGroupKinematicsService'...
+[0m[96mLoading 'move_group/MoveGroupMoveAction'...
+[0m[96mLoading 'move_group/MoveGroupPickPlaceAction'...
+[0m[96mLoading 'move_group/MoveGroupPlanService'...
+[0m[96mLoading 'move_group/MoveGroupQueryPlannersService'...
+[0m[96mLoading 'move_group/MoveGroupStateValidationService'...
+[0m[0m[ INFO] [1598460310.959769640]: 
+
+********************************************************
+* MoveGroup using: 
+*     - ApplyPlanningSceneService
+*     - ClearOctomapService
+*     - CartesianPathService
+*     - ExecuteTrajectoryAction
+*     - GetPlanningSceneService
+*     - KinematicsService
+*     - MoveAction
+*     - PickPlaceAction
+*     - MotionPlanService
+*     - QueryPlannersService
+*     - StateValidationService
+********************************************************
+[0m
+[0m[ INFO] [1598460310.959873540]: MoveGroup context using planning plugin ompl_interface/OMPLPlanner[0m
+[0m[ INFO] [1598460310.959911557]: MoveGroup context initialization complete[0m
+[92m
+You can start planning now!
+
+[0m[31m[ERROR] [1598460327.306521260]: Kobuki : malformed sub-payload detected. [120][170][78 AA 55 4D 01 0F BC 00 00 00 00 00 ][0m
+[31m[ERROR] [1598460329.345217244]: Kobuki : malformed sub-payload detected. [215][170][D7 AA 55 4D 01 0F B4 ][0m
+[31m[ERROR] [1598460331.384008184]: Kobuki : malformed sub-payload detected. [22][170][16 AA 55 4D 01 0F AC 10 00 00 00 ][0m
+[31m[ERROR] [1598460359.927008231]: Kobuki : malformed sub-payload detected. [62][170][3E AA 55 4D 01 0F 3C 80 00 00 00 00 00 ][0m
+[31m[ERROR] [1598460364.004525386]: Kobuki : malformed sub-payload detected. [255][170][FF AA 55 4D 01 0F 2C 90 00 00 00 00 00 00 ][0m
+[31m[ERROR] [1598460377.874932449]: Kobuki : malformed sub-payload detected. [245][170][F5 AA 55 53 01 0F 64 ][0m
+[31m[ERROR] [1598460397.662395995]: Kobuki : malformed sub-payload detected. [82][170][52 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460413.830992136]: Kobuki : malformed sub-payload detected. [249][170][F9 AA 55 53 01 0F F0 ][0m
+[31m[ERROR] [1598460427.081599397]: Kobuki : malformed sub-payload detected. [182][170][B6 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460488.994406388]: Kobuki : malformed sub-payload detected. [225][170][E1 AA 55 4D 01 0F C4 78 ][0m
+[31m[ERROR] [1598460508.362292277]: Kobuki : malformed sub-payload detected. [212][170][D4 AA 55 4D 01 0F 78 ][0m
+[31m[ERROR] [1598460517.535168874]: Kobuki : malformed sub-payload detected. [219][170][DB AA 55 4D 01 0F 54 E8 ][0m
+[31m[ERROR] [1598460542.199737686]: Kobuki : malformed sub-payload detected. [156][170][9C AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460592.087274358]: Kobuki : malformed sub-payload detected. [118][170][76 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460593.865827452]: Kobuki : malformed sub-payload detected. [41][170][29 AA 55 53 01 0F B0 12 00 ][0m
+^C[move_group-14] killing on exit
+[robot_state_publisher-13] killing on exit
+[move_base-12] killing on exit
+[navigation_velocity_smoother-11] killing on exit
+[odom_map_broadcaster-10] killing on exit
+[map_server-9] killing on exit
+[pyrobot_kinematics-8] killing on exit
+[calibration_tf_broadcaster-7] killing on exit
+[cmd_vel_mux-6] killing on exit
+[bumper2pointcloud-5] killing on exit
+[mobile_base-4] killing on exit
+[mobile_base_nodelet_manager-3] killing on exit
+[diagnostic_aggregator-2] killing on exit
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m
+]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ roslaunch locobot_control main.launch use_base:=trueShe doesn't want to transfer the account, because she has a 12 month deal she  found online. Is that okay?[A]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ history | grep roslaunch[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[3Pvim projector.launch history | grep roslaunchroslaunch locobot_control main.launch use_base:=trueShe doesn't want to transfer the account, because she has a 12 month deal she ffound online. Is that okay?[A]0;locobot@locobot: ~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[01;32mlocobot@locobot[00m:[01;34m~/low_cost_ws/src/pyrobot/robots/LoCoBot/projector_system/launch[00m$ [K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[Croslaunch locobot_control main.launch use_base:=trueShe doesn't want to transfer the account, because she has a 12 month deal she ffound online. Is that okay?[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K
+[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K
+... logging to /home/locobot/.ros/log/5fd0dc30-e7bc-11ea-a475-48f17fdefd69/roslaunch-locobot-18233.log
+Checking log directory for disk usage. This may take awhile.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_control/launch/main.launch
+[1mstarted roslaunch server http://locobot:43525/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /bumper2pointcloud/pointcloud_radius: 0.24
+ * /cmd_vel_mux/yaml_cfg_file: /opt/ros/kinetic/...
+ * /diagnostic_aggregator/analyzers/input_ports/contains: ['Digital Input',...
+ * /diagnostic_aggregator/analyzers/input_ports/path: Input Ports
+ * /diagnostic_aggregator/analyzers/input_ports/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/input_ports/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/input_ports/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/analyzers/kobuki/contains: ['Watchdog', 'Mot...
+ * /diagnostic_aggregator/analyzers/kobuki/path: Kobuki
+ * /diagnostic_aggregator/analyzers/kobuki/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/kobuki/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/kobuki/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/analyzers/power/contains: ['Battery', 'Lapt...
+ * /diagnostic_aggregator/analyzers/power/path: Power System
+ * /diagnostic_aggregator/analyzers/power/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/power/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/power/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/analyzers/sensors/contains: ['Cliff Sensor', ...
+ * /diagnostic_aggregator/analyzers/sensors/path: Sensors
+ * /diagnostic_aggregator/analyzers/sensors/remove_prefix: mobile_base_nodel...
+ * /diagnostic_aggregator/analyzers/sensors/timeout: 5.0
+ * /diagnostic_aggregator/analyzers/sensors/type: diagnostic_aggreg...
+ * /diagnostic_aggregator/base_path: 
+ * /diagnostic_aggregator/pub_rate: 1.0
+ * /mobile_base/base_frame: base_footprint
+ * /mobile_base/battery_capacity: 16.5
+ * /mobile_base/battery_dangerous: 13.2
+ * /mobile_base/battery_low: 14.0
+ * /mobile_base/cmd_vel_timeout: 0.6
+ * /mobile_base/device_port: /dev/kobuki
+ * /mobile_base/odom_frame: odom
+ * /mobile_base/publish_tf: True
+ * /mobile_base/use_imu_heading: True
+ * /mobile_base/wheel_left_joint_name: wheel_left_joint
+ * /mobile_base/wheel_right_joint_name: wheel_right_joint
+ * /move_base/DWAPlannerROS/acc_lim_theta: 2.0
+ * /move_base/DWAPlannerROS/acc_lim_x: 1.0
+ * /move_base/DWAPlannerROS/acc_lim_y: 0.0
+ * /move_base/DWAPlannerROS/forward_point_distance: 0.325
+ * /move_base/DWAPlannerROS/global_frame_id: odom
+ * /move_base/DWAPlannerROS/goal_distance_bias: 24.0
+ * /move_base/DWAPlannerROS/latch_xy_goal_tolerance: True
+ * /move_base/DWAPlannerROS/max_rot_vel: 2.0
+ * /move_base/DWAPlannerROS/max_scaling_factor: 0.2
+ * /move_base/DWAPlannerROS/max_trans_vel: 0.1
+ * /move_base/DWAPlannerROS/max_vel_x: 0.15
+ * /move_base/DWAPlannerROS/max_vel_y: 0.0
+ * /move_base/DWAPlannerROS/min_rot_vel: 1.0
+ * /move_base/DWAPlannerROS/min_trans_vel: 0.1
+ * /move_base/DWAPlannerROS/min_vel_x: 0.1
+ * /move_base/DWAPlannerROS/min_vel_y: 0.0
+ * /move_base/DWAPlannerROS/occdist_scale: 0.5
+ * /move_base/DWAPlannerROS/oscillation_reset_dist: 0.05
+ * /move_base/DWAPlannerROS/path_distance_bias: 64.0
+ * /move_base/DWAPlannerROS/publish_cost_grid_pc: True
+ * /move_base/DWAPlannerROS/publish_traj_pc: True
+ * /move_base/DWAPlannerROS/rot_stopped_vel: 0.5
+ * /move_base/DWAPlannerROS/scaling_speed: 0.25
+ * /move_base/DWAPlannerROS/sim_time: 1.0
+ * /move_base/DWAPlannerROS/stop_time_buffer: 0.2
+ * /move_base/DWAPlannerROS/trans_stopped_vel: 0.1
+ * /move_base/DWAPlannerROS/vtheta_samples: 20
+ * /move_base/DWAPlannerROS/vx_samples: 20
+ * /move_base/DWAPlannerROS/vy_samples: 1
+ * /move_base/DWAPlannerROS/xy_goal_tolerance: 0.15
+ * /move_base/DWAPlannerROS/yaw_goal_tolerance: 0.15
+ * /move_base/GlobalPlanner/allow_unknown: True
+ * /move_base/GlobalPlanner/cost_factor: 3.0
+ * /move_base/GlobalPlanner/default_tolerance: 0.0
+ * /move_base/GlobalPlanner/lethal_cost: 253
+ * /move_base/GlobalPlanner/neutral_cost: 50
+ * /move_base/GlobalPlanner/old_navfn_behavior: False
+ * /move_base/GlobalPlanner/planner_costmap_publish_frequency: 0.0
+ * /move_base/GlobalPlanner/planner_window_x: 0.0
+ * /move_base/GlobalPlanner/planner_window_y: 0.0
+ * /move_base/GlobalPlanner/publish_potential: True
+ * /move_base/GlobalPlanner/publish_scale: 100
+ * /move_base/GlobalPlanner/use_dijkstra: True
+ * /move_base/GlobalPlanner/use_grid_path: False
+ * /move_base/GlobalPlanner/use_quadratic: True
+ * /move_base/NavfnROS/allow_unknown: False
+ * /move_base/NavfnROS/default_tolerance: 0.0
+ * /move_base/NavfnROS/planner_window_x: 0.0
+ * /move_base/NavfnROS/planner_window_y: 0.0
+ * /move_base/NavfnROS/visualize_potential: False
+ * /move_base/TrajectoryPlannerROS/acc_lim_theta: 1.0
+ * /move_base/TrajectoryPlannerROS/acc_lim_x: 0.3
+ * /move_base/TrajectoryPlannerROS/acc_lim_y: 0.0
+ * /move_base/TrajectoryPlannerROS/angular_sim_granularity: 0.025
+ * /move_base/TrajectoryPlannerROS/dwa: True
+ * /move_base/TrajectoryPlannerROS/escape_vel: -0.15
+ * /move_base/TrajectoryPlannerROS/gdist_scale: 0.7
+ * /move_base/TrajectoryPlannerROS/heading_lookahead: 0.375
+ * /move_base/TrajectoryPlannerROS/heading_scoring: False
+ * /move_base/TrajectoryPlannerROS/heading_scoring_timestep: 0.8
+ * /move_base/TrajectoryPlannerROS/holonomic_robot: False
+ * /move_base/TrajectoryPlannerROS/latch_xy_goal_tolerance: True
+ * /move_base/TrajectoryPlannerROS/max_vel_theta: 0.7
+ * /move_base/TrajectoryPlannerROS/max_vel_x: 0.36
+ * /move_base/TrajectoryPlannerROS/max_vel_y: 0.0
+ * /move_base/TrajectoryPlannerROS/meter_scoring: True
+ * /move_base/TrajectoryPlannerROS/min_in_place_vel_theta: 0.5
+ * /move_base/TrajectoryPlannerROS/min_vel_theta: -0.7
+ * /move_base/TrajectoryPlannerROS/min_vel_x: 0.2
+ * /move_base/TrajectoryPlannerROS/min_vel_y: 0.0
+ * /move_base/TrajectoryPlannerROS/occdist_scale: 0.01
+ * /move_base/TrajectoryPlannerROS/oscillation_reset_dist: 0.05
+ * /move_base/TrajectoryPlannerROS/pdist_scale: 0.6
+ * /move_base/TrajectoryPlannerROS/prune_plan: True
+ * /move_base/TrajectoryPlannerROS/publish_cost_grid_pc: False
+ * /move_base/TrajectoryPlannerROS/sim_granularity: 0.025
+ * /move_base/TrajectoryPlannerROS/simple_attractor: False
+ * /move_base/TrajectoryPlannerROS/vtheta_samples: 40
+ * /move_base/TrajectoryPlannerROS/vx_samples: 28
+ * /move_base/TrajectoryPlannerROS/vy_samples: 0
+ * /move_base/TrajectoryPlannerROS/xy_goal_tolerance: 0.2
+ * /move_base/TrajectoryPlannerROS/yaw_goal_tolerance: 0.2
+ * /move_base/base_global_planner: global_planner/Gl...
+ * /move_base/base_local_planner: base_local_planne...
+ * /move_base/controller_frequency: 5.0
+ * /move_base/controller_patience: 1.0
+ * /move_base/global_costmap/always_send_full_costmap: True
+ * /move_base/global_costmap/global_frame: map
+ * /move_base/global_costmap/height: 100.0
+ * /move_base/global_costmap/inflation_layer/cost_scaling_factor: 5.0
+ * /move_base/global_costmap/inflation_layer/enabled: True
+ * /move_base/global_costmap/inflation_layer/inflation_radius: 0.5
+ * /move_base/global_costmap/map_type: costmap
+ * /move_base/global_costmap/max_obstacle_height: 0.6
+ * /move_base/global_costmap/obstacle_layer/bump/clearing: False
+ * /move_base/global_costmap/obstacle_layer/bump/data_type: PointCloud2
+ * /move_base/global_costmap/obstacle_layer/bump/marking: True
+ * /move_base/global_costmap/obstacle_layer/bump/max_obstacle_height: 0.15
+ * /move_base/global_costmap/obstacle_layer/bump/min_obstacle_height: 0.0
+ * /move_base/global_costmap/obstacle_layer/bump/topic: mobile_base/senso...
+ * /move_base/global_costmap/obstacle_layer/combination_method: 1
+ * /move_base/global_costmap/obstacle_layer/enabled: True
+ * /move_base/global_costmap/obstacle_layer/mark_threshold: 0
+ * /move_base/global_costmap/obstacle_layer/max_obstacle_height: 0.6
+ * /move_base/global_costmap/obstacle_layer/observation_sources: scan bump
+ * /move_base/global_costmap/obstacle_layer/obstacle_range: 2.5
+ * /move_base/global_costmap/obstacle_layer/origin_z: 0.0
+ * /move_base/global_costmap/obstacle_layer/publish_voxel_map: False
+ * /move_base/global_costmap/obstacle_layer/raytrace_range: 3.0
+ * /move_base/global_costmap/obstacle_layer/scan/clearing: True
+ * /move_base/global_costmap/obstacle_layer/scan/data_type: LaserScan
+ * /move_base/global_costmap/obstacle_layer/scan/marking: True
+ * /move_base/global_costmap/obstacle_layer/scan/max_obstacle_height: 0.35
+ * /move_base/global_costmap/obstacle_layer/scan/min_obstacle_height: 0.25
+ * /move_base/global_costmap/obstacle_layer/scan/topic: scan
+ * /move_base/global_costmap/obstacle_layer/track_unknown_space: True
+ * /move_base/global_costmap/obstacle_layer/unknown_threshold: 15
+ * /move_base/global_costmap/obstacle_layer/z_resolution: 0.2
+ * /move_base/global_costmap/obstacle_layer/z_voxels: 2
+ * /move_base/global_costmap/plugins: [{'type': 'costma...
+ * /move_base/global_costmap/publish_frequency: 0.5
+ * /move_base/global_costmap/resolution: 0.2
+ * /move_base/global_costmap/robot_base_frame: base_footprint
+ * /move_base/global_costmap/robot_radius: 0.2
+ * /move_base/global_costmap/rolling_window: True
+ * /move_base/global_costmap/static_layer/enabled: True
+ * /move_base/global_costmap/static_map: True
+ * /move_base/global_costmap/transform_tolerance: 0.5
+ * /move_base/global_costmap/update_frequency: 1.0
+ * /move_base/global_costmap/width: 100.0
+ * /move_base/local_costmap/always_send_full_costmap: True
+ * /move_base/local_costmap/global_frame: odom
+ * /move_base/local_costmap/height: 4.0
+ * /move_base/local_costmap/inflation_layer/cost_scaling_factor: 5.0
+ * /move_base/local_costmap/inflation_layer/enabled: True
+ * /move_base/local_costmap/inflation_layer/inflation_radius: 0.5
+ * /move_base/local_costmap/map_type: costmap
+ * /move_base/local_costmap/max_obstacle_height: 0.6
+ * /move_base/local_costmap/obstacle_layer/bump/clearing: False
+ * /move_base/local_costmap/obstacle_layer/bump/data_type: PointCloud2
+ * /move_base/local_costmap/obstacle_layer/bump/marking: True
+ * /move_base/local_costmap/obstacle_layer/bump/max_obstacle_height: 0.15
+ * /move_base/local_costmap/obstacle_layer/bump/min_obstacle_height: 0.0
+ * /move_base/local_costmap/obstacle_layer/bump/topic: mobile_base/senso...
+ * /move_base/local_costmap/obstacle_layer/combination_method: 1
+ * /move_base/local_costmap/obstacle_layer/enabled: True
+ * /move_base/local_costmap/obstacle_layer/mark_threshold: 0
+ * /move_base/local_costmap/obstacle_layer/max_obstacle_height: 0.6
+ * /move_base/local_costmap/obstacle_layer/observation_sources: scan bump
+ * /move_base/local_costmap/obstacle_layer/obstacle_range: 2.5
+ * /move_base/local_costmap/obstacle_layer/origin_z: 0.0
+ * /move_base/local_costmap/obstacle_layer/publish_voxel_map: False
+ * /move_base/local_costmap/obstacle_layer/raytrace_range: 3.0
+ * /move_base/local_costmap/obstacle_layer/scan/clearing: True
+ * /move_base/local_costmap/obstacle_layer/scan/data_type: LaserScan
+ * /move_base/local_costmap/obstacle_layer/scan/marking: True
+ * /move_base/local_costmap/obstacle_layer/scan/max_obstacle_height: 0.35
+ * /move_base/local_costmap/obstacle_layer/scan/min_obstacle_height: 0.25
+ * /move_base/local_costmap/obstacle_layer/scan/topic: scan
+ * /move_base/local_costmap/obstacle_layer/track_unknown_space: True
+ * /move_base/local_costmap/obstacle_layer/unknown_threshold: 15
+ * /move_base/local_costmap/obstacle_layer/z_resolution: 0.2
+ * /move_base/local_costmap/obstacle_layer/z_voxels: 2
+ * /move_base/local_costmap/plugins: [{'type': 'costma...
+ * /move_base/local_costmap/publish_frequency: 2.0
+ * /move_base/local_costmap/resolution: 0.01
+ * /move_base/local_costmap/robot_base_frame: base_footprint
+ * /move_base/local_costmap/robot_radius: 0.2
+ * /move_base/local_costmap/rolling_window: True
+ * /move_base/local_costmap/static_layer/enabled: True
+ * /move_base/local_costmap/static_map: False
+ * /move_base/local_costmap/transform_tolerance: 0.5
+ * /move_base/local_costmap/update_frequency: 5.0
+ * /move_base/local_costmap/width: 4.0
+ * /move_base/oscillation_distance: 0.2
+ * /move_base/oscillation_timeout: 10.0
+ * /move_base/planner_frequency: 1.0
+ * /move_base/planner_patience: 1.0
+ * /move_base/recovery_behavior_enabled: False
+ * /move_base/shutdown_costmaps: False
+ * /move_group/allow_trajectory_execution: True
+ * /move_group/arm/default_planner_config: RRTConnectkConfig...
+ * /move_group/arm/longest_valid_segment_fraction: 0.005
+ * /move_group/arm/planner_configs: ['SBLkConfigDefau...
+ * /move_group/arm/projection_evaluator: joints(joint_1,jo...
+ * /move_group/capabilities: 
+ * /move_group/controller_list: [{'default': True...
+ * /move_group/disable_capabilities: 
+ * /move_group/gripper/default_planner_config: ESTkConfigDefault
+ * /move_group/gripper/longest_valid_segment_fraction: 0.005
+ * /move_group/gripper/planner_configs: ['SBLkConfigDefau...
+ * /move_group/gripper/projection_evaluator: joints(joint_6,jo...
+ * /move_group/jiggle_fraction: 0.05
+ * /move_group/max_range: 5.0
+ * /move_group/max_safe_path_cost: 1
+ * /move_group/moveit_controller_manager: moveit_simple_con...
+ * /move_group/moveit_manage_controllers: True
+ * /move_group/octomap_resolution: 0.025
+ * /move_group/planner_configs/BFMTkConfigDefault/balanced: 0
+ * /move_group/planner_configs/BFMTkConfigDefault/cache_cc: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/extended_fmt: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/heuristics: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/nearest_k: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/num_samples: 1000
+ * /move_group/planner_configs/BFMTkConfigDefault/optimality: 1
+ * /move_group/planner_configs/BFMTkConfigDefault/radius_multiplier: 1.0
+ * /move_group/planner_configs/BFMTkConfigDefault/type: geometric::BFMT
+ * /move_group/planner_configs/BKPIECEkConfigDefault/border_fraction: 0.9
+ * /move_group/planner_configs/BKPIECEkConfigDefault/failed_expansion_score_factor: 0.5
+ * /move_group/planner_configs/BKPIECEkConfigDefault/min_valid_path_fraction: 0.5
+ * /move_group/planner_configs/BKPIECEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/BKPIECEkConfigDefault/type: geometric::BKPIECE
+ * /move_group/planner_configs/BiESTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/BiESTkConfigDefault/type: geometric::BiEST
+ * /move_group/planner_configs/BiTRRTkConfigDefault/cost_threshold: 1e300
+ * /move_group/planner_configs/BiTRRTkConfigDefault/frountier_node_ratio: 0.1
+ * /move_group/planner_configs/BiTRRTkConfigDefault/frountier_threshold: 0.0
+ * /move_group/planner_configs/BiTRRTkConfigDefault/init_temperature: 100
+ * /move_group/planner_configs/BiTRRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/BiTRRTkConfigDefault/temp_change_factor: 0.1
+ * /move_group/planner_configs/BiTRRTkConfigDefault/type: geometric::BiTRRT
+ * /move_group/planner_configs/ESTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/ESTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/ESTkConfigDefault/type: geometric::EST
+ * /move_group/planner_configs/FMTkConfigDefault/cache_cc: 1
+ * /move_group/planner_configs/FMTkConfigDefault/extended_fmt: 1
+ * /move_group/planner_configs/FMTkConfigDefault/heuristics: 0
+ * /move_group/planner_configs/FMTkConfigDefault/nearest_k: 1
+ * /move_group/planner_configs/FMTkConfigDefault/num_samples: 1000
+ * /move_group/planner_configs/FMTkConfigDefault/radius_multiplier: 1.1
+ * /move_group/planner_configs/FMTkConfigDefault/type: geometric::FMT
+ * /move_group/planner_configs/KPIECEkConfigDefault/border_fraction: 0.9
+ * /move_group/planner_configs/KPIECEkConfigDefault/failed_expansion_score_factor: 0.5
+ * /move_group/planner_configs/KPIECEkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/KPIECEkConfigDefault/min_valid_path_fraction: 0.5
+ * /move_group/planner_configs/KPIECEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/KPIECEkConfigDefault/type: geometric::KPIECE
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/border_fraction: 0.9
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/min_valid_path_fraction: 0.5
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/LBKPIECEkConfigDefault/type: geometric::LBKPIECE
+ * /move_group/planner_configs/LBTRRTkConfigDefault/epsilon: 0.4
+ * /move_group/planner_configs/LBTRRTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/LBTRRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/LBTRRTkConfigDefault/type: geometric::LBTRRT
+ * /move_group/planner_configs/LazyPRMkConfigDefault/range: 0.0
+ * /move_group/planner_configs/LazyPRMkConfigDefault/type: geometric::LazyPRM
+ * /move_group/planner_configs/LazyPRMstarkConfigDefault/type: geometric::LazyPR...
+ * /move_group/planner_configs/PDSTkConfigDefault/type: geometric::PDST
+ * /move_group/planner_configs/PRMkConfigDefault/max_nearest_neighbors: 10
+ * /move_group/planner_configs/PRMkConfigDefault/type: geometric::PRM
+ * /move_group/planner_configs/PRMstarkConfigDefault/type: geometric::PRMstar
+ * /move_group/planner_configs/ProjESTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/ProjESTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/ProjESTkConfigDefault/type: geometric::ProjEST
+ * /move_group/planner_configs/RRTConnectkConfigDefault/range: 0.0
+ * /move_group/planner_configs/RRTConnectkConfigDefault/type: geometric::RRTCon...
+ * /move_group/planner_configs/RRTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/RRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/RRTkConfigDefault/type: geometric::RRT
+ * /move_group/planner_configs/RRTstarkConfigDefault/delay_collision_checking: 1
+ * /move_group/planner_configs/RRTstarkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/RRTstarkConfigDefault/range: 0.0
+ * /move_group/planner_configs/RRTstarkConfigDefault/type: geometric::RRTstar
+ * /move_group/planner_configs/SBLkConfigDefault/range: 0.0
+ * /move_group/planner_configs/SBLkConfigDefault/type: geometric::SBL
+ * /move_group/planner_configs/SPARSkConfigDefault/dense_delta_fraction: 0.001
+ * /move_group/planner_configs/SPARSkConfigDefault/max_failures: 1000
+ * /move_group/planner_configs/SPARSkConfigDefault/sparse_delta_fraction: 0.25
+ * /move_group/planner_configs/SPARSkConfigDefault/stretch_factor: 3.0
+ * /move_group/planner_configs/SPARSkConfigDefault/type: geometric::SPARS
+ * /move_group/planner_configs/SPARStwokConfigDefault/dense_delta_fraction: 0.001
+ * /move_group/planner_configs/SPARStwokConfigDefault/max_failures: 5000
+ * /move_group/planner_configs/SPARStwokConfigDefault/sparse_delta_fraction: 0.25
+ * /move_group/planner_configs/SPARStwokConfigDefault/stretch_factor: 3.0
+ * /move_group/planner_configs/SPARStwokConfigDefault/type: geometric::SPARStwo
+ * /move_group/planner_configs/STRIDEkConfigDefault/degree: 16
+ * /move_group/planner_configs/STRIDEkConfigDefault/estimated_dimension: 0.0
+ * /move_group/planner_configs/STRIDEkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/STRIDEkConfigDefault/max_degree: 18
+ * /move_group/planner_configs/STRIDEkConfigDefault/max_pts_per_leaf: 6
+ * /move_group/planner_configs/STRIDEkConfigDefault/min_degree: 12
+ * /move_group/planner_configs/STRIDEkConfigDefault/min_valid_path_fraction: 0.2
+ * /move_group/planner_configs/STRIDEkConfigDefault/range: 0.0
+ * /move_group/planner_configs/STRIDEkConfigDefault/type: geometric::STRIDE
+ * /move_group/planner_configs/STRIDEkConfigDefault/use_projected_distance: 0
+ * /move_group/planner_configs/TRRTkConfigDefault/frountierNodeRatio: 0.1
+ * /move_group/planner_configs/TRRTkConfigDefault/frountier_threshold: 0.0
+ * /move_group/planner_configs/TRRTkConfigDefault/goal_bias: 0.05
+ * /move_group/planner_configs/TRRTkConfigDefault/init_temperature: 10e-6
+ * /move_group/planner_configs/TRRTkConfigDefault/k_constant: 0.0
+ * /move_group/planner_configs/TRRTkConfigDefault/max_states_failed: 10
+ * /move_group/planner_configs/TRRTkConfigDefault/min_temperature: 10e-10
+ * /move_group/planner_configs/TRRTkConfigDefault/range: 0.0
+ * /move_group/planner_configs/TRRTkConfigDefault/temp_change_factor: 2.0
+ * /move_group/planner_configs/TRRTkConfigDefault/type: geometric::TRRT
+ * /move_group/planning_plugin: ompl_interface/OM...
+ * /move_group/planning_scene_monitor/publish_geometry_updates: True
+ * /move_group/planning_scene_monitor/publish_planning_scene: True
+ * /move_group/planning_scene_monitor/publish_state_updates: True
+ * /move_group/planning_scene_monitor/publish_transforms_updates: True
+ * /move_group/request_adapters: default_planner_r...
+ * /move_group/sensors: [{'point_subsampl...
+ * /move_group/start_state_max_bounds_error: 0.1
+ * /move_group/trajectory_execution/allowed_execution_duration_scaling: 1.2
+ * /move_group/trajectory_execution/allowed_goal_duration_margin: 0.5
+ * /move_group/trajectory_execution/allowed_start_tolerance: 0.0
+ * /navigation_velocity_smoother/accel_lim_v: 1.0
+ * /navigation_velocity_smoother/accel_lim_w: 2.0
+ * /navigation_velocity_smoother/decel_factor: 1.5
+ * /navigation_velocity_smoother/frequency: 20.0
+ * /navigation_velocity_smoother/robot_feedback: 2
+ * /navigation_velocity_smoother/speed_lim_v: 0.8
+ * /navigation_velocity_smoother/speed_lim_w: 5.4
+ * /robot/name: turtlebot
+ * /robot/type: turtlebot
+ * /robot_description: <?xml version="1....
+ * /robot_description_kinematics/arm/kinematics_solver: trac_ik_kinematic...
+ * /robot_description_kinematics/arm/kinematics_solver_attempts: 3
+ * /robot_description_kinematics/arm/kinematics_solver_search_resolution: 0.005
+ * /robot_description_kinematics/arm/kinematics_solver_timeout: 0.005
+ * /robot_description_planning/joint_limits/joint_1/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_1/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_1/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_1/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_2/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_2/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_2/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_2/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_3/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_3/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_3/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_3/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_4/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_4/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_4/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_4/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_5/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_5/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_5/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_5/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_6/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_6/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_6/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_6/max_velocity: 1
+ * /robot_description_planning/joint_limits/joint_7/has_acceleration_limits: False
+ * /robot_description_planning/joint_limits/joint_7/has_velocity_limits: True
+ * /robot_description_planning/joint_limits/joint_7/max_acceleration: 0
+ * /robot_description_planning/joint_limits/joint_7/max_velocity: 1
+ * /robot_description_semantic: <?xml version="1....
+ * /rosdistro: kinetic
+ * /rosversion: 1.12.14
+ * /rviz_locobot_18233_394850405451219861/arm/kinematics_solver: trac_ik_kinematic...
+ * /rviz_locobot_18233_394850405451219861/arm/kinematics_solver_attempts: 3
+ * /rviz_locobot_18233_394850405451219861/arm/kinematics_solver_search_resolution: 0.005
+ * /rviz_locobot_18233_394850405451219861/arm/kinematics_solver_timeout: 0.005
+ * /teleop: False
+ * /torque_control: False
+ * /use_arm: False
+ * /use_base: True
+ * /use_camera: False
+ * /use_sim: False
+ * /use_sim_time: False
+ * /use_vslam: False
+
+NODES
+  /
+    bumper2pointcloud (nodelet/nodelet)
+    calibration_tf_broadcaster (locobot_calibration/calibration_publish_transforms.py)
+    cmd_vel_mux (nodelet/nodelet)
+    diagnostic_aggregator (diagnostic_aggregator/aggregator_node)
+    map_server (map_server/map_server)
+    mobile_base (nodelet/nodelet)
+    mobile_base_nodelet_manager (nodelet/nodelet)
+    move_base (move_base/move_base)
+    move_group (moveit_ros_move_group/move_group)
+    navigation_velocity_smoother (nodelet/nodelet)
+    odom_map_broadcaster (tf/static_transform_publisher)
+    pyrobot_kinematics (pyrobot_bridge/kinematics.py)
+    robot_state_publisher (robot_state_publisher/robot_state_publisher)
+    rviz_locobot_18233_394850405451219861 (rviz/rviz)
+
+auto-starting new master
+[1mprocess[master]: started with pid [18243][0m
+[1mROS_MASTER_URI=http://localhost:11311[0m
+]2;/home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_control/launch/main.launch http://localhost:11311
+[1msetting /run_id to 5fd0dc30-e7bc-11ea-a475-48f17fdefd69[0m
+[1mprocess[rosout-1]: started with pid [18256][0m
+started core service [/rosout]
+[1mprocess[diagnostic_aggregator-2]: started with pid [18273][0m
+[1mprocess[mobile_base_nodelet_manager-3]: started with pid [18274][0m
+[1mprocess[mobile_base-4]: started with pid [18276][0m
+[1mprocess[bumper2pointcloud-5]: started with pid [18292][0m
+[1mprocess[cmd_vel_mux-6]: started with pid [18297][0m
+[1mprocess[calibration_tf_broadcaster-7]: started with pid [18322][0m
+[1mprocess[pyrobot_kinematics-8]: started with pid [18326][0m
+[1mprocess[map_server-9]: started with pid [18327][0m
+[1mprocess[odom_map_broadcaster-10]: started with pid [18331][0m
+[1mprocess[navigation_velocity_smoother-11]: started with pid [18356][0m
+[1mprocess[move_base-12]: started with pid [18365][0m
+[1mprocess[robot_state_publisher-13]: started with pid [18368][0m
+[1mprocess[move_group-14]: started with pid [18392][0m
+[1mprocess[rviz_locobot_18233_394850405451219861-15]: started with pid [18398][0m
+QXcbConnection: Could not connect to display 
+[0m[ INFO] [1598460684.950214965]: Loading robot model 'locobot'...[0m
+[0m[ INFO] [1598460684.951223190]: No root/virtual joint specified in SRDF. Assuming fixed joint[0m
+[0m[ INFO] [1598460685.170252459]: Using plugin "static_layer"[0m
+[0m[ INFO] [1598460685.179311623]: Requesting the map...[0m
+[0m[ INFO] [1598460685.383027237]: Resizing static layer to 600 X 600 at 0.010000 m/pix[0m
+[0m[ INFO] [1598460685.482807693]: Received a 600 X 600 map at 0.010000 m/pix[0m
+[0m[ INFO] [1598460685.487057211]: Using plugin "obstacle_layer"[0m
+[0m[ INFO] [1598460685.489745464]:     Subscribed to Topics: scan bump[0m
+[0m[ INFO] [1598460685.573144664]: Using plugin "inflation_layer"[0m
+[0m[ INFO] [1598460685.702814096]: Using plugin "static_layer"[0m
+[0m[ INFO] [1598460685.713231034]: Requesting the map...[0m
+[0m[ INFO] [1598460685.716458060]: Resizing static layer to 600 X 600 at 0.010000 m/pix[0m
+[0m[ INFO] [1598460685.816263563]: Received a 600 X 600 map at 0.010000 m/pix[0m
+[0m[ INFO] [1598460685.819509219]: Using plugin "obstacle_layer"[0m
+[0m[ INFO] [1598460685.823881565]:     Subscribed to Topics: scan bump[0m
+[0m[ INFO] [1598460685.826101729]: IK Using joint shoulder_link -1.57 1.57[0m
+[0m[ INFO] [1598460685.826282798]: IK Using joint elbow_link -1.57 1.57[0m
+[0m[ INFO] [1598460685.826426326]: IK Using joint forearm_link -1.57 1.57[0m
+[0m[ INFO] [1598460685.826531866]: IK Using joint wrist_link -1.57 1.57[0m
+[0m[ INFO] [1598460685.826552783]: IK Using joint gripper_link -1.57 1.57[0m
+[0m[ INFO] [1598460685.826585730]: Looking in common namespaces for param name: arm/position_only_ik[0m
+[0m[ INFO] [1598460685.829342817]: Looking in common namespaces for param name: arm/solve_type[0m
+[0m[ INFO] [1598460685.832659093]: Using solve type Speed[0m
+[0m[ INFO] [1598460685.864833047]: Using plugin "inflation_layer"[0m
+[33m[WARN] [1598460685.879985]: Will publish: 
+[0m[33m[WARN] [1598460685.880149]:   head_tilt_link to camera_link
+[0m[33m[WARN] [1598460685.880280]:   plate_2 to arm_base_link
+[0m[0m[ INFO] [1598460685.911135544]: Created local_planner base_local_planner/TrajectoryPlannerROS[0m
+[0m[ INFO] [1598460685.923869279]: Sim period is set to 0.20[0m
+[0m[ INFO] [1598460686.711776151]: Recovery behavior will clear layer obstacles[0m
+[0m[ INFO] [1598460686.716843558]: Recovery behavior will clear layer obstacles[0m
+[0m[ INFO] [1598460686.751352187]: odom received![0m
+[31m[rviz_locobot_18233_394850405451219861-15] process has died [pid 18398, exit code -6, cmd /opt/ros/kinetic/lib/rviz/rviz -d /home/locobot/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_moveit_config/launch/moveit.rviz __name:=rviz_locobot_18233_394850405451219861 __log:=/home/locobot/.ros/log/5fd0dc30-e7bc-11ea-a475-48f17fdefd69/rviz_locobot_18233_394850405451219861-15.log].
+log file: /home/locobot/.ros/log/5fd0dc30-e7bc-11ea-a475-48f17fdefd69/rviz_locobot_18233_394850405451219861-15*.log[0m
+[0m[ INFO] [1598460687.540412914]: Publishing maintained planning scene on 'monitored_planning_scene'[0m
+[0m[ INFO] [1598460687.543031081]: MoveGroup debug mode is ON[0m
+[96mStarting context monitors...
+[0m[0m[ INFO] [1598460687.543067140]: Starting scene monitor[0m
+[0m[ INFO] [1598460687.545370943]: Listening to '/planning_scene'[0m
+[0m[ INFO] [1598460687.545400773]: Starting world geometry monitor[0m
+[0m[ INFO] [1598460687.547651631]: Listening to '/collision_object' using message notifier with target frame '/base_footprint '[0m
+[0m[ INFO] [1598460687.549962451]: Listening to '/planning_scene_world' for planning scene world geometry[0m
+[31m[ERROR] [1598460696.557601106]: Kobuki : malformed sub-payload detected. [180][170][B4 AA 55 4D 01 0F 18 A4 00 00 00 00 00 ][0m
+[0m[ INFO] [1598460697.611777123]: Listening to '/head_mount_kinect/depth_registered/points' using message filter with target frame '/base_footprint '[0m
+[0m[ INFO] [1598460697.616584447]: Listening to '/attached_collision_object' for attached collision objects[0m
+[96mContext monitors started.
+[0m[0m[ INFO] [1598460697.638626642]: Initializing OMPL interface using ROS parameters[0m
+[0m[ INFO] [1598460697.672917288]: Using planning interface 'OMPL'[0m
+[0m[ INFO] [1598460697.675394561]: Param 'default_workspace_bounds' was not set. Using default value: 10[0m
+[0m[ INFO] [1598460697.675893459]: Param 'start_state_max_bounds_error' was set to 0.1[0m
+[0m[ INFO] [1598460697.676305594]: Param 'start_state_max_dt' was not set. Using default value: 0.5[0m
+[0m[ INFO] [1598460697.676739899]: Param 'start_state_max_dt' was not set. Using default value: 0.5[0m
+[0m[ INFO] [1598460697.677127356]: Param 'jiggle_fraction' was set to 0.05[0m
+[0m[ INFO] [1598460697.677516021]: Param 'max_sampling_attempts' was not set. Using default value: 100[0m
+[0m[ INFO] [1598460697.677561707]: Using planning request adapter 'Add Time Parameterization'[0m
+[0m[ INFO] [1598460697.677580151]: Using planning request adapter 'Fix Workspace Bounds'[0m
+[0m[ INFO] [1598460697.677597763]: Using planning request adapter 'Fix Start State Bounds'[0m
+[0m[ INFO] [1598460697.677613878]: Using planning request adapter 'Fix Start State In Collision'[0m
+[0m[ INFO] [1598460697.677622135]: Using planning request adapter 'Fix Start State Path Constraints'[0m
+[31m[ERROR] [1598460700.634479916]: Kobuki : malformed sub-payload detected. [235][170][EB AA 55 4D 01 0F 08 ][0m
+[33m[ WARN] [1598460702.693757590]: Waiting for locobot_arm/joint_controller/trajectory to come up[0m
+[33m[ WARN] [1598460708.694039417]: Waiting for locobot_arm/joint_controller/trajectory to come up[0m
+[31m[ERROR] [1598460714.694435346]: Action client not connected: locobot_arm/joint_controller/trajectory[0m
+[0m[ INFO] [1598460714.716522904]: Returned 0 controllers in list[0m
+[0m[ INFO] [1598460714.758996584]: Trajectory execution is managing controllers[0m
+[96mLoading 'move_group/ApplyPlanningSceneService'...
+[0m[96mLoading 'move_group/ClearOctomapService'...
+[0m[96mLoading 'move_group/MoveGroupCartesianPathService'...
+[0m[96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...
+[0m[96mLoading 'move_group/MoveGroupGetPlanningSceneService'...
+[0m[96mLoading 'move_group/MoveGroupKinematicsService'...
+[0m[96mLoading 'move_group/MoveGroupMoveAction'...
+[0m[96mLoading 'move_group/MoveGroupPickPlaceAction'...
+[0m[96mLoading 'move_group/MoveGroupPlanService'...
+[0m[96mLoading 'move_group/MoveGroupQueryPlannersService'...
+[0m[96mLoading 'move_group/MoveGroupStateValidationService'...
+[0m[0m[ INFO] [1598460714.822760584]: 
+
+********************************************************
+* MoveGroup using: 
+*     - ApplyPlanningSceneService
+*     - ClearOctomapService
+*     - CartesianPathService
+*     - ExecuteTrajectoryAction
+*     - GetPlanningSceneService
+*     - KinematicsService
+*     - MoveAction
+*     - PickPlaceAction
+*     - MotionPlanService
+*     - QueryPlannersService
+*     - StateValidationService
+********************************************************
+[0m
+[0m[ INFO] [1598460714.822830428]: MoveGroup context using planning plugin ompl_interface/OMPLPlanner[0m
+[0m[ INFO] [1598460714.822851443]: MoveGroup context initialization complete[0m
+[92m
+You can start planning now!
+
+[0m[31m[ERROR] [1598460722.661622608]: Kobuki : malformed sub-payload detected. [76][170][4C AA 55 4D 01 0F 20 0A 00 00 00 00 00 00 00 00 00 00 00 96 00 03 ][0m
+[31m[ERROR] [1598460741.746415197]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F ][0m
+[31m[ERROR] [1598460759.653168179]: Kobuki : malformed sub-payload detected. [129][170][81 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460798.024145870]: Kobuki : malformed sub-payload detected. [18][170][12 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460809.316253086]: Kobuki : malformed sub-payload detected. [214][170][D6 AA 55 4D 01 0F E0 5C 00 00 00 00 00 ][0m
+[31m[ERROR] [1598460812.373907163]: Kobuki : malformed sub-payload detected. [121][170][79 AA 55 4D 01 0F D4 68 00 00 00 00 ][0m
+[31m[ERROR] [1598460827.441881097]: Kobuki : malformed sub-payload detected. [68][170][44 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598460841.931613348]: Kobuki : malformed sub-payload detected. [251][170][FB AA 55 4D 01 0F 60 DC 00 00 00 ][0m
+[31m[ERROR] [1598460847.027625320]: Kobuki : malformed sub-payload detected. [187][170][BB AA 55 4D 01 0F 4C F0 00 00 00 ][0m
+[31m[ERROR] [1598460943.458610346]: Kobuki : malformed sub-payload detected. [9][170][09 AA 55 4D 01 0F 40 69 00 00 00 00 00 00 00 00 00 00 00 95 00 03 ][0m
+[31m[ERROR] [1598460984.247477129]: Kobuki : malformed sub-payload detected. [255][170][FF AA 55 4D 01 0F B4 08 00 00 ][0m
+[31m[ERROR] [1598460996.478846278]: Kobuki : malformed sub-payload detected. [231][170][E7 AA 55 4D 01 0F 84 38 00 00 00 ][0m
+[31m[ERROR] [1598461128.241084285]: Kobuki : Timed out while waiting for serial data stream [/mobile_base].[0m
+[31m[ERROR] [1598461129.620996102]: Kobuki : malformed sub-payload detected. [131][170][83 AA 55 4D 01 0F FC 40 00 00 00 00 ][0m
+[31m[ERROR] [1598461131.659572377]: Kobuki : malformed sub-payload detected. [52][170][34 AA 55 4D 01 0F F4 ][0m
+[31m[ERROR] [1598461133.138428217]: Kobuki : malformed sub-payload detected. [35][170][23 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461133.697873226]: Kobuki : malformed sub-payload detected. [0][170][00 AA 55 4D 01 0F EC 50 00 ][0m
+[31m[ERROR] [1598461136.756443835]: Kobuki : malformed sub-payload detected. [69][170][45 AA 55 4D 01 0F E0 5C 00 00 00 00 00 ][0m
+[31m[ERROR] [1598461162.237500495]: Kobuki : malformed sub-payload detected. [53][170][35 AA 55 4D 01 0F 7C C0 00 00 00 00 00 ][0m
+[31m[ERROR] [1598461164.275910645]: Kobuki : malformed sub-payload detected. [113][170][71 AA 55 4D 01 0F 74 ][0m
+[31m[ERROR] [1598461166.314237201]: Kobuki : malformed sub-payload detected. [227][170][E3 AA 55 4D 01 0F 6C ][0m
+[31m[ERROR] [1598461226.088273651]: Kobuki : malformed sub-payload detected. [21][170][15 AA 55 53 01 0F 18 BA ][0m
+[31m[ERROR] [1598461229.066110322]: Kobuki : malformed sub-payload detected. [201][170][C9 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461236.740009716]: Kobuki : malformed sub-payload detected. [207][170][CF AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461241.856253578]: Kobuki : malformed sub-payload detected. [36][170][24 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461262.321325210]: Kobuki : malformed sub-payload detected. [80][170][50 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461271.274534874]: Kobuki : malformed sub-payload detected. [126][170][7E AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461332.730363812]: Kobuki : malformed sub-payload detected. [33][170][21 AA 55 53 01 0F F8 5A 00 ][0m
+[31m[ERROR] [1598461343.283018894]: Kobuki : malformed sub-payload detected. [182][170][B6 AA 55 4D 01 0F 38 84 00 00 ][0m
+[31m[ERROR] [1598461381.273911398]: Kobuki : malformed sub-payload detected. [88][170][58 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461465.211960841]: Kobuki : malformed sub-payload detected. [210][170][D2 AA 55 4D 01 0F DC 60 00 00 00 00 00 ][0m
+[31m[ERROR] [1598461469.288864617]: Kobuki : malformed sub-payload detected. [134][170][86 AA 55 4D 01 0F CC 70 ][0m
+[31m[ERROR] [1598461493.751711791]: Kobuki : malformed sub-payload detected. [42][170][2A AA 55 4D 01 0F 6C D0 ][0m
+[31m[ERROR] [1598461496.810361008]: Kobuki : malformed sub-payload detected. [143][170][8F AA 55 4D 01 0F 60 DC 00 00 00 ][0m
+[33m[ WARN] [1598461554.232956971]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461555.315007947]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461573.140575574]: Kobuki : malformed sub-payload detected. [135][170][87 AA 55 4D 01 0F ][0m
+[33m[ WARN] [1598461618.029230068]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461619.012717592]: Kobuki : malformed sub-payload detected. [39][170][27 AA 55 4D 01 0F 08 BA 00 00 00 25 08 B3 06 00 00 00 00 95 00 ][0m
+[33m[ WARN] [1598461619.551258250]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461620.590239601]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461639.135953657]: Kobuki : malformed sub-payload detected. [211][170][D3 AA 55 4D 01 0F B4 08 ][0m
+[31m[ERROR] [1598461652.446689101]: Kobuki : malformed sub-payload detected. [7][170][07 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461677.867512271]: Kobuki : malformed sub-payload detected. [16][170][10 AA 55 4D 01 0F 1C ][0m
+[31m[ERROR] [1598461679.905781013]: Kobuki : malformed sub-payload detected. [130][170][82 AA 55 4D 01 0F 14 A8 00 00 ][0m
+[33m[ WARN] [1598461680.505127013]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461683.982879118]: Kobuki : malformed sub-payload detected. [211][170][D3 AA 55 4D 01 0F 04 B8 00 ][0m
+[33m[ WARN] [1598461693.356307091]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461700.190793508]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461701.214916495]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461702.247496752]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461703.314699481]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461704.368644751]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461720.120029467]: Kobuki : malformed sub-payload detected. [53][170][35 AA 55 4D 01 0F 44 45 00 00 00 DB 1F F3 1C 00 00 00 00 95 00 ][0m
+[31m[ERROR] [1598461773.962652460]: Kobuki : malformed sub-payload detected. [40][170][28 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598461788.592992671]: Kobuki : malformed sub-payload detected. [82][170][52 AA 55 4D 01 0F EC ][0m
+[31m[ERROR] [1598461790.631383675]: Kobuki : malformed sub-payload detected. [116][170][74 AA 55 4D 01 0F E4 58 00 ][0m
+[31m[ERROR] [1598461794.708532343]: Kobuki : malformed sub-payload detected. [159][170][9F AA 55 4D 01 0F D4 68 ][0m
+[31m[ERROR] [1598461798.785704732]: Kobuki : malformed sub-payload detected. [94][170][5E AA 55 4D 01 0F C4 ][0m
+[31m[ERROR] [1598461804.961946396]: Kobuki : malformed sub-payload detected. [155][170][9B AA 55 4D 01 0F E8 90 00 00 00 DB ][0m
+[31m[ERROR] [1598461818.153259265]: Kobuki : malformed sub-payload detected. [173][170][AD AA 55 4D 01 0F 78 C4 00 00 ][0m
+[33m[ WARN] [1598461826.547756002]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461827.327757437]: Kobuki : malformed sub-payload detected. [27][170][1B AA 55 4D 01 0F 54 E8 00 00 ][0m
+[33m[ WARN] [1598461827.615320694]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461828.664914933]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461829.715140397]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461830.805651697]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461833.624136539]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461834.682825840]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461835.683581935]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461836.715164618]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461837.543035330]: Kobuki : malformed sub-payload detected. [12][170][0C AA 55 4D 01 0F 40 10 00 00 00 A3 2E ][0m
+[33m[ WARN] [1598461837.721528442]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461838.822337454]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461839.941846777]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461840.981033898]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461841.760095703]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F ][0m
+[33m[ WARN] [1598461841.997967331]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461843.056809250]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461844.196694215]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461845.258891237]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461846.357690718]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461847.416971199]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461878.857558141]: Kobuki : malformed sub-payload detected. [234][170][EA AA 55 4D 01 0F ][0m
+[33m[ WARN] [1598461909.500927092]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461910.514745376]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598461911.836649665]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598461977.814096504]: Kobuki : malformed sub-payload detected. [242][170][F2 AA 55 4D 01 0F 88 ][0m
+[31m[ERROR] [1598461979.852535214]: Kobuki : malformed sub-payload detected. [254][170][FE AA 55 4D 01 0F 80 3C 00 00 ][0m
+[31m[ERROR] [1598462008.395176922]: Kobuki : malformed sub-payload detected. [233][170][E9 AA 55 4D 01 0F 10 ][0m
+[31m[ERROR] [1598462010.434816904]: Kobuki : malformed sub-payload detected. [165][170][A5 AA 55 4D 01 0F 08 B4 00 00 ][0m
+[31m[ERROR] [1598462011.453957253]: Kobuki : malformed sub-payload detected. [170][170][AA AA 55 4D 01 0F 04 B8 00 ][0m
+[33m[ WARN] [1598462011.911113162]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462012.992360733]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462014.115068368]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462015.192153483]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462016.215166111]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462018.988729107]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462020.015265919]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462021.108680517]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462022.127778293]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462023.214835339]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462024.264628540]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598462025.315156803]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598462042.675989800]: Kobuki : malformed sub-payload detected. [58][170][3A AA 55 4D 01 0F 0C 32 00 00 00 ][0m
+[31m[ERROR] [1598462123.214545347]: Kobuki : malformed sub-payload detected. [47][170][2F AA 55 4D 01 0F D0 6C 00 ][0m
+[31m[ERROR] [1598462124.473720495]: Kobuki : malformed sub-payload detected. [97][170][61 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462185.885424136]: Kobuki : malformed sub-payload detected. [196][170][C4 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462225.546021620]: Kobuki : malformed sub-payload detected. [5][170][05 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462247.416084904]: Kobuki : malformed sub-payload detected. [173][170][AD AA 55 4D 01 0F 34 52 00 00 00 82 07 CF 07 00 00 00 00 94 00 ][0m
+[31m[ERROR] [1598462267.764053975]: Kobuki : malformed sub-payload detected. [17][170][11 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462280.916966281]: Kobuki : malformed sub-payload detected. [194][170][C2 AA 55 4D 01 0F 24 D5 00 00 00 82 07 CF 07 ][0m
+[31m[ERROR] [1598462284.994817936]: Kobuki : malformed sub-payload detected. [76][170][4C AA 55 4D 01 0F 14 E5 00 00 00 82 07 CF 07 ][0m
+[31m[ERROR] [1598462305.324395122]: Kobuki : malformed sub-payload detected. [56][170][38 AA 55 4D 01 0F 88 34 00 ][0m
+[31m[ERROR] [1598462306.343779111]: Kobuki : malformed sub-payload detected. [36][170][24 AA 55 4D 01 0F 84 ][0m
+[31m[ERROR] [1598462328.771240610]: Kobuki : malformed sub-payload detected. [162][170][A2 AA 55 4D 01 0F 2C 90 00 ][0m
+[31m[ERROR] [1598462342.643335235]: Kobuki : malformed sub-payload detected. [65][170][41 AA 55 53 01 0F 64 C6 00 ][0m
+[31m[ERROR] [1598462377.523762975]: Kobuki : malformed sub-payload detected. [138][170][8A AA 55 4D 01 0F B8 4E 00 00 00 82 07 ][0m
+[31m[ERROR] [1598462431.536710447]: Kobuki : malformed sub-payload detected. [43][170][2B AA 55 4D 01 0F D0 21 00 00 00 82 07 CF ][0m
+[31m[ERROR] [1598462478.854383651]: Kobuki : malformed sub-payload detected. [35][170][23 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462481.313560913]: Kobuki : malformed sub-payload detected. [235][170][EB AA 55 4D 01 0F 58 ][0m
+[31m[ERROR] [1598462530.032625270]: Kobuki : malformed sub-payload detected. [85][170][55 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462583.967572760]: Kobuki : malformed sub-payload detected. [247][170][F7 AA 55 4D 01 0F 84 75 00 00 00 82 07 CF 07 00 ][0m
+[31m[ERROR] [1598462604.557440232]: Kobuki : malformed sub-payload detected. [91][170][5B AA 55 4D 01 0F FC C5 00 00 00 82 ][0m
+[31m[ERROR] [1598462622.649672490]: Kobuki : malformed sub-payload detected. [187][170][BB AA 55 4D 01 0F B0 0C 00 00 ][0m
+[31m[ERROR] [1598462624.688984365]: Kobuki : malformed sub-payload detected. [242][170][F2 AA 55 4D 01 0F A8 ][0m
+[31m[ERROR] [1598462625.988104938]: Kobuki : malformed sub-payload detected. [5][170][05 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462654.637019131]: Kobuki : malformed sub-payload detected. [145][170][91 AA 55 4D 01 0F B0 89 00 00 00 82 ][0m
+[31m[ERROR] [1598462655.915933156]: Kobuki : malformed sub-payload detected. [107][170][6B AA 55 4D 01 0F B0 8E 00 00 00 ][0m
+[31m[ERROR] [1598462663.432200693]: Kobuki : malformed sub-payload detected. [30][170][1E AA 55 4D 01 0F 10 AC 00 00 ][0m
+[31m[ERROR] [1598462672.047800094]: Kobuki : malformed sub-payload detected. [180][170][B4 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462687.461270262]: Kobuki : malformed sub-payload detected. [180][170][B4 AA 55 4D 01 0F F8 09 00 00 00 82 07 CF ][0m
+[31m[ERROR] [1598462779.277982726]: Kobuki : malformed sub-payload detected. [156][170][9C AA 55 4D 01 0F CC 70 ][0m
+[31m[ERROR] [1598462788.893543923]: Kobuki : malformed sub-payload detected. [96][170][60 AA 55 4D 01 0F 60 96 00 00 00 82 07 ][0m
+[31m[ERROR] [1598462800.686548107]: Kobuki : malformed sub-payload detected. [154][170][9A AA 55 4D 01 0F 78 ][0m
+[31m[ERROR] [1598462804.764530635]: Kobuki : malformed sub-payload detected. [159][170][9F AA 55 4D 01 0F 68 ][0m
+[31m[ERROR] [1598462808.942369585]: Kobuki : malformed sub-payload detected. [226][170][E2 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462870.346255643]: Kobuki : malformed sub-payload detected. [152][170][98 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598462909.762929528]: Kobuki : malformed sub-payload detected. [95][170][5F AA 55 53 01 0F CC ][0m
+[31m[ERROR] [1598462940.224780991]: Kobuki : malformed sub-payload detected. [135][170][87 AA 55 4D 01 0F DC E5 00 00 00 82 ][0m
+[31m[ERROR] [1598462957.295941717]: Kobuki : malformed sub-payload detected. [97][170][61 AA 55 4D 01 0F 94 28 ][0m
+[31m[ERROR] [1598462960.353487279]: Kobuki : malformed sub-payload detected. [104][170][68 AA 55 4D 01 0F 88 34 ][0m
+[31m[ERROR] [1598462987.876594342]: Kobuki : malformed sub-payload detected. [26][170][1A AA 55 4D 01 0F 1C A0 00 00 ][0m
+[31m[ERROR] [1598463015.840915107]: Kobuki : malformed sub-payload detected. [190][170][BE AA 55 4D 01 0F 68 0D 00 00 00 82 07 CF 07 00 00 00 00 94 00 03 ][0m
+[31m[ERROR] [1598463023.175376503]: Kobuki : malformed sub-payload detected. [120][170][78 AA 55 4D 01 0F 14 2A 00 00 00 ][0m
+[31m[ERROR] [1598463039.286837942]: Kobuki : malformed sub-payload detected. [248][170][F8 AA 55 4D 01 0F 0C 69 00 00 00 82 07 CF 07 00 00 00 00 94 ][0m
+[31m[ERROR] [1598463076.125804985]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F 08 F9 00 00 00 82 07 CF ][0m
+[31m[ERROR] [1598463087.839082228]: Kobuki : malformed sub-payload detected. [20][170][14 AA 55 4D 01 0F D0 26 00 00 00 82 07 ][0m
+[31m[ERROR] [1598463095.554041191]: Kobuki : malformed sub-payload detected. [194][170][C2 AA 55 4D 01 0F F8 44 ][0m
+[31m[ERROR] [1598463097.592422734]: Kobuki : malformed sub-payload detected. [126][170][7E AA 55 4D 01 0F F0 ][0m
+[31m[ERROR] [1598463128.169451205]: Kobuki : malformed sub-payload detected. [183][170][B7 AA 55 4D 01 0F 78 C4 00 ][0m
+[31m[ERROR] [1598463135.144061791]: Kobuki : malformed sub-payload detected. [128][170][80 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463135.943717412]: Kobuki : malformed sub-payload detected. [226][170][E2 AA 55 4D 01 0F DC E2 00 00 00 ][0m
+[31m[ERROR] [1598463136.323140810]: Kobuki : malformed sub-payload detected. [183][170][B7 AA 55 4D 01 0F 58 E4 00 ][0m
+[31m[ERROR] [1598463140.399958461]: Kobuki : malformed sub-payload detected. [199][170][C7 AA 55 4D 01 0F 48 F4 00 ][0m
+[31m[ERROR] [1598463207.250883189]: Kobuki : malformed sub-payload detected. [37][170][25 AA 55 4D 01 0F 9C F9 00 00 00 82 07 CF 07 00 00 00 00 94 ][0m
+[31m[ERROR] [1598463211.886180060]: Kobuki : malformed sub-payload detected. [131][170][83 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463305.257416335]: Kobuki : malformed sub-payload detected. [126][170][7E AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463305.796748060]: Kobuki : malformed sub-payload detected. [93][170][5D AA 55 53 01 0F D8 ][0m
+[31m[ERROR] [1598463311.253588706]: Kobuki : malformed sub-payload detected. [60][170][3C AA 55 4D 01 0F 2C 90 ][0m
+[31m[ERROR] [1598463313.292081652]: Kobuki : malformed sub-payload detected. [143][170][8F AA 55 4D 01 0F 24 ][0m
+[31m[ERROR] [1598463325.722543178]: Kobuki : malformed sub-payload detected. [118][170][76 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463327.821035620]: Kobuki : malformed sub-payload detected. [24][170][18 AA 55 53 01 0F F0 D0 00 00 00 ][0m
+[31m[ERROR] [1598463428.091260267]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F E4 58 00 ][0m
+[31m[ERROR] [1598463447.898969020]: Kobuki : malformed sub-payload detected. [149][170][95 AA 55 4D 01 0F 50 A6 00 00 00 82 07 ][0m
+[31m[ERROR] [1598463470.522702365]: Kobuki : malformed sub-payload detected. [242][170][F2 AA 55 4D 01 0F C0 FE 00 00 00 ][0m
+[31m[ERROR] [1598463482.374866902]: Kobuki : malformed sub-payload detected. [179][170][B3 AA 55 4D 01 0F 14 2D 00 00 00 82 ][0m
+[31m[ERROR] [1598463489.888911988]: Kobuki : malformed sub-payload detected. [133][170][85 AA 55 4D 01 0F 74 4A 00 00 00 ][0m
+[31m[ERROR] [1598463597.291320605]: Kobuki : malformed sub-payload detected. [251][170][FB AA 55 53 01 0F 4C ][0m
+[31m[ERROR] [1598463617.300700785]: Kobuki : malformed sub-payload detected. [159][170][9F AA 55 4D 01 0F 80 3C ][0m
+[31m[ERROR] [1598463641.387249710]: Kobuki : malformed sub-payload detected. [154][170][9A AA 55 4D 01 0F A4 9A 00 00 00 ][0m
+[31m[ERROR] [1598463682.163322844]: Kobuki : malformed sub-payload detected. [226][170][E2 AA 55 4D 01 0F 04 3A 00 00 00 ][0m
+[31m[ERROR] [1598463692.837369143]: Kobuki : malformed sub-payload detected. [212][170][D4 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463709.467257566]: Kobuki : malformed sub-payload detected. [95][170][5F AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463717.143269005]: Kobuki : malformed sub-payload detected. [112][170][70 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463753.516714122]: Kobuki : malformed sub-payload detected. [235][170][EB AA 55 4D 01 0F EC 50 ][0m
+[31m[ERROR] [1598463753.956371950]: Kobuki : malformed sub-payload detected. [43][170][2B AA 55 4D 01 0F A4 52 00 00 00 82 07 ][0m
+[31m[ERROR] [1598463764.726639197]: Kobuki : malformed sub-payload detected. [95][170][5F AA 55 4D 01 0F C0 7C 00 ][0m
+[31m[ERROR] [1598463775.357715902]: Kobuki : malformed sub-payload detected. [151][170][97 AA 55 4D 01 0F 50 A6 00 00 00 82 07 ][0m
+[31m[ERROR] [1598463779.434285500]: Kobuki : malformed sub-payload detected. [81][170][51 AA 55 4D 01 0F 40 B6 00 00 00 82 07 ][0m
+[31m[ERROR] [1598463828.693681129]: Kobuki : malformed sub-payload detected. [142][170][8E AA 55 53 01 0F D4 ][0m
+[31m[ERROR] [1598463838.566637852]: Kobuki : malformed sub-payload detected. [49][170][31 AA 55 4D 01 0F 6C 9D 00 00 00 82 07 CF 07 ][0m
+[31m[ERROR] [1598463842.643082141]: Kobuki : malformed sub-payload detected. [79][170][4F AA 55 4D 01 0F 5C AD 00 00 00 82 07 CF ][0m
+[31m[ERROR] [1598463852.714668233]: Kobuki : malformed sub-payload detected. [7][170][07 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463883.970837967]: Kobuki : malformed sub-payload detected. [176][170][B0 AA 55 53 01 0F EC 4E 00 00 ][0m
+[31m[ERROR] [1598463929.453593018]: Kobuki : malformed sub-payload detected. [47][170][2F AA 55 4D 01 0F BC 00 00 00 ][0m
+[31m[ERROR] [1598463936.587838560]: Kobuki : malformed sub-payload detected. [209][170][D1 AA 55 4D 01 0F A0 1C 00 ][0m
+[31m[ERROR] [1598463939.645537645]: Kobuki : malformed sub-payload detected. [86][170][56 AA 55 4D 01 0F 94 ][0m
+[31m[ERROR] [1598463942.702717547]: Kobuki : malformed sub-payload detected. [140][170][8C AA 55 4D 01 0F 88 34 00 ][0m
+[31m[ERROR] [1598463946.079974253]: Kobuki : malformed sub-payload detected. [2][170][02 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463959.210270571]: Kobuki : malformed sub-payload detected. [27][170][1B AA 55 4D 01 0F 10 75 00 00 00 82 07 CF 07 00 00 00 00 94 00 03 ][0m
+[31m[ERROR] [1598463963.085880026]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F 38 ][0m
+[31m[ERROR] [1598463969.101013456]: Kobuki : malformed sub-payload detected. [148][170][94 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598463970.320092736]: Kobuki : malformed sub-payload detected. [125][170][7D AA 55 53 01 0F 80 A0 00 00 00 ][0m
+[31m[ERROR] [1598463999.398146852]: Kobuki : malformed sub-payload detected. [201][170][C9 AA 55 4D 01 0F 2C 12 00 00 00 ][0m
+[31m[ERROR] [1598464009.590006234]: Kobuki : malformed sub-payload detected. [42][170][2A AA 55 4D 01 0F 04 3A 00 00 00 ][0m
+[31m[ERROR] [1598464011.308618227]: Kobuki : malformed sub-payload detected. [55][170][37 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464035.610412613]: Kobuki : malformed sub-payload detected. [133][170][85 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464048.580150575]: Kobuki : malformed sub-payload detected. [233][170][E9 AA 55 53 01 0F 70 ][0m
+[31m[ERROR] [1598464100.559252186]: Kobuki : malformed sub-payload detected. [148][170][94 AA 55 4D 01 0F A4 9D 00 00 00 82 ][0m
+[31m[ERROR] [1598464117.805247379]: Kobuki : malformed sub-payload detected. [44][170][2C AA 55 4D 01 0F 10 E1 00 00 00 82 07 CF ][0m
+[31m[ERROR] [1598464119.284001023]: Kobuki : malformed sub-payload detected. [163][170][A3 AA 55 4D 01 0F D8 E6 00 00 00 ][0m
+[31m[ERROR] [1598464124.758461185]: Kobuki : malformed sub-payload detected. [58][170][3A AA 55 4D 01 0F 40 FC 00 00 ][0m
+[31m[ERROR] [1598464148.579293794]: Kobuki : malformed sub-payload detected. [38][170][26 AA 55 4D 01 0F 60 59 00 00 00 82 ][0m
+[31m[ERROR] [1598464174.137655285]: Kobuki : malformed sub-payload detected. [1][170][01 AA 55 4D 01 0F 4C BD 00 00 00 82 07 CF 07 ][0m
+[31m[ERROR] [1598464205.710467078]: Kobuki : malformed sub-payload detected. [116][170][74 AA 55 4D 01 0F ][0m
+[33m[ WARN] [1598464211.685728684]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598464213.044556077]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598464214.483625711]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598464229.529009994]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598464234.667496800]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598464264.005229358]: Kobuki : malformed sub-payload detected. [245][170][F5 AA 55 4D 01 0F A0 1C ][0m
+[31m[ERROR] [1598464266.043568071]: Kobuki : malformed sub-payload detected. [153][170][99 AA 55 4D 01 0F 98 24 00 ][0m
+[31m[ERROR] [1598464282.450387005]: Kobuki : malformed sub-payload detected. [122][170][7A AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464286.687855436]: Kobuki : malformed sub-payload detected. [180][170][B4 AA 55 4D 01 0F 4C 75 00 00 00 82 ][0m
+[31m[ERROR] [1598464289.485663563]: Kobuki : malformed sub-payload detected. [14][170][0E AA 55 4D 01 0F 3C 80 ][0m
+[31m[ERROR] [1598464303.755718568]: Kobuki : malformed sub-payload detected. [174][170][AE AA 55 4D 01 0F 04 B8 00 00 ][0m
+[31m[ERROR] [1598464327.479824489]: Kobuki : malformed sub-payload detected. [68][170][44 AA 55 4D 01 0F C0 14 00 00 00 82 07 EA 07 00 ][0m
+[31m[ERROR] [1598464337.752325661]: Kobuki : malformed sub-payload detected. [108][170][6C AA 55 4D 01 0F E8 3C 00 00 00 82 07 EA ][0m
+[31m[ERROR] [1598464366.291649349]: Kobuki : malformed sub-payload detected. [180][170][B4 AA 55 4D 01 0F 78 AC 00 00 00 82 07 EA 07 ][0m
+[31m[ERROR] [1598464404.287510923]: Kobuki : malformed sub-payload detected. [31][170][1F AA 55 4D 01 0F FC 40 00 00 ][0m
+[31m[ERROR] [1598464405.306685441]: Kobuki : malformed sub-payload detected. [155][170][9B AA 55 4D 01 0F F8 ][0m
+[31m[ERROR] [1598464406.326011827]: Kobuki : malformed sub-payload detected. [41][170][29 AA 55 4D 01 0F F4 48 00 ][0m
+[31m[ERROR] [1598464408.365229079]: Kobuki : malformed sub-payload detected. [146][170][92 AA 55 4D 01 0F EC 50 00 ][0m
+[31m[ERROR] [1598464409.024754358]: Kobuki : malformed sub-payload detected. [135][170][87 AA 55 4D 01 0F 80 53 00 00 00 82 07 ][0m
+[31m[ERROR] [1598464413.462132680]: Kobuki : malformed sub-payload detected. [231][170][E7 AA 55 4D 01 0F D8 64 00 00 ][0m
+[31m[ERROR] [1598464419.318539217]: Kobuki : malformed sub-payload detected. [143][170][8F AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464429.552672116]: Kobuki : malformed sub-payload detected. [167][170][A7 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464436.907652906]: Kobuki : malformed sub-payload detected. [70][170][46 AA 55 4D 01 0F 7C C0 00 00 ][0m
+[31m[ERROR] [1598464444.043018377]: Kobuki : malformed sub-payload detected. [204][170][CC AA 55 4D 01 0F 60 DC 00 00 ][0m
+[31m[ERROR] [1598464445.062207970]: Kobuki : malformed sub-payload detected. [196][170][C4 AA 55 4D 01 0F 5C E0 ][0m
+[31m[ERROR] [1598464445.441800533]: Kobuki : malformed sub-payload detected. [255][170][FF AA 55 4D 01 0F D8 E1 00 00 00 82 ][0m
+[31m[ERROR] [1598464460.251845189]: Kobuki : malformed sub-payload detected. [74][170][4A AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464462.351200772]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F F0 23 00 00 00 82 07 ][0m
+[31m[ERROR] [1598464586.902586490]: Kobuki : malformed sub-payload detected. [83][170][53 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464602.294672896]: Kobuki : malformed sub-payload detected. [162][170][A2 AA 55 53 01 0F E4 46 ][0m
+[31m[ERROR] [1598464625.122770384]: Kobuki : malformed sub-payload detected. [62][170][3E AA 55 4D 01 0F 1C ][0m
+[31m[ERROR] [1598464639.355737987]: Kobuki : malformed sub-payload detected. [161][170][A1 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464650.229960634]: Kobuki : malformed sub-payload detected. [107][170][6B AA 55 4D 01 0F 3C 02 00 00 00 ][0m
+[31m[ERROR] [1598464687.591583275]: Kobuki : malformed sub-payload detected. [190][170][BE AA 55 4D 01 0F 40 94 00 00 00 82 07 EA ][0m
+[31m[ERROR] [1598464696.846226955]: Kobuki : malformed sub-payload detected. [238][170][EE AA 55 4D 01 0F 6C B8 00 00 00 82 07 EA 07 ][0m
+[31m[ERROR] [1598464719.954213180]: Kobuki : malformed sub-payload detected. [53][170][35 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464730.189340371]: Kobuki : malformed sub-payload detected. [242][170][F2 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464733.827837951]: Kobuki : malformed sub-payload detected. [204][170][CC AA 55 4D 01 0F F4 48 00 00 ][0m
+[31m[ERROR] [1598464735.867271996]: Kobuki : malformed sub-payload detected. [193][170][C1 AA 55 4D 01 0F EC 50 00 00 ][0m
+[31m[ERROR] [1598464746.822220829]: Kobuki : malformed sub-payload detected. [163][170][A3 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464769.511624216]: Kobuki : malformed sub-payload detected. [66][170][42 AA 55 4D 01 0F 68 D4 00 ][0m
+[31m[ERROR] [1598464773.589390529]: Kobuki : malformed sub-payload detected. [226][170][E2 AA 55 4D 01 0F 58 E4 ][0m
+[31m[ERROR] [1598464775.349177642]: Kobuki : malformed sub-payload detected. [200][170][C8 AA 55 4D 01 0F 38 EB 00 00 00 82 07 ][0m
+[31m[ERROR] [1598464776.648036636]: Kobuki : malformed sub-payload detected. [91][170][5B AA 55 4D 01 0F 4C F0 ][0m
+[31m[ERROR] [1598464803.114253406]: Kobuki : malformed sub-payload detected. [85][170][55 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464803.794747622]: Kobuki : malformed sub-payload detected. [112][170][70 AA 55 4D 01 0F 64 5A 00 00 00 ][0m
+[31m[ERROR] [1598464807.612793229]: Kobuki : malformed sub-payload detected. [74][170][4A AA 55 4D 01 0F 50 69 00 00 00 82 ][0m
+[31m[ERROR] [1598464819.807413656]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F F8 98 00 00 00 82 07 EA 07 00 00 00 16 A2 00 03 ][0m
+[31m[ERROR] [1598464907.383002886]: Kobuki : malformed sub-payload detected. [206][170][CE AA 55 4D 01 0F 3C EF 00 00 00 82 07 ][0m
+[31m[ERROR] [1598464923.074315269]: Kobuki : malformed sub-payload detected. [224][170][E0 AA 55 4D 01 0F 90 ][0m
+[31m[ERROR] [1598464924.093295219]: Kobuki : malformed sub-payload detected. [84][170][54 AA 55 4D 01 0F 8C ][0m
+[31m[ERROR] [1598464927.152020328]: Kobuki : malformed sub-payload detected. [216][170][D8 AA 55 4D 01 0F 80 3C 00 00 ][0m
+[31m[ERROR] [1598464927.212022363]: Kobuki : malformed sub-payload detected. [171][170][AB AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464952.799251736]: Kobuki : malformed sub-payload detected. [217][170][D9 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464978.386715369]: Kobuki : malformed sub-payload detected. [253][170][FD AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464983.604905248]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F 20 19 00 00 00 82 ][0m
+[31m[ERROR] [1598464991.760309085]: Kobuki : malformed sub-payload detected. [120][170][78 AA 55 4D 01 0F 00 39 00 00 00 82 ][0m
+[31m[ERROR] [1598464997.576613622]: Kobuki : malformed sub-payload detected. [255][170][FF AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598464998.796624987]: Kobuki : malformed sub-payload detected. [118][170][76 AA 55 4D 01 0F 80 54 00 00 00 82 07 EA 07 ][0m
+[31m[ERROR] [1598465008.051487540]: Kobuki : malformed sub-payload detected. [142][170][8E AA 55 4D 01 0F AC 78 00 00 00 82 07 EA ][0m
+[31m[ERROR] [1598465072.557224447]: Kobuki : malformed sub-payload detected. [54][170][36 AA 55 4D 01 0F C8 ][0m
+[31m[ERROR] [1598465073.576514481]: Kobuki : malformed sub-payload detected. [233][170][E9 AA 55 4D 01 0F C4 78 ][0m
+[31m[ERROR] [1598465091.927389160]: Kobuki : malformed sub-payload detected. [102][170][66 AA 55 4D 01 0F 7C C0 00 ][0m
+[31m[ERROR] [1598465106.840610440]: Kobuki : malformed sub-payload detected. [23][170][17 AA 55 4D 01 0F C4 FA 00 00 00 ][0m
+[31m[ERROR] [1598465123.172198322]: Kobuki : malformed sub-payload detected. [174][170][AE AA 55 53 01 0F 98 3A 00 ][0m
+[31m[ERROR] [1598465148.538163522]: Kobuki : malformed sub-payload detected. [33][170][21 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465244.472011532]: Kobuki : malformed sub-payload detected. [229][170][E5 AA 55 4D 01 0F A8 14 00 00 ][0m
+[31m[ERROR] [1598465262.403817092]: Kobuki : malformed sub-payload detected. [81][170][51 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465271.358794991]: Kobuki : malformed sub-payload detected. [29][170][1D AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465307.302419463]: Kobuki : malformed sub-payload detected. [221][170][DD AA 55 4D 01 0F 34 0A 00 00 00 ][0m
+[31m[ERROR] [1598465307.722076106]: Kobuki : malformed sub-payload detected. [229][170][E5 AA 55 4D 01 0F D8 0B 00 00 00 82 07 ][0m
+[31m[ERROR] [1598465313.578751887]: Kobuki : malformed sub-payload detected. [86][170][56 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465332.510233784]: Kobuki : malformed sub-payload detected. [83][170][53 AA 55 4D 01 0F B8 6C 00 00 00 82 07 EA 07 00 ][0m
+[31m[ERROR] [1598465336.588162719]: Kobuki : malformed sub-payload detected. [168][170][A8 AA 55 4D 01 0F A8 7C 00 00 00 82 07 EA 07 00 ][0m
+[31m[ERROR] [1598465364.754078747]: Kobuki : malformed sub-payload detected. [133][170][85 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465378.628383513]: Kobuki : malformed sub-payload detected. [242][170][F2 AA 55 4D 01 0F F4 20 00 00 00 82 07 EA ][0m
+[31m[ERROR] [1598465382.106457744]: Kobuki : malformed sub-payload detected. [49][170][31 AA 55 53 01 0F 8C 2E ][0m
+[31m[ERROR] [1598465389.363936064]: Kobuki : malformed sub-payload detected. [199][170][C7 AA 55 53 01 0F E8 ][0m
+[31m[ERROR] [1598465415.333891289]: Kobuki : malformed sub-payload detected. [179][170][B3 AA 55 4D 01 0F 64 B0 00 00 00 82 07 EA 07 ][0m
+[31m[ERROR] [1598465431.285720086]: Kobuki : malformed sub-payload detected. [152][170][98 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465463.093432497]: Kobuki : malformed sub-payload detected. [215][170][D7 AA 55 4D 01 0F 08 6B 00 00 00 82 07 EA 07 00 00 00 16 A2 00 ][0m
+[31m[ERROR] [1598465538.298792531]: Kobuki : malformed sub-payload detected. [150][170][96 AA 55 4D 01 0F F0 90 00 00 00 82 07 EA 07 00 00 00 16 A2 ][0m
+[31m[ERROR] [1598465568.944305711]: Kobuki : malformed sub-payload detected. [36][170][24 AA 55 4D 01 0F B4 08 ][0m
+[31m[ERROR] [1598465572.002829813]: Kobuki : malformed sub-payload detected. [124][170][7C AA 55 4D 01 0F A8 ][0m
+[31m[ERROR] [1598465692.669903639]: Kobuki : malformed sub-payload detected. [227][170][E3 AA 55 4D 01 0F 38 EC 00 00 00 82 07 EA 07 ][0m
+[31m[ERROR] [1598465707.643005199]: Kobuki : malformed sub-payload detected. [254][170][FE AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465714.360063442]: Kobuki : malformed sub-payload detected. [74][170][4A AA 55 4D 01 0F FC 40 ][0m
+[31m[ERROR] [1598465716.399477128]: Kobuki : malformed sub-payload detected. [35][170][23 AA 55 4D 01 0F F4 ][0m
+[31m[ERROR] [1598465719.158318969]: Kobuki : malformed sub-payload detected. [49][170][31 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465747.627407231]: Kobuki : malformed sub-payload detected. [218][170][DA AA 55 4D 01 0F FC C2 00 00 00 ][0m
+[31m[ERROR] [1598465761.641780098]: Kobuki : malformed sub-payload detected. [161][170][A1 AA 55 4D 01 0F C0 F9 00 00 00 82 ][0m
+[31m[ERROR] [1598465800.583925131]: Kobuki : malformed sub-payload detected. [80][170][50 AA 55 4D 01 0F F0 91 00 00 00 82 07 EA 07 00 00 00 16 A3 ][0m
+[31m[ERROR] [1598465871.410904340]: Kobuki : malformed sub-payload detected. [66][170][42 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598465896.478540767]: Kobuki : malformed sub-payload detected. [104][170][68 AA 55 4D 01 0F B4 08 ][0m
+[31m[ERROR] [1598465906.675048511]: Kobuki : malformed sub-payload detected. [67][170][43 AA 55 4D 01 0F 8C ][0m
+[31m[ERROR] [1598465908.714562445]: Kobuki : malformed sub-payload detected. [41][170][29 AA 55 4D 01 0F 84 38 00 ][0m
+[31m[ERROR] [1598465991.678458650]: Kobuki : malformed sub-payload detected. [120][170][78 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466012.149426673]: Kobuki : malformed sub-payload detected. [37][170][25 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466056.168983516]: Kobuki : malformed sub-payload detected. [223][170][DF AA 55 4D 01 0F C4 ][0m
+[31m[ERROR] [1598466077.578513717]: Kobuki : malformed sub-payload detected. [251][170][FB AA 55 4D 01 0F 70 CC 00 00 ][0m
+[31m[ERROR] [1598466254.588401849]: Kobuki : malformed sub-payload detected. [162][170][A2 AA 55 4D 01 0F 3C 80 00 ][0m
+[31m[ERROR] [1598466263.763486741]: Kobuki : malformed sub-payload detected. [117][170][75 AA 55 4D 01 0F 18 A4 ][0m
+[31m[ERROR] [1598466266.822175047]: Kobuki : malformed sub-payload detected. [198][170][C6 AA 55 4D 01 0F 0C B0 00 ][0m
+[31m[ERROR] [1598466285.930678737]: Kobuki : malformed sub-payload detected. [105][170][69 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466295.745978202]: Kobuki : malformed sub-payload detected. [141][170][8D AA 55 4D 01 0F 18 21 00 00 00 82 ][0m
+[31m[ERROR] [1598466298.045306607]: Kobuki : malformed sub-payload detected. [168][170][A8 AA 55 4D 01 0F 14 2A 00 00 00 ][0m
+[31m[ERROR] [1598466328.214496627]: Kobuki : malformed sub-payload detected. [68][170][44 AA 55 4D 01 0F F8 9F 00 00 00 82 07 EA 07 00 00 00 12 A1 ][0m
+[31m[ERROR] [1598466353.641082911]: Kobuki : Timed out while waiting for serial data stream [/mobile_base].[0m
+[31m[ERROR] [1598466355.021238326]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F ][0m
+[31m[ERROR] [1598466407.473294515]: Kobuki : malformed sub-payload detected. [142][170][8E AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466412.230731373]: Kobuki : malformed sub-payload detected. [5][170][05 AA 55 4D 01 0F 54 ][0m
+[31m[ERROR] [1598466416.308475308]: Kobuki : malformed sub-payload detected. [222][170][DE AA 55 4D 01 0F 44 ][0m
+[31m[ERROR] [1598466435.617900462]: Kobuki : malformed sub-payload detected. [112][170][70 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466445.233435867]: Kobuki : malformed sub-payload detected. [246][170][F6 AA 55 4D 01 0F 50 69 00 00 00 82 ][0m
+[31m[ERROR] [1598466529.007391233]: Kobuki : malformed sub-payload detected. [71][170][47 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466557.151963194]: Kobuki : malformed sub-payload detected. [2][170][02 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466571.225039686]: Kobuki : malformed sub-payload detected. [143][170][8F AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466572.564005843]: Kobuki : malformed sub-payload detected. [85][83][55 53 01 0F F8 5A ][0m
+[31m[ERROR] [1598466587.836183722]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F A8 96 00 00 00 ][0m
+[31m[ERROR] [1598466597.390495199]: Kobuki : malformed sub-payload detected. [229][170][E5 AA 55 4D 01 0F 00 BC ][0m
+[31m[ERROR] [1598466615.101130853]: Kobuki : malformed sub-payload detected. [165][170][A5 AA 55 4D 01 0F 38 01 00 00 00 82 ][0m
+[31m[ERROR] [1598466650.540173436]: Kobuki : malformed sub-payload detected. [93][170][5D AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466659.495296670]: Kobuki : malformed sub-payload detected. [21][170][15 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466688.920628230]: Kobuki : malformed sub-payload detected. [48][170][30 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466712.809398012]: Kobuki : malformed sub-payload detected. [254][170][FE AA 55 4D 01 0F 18 7F 00 00 00 82 07 EA 07 00 00 00 12 A1 00 03 ][0m
+[31m[ERROR] [1598466729.538639279]: Kobuki : malformed sub-payload detected. [119][170][77 AA 55 4D 01 0F 7C C0 00 00 ][0m
+[31m[ERROR] [1598466730.557879666]: Kobuki : malformed sub-payload detected. [230][170][E6 AA 55 4D 01 0F 78 C4 ][0m
+[31m[ERROR] [1598466737.693461293]: Kobuki : malformed sub-payload detected. [193][170][C1 AA 55 4D 01 0F 5C E0 00 ][0m
+[31m[ERROR] [1598466738.712653953]: Kobuki : malformed sub-payload detected. [247][170][F7 AA 55 4D 01 0F 58 E4 ][0m
+[31m[ERROR] [1598466742.151015415]: Kobuki : malformed sub-payload detected. [120][170][78 AA 55 4D 01 0F C8 F1 00 00 00 82 ][0m
+[31m[ERROR] [1598466761.399255457]: Kobuki : malformed sub-payload detected. [80][170][50 AA 55 4D 01 0F 04 3D 00 00 00 82 ][0m
+[31m[ERROR] [1598466805.336996443]: Kobuki : malformed sub-payload detected. [188][170][BC AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466828.364846172]: Kobuki : malformed sub-payload detected. [223][170][DF AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466832.323807974]: Kobuki : malformed sub-payload detected. [97][170][61 AA 55 4D 01 0F 34 52 00 00 00 82 07 EA 07 00 00 00 12 A0 00 03 ][0m
+[31m[ERROR] [1598466839.878965469]: Kobuki : malformed sub-payload detected. [167][170][A7 AA 55 4D 01 0F BC 6F 00 00 00 82 07 ][0m
+[31m[ERROR] [1598466862.225867620]: Kobuki : malformed sub-payload detected. [223][170][DF AA 55 4D 01 0F 14 C7 00 00 00 82 07 ][0m
+[31m[ERROR] [1598466876.975756358]: Kobuki : malformed sub-payload detected. [163][170][A3 AA 55 4D 01 0F BC 00 00 ][0m
+[31m[ERROR] [1598466880.074376052]: Kobuki : malformed sub-payload detected. [131][170][83 AA 55 4D 01 0F D8 0C 00 00 00 82 07 EA 07 00 ][0m
+[31m[ERROR] [1598466883.091904645]: Kobuki : malformed sub-payload detected. [90][170][5A AA 55 4D 01 0F A4 ][0m
+[31m[ERROR] [1598466885.130583617]: Kobuki : malformed sub-payload detected. [61][170][3D AA 55 4D 01 0F 9C ][0m
+[31m[ERROR] [1598466889.208246592]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F 8C 30 00 00 ][0m
+[31m[ERROR] [1598466900.461794714]: Kobuki : malformed sub-payload detected. [12][170][0C AA 55 4D 01 0F 88 5C 00 00 00 82 07 EA ][0m
+[31m[ERROR] [1598466903.079712307]: Kobuki : malformed sub-payload detected. [222][170][DE AA 55 53 01 0F C4 66 ][0m
+[31m[ERROR] [1598466909.595699894]: Kobuki : malformed sub-payload detected. [132][170][84 AA 55 4D 01 0F 3C ][0m
+[31m[ERROR] [1598466913.293854185]: Kobuki : malformed sub-payload detected. [80][170][50 AA 55 4D 01 0F B0 8E 00 00 00 ][0m
+[31m[ERROR] [1598466913.673729112]: Kobuki : malformed sub-payload detected. [63][170][3F AA 55 4D 01 0F 2C 90 00 00 ][0m
+[31m[ERROR] [1598466916.092654695]: Kobuki : malformed sub-payload detected. [71][170][47 AA 55 4D 01 0F A0 99 00 00 00 82 ][0m
+[31m[ERROR] [1598466918.131283314]: Kobuki : malformed sub-payload detected. [100][170][64 AA 55 4D 01 0F 98 A1 00 00 00 82 ][0m
+[31m[ERROR] [1598466939.659062268]: Kobuki : malformed sub-payload detected. [79][170][4F AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598466951.112474656]: Kobuki : malformed sub-payload detected. [12][170][0C AA 55 53 01 0F 80 ][0m
+[31m[ERROR] [1598466998.509593884]: Kobuki : malformed sub-payload detected. [68][170][44 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467030.492367641]: Kobuki : malformed sub-payload detected. [102][170][66 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467036.649579483]: Kobuki : malformed sub-payload detected. [234][170][EA AA 55 4D 01 0F CC ][0m
+[31m[ERROR] [1598467039.428391694]: Kobuki : malformed sub-payload detected. [30][170][1E AA 55 4D 01 0F A8 7B 00 00 00 82 07 ][0m
+[31m[ERROR] [1598467080.748950545]: Kobuki : malformed sub-payload detected. [59][170][3B AA 55 4D 01 0F 24 1D 00 00 00 82 ][0m
+[31m[ERROR] [1598467081.668248684]: Kobuki : malformed sub-payload detected. [86][170][56 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467099.578733662]: Kobuki : malformed sub-payload detected. [146][170][92 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467162.266302395]: Kobuki : malformed sub-payload detected. [251][170][FB AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467175.058500787]: Kobuki : malformed sub-payload detected. [51][170][33 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467195.566699070]: Kobuki : malformed sub-payload detected. [115][170][73 AA 55 4D 01 0F E4 DD 00 00 00 82 ][0m
+[31m[ERROR] [1598467205.501137970]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F B8 ][0m
+[31m[ERROR] [1598467212.157222573]: Kobuki : malformed sub-payload detected. [213][170][D5 AA 55 53 01 0F BC 1E 00 00 ][0m
+[31m[ERROR] [1598467217.734081584]: Kobuki : malformed sub-payload detected. [17][170][11 AA 55 4D 01 0F 88 34 ][0m
+[31m[ERROR] [1598467219.772667392]: Kobuki : malformed sub-payload detected. [152][170][98 AA 55 4D 01 0F 80 3C ][0m
+[31m[ERROR] [1598467238.122757392]: Kobuki : malformed sub-payload detected. [238][170][EE AA 55 4D 01 0F 38 84 00 00 ][0m
+[31m[ERROR] [1598467243.219978315]: Kobuki : malformed sub-payload detected. [135][170][87 AA 55 4D 01 0F 24 98 00 00 ][0m
+[31m[ERROR] [1598467258.212641028]: Kobuki : malformed sub-payload detected. [238][170][EE AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467268.447876355]: Kobuki : malformed sub-payload detected. [139][170][8B AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467276.903438311]: Kobuki : malformed sub-payload detected. [109][170][6D AA 55 4D 01 0F C8 1B 00 00 00 82 07 ][0m
+[31m[ERROR] [1598467354.981506717]: Kobuki : malformed sub-payload detected. [237][170][ED AA 55 4D 01 0F F0 4C ][0m
+[31m[ERROR] [1598467359.059619790]: Kobuki : malformed sub-payload detected. [146][170][92 AA 55 4D 01 0F E0 ][0m
+[31m[ERROR] [1598467361.097963036]: Kobuki : malformed sub-payload detected. [227][170][E3 AA 55 4D 01 0F D8 ][0m
+[31m[ERROR] [1598467363.137480605]: Kobuki : malformed sub-payload detected. [191][170][BF AA 55 4D 01 0F D0 6C 00 ][0m
+[31m[ERROR] [1598467367.215336679]: Kobuki : malformed sub-payload detected. [157][170][9D AA 55 4D 01 0F C0 7C 00 00 ][0m
+[31m[ERROR] [1598467383.109173019]: Kobuki : malformed sub-payload detected. [57][170][39 AA 55 4D 01 0F DC BA 00 00 00 82 07 EA 07 00 00 00 12 A0 00 03 ][0m
+[31m[ERROR] [1598467383.787691388]: Kobuki : malformed sub-payload detected. [105][170][69 AA 55 4D 01 0F 84 BD 00 00 00 82 ][0m
+[31m[ERROR] [1598467392.223417096]: Kobuki : malformed sub-payload detected. [167][170][A7 AA 55 53 01 0F 7C DE 00 00 ][0m
+[31m[ERROR] [1598467397.801147158]: Kobuki : malformed sub-payload detected. [35][170][23 AA 55 4D 01 0F 48 ][0m
+[31m[ERROR] [1598467430.387705129]: Kobuki : malformed sub-payload detected. [9][170][09 AA 55 4D 01 0F A0 73 00 00 00 82 07 ][0m
+[31m[ERROR] [1598467471.869687457]: Kobuki : malformed sub-payload detected. [161][170][A1 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467497.458180882]: Kobuki : malformed sub-payload detected. [104][170][68 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467533.023972967]: Kobuki : malformed sub-payload detected. [29][170][1D AA 55 4D 01 0F B8 04 ][0m
+[31m[ERROR] [1598467536.082718669]: Kobuki : malformed sub-payload detected. [190][170][BE AA 55 4D 01 0F AC 10 ][0m
+[31m[ERROR] [1598467560.753502110]: Kobuki : malformed sub-payload detected. [85][77][55 4D 01 0F 14 71 00 00 00 82 07 EA 07 00 00 00 12 A0 00 ][0m
+[31m[ERROR] [1598467568.708291570]: Kobuki : malformed sub-payload detected. [52][170][34 AA 55 4D 01 0F 2C ][0m
+[31m[ERROR] [1598467598.957450635]: Kobuki : malformed sub-payload detected. [2][170][02 AA 55 4D 01 0F 60 06 00 00 00 82 07 EA 07 00 00 00 12 A0 00 03 ][0m
+[31m[ERROR] [1598467601.715255139]: Kobuki : malformed sub-payload detected. [150][170][96 AA 55 4D 01 0F 28 11 00 00 00 82 ][0m
+[31m[ERROR] [1598467613.889040143]: Kobuki : malformed sub-payload detected. [213][170][D5 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598467640.75784682
