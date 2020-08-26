@@ -56,7 +56,9 @@ if __name__ == '__main__':
     
     #countdown_server()
 
-    if sys.argv[0]:
+    #print("argument: "+ sys.argv[0])
+   
+    if sys.argv[1]=="countdown":
 		countdown_server()
 
     #elif sys.argv[0] == "arrow":
