@@ -1743,4 +1743,31 @@ You can start planning now!
 [33m[ WARN] [1598469215.315248440]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
 [33m[ WARN] [1598469216.415262129]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
 [31m[ERROR] [1598469216.642620342]: Kobuki : malformed sub-payload detected. [145][170][91 AA 55 4D 01 0F 04 B8 00 00 ][0m
-[31m[ERRO
+[31m[ERROR] [1598469218.782022967]: Kobuki : malformed sub-payload detected. [61][170][3D AA 55 4D 01 0F 60 C0 00 00 00 14 ][0m
+[31m[ERROR] [1598469273.377206488]: Kobuki : malformed sub-payload detected. [57][170][39 AA 55 4D 01 0F ][0m
+[33m[ WARN] [1598469284.128359068]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469285.271006168]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469286.370202939]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469287.415248130]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469288.514580885]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469291.325000402]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469292.387034805]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469293.515057858]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469294.614990444]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[33m[ WARN] [1598469295.714555249]: The complete state of the robot is not yet known.  Missing head_pan_joint, head_tilt_joint, joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7[0m
+[31m[ERROR] [1598469305.360323579]: Kobuki : malformed sub-payload detected. [113][170][71 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598469328.407982566]: Kobuki : malformed sub-payload detected. [133][170][85 AA 55 4D 01 0F D0 ][0m
+[31m[ERROR] [1598469336.943672855]: Kobuki : malformed sub-payload detected. [81][170][51 AA 55 53 01 0F 2C 8E ][0m
+[31m[ERROR] [1598469347.878504558]: Kobuki : malformed sub-payload detected. [55][170][37 AA 55 4D 01 0F E8 B8 00 00 00 EB ][0m
+[31m[ERROR] [1598469349.817241464]: Kobuki : malformed sub-payload detected. [169][170][A9 AA 55 4D 01 0F 7C C0 ][0m
+[31m[ERROR] [1598469351.855921608]: Kobuki : malformed sub-payload detected. [129][170][81 AA 55 4D 01 0F 74 C8 ][0m
+[31m[ERROR] [1598469374.443809203]: Kobuki : malformed sub-payload detected. [7][170][07 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598469400.029892377]: Kobuki : malformed sub-payload detected. [142][170][8E AA 55 4D 01 0F BC 84 00 00 00 EB 07 60 ][0m
+[31m[ERROR] [1598469406.187313272]: Kobuki : malformed sub-payload detected. [27][170][1B AA 55 4D 01 0F CC 9C 00 00 00 EB ][0m
+[31m[ERROR] [1598469449.923594481]: Kobuki : malformed sub-payload detected. [92][170][5C AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598469478.070656064]: Kobuki : malformed sub-payload detected. [180][170][B4 AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598469494.703182257]: Kobuki : malformed sub-payload detected. [218][170][DA AA 55 4D 01 0F ][0m
+[31m[ERROR] [1598469507.956601943]: Kobuki : malformed sub-payload detected. [100][170][64 AA 55 53 01 0F 88 2A ][0m
+[31m[ERROR] [1598469539.062070903]: Kobuki : malformed sub-payload detected. [128][170][80 AA 55 4D 01 0F 18 A4 ][0m
+[31m[ERROR] [1598469543.140002028]: Kobuki : malformed sub-payload detected. [208][170][D0 AA 55 4D 01 0F 08 ][0m
+[31m[ERROR] [1598469548.498251919]: Kobuki : malformed sub-payload detected. [159][170][9F AA 55 4D 0

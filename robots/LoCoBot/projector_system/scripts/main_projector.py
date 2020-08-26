@@ -33,6 +33,9 @@ def countdown_server():
     print("Ready to check for robot motion.")
     rospy.spin()
 
+#def arrow_server():
+    
+
 def motion_check(req):
     
     linear = [0,0,0]
@@ -50,19 +53,11 @@ def motion_check(req):
 
 if __name__ == '__main__':
 
-
-    # Want to get it to an if statement that distinguishes between argument values "countdown" and "arrow" being passed
-    # Something is being passed but I can't see what it is - can't figure out how to print statement the sys.argv[0]
-    
-    #countdown_server()
-
-    #print("argument: "+ sys.argv[0])
    
     if sys.argv[1]=="countdown":
 		countdown_server()
 
-    #elif sys.argv[0] == "arrow":
-        #try:
-            #talker()
-     	#except rospy.ROSInterruptException:
-        	#pass
+    elif sys.argv[0] == "arrow":
+        print("meow") # placeholder as I develop arrow_server() so it still runs on countdown
+
+
