@@ -80,7 +80,7 @@ _BASEC.ROSTOPIC_BASE_ACTION_COMMAND = "move_base"
 # Rate of control for ILQR
 _BASEC.BASE_CONTROL_RATE = 10
 # Maximum linear for velocity control and ILQR
-_BASEC.MAX_ABS_FWD_SPEED = 0.2
+_BASEC.MAX_ABS_FWD_SPEED = 5
 # Maximum rotational velocity for velocity control and ILQR
 _BASEC.MAX_ABS_TURN_SPEED = 0.5
 # ROSTOPIC to send movebase (x,ym theta) planner request

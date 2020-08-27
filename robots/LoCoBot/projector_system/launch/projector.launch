@@ -1,0 +1,24 @@
+<launch>
+	<!-- Different animations --> 
+
+	<arg name="animation" default=""/>
+
+	<param name="animation" value="$(arg animation)"/>
+
+	
+	<!-- Need to launch a file to process the /odom topic with arguments for which animation is desired -->
+
+    <node name="main_projector" pkg="projector_system" type="main_projector.py" args="$(arg animation)"/>
+
+    <!-- This file needs a single signal from main_projector that the robot has started the move, then can disconnect from topics -->
+	<group if="$(eval animation == 'countdown')">
+		<node name="countdown_node" pkg="projector_system" type="circle_anim.py"/>
+	</group>	
+
+    <!-- This file needs continuous communication from main_projector to communicate the angle of the wheels, and can end when the robot has reached its goal --> 
+    <group if="$(eval animation == 'arrow')">
+        <!-- Arrow animation file not yet made -->
+        <node name="arrow_node" pkg="projector_system" type="arrow_anim.py" />
+    </group>
+
+</launch>	
