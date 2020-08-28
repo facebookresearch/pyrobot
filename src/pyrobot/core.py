@@ -22,7 +22,7 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from pyrobot_bridge.srv import *
+from kinematics import Kinematics
 
 from pyrobot.utils.util import try_cv2_import
 
@@ -445,6 +445,7 @@ class Arm(object):
         :type analytical_ik: None or an Analytical ik class
         :type use_moveit: bool
         """
+
         self.configs = configs
         self.moveit_planner = moveit_planner
         self.planning_time = planning_time
@@ -472,29 +473,15 @@ class Arm(object):
             configs.ARM.ROSTOPIC_JOINT_STATES, JointState, self._callback_joint_states
         )
 
-        # Ros-Params
-        rospy.set_param("pyrobot/base_link", configs.ARM.ARM_BASE_FRAME)
-        rospy.set_param("pyrobot/gripper_link", configs.ARM.EE_FRAME)
-        rospy.set_param(
-            "pyrobot/robot_description", configs.ARM.ARM_ROBOT_DSP_PARAM_NAME
+        self.kinematics = Kinematics(
+            configs.ARM.ARM_BASE_FRAME, 
+            configs.ARM.EE_FRAME, 
+            configs.ARM.ARM_ROBOT_DSP_PARAM_NAME
         )
 
         # Publishers
         self.joint_pub = None
         self._setup_joint_pub()
-
-        # Services
-        self._ik_service = rospy.ServiceProxy("pyrobot/ik", IkCommand)
-        try:
-            self._ik_service.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")
-
-        self._fk_service = rospy.ServiceProxy("pyrobot/fk", FkCommand)
-        try:
-            self._fk_service.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")
 
     @abstractmethod
     def go_home(self):
@@ -995,21 +982,10 @@ class Arm(object):
         """
         joint_positions = joint_positions.flatten()
 
-        req = FkCommandRequest()
-        req.joint_angles = list(joint_positions)
-        req.end_frame = des_frame
-        try:
-            resp = self._fk_service(req)
-        except:
-            rospy.logerr("FK Service call failed")
-            resp = FkCommandResponse()
-            resp.success = False
+        pos, quat = self.kinematics.fk(joint_positions, des_frame)
 
-        if not resp.success:
-            return None
-
-        pos = np.asarray(resp.pos).reshape(3, 1)
-        rot = prutil.quat_to_rot_mat(resp.quat)
+        pos = np.asarray(pos).reshape(3, 1)
+        rot = prutil.quat_to_rot_mat(quat)
         return pos, rot
 
     def get_jacobian(self, joint_angles):
@@ -1095,9 +1071,8 @@ class Arm(object):
             pos_tol = self.configs.ARM.IK_POSITION_TOLERANCE
             ori_tol = self.configs.ARM.IK_ORIENTATION_TOLERANCE
 
-            req = IkCommandRequest()
-            req.init_joint_positions = qinit
-            req.pose = [
+            init_joint_positions = qinit
+            pose = [
                 position[0],
                 position[1],
                 position[2],
@@ -1106,19 +1081,10 @@ class Arm(object):
                 ori_z,
                 ori_w,
             ]
-            req.tolerance = 3 * [pos_tol] + 3 * [ori_tol]
+            tolerance = 3 * [pos_tol] + 3 * [ori_tol]
 
-            try:
-                resp = self._ik_service(req)
-            except:
-                rospy.logerr("IK Service call failed")
-                resp = IkCommandResponse()
-                resp.success = False
-
-            if not resp.success:
-                joint_positions = None
-            else:
-                joint_positions = resp.joint_positions
+            joint_positions = self.kinematics.ik(pose, tolerance, init_joint_positions)
+            
         else:
             if not hasattr(self, "ana_ik_solver"):
                 raise TypeError(
@@ -1140,7 +1106,6 @@ class Arm(object):
                 )
         if joint_positions is None:
             return None
-        print(joint_positions)
         return np.array(joint_positions)
 
     def _callback_joint_states(self, msg):
