@@ -14,37 +14,40 @@ bool isClose(const double a, const double b)
 }
 
 GazeboInteface::GazeboInteface(): node_handle_("") {
-    joint_1_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_1_cntrl/command", 10);
-    joint_2_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_2_cntrl/command", 10);
-    joint_3_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_3_cntrl/command", 10);
-    joint_4_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_4_cntrl/command", 10);
-    joint_5_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_5_cntrl/command", 10);
-    joint_6_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_6_cntrl/command", 10);
-    joint_7_pub = node_handle_.advertise < std_msgs::Float64 > ("/joint_7_cntrl/command", 10);
-    head_pan_pub = node_handle_.advertise < std_msgs::Float64 > ("/pan/command", 10);
-    head_tilt_pub = node_handle_.advertise < std_msgs::Float64 > ("/tilt/command", 10);
+    
+    std::string ns = ros::this_node::getNamespace();
 
-    node_handle_.getParam("torque_control", torque_control_);
+    joint_1_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_1_cntrl/command", 10);
+    joint_2_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_2_cntrl/command", 10);
+    joint_3_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_3_cntrl/command", 10);
+    joint_4_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_4_cntrl/command", 10);
+    joint_5_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_5_cntrl/command", 10);
+    joint_6_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_6_cntrl/command", 10);
+    joint_7_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/joint_7_cntrl/command", 10);
+    head_pan_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/pan/command", 10);
+    head_tilt_pub = node_handle_.advertise < std_msgs::Float64 > (ns +"/tilt/command", 10);
+
+    node_handle_.getParam(ns +"/torque_control", torque_control_);
 
     smooth_joint_trajectory_server_
         = new actionlib::SimpleActionServer < control_msgs::FollowJointTrajectoryAction > (
             node_handle_,
-            "locobot_arm/joint_controller/trajectory",
+            ns +"/locobot_arm/joint_controller/trajectory",
             boost::bind( & GazeboInteface::executeJointTrajectory, this, _1),
             false);
 
-    joint_command_sub_ = node_handle_.subscribe("goal_dynamixel_position", 10, &
+    joint_command_sub_ = node_handle_.subscribe(ns +"/goal_dynamixel_position", 10, &
         GazeboInteface::goalJointPositionCallback,
         this);
 
-    gripper_open_sub_ = node_handle_.subscribe("gripper/open", 10, & GazeboInteface::gripperOpen, this);
-    gripper_close_sub_ = node_handle_.subscribe("gripper/close", 10, & GazeboInteface::gripperClose, this);
+    gripper_open_sub_ = node_handle_.subscribe(ns +"/gripper/open", 10, & GazeboInteface::gripperOpen, this);
+    gripper_close_sub_ = node_handle_.subscribe(ns +"/gripper/close", 10, & GazeboInteface::gripperClose, this);
 
-    stop_joints_sub_ = node_handle_.subscribe("stop_execution", 10, & GazeboInteface::stopExecution, this);
+    stop_joints_sub_ = node_handle_.subscribe(ns +"/stop_execution", 10, & GazeboInteface::stopExecution, this);
 
-    joint_state_sub_ = node_handle_.subscribe("joint_states", 10, & GazeboInteface::recordArmJoints, this);
+    joint_state_sub_ = node_handle_.subscribe(ns +"/joint_states", 10, & GazeboInteface::recordArmJoints, this);
 
-    gripper_state_pub = node_handle_.advertise<std_msgs::Int8>("gripper/state", 10);
+    gripper_state_pub = node_handle_.advertise<std_msgs::Int8>(ns +"/gripper/state", 10);
 
 
     pub_arr[0] = joint_1_pub;
@@ -61,14 +64,14 @@ GazeboInteface::GazeboInteface(): node_handle_("") {
 
     //individual joint command service!!
 
-    joint_command_server_ = node_handle_.advertiseService("joint_command", &
+    joint_command_server_ = node_handle_.advertiseService(ns +"/joint_command", &
         GazeboInteface::jointCommandMsgCallback, this);
 
-    joint_torque_server_ = node_handle_.advertiseService("torque_command", 
+    joint_torque_server_ = node_handle_.advertiseService(ns +"/torque_command", 
                             &GazeboInteface::jointTorqueCommandMsgCallback, this);
 
     torque_command_client_ =  node_handle_.serviceClient<gazebo_msgs::ApplyJointEffort>(
-                                                                    "/gazebo/apply_joint_effort");
+                                                                    ns +"/gazebo/apply_joint_effort");
 
 
     //set intial positions to 0 for all the joints

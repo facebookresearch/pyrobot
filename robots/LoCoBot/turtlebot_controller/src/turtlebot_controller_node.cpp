@@ -10,13 +10,24 @@
 namespace turtlebot {
 
 /* ************************************************************************** */
-TurtlebotController::TurtlebotController(ros::NodeHandle nh)
+/*TurtlebotController::TurtlebotController(ros::NodeHandle nh)
 {
   base_trajectory_server_ = std::unique_ptr<TrajectoryServer>(new
     TrajectoryServer(nh, "/turtle/base_controller/trajectory",
     boost::bind(&TurtlebotController::executeBaseTajectory, this, _1), false));
   base_trajectory_server_->start();
   base_vel_pub_ = nh.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1);
+}
+*/
+
+TurtlebotController::TurtlebotController(ros::NodeHandle nh)
+{
+  std::string ns = ros::this_node::getNamespace();
+  base_trajectory_server_ = std::unique_ptr<TrajectoryServer>(new
+    TrajectoryServer(nh, ns + "/turtle/base_controller/trajectory",
+    boost::bind(&TurtlebotController::executeBaseTajectory, this, _1), false));
+  base_trajectory_server_->start();
+  base_vel_pub_ = nh.advertise<geometry_msgs::Twist>(ns + "/cmd_vel", 1);
 }
 
 /* ************************************************************************** */
