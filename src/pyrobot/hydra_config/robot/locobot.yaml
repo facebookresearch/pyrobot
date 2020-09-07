@@ -1,14 +1,13 @@
 
 
-ns: ''
-name: 'locobot'
+name: 'locobot' # This is fixed!
 
 
 # TODO: to be filled by ros-control manager
 ros_launch:
   mode: gazebo
   name: ${name}
-  wait: 100
+  wait: 30
   habitat:
     common: null
     arm: null

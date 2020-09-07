@@ -47,6 +47,12 @@ from omegaconf import DictConfig
 import logging
 import os
 
+
+
+import libtmux
+import os
+import os.path as osp
+
 def make_module(cfg):
     module =  instantiate(cfg.object, configs=cfg.conf)
     return module
@@ -130,31 +136,27 @@ class World(object):
 
             if world_config.environment.robots is not None:
                 for robot in world_config.environment.robots:
-                    self.add_robot(robot.robot, ns= robot.ns, overrides=robot.overrides)
+                    self.add_robot(robot.robot, robot.label, ns= robot.ns, overrides=robot.overrides)
 
             if world_config.environment.sensors is not None:
                 for sensor in world_config.environment.sensors:
-                    self.add_sensor(sensor.sensor, ns= sensor.ns, overrides= sensor.overrides)                
+                    self.add_sensor(sensor.sensor, sensor.label, ns= sensor.ns, overrides= sensor.overrides)                
 
             # TODO: Add, how to deal with objects, and obstacle module
 
-    def add_robot(self, robot_cfg, ns='', overrides=[]):
-        self.robots[robot_cfg.name] = make_robot(robot_cfg, ns, overrides, self.ros_launch_manager)
+    def add_robot(self, robot_cfg, label, ns='', overrides=[]):
+        self.robots[label] = make_robot(robot_cfg, ns, overrides, self.ros_launch_manager)
 
 
-    def add_sensor(self, sensor_cfg, ns='', overrides=[]):
-        self.sensor[sensor_cfg.name] = make_sensor(sensor_cfg, ns, overrides,self.ros_launch_manager)
+    def add_sensor(self, sensor_cfg, label, ns='', overrides=[]):
+        self.sensor[label] = make_sensor(sensor_cfg, ns, overrides,self.ros_launch_manager)
     
-    def add_algorithm(self, sensor_cfg, ns='', overrides=[]):
+    def add_algorithm(self, sensor_cfg, label, ns='', overrides=[]):
         pass
 
 
 
 
-
-import libtmux
-import os
-import os.path as osp
 class  RosLaunchManager(object):
     """
     TODO: Add more details.
