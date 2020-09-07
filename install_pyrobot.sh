@@ -76,6 +76,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 		virtualenv -p /usr/bin/python3.6 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
 		pip install catkin_pkg pyyaml empy rospkg libtmux
+		pip install hydra-core --pre --upgrade
 		python -m pip install --upgrade numpy
 		pip install .
 		deactivate
