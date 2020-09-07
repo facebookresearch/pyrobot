@@ -3,8 +3,8 @@ environment:
 
   robots:
     - robot: 'locobot'
-      overrides: []
       ns: ''
+      overrides: []
       transform: 
         position: [0.0,0.0,0.0]
         rotation: [0.0,0.0,0.0,1.0]
@@ -13,8 +13,8 @@ environment:
   sensors: null
   # sensors: 
   #   - sensor: 'azure_kinect_camera'
-  #     overrides: []
   #     ns: ''
+  #     overrides: []
   #     transform: 
   #       position: [0.0,0.0,0.0]
   #       rotation: [0.0,0.0,0.0,1.0]
@@ -30,5 +30,14 @@ environment:
 
 
   # If sim, add any simulator related config
-  simulator: null
+  simlator: null # other options: habitat and gazebo
 
+
+  # TODO: move common ros things to this!
+  ros_launch:
+    ns: ''
+    name: 'world'
+    mode: gazebo
+    habitat: null
+    gazebo: null
+    realrobot: null

@@ -1,7 +1,31 @@
 
 
+ns: ''
+name: 'locobot'
+
+
 # TODO: to be filled by ros-control manager
-ros_manager: null
+ros_launch:
+  mode: gazebo
+  name: ${name}
+  wait: 100
+  habitat:
+    common: null
+    arm: null
+    base: null
+    camera: null
+
+  gazebo:
+    common: "roslaunch locobot_control main.launch use_sim:=true"
+    arm: null
+    base: null
+    camera: null
+
+  realrobot:
+    common: "roslaunch locobot_control main.launch use_arm:=false use_base:=true"
+    arm: null
+    base: null
+    camera: null
 
 
 # Common contains all the commonly shared objects
@@ -29,10 +53,6 @@ common:
     # publishing frequence of the occupancy map
     OCCUPANCY_MAP_RATE : 0.5
 
-
-
-ns: ''
-name: 'locobot'
 modules:
 
   - object:

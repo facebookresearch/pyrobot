@@ -75,7 +75,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 		sudo apt-get -y install python3-tk python3.6-tk
 		virtualenv -p /usr/bin/python3.6 $VIRTUALENV_FOLDER
 		source ~/${virtualenv_name}/bin/activate
-		pip install catkin_pkg pyyaml empy rospkg
+		pip install catkin_pkg pyyaml empy rospkg libtmux
 		python -m pip install --upgrade numpy
 		pip install .
 		deactivate

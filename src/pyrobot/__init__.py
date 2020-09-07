@@ -5,4 +5,5 @@
 
 # from pyrobot.core import Robot
 from pyrobot.core import World
+from pyrobot.core import RosLaunchManager
 from pyrobot.version import __version__
