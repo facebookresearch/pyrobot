@@ -253,14 +253,13 @@ class  RosLaunchManager(object):
                     self.create_and_cmd(name, cmd + ' ns:={}'.format(ns), ns)
 
         rospy.sleep(wait_time) #seconds
-
-    # TODO: fixt this
-    # def __del__(self):
-    #     if self.scope == 'overwrite':
-    #         self.kill_session(self.world_ns)
-    #     else:
-    #         for window_name in self.window_names:
-    #             self.kill_window(window_name)
+    
+    def __del__(self): 
+        if self.scope == 'overwrite':
+            self.kill_session(self.world_ns)
+        else:
+            for window_name in self.window_names:
+                self.kill_window(window_name)
 
 # from abc import ABC, abstractmethod 
 # class Algorithm(ABC):
