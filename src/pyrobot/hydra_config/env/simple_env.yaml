@@ -28,7 +28,11 @@ environment:
 
 
   # TODO: Will depend on the robots and sensors available
-  algorithms: null
+  algorithms: 
+    - algorithm: 'kdl_kinematics'
+      label: 'kdl_kinematics'
+      ns: ''
+      overrides: []
 
 
   # If sim, add any simulator related config

@@ -75,7 +75,7 @@ def make_robot(robot_cfg, ns='', overrides=[], ros_launch_manager=None):
 
     return module_dict
 
-def make_sensor(self, sensor_cfg, ns='', overrides=[], ros_launch_manager=None):
+def make_sensor(sensor_cfg, ns='', overrides=[], ros_launch_manager=None):
         
     # TODO: add check if the sensor name passed is correct        
     
@@ -90,6 +90,25 @@ def make_sensor(self, sensor_cfg, ns='', overrides=[], ros_launch_manager=None):
     for module_cfg in sensor_cfg.modules:
         module_dict[module_cfg.name] = make_module(module_cfg)
     return module_dict
+
+def make_algorithm(algorithm_cfg, world, ns='', overrides=[], ros_launch_manager=None):
+        
+    # TODO: add check if the sensor name passed is correct        
+
+    if isinstance(algorithm_cfg, str):
+        algorithm_cfg=compose("algorithm/" + algorithm_cfg + ".yaml", overrides)
+    elif not isinstance(algorithm_cfg, DictConfig):
+        raise ValueError('Expected either algorithm name or algorithm config object')
+
+    if algorithm_cfg.ros_launch:
+        ros_launch_manager.launch_cfg(algorithm_cfg.ros_launch, ns=ns)
+
+    robots = {}
+    for robot_label in algorithm_cfg.robot_labels:
+        robots[robot_label] = world.robots[robot_label]
+
+    algorithm = instantiate(algorithm_cfg.algorithm, configs=algorithm_cfg.conf, world=world, ros_launch_manager=ros_launch_manager, robots=robots)
+    return algorithm
 
 class World(object):
     """
@@ -140,20 +159,22 @@ class World(object):
 
             if world_config.environment.sensors is not None:
                 for sensor in world_config.environment.sensors:
-                    self.add_sensor(sensor.sensor, sensor.label, ns= sensor.ns, overrides= sensor.overrides)                
+                    self.add_sensor(sensor.sensor, sensor.label, ns= sensor.ns, overrides= sensor.overrides)
+
+            if world_config.environment.algorithms is not None:
+                for algorithm in world_config.environment.algorithms:
+                    self.add_algorithm(algorithm.algorithm, algorithm.label, ns= algorithm.ns, overrides= algorithm.overrides)                
 
             # TODO: Add, how to deal with objects, and obstacle module
 
     def add_robot(self, robot_cfg, label, ns='', overrides=[]):
         self.robots[label] = make_robot(robot_cfg, ns, overrides, self.ros_launch_manager)
 
-
     def add_sensor(self, sensor_cfg, label, ns='', overrides=[]):
-        self.sensor[label] = make_sensor(sensor_cfg, ns, overrides,self.ros_launch_manager)
+        self.sensors[label] = make_sensor(sensor_cfg, ns, overrides,self.ros_launch_manager)
     
-    def add_algorithm(self, sensor_cfg, label, ns='', overrides=[]):
-        pass
-
+    def add_algorithm(self, algorithm_cfg, label, ns='', overrides=[]):
+        self.algorithms[label] = make_algorithm(algorithm_cfg, self, ns, overrides,self.ros_launch_manager)
 
 
 
@@ -260,41 +281,3 @@ class  RosLaunchManager(object):
         else:
             for window_name in self.window_names:
                 self.kill_window(window_name)
-
-# from abc import ABC, abstractmethod 
-# class Algorithm(ABC):
-#     """Algorithm base class on which everything else is bulit"""
-#     def __init__( self, cfg, 
-#                         ros_launch_manager = None, 
-#                         robots={}, 
-#                         sensors={}, 
-#                         algorithms={}, 
-#                         world={}
-#                 ):
-
-#         self.cfg = cfg
-#         if not self.check_cfg():
-#             print("Invalid config encoutered")
-#             return
-#         ros_launch_manager.launch(world_ns=None, robot_ns=None, algo_ns=self.cfg.ns)
-
-#     @abstractmethod
-#     def check_cfg(self):
-#         pass
-
-
-
-
-# class Kinematics(Algorithm):
-#     """docstring for Kinematics"""
-#     def __init__(self, cfg):
-        
-#         super(Algorithm, self).__init__(
-#                         cfg, 
-#                         ros_launch_manager = None, 
-#                         robots={}, 
-#                         sensors={}, 
-#                         algorithms={}, 
-#                         world={})
-#         self.arg = arg
-#         

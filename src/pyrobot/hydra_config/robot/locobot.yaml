@@ -55,8 +55,8 @@ common:
 modules:
 
   - object:
-      target: pyrobot.robots.locobot.arm.LoCoBotArm
-      params: 
+      _target_: pyrobot.robots.locobot.arm.LoCoBotArm
+      # params: 
     ns: ''
     transform:
       use_udf: True 
@@ -79,7 +79,7 @@ modules:
       IK_POSITION_TOLERANCE : 0.01
       # inverse kinematics orientation toelrance (rad)
       IK_ORIENTATION_TOLERANCE : 0.1
-      # maximum allowed joint error for checking if the target joint value is reached
+      # maximum allowed joint error for checking if the _target_ joint value is reached
       MAX_JOINT_ERROR : 0.09
       # maximum allowed end-effector position error in `move_ee_xyz`
       MAX_EE_ERROR : 0.03
@@ -105,8 +105,8 @@ modules:
 
 
   - object:
-      target: pyrobot.robots.locobot.base.LoCoBotBase
-      params:
+      _target_: pyrobot.robots.locobot.base.LoCoBotBase
+      # params:
     ns: ''
     transform:
       use_udf: True 
@@ -184,8 +184,8 @@ modules:
 
 
   - object:
-      target: pyrobot.robots.locobot.gripper.LoCoBotGripper
-      params: 
+      _target_: pyrobot.robots.locobot.gripper.LoCoBotGripper
+      # params: 
     ns: ''
     transform:
       use_udf: True 
@@ -205,8 +205,8 @@ modules:
 
 
   - object:
-      target: pyrobot.robots.locobot.camera.LoCoBotCamera
-      params: 
+      _target_: pyrobot.robots.locobot.camera.LoCoBotCamera
+      # params: 
     ns: ''
     transform:
       use_udf: True 
@@ -248,7 +248,7 @@ modules:
 
   # TODO: break the above camera class into arm and camera
   # - object: 
-  #     target: pyrobot.robots.locobot.camera.LoCoBotCameraArm
+  #     _target_: pyrobot.robots.locobot.camera.LoCoBotCameraArm
   #     params: 
   #   ns: ''
   #   transform:
