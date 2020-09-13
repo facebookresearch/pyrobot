@@ -10,6 +10,8 @@ class Kinematics(Algorithm):
 		world, 
 		ros_launch_manager = None,
 		robots={},
+		sensors={},
+		algorithms={}
 	):
 		super(Algorithm, self).__init__(
 										configs, 
@@ -17,7 +19,7 @@ class Kinematics(Algorithm):
 										ros_launch_manager, 
 										robots, 
 										{}, 
-										{}, 
+										algorithms, 
 										)
 
 	def inverse_kinematics(self, position, orientation):
@@ -28,3 +30,6 @@ class Kinematics(Algorithm):
 
 	def check_cfg(self):
 		raise NotImplementedError()
+
+	def get_class_name(self):
+		return "Kinematics"

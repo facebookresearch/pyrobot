@@ -22,6 +22,8 @@ class KDLKinematics(Kinematics):
 										world,
 										ros_launch_manager, 
 										robots,
+										{},
+										{}
 										)
 
 		self.robot_label = list(self.robots.keys())[0]
@@ -32,11 +34,9 @@ class KDLKinematics(Kinematics):
 			self.robots[self.robot_label]["arm"].configs["ARM_ROBOT_DSP_PARAM_NAME"],
 		)
 
-	def inverse_kinematics(self, position, orientation):
+	def inverse_kinematics(self, position, orientation, init_joint_pos=None):
 		position = np.array(position).flatten()
 		orientation = np.array(orientation).flatten()
-
-		assert position.size == 3, "position must be in the form: XYZ"
 
 		if orientation.size == 4:
 			orientation = orientation.flatten()
@@ -63,7 +63,9 @@ class KDLKinematics(Kinematics):
 				"of the following forms:"
 				"rotation matrix, euler angles, or quaternion"
 			)
-		init_joint_pos = self.robots[self.robot_label]['arm'].get_joint_angles()
+
+		if init_joint_pos is None:
+			init_joint_pos = self.robots[self.robot_label]['arm'].get_joint_angles()
 		init_joint_pos = np.array(init_joint_pos).flatten().tolist()
 
 		pos_tol = self.configs.IK_POSITION_TOLERANCE

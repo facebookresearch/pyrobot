@@ -30,6 +30,8 @@ cv2 = try_cv2_import()
 
 from cv_bridge import CvBridge, CvBridgeError
 
+import networkx as nx
+
 import message_filters
 
 import actionlib
@@ -93,7 +95,7 @@ def make_sensor(sensor_cfg, ns='', overrides=[], ros_launch_manager=None):
 
 def make_algorithm(algorithm_cfg, world, ns='', overrides=[], ros_launch_manager=None):
         
-    # TODO: add check if the sensor name passed is correct        
+    # TODO: add check if the algorithm name passed is correct        
 
     if isinstance(algorithm_cfg, str):
         algorithm_cfg=compose("algorithm/" + algorithm_cfg + ".yaml", overrides)
@@ -109,6 +111,27 @@ def make_algorithm(algorithm_cfg, world, ns='', overrides=[], ros_launch_manager
 
     algorithm = instantiate(algorithm_cfg.algorithm, configs=algorithm_cfg.conf, world=world, ros_launch_manager=ros_launch_manager, robots=robots)
     return algorithm
+
+# def kahn_topological_sort(algorithm_cfg_lst):
+#     G = nx.Graph()
+#     ind = 0
+#     for algorithm_cfg in algorithm_cfg_lst:
+#         total_lst.append(copy.deepcopy(algorithm_cfg))
+#         if "dependencies" not in algorithm_cfg.keys():
+#             root_lst.append(copy.deepcopy(algorithm_cfg))
+#         else:
+#             for dep in algorithm_cfg.dependencies:
+#                 dep_copy = copy.deepcopy(dep)
+#                 dep_copy.overrides = []
+#                 dep_copy.ns = ''
+#                 total_lst.append(dep_copy)
+#                 if "dependencies" not in dep_copy.keys():
+#                     root_lst.append(dep_copy)
+
+
+
+
+
 
 class World(object):
     """
@@ -162,6 +185,7 @@ class World(object):
                     self.add_sensor(sensor.sensor, sensor.label, ns= sensor.ns, overrides= sensor.overrides)
 
             if world_config.environment.algorithms is not None:
+                # sorted_algorithms = kahn_topological_sort(world_config.environment.algorithms)
                 for algorithm in world_config.environment.algorithms:
                     self.add_algorithm(algorithm.algorithm, algorithm.label, ns= algorithm.ns, overrides= algorithm.overrides)                
 
@@ -281,3 +305,4 @@ class  RosLaunchManager(object):
         else:
             for window_name in self.window_names:
                 self.kill_window(window_name)
+

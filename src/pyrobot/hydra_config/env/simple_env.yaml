@@ -34,6 +34,11 @@ environment:
       ns: ''
       overrides: []
 
+    - algorithm: 'moveit_planner'
+      label: 'moveit_planner'
+      ns: ''
+      overrides: []
+
 
   # If sim, add any simulator related config
   simlator: null # other options: habitat and gazebo

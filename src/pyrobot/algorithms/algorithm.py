@@ -22,4 +22,8 @@ class Algorithm:
 	@abstractmethod
 	def check_cfg(self):
 		pass
+
+	@abstractmethod
+	def get_class_name(self):
+		pass
 	
