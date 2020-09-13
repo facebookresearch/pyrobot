@@ -1,0 +1,21 @@
+name: 'moveit_kin_planner'
+
+ros_launch:
+  mode: test
+  name: ${name}
+  wait: 30
+
+  test:
+    common: "roslaunch locobot_moveit_config move_group.launch allow_trajectory_execution:=true fake_execution:=false info:=true"
+
+algorithm:
+  _target_: pyrobot.algorithms.motion_planning_impl.moveit_kin_planner.MoveitKinPlanner
+
+robot_labels: ['locobot']
+
+conf:
+  IK_POSITION_TOLERANCE: 0.01
+  IK_ORIENTATION_TOLERANCE: 0.1
+
+dependencies:
+  - algorithm: 'kdl_kinematics'
