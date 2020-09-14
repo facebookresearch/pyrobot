@@ -15,6 +15,7 @@ class MoveitKinPlanner(MotionPlanner):
 		world, 
 		ros_launch_manager = None,
 		robots={},
+		sensors={},
 		algorithms={}
 	):
 
@@ -23,7 +24,7 @@ class MoveitKinPlanner(MotionPlanner):
 										world,
 										ros_launch_manager, 
 										robots,
-										{},
+										sensors,
 										algorithms
 										)
 
@@ -36,7 +37,7 @@ class MoveitKinPlanner(MotionPlanner):
 		self.ee_frame = self.robots[self.robot_label]["arm"].configs["EE_FRAME"]
 
 	def plan_end_effector_pose(self, position, orientation):
-		target_joint = self.algorithms["Kinemtaics"].inverse_kinematics(position, orientation)
+		target_joint = self.algorithms["Kinematics"].inverse_kinematics(position, orientation)
 		
 		p_out = self.plan_joint_angles(target_joint)
 		return p_out

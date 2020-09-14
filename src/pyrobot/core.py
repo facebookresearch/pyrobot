@@ -30,8 +30,6 @@ cv2 = try_cv2_import()
 
 from cv_bridge import CvBridge, CvBridgeError
 
-import networkx as nx
-
 import message_filters
 
 import actionlib
@@ -102,35 +100,26 @@ def make_algorithm(algorithm_cfg, world, ns='', overrides=[], ros_launch_manager
     elif not isinstance(algorithm_cfg, DictConfig):
         raise ValueError('Expected either algorithm name or algorithm config object')
 
-    if algorithm_cfg.ros_launch:
-        ros_launch_manager.launch_cfg(algorithm_cfg.ros_launch, ns=ns)
+    print(algorithm_cfg)
 
     robots = {}
     for robot_label in algorithm_cfg.robot_labels:
         robots[robot_label] = world.robots[robot_label]
 
-    algorithm = instantiate(algorithm_cfg.algorithm, configs=algorithm_cfg.conf, world=world, ros_launch_manager=ros_launch_manager, robots=robots)
+    # TODO: add sensors
+    sensors = {}
+
+    dependencies = {}
+    if "dependencies" in algorithm_cfg.keys():
+        for dependency_cfg in algorithm_cfg.dependencies:
+            dependency = make_algorithm(dependency_cfg["algorithm"], world, ns, overrides, ros_launch_manager)
+            dependencies[dependency.get_class_name()] = dependency
+
+    if algorithm_cfg.ros_launch:
+        ros_launch_manager.launch_cfg(algorithm_cfg.ros_launch, ns=ns)
+
+    algorithm = instantiate(algorithm_cfg.algorithm, configs=algorithm_cfg.conf, world=world, ros_launch_manager=ros_launch_manager, robots=robots, sensors=sensors, algorithms=dependencies)
     return algorithm
-
-# def kahn_topological_sort(algorithm_cfg_lst):
-#     G = nx.Graph()
-#     ind = 0
-#     for algorithm_cfg in algorithm_cfg_lst:
-#         total_lst.append(copy.deepcopy(algorithm_cfg))
-#         if "dependencies" not in algorithm_cfg.keys():
-#             root_lst.append(copy.deepcopy(algorithm_cfg))
-#         else:
-#             for dep in algorithm_cfg.dependencies:
-#                 dep_copy = copy.deepcopy(dep)
-#                 dep_copy.overrides = []
-#                 dep_copy.ns = ''
-#                 total_lst.append(dep_copy)
-#                 if "dependencies" not in dep_copy.keys():
-#                     root_lst.append(dep_copy)
-
-
-
-
 
 
 class World(object):
@@ -185,7 +174,6 @@ class World(object):
                     self.add_sensor(sensor.sensor, sensor.label, ns= sensor.ns, overrides= sensor.overrides)
 
             if world_config.environment.algorithms is not None:
-                # sorted_algorithms = kahn_topological_sort(world_config.environment.algorithms)
                 for algorithm in world_config.environment.algorithms:
                     self.add_algorithm(algorithm.algorithm, algorithm.label, ns= algorithm.ns, overrides= algorithm.overrides)                
 

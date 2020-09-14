@@ -15,6 +15,8 @@ class KDLKinematics(Kinematics):
 		world, 
 		ros_launch_manager = None,
 		robots={},
+		sensors={},
+		algorithms={}
 	):
 
 		super(Kinematics, self).__init__(
@@ -22,8 +24,8 @@ class KDLKinematics(Kinematics):
 										world,
 										ros_launch_manager, 
 										robots,
-										{},
-										{}
+										sensors,
+										algorithms
 										)
 
 		self.robot_label = list(self.robots.keys())[0]

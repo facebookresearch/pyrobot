@@ -29,10 +29,10 @@ environment:
 
   # TODO: Will depend on the robots and sensors available
   algorithms: 
-    - algorithm: 'kdl_kinematics'
-      label: 'kdl_kinematics'
-      ns: ''
-      overrides: []
+    # - algorithm: 'kdl_kinematics'
+    #   label: 'kdl_kinematics'
+    #   ns: ''
+    #   overrides: []
 
     - algorithm: 'moveit_planner'
       label: 'moveit_planner'
