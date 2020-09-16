@@ -100,23 +100,27 @@ def make_algorithm(algorithm_cfg, world, ns='', overrides=[], ros_launch_manager
     elif not isinstance(algorithm_cfg, DictConfig):
         raise ValueError('Expected either algorithm name or algorithm config object')
 
-    print(algorithm_cfg)
-
     robots = {}
-    for robot_label in algorithm_cfg.robot_labels:
-        robots[robot_label] = world.robots[robot_label]
+    if "robot_labels" in algorithm_cfg.keys() and algorithm_cfg.robot_labels:
+        for robot_label in algorithm_cfg.robot_labels:
+            robots[robot_label] = world.robots[robot_label]
 
     # TODO: add sensors
     sensors = {}
 
     dependencies = {}
-    if "dependencies" in algorithm_cfg.keys():
+    if "dependencies" in algorithm_cfg.keys() and algorithm_cfg.dependencies:
         for dependency_cfg in algorithm_cfg.dependencies:
             dependency = make_algorithm(dependency_cfg["algorithm"], world, ns, overrides, ros_launch_manager)
             dependencies[dependency.get_class_name()] = dependency
 
-    if algorithm_cfg.ros_launch:
+    if 'ros_launch' in algorithm_cfg.keys() and algorithm_cfg.ros_launch:
+        if not ros_launch_manager:
+            ros_launch_manager = world.ros_launch_manager
         ros_launch_manager.launch_cfg(algorithm_cfg.ros_launch, ns=ns)
+
+    if "conf" not in algorithm_cfg.keys():
+        algorithm_cfg.conf = {}
 
     algorithm = instantiate(algorithm_cfg.algorithm, configs=algorithm_cfg.conf, world=world, ros_launch_manager=ros_launch_manager, robots=robots, sensors=sensors, algorithms=dependencies)
     return algorithm

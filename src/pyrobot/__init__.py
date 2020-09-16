@@ -4,6 +4,6 @@
 # LICENSE file in the root directory of this source tree.
 
 # from pyrobot.core import Robot
-from pyrobot.core import World
+from pyrobot.core import World, make_algorithm
 from pyrobot.core import RosLaunchManager
 from pyrobot.version import __version__

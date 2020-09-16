@@ -77,7 +77,6 @@ if [ $PYTHON_VERSION == "3" ]; then
 		source ~/${virtualenv_name}/bin/activate
 		pip install catkin_pkg pyyaml empy rospkg libtmux
 		pip install hydra-core --upgrade
-		pip install --upgrade networkx
 		python -m pip install --upgrade numpy
 		pip install .
 		deactivate

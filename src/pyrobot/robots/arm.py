@@ -143,6 +143,7 @@ class Arm(object):
 
     def get_ee_pose(self, base_frame):
         """
+        [deprecated]
         Return the end effector pose with respect to the base_frame
 
         :param base_frame: reference frame
@@ -163,6 +164,7 @@ class Arm(object):
 
     def get_transform(self, src_frame, dest_frame):
         """
+        [deprecated]
         Return the transform from the src_frame to dest_frame
 
         :param src_frame: source frame

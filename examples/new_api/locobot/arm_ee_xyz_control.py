@@ -8,6 +8,7 @@ from omegaconf import DictConfig
 import numpy as np
 
 from pyrobot import World, make_algorithm
+from pyrobot.algorithms.kinematics import Kinematics 
 
 import copy
 
