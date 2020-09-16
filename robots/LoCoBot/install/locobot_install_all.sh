@@ -5,20 +5,22 @@ helpFunction()
    echo ""
    echo -e "\t-t Decides the type of installation. Available Options: full or sim_only"
    echo -e "\t-p Decides the python version for pyRobot. Available Options: 2 or 3"
+   echo -e "\t-l Decides the type of LoCoBot hardware platform. Available Options: cmu or interbotix"
    exit 1 # Exit script after printing help
 }
 
-while getopts "t:p:" opt
+while getopts "t:p:l:" opt
 do
    case "$opt" in
       t ) INSTALL_TYPE="$OPTARG" ;;
       p ) PYTHON_VERSION="$OPTARG" ;;
+      l ) LOCOBOT_PLATFORM="$OPTARG" ;;
       ? ) helpFunction ;; # Print helpFunction in case parameter is non-existent
    esac
 done
 
 # Print helpFunction in case parameters are empty
-if [ -z "$INSTALL_TYPE" ] || [ -z "$PYTHON_VERSION" ]; then
+if [ -z "$INSTALL_TYPE" ] || [ -z "$PYTHON_VERSION" ] || [ -z "$LOCOBOT_PLATFORM" ]; then
    echo "Some or all of the parameters are empty";
    helpFunction
 fi
@@ -31,6 +33,11 @@ fi
 
 if [ $PYTHON_VERSION != "2" ] && [ $PYTHON_VERSION != "3" ]; then
 	echo "Invalid Python version type";
+   helpFunction
+fi
+
+if [ $LOCOBOT_PLATFORM != "cmu" ] && [ $LOCOBOT_PLATFORM != "interbotix" ]; then
+	echo "Invalid LoCoBot hardware platform type";
    helpFunction
 fi
 
@@ -50,6 +57,7 @@ echo "Ubuntu $ubuntu_version detected. ROS-$ROS_NAME chosen for installation.";
 
 echo "$INSTALL_TYPE installation type is chosen for LoCoBot."
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
+echo "$LOCOBOT_PLATFORM hardware platform chosen for LoCoBot."
 
 trap "exit" INT TERM ERR
 trap "kill 0" EXIT
@@ -108,13 +116,15 @@ if [ $ROS_NAME == "kinetic" ]; then
 
 	if [ $(dpkg-query -W -f='${Status}' ros-kinetic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
 		echo "Installing ROS..."
-		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-		sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu xenial main" > /etc/apt/sources.list.d/ros1-latest.list'
+		sudo -E apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 		sudo apt-get update
 		sudo apt-get -y install ros-kinetic-desktop-full
 		if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
 		    sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
 		fi
+		sudo apt -y install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+		sudo apt -y install python-rosdep
 		sudo rosdep init
 		rosdep update
 		echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
@@ -124,13 +134,15 @@ if [ $ROS_NAME == "kinetic" ]; then
 else
 	if [ $(dpkg-query -W -f='${Status}' ros-melodic-desktop-full 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
 		echo "Installing ROS..."
-		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+		sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu bionic main" > /etc/apt/sources.list.d/ros1-latest.list'
 		sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
 		sudo apt-get update
 		sudo apt-get -y install ros-melodic-desktop-full
 		if [ -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then
 			sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
 		fi
+		sudo apt -y install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential
+		sudo apt -y install python-rosdep
 		sudo rosdep init
 		rosdep update
 		echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
@@ -157,6 +169,7 @@ declare -a ros_package_names=(
 	"ros-$ROS_NAME-kdl-parser-py"
 	"ros-$ROS_NAME-orocos-kdl"
 	"ros-$ROS_NAME-python-orocos-kdl"
+  	"ros-$ROS_NAME-ddynamic-reconfigure"
 	#"ros-$ROS_NAME-libcreate"
 	)
 
@@ -169,16 +182,18 @@ if [ $INSTALL_TYPE == "full" ]; then
 
 	# STEP 4A: Install librealsense
 	if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
-		sudo apt-key adv --keyserver keys.gnupg.net --recv-key C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key C8B3A55A6F3EFCDE
+    sudo apt-key adv --keyserver keys.gnupg.net --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE || sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key F6E65AC044F831AC80A06380C8B3A55A6F3EFCDE
 		sudo add-apt-repository "deb http://realsense-hw-public.s3.amazonaws.com/Debian/apt-repo xenial main" -u
 		sudo apt-get update
-		version="2.18.1-0~realsense0.568"
+		version="2.33.1-0~realsense0.2140"
 		sudo apt-get -y install librealsense2-udev-rules=${version}
-		sudo apt-get -y install librealsense2-dkms=1.3.4-0ubuntu1
+		sudo apt-get -y install librealsense2-dkms=1.3.11-0ubuntu1
 		sudo apt-get -y install librealsense2=${version}
+    		sudo apt-get -y install librealsense2-gl=${version}
 		sudo apt-get -y install librealsense2-utils=${version}
 		sudo apt-get -y install librealsense2-dev=${version}
 		sudo apt-get -y install librealsense2-dbg=${version}
+		sudo apt-mark hold librealsense2*
 	fi
 
 	# STEP 4B: Install realsense2 SDK from source (in a separate catkin workspace)
@@ -188,11 +203,11 @@ if [ $INSTALL_TYPE == "full" ]; then
 		cd $CAMERA_FOLDER/src/
 		catkin_init_workspace
 	fi
-	if [ ! -d "$CAMERA_FOLDER/src/realsense" ]; then
+	if [ ! -d "$CAMERA_FOLDER/src/realsense-ros" ]; then
 		cd $CAMERA_FOLDER/src/
-		git clone https://github.com/intel-ros/realsense.git
-		cd realsense
-		git checkout a036d81bcc6890658104a8de1cba24538effd6e3
+    		git clone https://github.com/IntelRealSense/realsense-ros.git
+		cd realsense-ros/
+		git checkout 2.2.13
 	fi
 	if [ -d "$CAMERA_FOLDER/devel" ]; then
 		rm -rf $CAMERA_FOLDER/devel
@@ -200,12 +215,15 @@ if [ $INSTALL_TYPE == "full" ]; then
 	if [ -d "$CAMERA_FOLDER/build" ]; then
 		rm -rf $CAMERA_FOLDER/build
 	fi
+        if [ -d "$CAMERA_FOLDER/install" ]; then
+	        rm -rf $CAMERA_FOLDER/install
+        fi
 	cd $CAMERA_FOLDER
 	catkin_make clean
 	catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
 	catkin_make install
-	echo "source ~/camera_ws/devel/setup.bash" >> ~/.bashrc
-	source ~/camera_ws/devel/setup.bash
+	echo "source $CAMERA_FOLDER/devel/setup.bash" >> ~/.bashrc
+	source $CAMERA_FOLDER/devel/setup.bash
 fi
 
 # STEP 5 - Setup catkin workspace
@@ -222,6 +240,22 @@ if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd pyrobot
 	git checkout master
 	git submodule update --init --recursive
+  if [ $LOCOBOT_PLATFORM == "cmu" ]; then
+    cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_description/urdf
+    ln cmu_locobot_description.urdf locobot_description.urdf
+    cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
+    ln cmu_locobot.srdf locobot.srdf
+    cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_control/src
+    sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -0.3890, 1.617, -0.1812, 0.0153};/' locobot_controller.cpp
+  fi
+  if [ $LOCOBOT_PLATFORM == "interbotix" ]; then
+    cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_description/urdf
+    ln interbotix_locobot_description.urdf locobot_description.urdf
+    cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
+    ln interbotix_locobot.srdf locobot.srdf
+    cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/locobot_control/src
+    sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -1.30, 1.617, 0.5, 0};/' locobot_controller.cpp
+  fi
 fi
 
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/thirdparty" ]; then
@@ -258,7 +292,7 @@ fi
 
 cd $LOCOBOT_FOLDER
 rosdep update 
-rosdep install --from-paths src -i -y
+rosdep install --from-paths src/pyrobot -i -y
 cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
 chmod +x install_orb_slam2.sh
 source install_orb_slam2.sh
@@ -328,6 +362,9 @@ if [ $PYTHON_VERSION == "2" ]; then
 	
 	cd $LOCOBOT_FOLDER
 	source /opt/ros/$ROS_NAME/setup.bash
+ 	if [ $INSTALL_TYPE == "full" ]; then
+    	        source $CAMERA_FOLDER/devel/setup.bash
+  	fi
 	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
@@ -337,6 +374,10 @@ fi
 if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER
 	source /opt/ros/$ROS_NAME/setup.bash
+  	if [ $INSTALL_TYPE == "full" ]; then
+    	        source $CAMERA_FOLDER/devel/setup.bash
+  	fi
+	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash

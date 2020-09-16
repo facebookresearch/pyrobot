@@ -187,7 +187,7 @@ def pix_to_3dpt(depth_im, rs, cs, intrinsic_mat, depth_map_factor, reduce=None, 
     if isinstance(cs, np.ndarray):
         cs = cs.flatten()
     R, C = depth_im.shape
-    if reduce == "none":
+    if reduce == "none" or reduce is None:
         depth_im = depth_im[rs, cs]
     elif reduce == "mean":
         depth_im = np.array(

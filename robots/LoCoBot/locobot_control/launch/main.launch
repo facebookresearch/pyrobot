@@ -78,6 +78,10 @@
 
     <!-- Common -->
 
+    <node name="turtlebot_controller_node" pkg="turtlebot_controller" 
+                            type="turtlebot_controller_node"/>
+                            
+
     <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
                   type="kinematics.py"/>
 

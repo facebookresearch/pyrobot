@@ -11,6 +11,7 @@ from pyrobot import Robot
 
 from pyrobot.locobot.base_control_utils import _get_absolute_pose
 
+
 @pytest.fixture(scope="module")
 def create_robot():
 
@@ -57,10 +58,11 @@ posns = np.array(
     ],
     dtype=np.float32,
 )
+
+
 @pytest.mark.parametrize("posn", posns)
 def _test_relative_position_control(
     create_robot, posn,
-
 ):
     bot = create_robot
     start_state = np.array(bot.base.get_state("odom"))

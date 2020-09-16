@@ -24,7 +24,7 @@ class PcdToOcGrid:
 
 
         self.bot = Robot(
-            "locobot", base_config={"build_map": True, "base_planner": "none"}
+            "locobot", base_config={"base_planner": "none"}
         )
 
 
