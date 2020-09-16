@@ -174,12 +174,17 @@ class LoCoBotCamera(object):
         return prutil.quat_to_rot_mat(quat_list)
 
 
-    def get_current_pcd(self, in_cam=True):
+    def get_current_pcd(self, in_cam=True, initial_rotation=None):
         """
 		Return the point cloud at current time step (one frame only)
 
 		:param in_cam: return points in camera frame,
 		               otherwise, return points in base frame
+
+                :param initial_rotation: a known initial rotation of the camera sensor
+                                 to calibrate habitat origin. The default value
+                                 is None which means it uses the Habitat-reported
+                                 value.
 
 		:type in_cam: bool
 		:returns: tuple (pts, colors)
@@ -194,7 +199,7 @@ class LoCoBotCamera(object):
         pts = pcd_in_cam[:3, :].T
         if in_cam:
             return pts, colors
-        pts = self._cam2pyrobot(pts)
+        pts = self._cam2pyrobot(pts, initial_rotation=initial_rotation)
         return pts, colors
 
     @property
