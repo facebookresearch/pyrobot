@@ -86,6 +86,12 @@ posns = np.array(
 )
 
 
+posns_movebase = np.array(
+    [[2.0, -2.0, np.pi/2]],
+    dtype=np.float32,
+)
+
+
 @pytest.mark.parametrize("base_controller", ["proportional"])
 @pytest.mark.parametrize("base_planner", ["none"])
 @pytest.mark.parametrize("close_loop", [True])
@@ -103,7 +109,7 @@ def test_relative_position_control1(
 @pytest.mark.parametrize("base_planner", ["none"])
 @pytest.mark.parametrize("close_loop", [True])
 @pytest.mark.parametrize("smooth", [False])
-@pytest.mark.parametrize("posn", posns)
+@pytest.mark.parametrize("posn", posns_movebase)
 def test_relative_position_control1_movebase(
     create_robot, posn, base_controller, base_planner, close_loop, smooth
 ):
