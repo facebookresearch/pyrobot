@@ -386,7 +386,9 @@ class Camera(object):
     def get_depth(self):
         """
         This function returns the depth image perceived by the camera.
-
+        
+        The depth image is in meters.
+        
         :rtype: np.ndarray or None
         """
         self.camera_img_lock.acquire()
@@ -398,13 +400,16 @@ class Camera(object):
     def get_rgb_depth(self):
         """
         This function returns both the RGB and depth
-        images perceived by the camera.
+        images perceived by the camera. 
+
+        The depth image is in meters.
 
         :rtype: np.ndarray or None
         """
         self.camera_img_lock.acquire()
         rgb = copy.deepcopy(self.rgb_img)
         depth = copy.deepcopy(self.depth_img)
+        depth = depth / self.configs.CAMERA.DEPTH_MAP_FACTOR
         self.camera_img_lock.release()
         return rgb, depth
 
