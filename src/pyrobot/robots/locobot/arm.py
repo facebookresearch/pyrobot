@@ -130,7 +130,7 @@ class LoCoBotArm(Arm):
         if roll is None:
             # read the current roll angle
             roll = -self.get_joint_angle("joint_5")
-        euler = np.array([yaw, pitch, roll])
+        euler = np.array([yaw, pitch, roll], dtype=np.float64)
         return self.set_ee_pose(
             position=position,
             orientation=euler,

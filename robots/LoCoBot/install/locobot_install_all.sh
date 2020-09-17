@@ -81,9 +81,9 @@ install_packages () {
 
 
 # STEP 0 - Make sure you have installed Ubuntu 16.04, and upgrade to lastest dist
-if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
-        sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
-fi
+#if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
+#        sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
+#fi
 
 
 # STEP 1 - Install basic dependencies
@@ -373,6 +373,7 @@ if [ $PYTHON_VERSION == "3" ]; then
   	if [ $INSTALL_TYPE == "full" ]; then
     	        source $CAMERA_FOLDER/devel/setup.bash
   	fi
+	pip install catkin_pkg pyyaml empy rospkg
 	catkin_make
 	echo "source $LOCOBOT_FOLDER/devel/setup.bash" >> ~/.bashrc
 	source $LOCOBOT_FOLDER/devel/setup.bash

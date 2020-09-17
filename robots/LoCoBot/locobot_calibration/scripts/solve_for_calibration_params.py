@@ -63,7 +63,7 @@ def load_data(dir_name):
     :return: data from states.pkl file in directory, images from directory
     :rtype: dict, list of cv2 images (numpy arrays)
     """
-    tt = pickle.load(open(os.path.join(dir_name, "states.pkl")))
+    tt = pickle.load(open(os.path.join(dir_name, "states.pkl"), 'rb'))
     imgs = []
     for i in range(tt["states"].shape[0]):
         img = cv2.imread(os.path.join(dir_name, "images", "img_{:04d}.png".format(i)))

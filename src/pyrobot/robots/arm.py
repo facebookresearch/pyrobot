@@ -283,7 +283,7 @@ class Arm(object):
             raise ValueError("Joint torque for joint $s" " not available!" % joint)
         return self._joint_efforts[joint]
 
-    def set_joint_positions(self, positions, plan=True, wait=True, **kwargs):
+    def set_joint_positions(self, positions, wait=True, **kwargs):
         """
         Sets the desired joint angles for all arm joints
 
@@ -300,42 +300,14 @@ class Arm(object):
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
-        result = False
-        if isinstance(positions, np.ndarray):
-            positions = positions.flatten().tolist()
-        if plan:
-            if not self.use_moveit:
-                raise ValueError(
-                    "Moveit is not initialized, " "did you pass in use_moveit=True?"
-                )
-
-            self._cancel_moveit_goal()
-
-            if isinstance(positions, np.ndarray):
-                positions = positions.tolist()
-
-            rospy.loginfo("Moveit Motion Planning...")
-
-            moveit_goal = MoveitGoal()
-            moveit_goal.wait = wait
-            moveit_goal.action_type = "set_joint_positions"
-            moveit_goal.values = positions
-            self._moveit_client.send_goal(moveit_goal)
-
-            if wait:
-                self._moveit_client.wait_for_result()
-                status = self._moveit_client.get_state()
-                if status == GoalStatus.SUCCEEDED:
-                    result = True
-        else:
-            self._pub_joint_positions(positions)
-            if wait:
-                result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
-
+    
+        self._pub_joint_positions(positions)
         if wait:
+            result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
             return result
 
     def make_plan_joint_positions(self, positions, **kwargs):
+        """[deprecated]"""
         result = None
         if isinstance(positions, np.ndarray):
             positions = positions.flatten().tolist()
@@ -375,6 +347,7 @@ class Arm(object):
         self, position, orientation, plan=True, wait=True, numerical=True, **kwargs
     ):
         """
+        [deprecated]
         Commands robot arm to desired end-effector pose
         (w.r.t. 'ARM_BASE_FRAME').
         Computes IK solution in joint space and calls set_joint_positions.
@@ -411,6 +384,7 @@ class Arm(object):
     def make_plan_pose(
         self, position, orientation, wait=True, numerical=True, **kwargs
     ):
+    """[deprecated]"""
 
         if not self.use_moveit:
             raise ValueError(
@@ -470,6 +444,7 @@ class Arm(object):
         **kwargs
     ):
         """
+        [deprecated] after implement Cartisian planning
         Keep the current orientation fixed, move the end
         effector in {xyz} directions
 
@@ -597,6 +572,7 @@ class Arm(object):
 
     def compute_fk_position(self, joint_positions, des_frame):
         """
+        [deprecated]
         Given joint angles, compute the pose of desired_frame with respect
         to the base frame (self.configs.ARM_BASE_FRAME). The desired frame
         must be in self.arm_link_names
@@ -659,6 +635,7 @@ class Arm(object):
 
     def compute_ik(self, position, orientation, qinit=None, numerical=True):
         """
+        [deprecated]
         Inverse kinematics
 
         :param position: end effector position (shape: :math:`[3,]`)
@@ -755,7 +732,6 @@ class Arm(object):
                 )
         if joint_positions is None:
             return None
-        print(joint_positions)
         return np.array(joint_positions)
 
     def _callback_joint_states(self, msg):
@@ -793,6 +769,7 @@ class Arm(object):
 
     def _init_moveit(self):
         """
+        [deprecated]
         Initialize moveit and setup move_group object
         """
         rospy.set_param("pyrobot/moveit_planner", self.moveit_planner)

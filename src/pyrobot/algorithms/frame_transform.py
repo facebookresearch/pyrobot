@@ -1,8 +1,7 @@
 from .algorithm import Algorithm 
 
 class FrameTransform(Algorithm):
-	"""base class of Motion Planning algorithms. 
-	Specifically, forward/inverse kinematics, and jacobian.
+	"""base class of frame transformation algorithms. 
 	"""
 	def __init__(
 		self,
