@@ -54,7 +54,7 @@ except:
     use_pyassimp = False
 
 from moveit_pybind import Pose, Point
-from moveit_pybind import CollisionObject, AttachedCollisionObject, PlanningSceneInterface
+from moveit_pybind import CollisionObject, AttachedCollisionObject, PlanningSceneInterfaceWrapper
 from moveit_pybind import MeshTriangle, Mesh, SolidPrimitive, Plane
 
 
@@ -97,7 +97,7 @@ class PlanningSceneInterface(object):
         self._attached_removed = dict()
         self._colors = dict()
 
-        self.planning_scene_interface = PlanningSceneInterface()
+        self.planning_scene_interface = PlanningSceneInterfaceWrapper()
 
     def clear(self):
         """
