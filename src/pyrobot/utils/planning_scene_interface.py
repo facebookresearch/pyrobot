@@ -53,11 +53,9 @@ except:
     # https://bugs.launchpad.net/ubuntu/+source/assimp/+bug/1589949
     use_pyassimp = False
 
-from geometry_msgs.msg import Pose, PoseStamped, Point
-from moveit_msgs.msg import CollisionObject, AttachedCollisionObject
-from moveit_msgs.msg import PlanningScene, PlanningSceneComponents, ObjectColor
-from moveit_msgs.srv import GetPlanningScene, ApplyPlanningScene
-from shape_msgs.msg import MeshTriangle, Mesh, SolidPrimitive, Plane
+from moveit_pybind import Pose, Point
+from moveit_pybind import CollisionObject, AttachedCollisionObject, PlanningSceneInterface
+from moveit_pybind import MeshTriangle, Mesh, SolidPrimitive, Plane
 
 
 class PlanningSceneInterface(object):
@@ -87,12 +85,6 @@ class PlanningSceneInterface(object):
 
         self._fixed_frame = frame
 
-        self._scene_pub = rospy.Publisher(
-            ns + "planning_scene", PlanningScene, queue_size=10
-        )
-        self._apply_service = rospy.ServiceProxy(
-            ns + "apply_planning_scene", ApplyPlanningScene
-        )
         # track the attached and collision objects
         self._mutex = thread.allocate_lock()
         # these are updated based what the planning scene actually contains
@@ -105,66 +97,13 @@ class PlanningSceneInterface(object):
         self._attached_removed = dict()
         self._colors = dict()
 
-        # get the initial planning scene
-        if init_from_service:
-            rospy.loginfo("Waiting for get_planning_scene")
-            rospy.wait_for_service(ns + "get_planning_scene")
-            self._service = rospy.ServiceProxy(
-                ns + "get_planning_scene", GetPlanningScene
-            )
-            try:
-                req = PlanningSceneComponents()
-                req.components = sum(
-                    [
-                        PlanningSceneComponents.WORLD_OBJECT_NAMES,
-                        PlanningSceneComponents.WORLD_OBJECT_GEOMETRY,
-                        PlanningSceneComponents.ROBOT_STATE_ATTACHED_OBJECTS,
-                    ]
-                )
-                scene = self._service(req)
-                self.sceneCb(scene.scene, initial=True)
-            except rospy.ServiceException as e:
-                rospy.logerr(
-                    "Failed to get initial planning scene, results may be wonky: %s", e
-                )
-
-        # subscribe to planning scene
-        rospy.Subscriber(
-            ns + "move_group/monitored_planning_scene", PlanningScene, self.sceneCb
-        )
-
-    def sendUpdate(self, collision_object, attached_collision_object, use_service=True):
-        """
-        Send new update to planning scene
-
-        :param collision_object: A collision object to add to scene, or None
-        :param attached_collision_object: Attached collision object to add to scene, or None
-        :param use_service: If true, update will be sent via apply service, otherwise by topic
-        """
-        ps = PlanningScene()
-        ps.is_diff = True
-        if collision_object:
-            ps.world.collision_objects.append(collision_object)
-
-        if attached_collision_object:
-            ps.robot_state.attached_collision_objects.append(attached_collision_object)
-
-        if use_service:
-            resp = self._apply_service.call(ps)
-            if not resp.success:
-                rospy.logerr("Could not apply planning scene diff.")
-        else:
-            self._scene_pub.publish(ps)
+        self.planning_scene_interface = PlanningSceneInterface()
 
     def clear(self):
         """
         Clear the planning scene of all objects
         """
-        for name in self.getKnownCollisionObjects():
-            self.removeCollisionObject(name, True)
-        for name in self.getKnownAttachedObjects():
-            self.removeAttachedObject(name, True)
-        self.waitForSync()
+        self.planning_scene_interface.removeCollisionObjects(self.planning_scene_interface.getKnownObjectNames())
 
     def makeMesh(self, name, ps, filename):
         """
@@ -250,8 +189,7 @@ class PlanningSceneInterface(object):
         :param use_service: If true, update will be sent via apply service
         """
         o = self.makeMesh(name, ps, filename)
-        self._objects[name] = o
-        self.sendUpdate(o, None, use_service)
+        self.planning_scene_interface.applyCollisionObject(o)
 
     def attachMesh(
         self,
@@ -276,8 +214,7 @@ class PlanningSceneInterface(object):
         o = self.makeMesh(name, ps, filename)
         o.header.frame_id = link_name
         a = self.makeAttached(link_name, o, touch_links, detach_posture, weight)
-        self._attached_objects[name] = a
-        self.sendUpdate(None, a, use_service)
+        self.planning_scene_interface.applyAttachedCollisionObject(o)
 
     def addSolidPrimitive(self, name, solid, ps, use_service=True):
         """
@@ -290,7 +227,7 @@ class PlanningSceneInterface(object):
         """
         o = self.makeSolidPrimitive(name, solid, ps)
         self._objects[name] = o
-        self.sendUpdate(o, None, use_service)
+        self.planning_scene_interface.applyCollisionObject(o)
 
     def addCylinder(self, name, height, radius, ps, use_service=True):
         """
@@ -362,8 +299,7 @@ class PlanningSceneInterface(object):
         o = self.makeSolidPrimitive(name, s, p)
         o.header.frame_id = link_name
         a = self.makeAttached(link_name, o, touch_links, detach_posture, weight)
-        self._attached_objects[name] = a
-        self.sendUpdate(None, a, use_service)
+        self.planning_scene_interface.applyAttachedCollisionObject(o)
 
     def removeCollisionObject(self, name, use_service=True):
         """
@@ -372,150 +308,18 @@ class PlanningSceneInterface(object):
         :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         """
-        o = CollisionObject()
-        o.header.stamp = rospy.Time.now()
-        o.header.frame_id = self._fixed_frame
-        o.id = name
-        o.operation = o.REMOVE
+        self.planning_scene_interface.removeCollisionObjects([name])
 
-        try:
-            del self._objects[name]
-            self._removed[name] = o
-        except KeyError:
-            pass
-
-        self.sendUpdate(o, None, use_service)
-
-    def removeAttachedObject(self, name, use_service=True):
-        """
-        Removes an attached object. 
-        
-        :param name: name of the object to be removed
-        :param use_service: If true, update will be sent via apply service
-        """
-        o = AttachedCollisionObject()
-        o.object.operation = CollisionObject.REMOVE
-        o.object.id = name
-
-        try:
-            del self._attached_objects[name]
-            self._attached_removed[name] = o
-        except KeyError:
-            pass
-
-        self.sendUpdate(None, o, use_service)
-
-    def sceneCb(self, msg, initial=False):
-        """
-        Update the object lists from a PlanningScene message
-        """
-        # Recieve updates from move_group
-        self._mutex.acquire()
-        for obj in msg.world.collision_objects:
-            try:
-                if obj.operation == obj.ADD:
-                    self._collision.append(obj.id)
-                    rospy.logdebug('ObjectManager: Added Collision Obj "%s"', obj.id)
-                    if initial:
-                        # this is our initial planning scene, hold onto each object
-                        self._objects[obj.id] = obj
-                elif obj.operation == obj.REMOVE:
-                    self._collision.remove(obj.id)
-                    self._removed.pop(obj.id, None)
-                    rospy.logdebug('ObjectManager: Removed Collision Obj "%s"', obj.id)
-            except ValueError:
-                pass
-        self._attached = list()
-        for obj in msg.robot_state.attached_collision_objects:
-            rospy.logdebug('ObjectManager: attached collision Obj "%s"', obj.object.id)
-            self._attached.append(obj.object.id)
-            if initial:
-                # this is our initial planning scene, hold onto each object
-                self._attached_objects[obj.object.id] = obj
-        self._mutex.release()
 
     def getKnownCollisionObjects(self):
         """
         Get a list of names of collision objects
         """
-        self._mutex.acquire()
-        l = copy.deepcopy(self._collision)
-        self._mutex.release()
-        return l
+        return self.planning_scene_interface.getObjects()
 
     def getKnownAttachedObjects(self):
         """
         Get a list of names of attached objects
         """
-        self._mutex.acquire()
-        l = copy.deepcopy(self._attached)
-        self._mutex.release()
-        return l
+        return self.planning_scene_interface.getAttachedObjects()
 
-    def waitForSync(self, max_time=2.0):
-        """
-        Clears and syncs the planning scene
-        """
-        sync = False
-        t = rospy.Time.now()
-        while not sync:
-            sync = True
-            # delete objects that should be gone
-            for name in self._collision:
-                if name in self._removed.keys():
-                    # should be removed, is not
-                    rospy.logwarn("ObjectManager: %s not removed yet", name)
-                    self.removeCollisionObject(name, False)
-                    sync = False
-            for name in self._attached:
-                if name in self._attached_removed.keys():
-                    # should be removed, is not
-                    rospy.logwarn(
-                        "ObjectManager: Attached object name: %s not removed yet", name
-                    )
-                    self.removeAttachedObject(name, False)
-                    sync = False
-            # add missing objects
-            for name in self._objects.keys():
-                if name not in self._collision + self._attached:
-                    rospy.logwarn("ObjectManager: %s not added yet", name)
-                    self.sendUpdate(self._objects[name], None, False)
-                    sync = False
-            for name in self._attached_objects.keys():
-                if name not in self._attached:
-                    rospy.logwarn("ObjectManager: %s not attached yet", name)
-                    self.sendUpdate(None, self._attached_objects[name], False)
-                    sync = False
-            # timeout
-            if rospy.Time.now() - t > rospy.Duration(max_time):
-                rospy.logerr("ObjectManager: sync timed out.")
-                break
-            rospy.logdebug("ObjectManager: waiting for sync.")
-            rospy.sleep(0.1)
-
-    def setColor(self, name, r, g, b, a=0.9):
-        """
-        Set the color of the specified object
-        """
-        color = ObjectColor()
-        color.id = name
-        color.color.r = r
-        color.color.g = g
-        color.color.b = b
-        color.color.a = a
-        self._colors[name] = color
-
-    def sendColors(self):
-        """
-        Send the colors set using 'setColor' to moveit.
-        """
-        p = PlanningScene()
-        p.is_diff = True
-        for color in self._colors.values():
-            p.object_colors.append(color)
-        resp = self._apply_service.call(p)
-        if not resp.success:
-            rospy.logerr(
-                "Could not update colors through service, using topic instead."
-            )
-            self._scene_pub.publish(p)

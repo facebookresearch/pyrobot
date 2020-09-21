@@ -22,7 +22,7 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from kinematics import Kinematics
+from pyrobot.utils.kinematics import Kinematics
 
 from pyrobot.utils.util import try_cv2_import
 
@@ -793,7 +793,11 @@ class Arm(object):
                 pose.orientation.z,
                 pose.orientation.w,
             ) = (ori_x, ori_y, ori_z, ori_w)
-            result = self.moveit_group.moveToPose(pose, wait=True)
+            result = self.moveit_group.moveToPose([
+                position[0],
+                position[1],
+                position[2],
+            ], quat, wait=True)
         else:
             joint_positions = self.compute_ik(
                 position, orientation, numerical=numerical
@@ -928,41 +932,15 @@ class Arm(object):
             cur_pos = np.array(cur_pos).reshape(-1, 1)
             cur_quat = np.array(cur_quat)
 
-            waypoints_sp = np.linspace(0, path_len, num_pts)
-            waypoints = cur_pos + waypoints_sp / path_len * displacement
-            moveit_waypoints = []
-            wpose = Pose()
-            for i in range(waypoints.shape[1]):
-                if i < 1:
-                    continue
-                wpose.position.x = waypoints[0, i]
-                wpose.position.y = waypoints[1, i]
-                wpose.position.z = waypoints[2, i]
-                wpose.orientation.x = cur_quat[0]
-                wpose.orientation.y = cur_quat[1]
-                wpose.orientation.z = cur_quat[2]
-                wpose.orientation.w = cur_quat[3]
-                moveit_waypoints.append(copy.deepcopy(wpose))
-
-            result = self.moveit_group.followCartesian(
-                way_points=moveit_waypoints,  # waypoints to follow
-                way_point_frame=self.configs.ARM.ARM_BASE_FRAME,
-                max_step=eef_step,  # eef_step
-                jump_threshold=0.0,
+            waypoints = cur_pos + displacement
+           
+            result = self.moveit_group.moveToPose(
+                waypoints,
+                cur_quat
             )  # jump_threshold
 
-            if result is False:
-                return False
-
-            ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
-            cur_pos, cur_ori, cur_quat = ee_pose
-
-            cur_pos = np.array(cur_pos).reshape(-1, 1)
-
             success = True
-            diff = cur_pos.flatten() - waypoints[:, -1].flatten()
-            error = np.linalg.norm(diff)
-            if error > self.configs.ARM.MAX_EE_ERROR:
+            if not result:
                 rospy.logerr("Move end effector along xyz failed!")
                 success = False
             return success
@@ -1147,10 +1125,9 @@ class Arm(object):
         """
         self.moveit_group = MoveGroup(
             self.configs.ARM.MOVEGROUP_NAME,
+            self.configs.ARM.ARM_ROBOT_DSP_PARAM_NAME, 
             self.configs.ARM.ARM_BASE_FRAME,
             self.configs.ARM.EE_FRAME,
-            self.configs.ARM.ROSSRV_CART_PATH,
-            self.configs.ARM.ROSSRV_MP_PATH,
             listener=self.tf_listener,
             plan_only=False,
         )
