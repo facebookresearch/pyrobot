@@ -10,6 +10,7 @@ import numpy as np
 from pyrobot import Robot
 
 from pyrobot.locobot.base_control_utils import _get_absolute_pose
+from pyrobot.locobot.bicycle_model import wrap_theta
 
 
 @pytest.fixture(scope="module")
