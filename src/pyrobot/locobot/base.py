@@ -38,7 +38,6 @@ from pyrobot.locobot.base_controllers import (
     ProportionalControl,
     ILQRControl,
     MoveBaseControl,
-    GPMPControl,
 )
 
 import actionlib
@@ -345,7 +344,7 @@ class LoCoBotBase(Base):
             base_controller = self.configs.BASE.BASE_CONTROLLER
         assert base_controller in ["proportional", "ilqr", "movebase", "gpmp"], (
             "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
-            "movebase, gpmp but is {:s}".format(base_controller)
+            "movebase but is {:s}".format(base_controller)
         )
         self.base_controller = base_controller
         if base_controller == "ilqr":

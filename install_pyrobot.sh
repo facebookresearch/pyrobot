@@ -94,9 +94,11 @@ if [ $PYTHON_VERSION == "3" ]; then
 			git clone -b indigo-devel https://github.com/ros/geometry2
 			git clone -b python3_patch https://github.com/kalyanvasudev/vision_opencv.git
 		else
-			git clone -b melodic-devel https://github.com/ros/geometry
+			git clone -b melodic-pyrobot https://github.com/Jekyll1021/geometry
 			git clone -b melodic-devel https://github.com/ros/geometry2
 			git clone -b python3_patch_melodic https://github.com/kalyanvasudev/vision_opencv.git
+			git clone https://github.com/Jekyll1021/kinematics
+			git clone https://github.com/Jekyll1021/moveit_pybind.git
 		fi
 		
 		git clone -b patch-1 https://github.com/kalyanvasudev/ros_comm.git

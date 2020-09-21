@@ -22,7 +22,7 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from pyrobot_bridge.srv import *
+from pyrobot.utils.kinematics import Kinematics
 
 from pyrobot.utils.util import try_cv2_import
 
@@ -457,6 +457,7 @@ class Arm(object):
         :type analytical_ik: None or an Analytical ik class
         :type use_moveit: bool
         """
+
         self.configs = configs
         self.moveit_planner = moveit_planner
         self.planning_time = planning_time
@@ -484,29 +485,15 @@ class Arm(object):
             configs.ARM.ROSTOPIC_JOINT_STATES, JointState, self._callback_joint_states
         )
 
-        # Ros-Params
-        rospy.set_param("pyrobot/base_link", configs.ARM.ARM_BASE_FRAME)
-        rospy.set_param("pyrobot/gripper_link", configs.ARM.EE_FRAME)
-        rospy.set_param(
-            "pyrobot/robot_description", configs.ARM.ARM_ROBOT_DSP_PARAM_NAME
+        self.kinematics = Kinematics(
+            configs.ARM.ARM_BASE_FRAME, 
+            configs.ARM.EE_FRAME, 
+            configs.ARM.ARM_ROBOT_DSP_PARAM_NAME
         )
 
         # Publishers
         self.joint_pub = None
         self._setup_joint_pub()
-
-        # Services
-        self._ik_service = rospy.ServiceProxy("pyrobot/ik", IkCommand)
-        try:
-            self._ik_service.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")
-
-        self._fk_service = rospy.ServiceProxy("pyrobot/fk", FkCommand)
-        try:
-            self._fk_service.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")
 
     @abstractmethod
     def go_home(self):
@@ -934,55 +921,18 @@ class Arm(object):
             cur_pos, cur_ori, cur_quat = ee_pose
             cur_pos = np.array(cur_pos).reshape(-1, 1)
             cur_quat = np.array(cur_quat)
+            waypoints = cur_pos + displacement
+           
+            result = self.moveit_group.moveToPose(
+                waypoints,
+                cur_quat
+            )  # jump_threshold
 
-            waypoints_sp = np.linspace(0, path_len, num_pts)
-            waypoints = cur_pos + waypoints_sp / path_len * displacement
-            moveit_waypoints = []
-            wpose = Pose()
-            for i in range(waypoints.shape[1]):
-                if i < 1:
-                    continue
-                wpose.position.x = waypoints[0, i]
-                wpose.position.y = waypoints[1, i]
-                wpose.position.z = waypoints[2, i]
-                wpose.orientation.x = cur_quat[0]
-                wpose.orientation.y = cur_quat[1]
-                wpose.orientation.z = cur_quat[2]
-                wpose.orientation.w = cur_quat[3]
-                moveit_waypoints.append(copy.deepcopy(wpose))
-
-            moveit_goal = MoveitGoal()
-            moveit_goal.wait = wait
-            moveit_goal.action_type = "move_ee_xyz"
-            moveit_goal.waypoints = moveit_waypoints
-            moveit_goal.eef_step = eef_step
-            self._moveit_client.send_goal(moveit_goal)
-
-            if wait:
-                self._moveit_client.wait_for_result()
-                status = self._moveit_client.get_state()
-                if status != GoalStatus.SUCCEEDED:
-                    return False
-
-                ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
-                cur_pos, cur_ori, cur_quat = ee_pose
-
-                cur_pos = np.array(cur_pos).reshape(-1, 1)
-
-                success = True
-                diff = cur_pos.flatten() - waypoints[:, -1].flatten()
-                error = np.linalg.norm(diff)
-                if error > self.configs.ARM.MAX_EE_ERROR:
-                    rospy.logerr("Move end effector along xyz failed!")
-                    success = False
-                return success
-
-    def _cancel_moveit_goal(self):
-        if not self._moveit_client.gh:
-            return
-        # 2 is for "Done" state of action
-        if self._moveit_client.simple_state != 2:
-            self._moveit_client.cancel_all_goals()
+            success = True
+            if not result:
+                rospy.logerr("Move end effector along xyz failed!")
+                success = False
+            return success
 
     def compute_fk_position(self, joint_positions, des_frame):
         """
@@ -999,21 +949,10 @@ class Arm(object):
         """
         joint_positions = joint_positions.flatten()
 
-        req = FkCommandRequest()
-        req.joint_angles = list(joint_positions)
-        req.end_frame = des_frame
-        try:
-            resp = self._fk_service(req)
-        except:
-            rospy.logerr("FK Service call failed")
-            resp = FkCommandResponse()
-            resp.success = False
+        pos, quat = self.kinematics.fk(joint_positions, des_frame)
 
-        if not resp.success:
-            return None
-
-        pos = np.asarray(resp.pos).reshape(3, 1)
-        rot = prutil.quat_to_rot_mat(resp.quat)
+        pos = np.asarray(pos).reshape(3, 1)
+        rot = prutil.quat_to_rot_mat(quat)
         return pos, rot
 
     def get_jacobian(self, joint_angles):
@@ -1099,9 +1038,8 @@ class Arm(object):
             pos_tol = self.configs.ARM.IK_POSITION_TOLERANCE
             ori_tol = self.configs.ARM.IK_ORIENTATION_TOLERANCE
 
-            req = IkCommandRequest()
-            req.init_joint_positions = qinit
-            req.pose = [
+            init_joint_positions = qinit
+            pose = [
                 position[0],
                 position[1],
                 position[2],
@@ -1110,19 +1048,10 @@ class Arm(object):
                 ori_z,
                 ori_w,
             ]
-            req.tolerance = 3 * [pos_tol] + 3 * [ori_tol]
+            tolerance = 3 * [pos_tol] + 3 * [ori_tol]
 
-            try:
-                resp = self._ik_service(req)
-            except:
-                rospy.logerr("IK Service call failed")
-                resp = IkCommandResponse()
-                resp.success = False
-
-            if not resp.success:
-                joint_positions = None
-            else:
-                joint_positions = resp.joint_positions
+            joint_positions = self.kinematics.ik(pose, tolerance, init_joint_positions)
+            
         else:
             if not hasattr(self, "ana_ik_solver"):
                 raise TypeError(
@@ -1144,7 +1073,6 @@ class Arm(object):
                 )
         if joint_positions is None:
             return None
-        print(joint_positions)
         return np.array(joint_positions)
 
     def _callback_joint_states(self, msg):
@@ -1184,22 +1112,14 @@ class Arm(object):
         """
         Initialize moveit and setup move_group object
         """
-        rospy.set_param("pyrobot/moveit_planner", self.moveit_planner)
-        rospy.set_param("pyrobot/move_group_name", self.configs.ARM.MOVEGROUP_NAME)
-        self._moveit_client = actionlib.SimpleActionClient(
-            "/pyrobot/moveit_server", MoveitAction
+        self.moveit_group = MoveGroup(
+            self.configs.ARM.MOVEGROUP_NAME,
+            self.configs.ARM.ARM_ROBOT_DSP_PARAM_NAME, 
+            self.configs.ARM.ARM_BASE_FRAME,
+            self.configs.ARM.EE_FRAME,
+            listener=self.tf_listener,
+            plan_only=False,
         )
-
-        rospy.sleep(0.1)  # Ensures client spins up properly
-        server_up = self._moveit_client.wait_for_server(timeout=rospy.Duration(10.0))
-        if not server_up:
-            rospy.logerr(
-                "Timed out waiting for the pyrobot-moveit server"
-                " Action Server to connect. Start the action server"
-                " before running example."
-            )
-            rospy.signal_shutdown("Timed out waiting for Action Server")
-            sys.exit(1)
 
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()
