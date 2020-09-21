@@ -582,12 +582,14 @@ class GPMPControl(object):
         self.point_idx = self.configs.TRACKED_POINT
 
         self.gpmp_ctrl_client_ = actionlib.SimpleActionClient(
-            self.configs.GPMP_SERVER_NAME, FollowJointTrajectoryAction,
+            self.configs.GPMP_SERVER_NAME,
+            FollowJointTrajectoryAction,
         )
         check_server_client_link(self.gpmp_ctrl_client_)
 
         self.traj_client_ = actionlib.SimpleActionClient(
-            self.configs.TURTLEBOT_TRAJ_SERVER_NAME, FollowJointTrajectoryAction,
+            self.configs.TURTLEBOT_TRAJ_SERVER_NAME,
+            FollowJointTrajectoryAction,
         )
         check_server_client_link(self.traj_client_)
 
@@ -628,7 +630,7 @@ class GPMPControl(object):
             self.base.stop()
 
     def update_goal(self, xyt_position, close_loop=True, smooth=True, wait=True):
-        """Updates the the goal state while GPMP 
+        """Updates the the goal state while GPMP
         controller is in execution of previous goal"""
         self.gpmp_ctrl_client_.cancel_goal()
         self.go_to_absolute(xyt_position, close_loop, smooth, wait=wait)

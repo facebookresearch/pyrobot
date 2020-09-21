@@ -1,10 +1,8 @@
 from .algorithm import Algorithm
 
 
-class MotionPlanner(Algorithm):
-    """base class of Motion Planning algorithms.
-    Specifically, forward/inverse kinematics, and jacobian.
-    """
+class CameraTransform(Algorithm):
+    """base class of camera transformation algorithms."""
 
     def __init__(
         self,
@@ -24,17 +22,14 @@ class MotionPlanner(Algorithm):
             algorithms,
         )
 
-    def plan_end_effector_pose(self, position, orientation):
+    def pix_to_pt(self, rows, columns, depths, in_cam=False):
         raise NotImplementedError()
 
-    def plan_joint_angles(self, target_joint):
-        raise NotImplementedError()
-
-    def compute_cartesian_path(self, joint_pos, target_frame):
+    def pcd_from_img(self, depth_img, rgb_img=None, in_cam=False):
         raise NotImplementedError()
 
     def check_cfg(self):
         raise NotImplementedError()
 
     def get_class_name(self):
-        return "MotionPlanner"
+        return "CameraTransform"

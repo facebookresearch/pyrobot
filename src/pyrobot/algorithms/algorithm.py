@@ -1,29 +1,30 @@
-from abc import ABC, abstractmethod 
+from abc import ABC, abstractmethod
+
 
 class Algorithm:
-	"""Abstract base class for algorithms.
-	"""
-	def __init__( self, configs, 
-						world,
-						ros_launch_manager = None, 
-						robots={}, 
-						sensors={}, 
-						algorithms={}, 
-						
-	):
+    """Abstract base class for algorithms."""
 
-		self.configs = configs
-		self.robots = robots
-		self.sensors = sensors
-		self.algorithms = algorithms
-		self.world = world
-		self.check_cfg()
+    def __init__(
+        self,
+        configs,
+        world,
+        ros_launch_manager=None,
+        robots={},
+        sensors={},
+        algorithms={},
+    ):
 
-	@abstractmethod
-	def check_cfg(self):
-		pass
+        self.configs = configs
+        self.robots = robots
+        self.sensors = sensors
+        self.algorithms = algorithms
+        self.world = world
+        self.check_cfg()
 
-	@abstractmethod
-	def get_class_name(self):
-		pass
-	
+    @abstractmethod
+    def check_cfg(self):
+        pass
+
+    @abstractmethod
+    def get_class_name(self):
+        pass

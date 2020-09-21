@@ -90,11 +90,11 @@ class Kinect2Camera(Camera):
                    which means all columns.
         :param reduce: whether to consider the depth at nearby pixels
                     'none': no neighbour consideration
-                    'mean': depth based on the mean of kernel sized k  centered at [rs,cs] 
-                    'max': depth based on the max of kernel sized k  centered at [rs,cs] 
-                    'min': depth based on the min of kernel sized k  centered at [rs,cs] 
+                    'mean': depth based on the mean of kernel sized k  centered at [rs,cs]
+                    'max': depth based on the max of kernel sized k  centered at [rs,cs]
+                    'min': depth based on the min of kernel sized k  centered at [rs,cs]
         :param k: kernel size for reduce type['mean', 'max', 'min']
-        
+
         :type rs: list or np.ndarray
         :type cs: list or np.ndarray
         :type reduce: str

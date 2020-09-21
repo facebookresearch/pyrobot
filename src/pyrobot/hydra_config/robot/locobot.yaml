@@ -160,10 +160,6 @@ modules:
       TRESHOLD_LIN : 0.15
       # Tolearance to be used by movebase planner while generating plans
       PLAN_TOL : 0.1
-      # z minimum cut-off height for slam-based costmap computation
-      Z_MIN_TRESHOLD_OCC_MAP : 0.1
-      # z maximum cut-off height for slam-based costmap computation
-      Z_MAX_TRESHOLD_OCC_MAP : 0.8
       # proportional control specific max linear velocity
       MAX_ABS_FWD_SPEED_P_CONTROLLER : 0.5
       # proportional control specific max angular velocity

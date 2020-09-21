@@ -93,12 +93,12 @@
 
 
     
-    <group if="$(eval arg('use_base') or arg('use_sim'))" >
+    <!-- <group if="$(eval arg('use_base') or arg('use_sim'))" >
         <include file="$(find base_navigation)/launch/move_base.launch">
             <arg name="use_map" value="$(arg use_vslam)"/>
             <arg name="base" value="$(arg base)"/>
         </include>
-    </group>
+    </group> -->
 
 
     <group if="$(eval base =='kobuki')">

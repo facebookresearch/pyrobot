@@ -1,4 +1,3 @@
-
 #  Please use this file for debugging while re-factoring PyRobot
 
 import hydra
@@ -18,20 +17,22 @@ from omegaconf import DictConfig, OmegaConf
 # run: roslaunch locobot_control main.launch use_sim:=true
 
 from pyrobot import World
+
+
 def main():
-	
-	world =  World(config_name='env/simple_env.yaml')
 
-	bot = world.robots['locobot']
+    world = World(config_name="env/simple_env.yaml")
 
-	bot["base"].set_vel(1.0,1.0,2.0)
+    bot = world.robots["locobot"]
+
+    bot["base"].set_vel(1.0, 1.0, 2.0)
+
+    # more customization with omega-conf
+    # temp_path = 'hydra_config' + '/robot/'+ 'locobot' + ".yaml"
+    # omega_robot = OmegaConf.load(temp_path)
+    # print(omega_robot.pretty())
+    # print(omega_robot.modules[1].conf.VSLAM)
 
 
-
-	# more customization with omega-conf
-	# temp_path = 'hydra_config' + '/robot/'+ 'locobot' + ".yaml"
-	# omega_robot = OmegaConf.load(temp_path)
-	# print(omega_robot.pretty())
-	# print(omega_robot.modules[1].conf.VSLAM)
 if __name__ == "__main__":
     main()

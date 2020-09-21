@@ -258,7 +258,7 @@ class MoveitObjectHandler(object):
     def add_world_object(self, id_name, pose, size, frame="/base_link"):
         """
         Adds the particular BOX TYPE objects to the moveit planning scene
-        
+
         :param id_name: unique id that object should be labeled with
         :param pose: pose of the object
         :param size: size of the object
@@ -301,12 +301,12 @@ class MoveitObjectHandler(object):
         """
         Attaches the specified Box type object to the robot
 
-        :param link_name: name of the link to which the bject 
+        :param link_name: name of the link to which the bject
                           should be attached
         :param id_name: unique id associated with the object
         :param pose: pose of the object
         :parma size: size of the object
-        
+
         :type link_name: string
         :type id_name: string
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
@@ -328,12 +328,12 @@ class MoveitObjectHandler(object):
         """
         Detaches an object earlier attached to the robot
 
-        :param link_name: name of the link from which the bject 
+        :param link_name: name of the link from which the bject
                           should be detached
         :param id_name: unique id associated with the object
-        :param remove_from_world: if set true, deletes the 
+        :param remove_from_world: if set true, deletes the
                                   object from the scene.
-        
+
         :type link_name: string
         :type id_name: string
         :type remove_from_world: bool
@@ -363,11 +363,11 @@ class MoveitObjectHandler(object):
     def add_table(self, pose=None, size=None):
         """
         Adds a table in the planning scene in the base frame.
-        
+
         :param pose: pose of the object
         :parma size: size of the object
-        
-        
+
+
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
         :type size: tuple of length 3
         """
@@ -388,10 +388,10 @@ class MoveitObjectHandler(object):
 
         :param pose: pose of the object
         :parma size: size of the object
-        
-        
+
+
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
-        :type size: tuple of length 3        
+        :type size: tuple of length 3
         """
         if pose is not None and size is not None:
             self.add_world_object("kinect", pose=pose, size=size)
@@ -407,11 +407,11 @@ class MoveitObjectHandler(object):
     def add_gripper(self, pose=None, size=None):
         """
         Attaches gripper object to 'gripper' link.
-        
+
         :param pose: pose of the object
         :param size: size of the object
-        
-        
+
+
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
         :type size: tuple of length 3
         """

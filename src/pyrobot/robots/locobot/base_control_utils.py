@@ -229,158 +229,158 @@ def compute_controls_from_xy(xy, theta0, dt, flip_theta=False):
     return xyt, us
 
 
-class MoveBasePlanner:
-    """
-    This class enscapsulates the planning capabilities
-    of the move_base and provides planning services
-    and plan tracking services.
-    """
+# class MoveBasePlanner:
+#     """
+#     This class enscapsulates the planning capabilities
+#     of the move_base and provides planning services
+#     and plan tracking services.
+#     """
 
-    def __init__(self, configs, action_server):
-        self._as = action_server
-        self.configs = configs
-        self.ROT_VEL = self.configs.MAX_ABS_TURN_SPEED
-        self.LIN_VEL = self.configs.MAX_ABS_FWD_SPEED
-        self.MAP_FRAME = self.configs.MAP_FRAME
-        self.BASE_FRAME = self.configs.VSLAM.VSLAM_BASE_FRAME
-        self.point_idx = self.configs.TRACKED_POINT
+#     def __init__(self, configs, action_server):
+#         self._as = action_server
+#         self.configs = configs
+#         self.ROT_VEL = self.configs.MAX_ABS_TURN_SPEED
+#         self.LIN_VEL = self.configs.MAX_ABS_FWD_SPEED
+#         self.MAP_FRAME = self.configs.MAP_FRAME
+#         self.BASE_FRAME = self.configs.VSLAM.VSLAM_BASE_FRAME
+#         self.point_idx = self.configs.TRACKED_POINT
 
-        rospy.wait_for_service(self.configs.PLAN_TOPIC, timeout=3)
-        try:
-            self.plan_srv = rospy.ServiceProxy(self.configs.PLAN_TOPIC, GetPlan)
-        except rospy.ServiceException:
-            rospy.logerr(
-                "Timed out waiting for the planning service. \
-                    Make sure build_map in script and \
-                           use_map in roslauch are set to the same value"
-            )
-        self.start_state = build_pose_msg(0, 0, 0, self.BASE_FRAME)
-        self.tolerance = self.configs.PLAN_TOL
-        self._transform_listener = tf.TransformListener()
+#         rospy.wait_for_service(self.configs.PLAN_TOPIC, timeout=3)
+#         try:
+#             self.plan_srv = rospy.ServiceProxy(self.configs.PLAN_TOPIC, GetPlan)
+#         except rospy.ServiceException:
+#             rospy.logerr(
+#                 "Timed out waiting for the planning service. \
+#                     Make sure build_map in script and \
+#                            use_map in roslauch are set to the same value"
+#             )
+#         self.start_state = build_pose_msg(0, 0, 0, self.BASE_FRAME)
+#         self.tolerance = self.configs.PLAN_TOL
+#         self._transform_listener = tf.TransformListener()
 
-    def _compute_relative_ang_dist(self, point2):
-        # point 1 is the base point 2 is the point on the path
-        # convert point 2 to base frame
-        pose_stamped = build_pose_msg(point2[0], point2[1], 0, self.MAP_FRAME)
-        base_pose = self._transform_listener.transformPose(
-            self.BASE_FRAME, pose_stamped
-        )
+#     def _compute_relative_ang_dist(self, point2):
+#         # point 1 is the base point 2 is the point on the path
+#         # convert point 2 to base frame
+#         pose_stamped = build_pose_msg(point2[0], point2[1], 0, self.MAP_FRAME)
+#         base_pose = self._transform_listener.transformPose(
+#             self.BASE_FRAME, pose_stamped
+#         )
 
-        y = base_pose.pose.position.y
-        x = base_pose.pose.position.x
+#         y = base_pose.pose.position.y
+#         x = base_pose.pose.position.x
 
-        angle = np.arctan2(y, x)
-        distance = np.sqrt(y ** 2 + x ** 2)
+#         angle = np.arctan2(y, x)
+#         distance = np.sqrt(y ** 2 + x ** 2)
 
-        return (angle, distance)
+#         return (angle, distance)
 
-    def get_plan_absolute(self, x, y, theta):
-        """
-        Gets plan as a list of poses in the world
-        frame for the given (x, y, theta
-        """
-        goal_state = build_pose_msg(x, y, theta, self.MAP_FRAME)
-        start_state = self._transform_listener.transformPose(
-            self.MAP_FRAME, self.start_state
-        )
-        response = self.plan_srv(
-            start=start_state, goal=goal_state, tolerance=self.tolerance
-        )
+#     def get_plan_absolute(self, x, y, theta):
+#         """
+#         Gets plan as a list of poses in the world
+#         frame for the given (x, y, theta
+#         """
+#         goal_state = build_pose_msg(x, y, theta, self.MAP_FRAME)
+#         start_state = self._transform_listener.transformPose(
+#             self.MAP_FRAME, self.start_state
+#         )
+#         response = self.plan_srv(
+#             start=start_state, goal=goal_state, tolerance=self.tolerance
+#         )
 
-        status = True
-        if len(response.plan.poses) == 0:
-            status = False
-        return response.plan.poses, status
+#         status = True
+#         if len(response.plan.poses) == 0:
+#             status = False
+#         return response.plan.poses, status
 
-    def parse_plan(self, plan):
-        """Parses the plan generated by move_base service"""
-        res_plan = []
-        for p in plan:
-            p = p.pose
-            point = 3 * [0]
-            point[0] = p.position.x
-            point[1] = p.position.y
-            (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-                [p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w]
-            )
-            point[2] = yaw
-            res_plan.append(point)
-        return res_plan
+#     def parse_plan(self, plan):
+#         """Parses the plan generated by move_base service"""
+#         res_plan = []
+#         for p in plan:
+#             p = p.pose
+#             point = 3 * [0]
+#             point[0] = p.position.x
+#             point[1] = p.position.y
+#             (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+#                 [p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w]
+#             )
+#             point[2] = yaw
+#             res_plan.append(point)
+#         return res_plan
 
-    def move_to_goal(self, goal, go_to_relative):
-        """
-        Moves the robot to the robot to given goal state in the absolute frame
-        (world frame).
+#     def move_to_goal(self, goal, go_to_relative):
+#         """
+#         Moves the robot to the robot to given goal state in the absolute frame
+#         (world frame).
 
-        :param goal: The goal state of the form (x,y,t) in
-                     the world (map) frame.
-        :param go_to_relative: This is a method that moves the robot the
-                               appropiate relative goal while NOT taking map
-                               into account.
-        :type goal: list
-        :type go_to_rative: function of the form foo([x,y,theta])
-        """
-        plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
-        if not plan_status:
-            rospy.loginfo("Failed to find a valid plan!")
-            return False
+#         :param goal: The goal state of the form (x,y,t) in
+#                      the world (map) frame.
+#         :param go_to_relative: This is a method that moves the robot the
+#                                appropiate relative goal while NOT taking map
+#                                into account.
+#         :type goal: list
+#         :type go_to_rative: function of the form foo([x,y,theta])
+#         """
+#         plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
+#         if not plan_status:
+#             rospy.loginfo("Failed to find a valid plan!")
+#             return False
 
-        if len(plan) < self.point_idx:
-            point = goal
-        else:
-            point = [
-                plan[self.point_idx - 1].pose.position.x,
-                plan[self.point_idx - 1].pose.position.y,
-                0,
-            ]
+#         if len(plan) < self.point_idx:
+#             point = goal
+#         else:
+#             point = [
+#                 plan[self.point_idx - 1].pose.position.x,
+#                 plan[self.point_idx - 1].pose.position.y,
+#                 0,
+#             ]
 
-        g_angle, g_distance = self._compute_relative_ang_dist(goal)
+#         g_angle, g_distance = self._compute_relative_ang_dist(goal)
 
-        while g_distance > self.configs.TRESHOLD_LIN:
+#         while g_distance > self.configs.TRESHOLD_LIN:
 
-            plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
+#             plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
 
-            if self._as.is_preempt_requested():
-                return False
+#             if self._as.is_preempt_requested():
+#                 return False
 
-            if not plan_status:
-                rospy.loginfo("Failed to find a valid plan!")
-                return False
+#             if not plan_status:
+#                 rospy.loginfo("Failed to find a valid plan!")
+#                 return False
 
-            if len(plan) < self.point_idx:
-                point = goal
-            else:
-                point = [
-                    plan[self.point_idx - 1].pose.position.x,
-                    plan[self.point_idx - 1].pose.position.y,
-                    0,
-                ]
+#             if len(plan) < self.point_idx:
+#                 point = goal
+#             else:
+#                 point = [
+#                     plan[self.point_idx - 1].pose.position.x,
+#                     plan[self.point_idx - 1].pose.position.y,
+#                     0,
+#                 ]
 
-            angle, distance = self._compute_relative_ang_dist(point)
-            g_angle, g_distance = self._compute_relative_ang_dist(goal)
-            if not go_to_relative([0, 0, angle]):
-                return False
-            if not go_to_relative([distance, 0, 0]):
-                return False
+#             angle, distance = self._compute_relative_ang_dist(point)
+#             g_angle, g_distance = self._compute_relative_ang_dist(goal)
+#             if not go_to_relative([0, 0, angle]):
+#                 return False
+#             if not go_to_relative([distance, 0, 0]):
+#                 return False
 
-        g_angle, g_distance = self._compute_relative_ang_dist(goal)
+#         g_angle, g_distance = self._compute_relative_ang_dist(goal)
 
-        rospy.loginfo("Adujusting Orientation at goal..{}.".format(g_angle))
+#         rospy.loginfo("Adujusting Orientation at goal..{}.".format(g_angle))
 
-        pose_stamped = build_pose_msg(goal[0], goal[1], goal[2], self.MAP_FRAME)
-        base_pose = self._transform_listener.transformPose(
-            self.BASE_FRAME, pose_stamped
-        )
+#         pose_stamped = build_pose_msg(goal[0], goal[1], goal[2], self.MAP_FRAME)
+#         base_pose = self._transform_listener.transformPose(
+#             self.BASE_FRAME, pose_stamped
+#         )
 
-        pose_quat = [
-            base_pose.pose.orientation.x,
-            base_pose.pose.orientation.y,
-            base_pose.pose.orientation.z,
-            base_pose.pose.orientation.w,
-        ]
-        euler = tf.transformations.euler_from_quaternion(pose_quat)
-        if not go_to_relative([0, 0, euler[2]]):
-            return False
+#         pose_quat = [
+#             base_pose.pose.orientation.x,
+#             base_pose.pose.orientation.y,
+#             base_pose.pose.orientation.z,
+#             base_pose.pose.orientation.w,
+#         ]
+#         euler = tf.transformations.euler_from_quaternion(pose_quat)
+#         if not go_to_relative([0, 0, euler[2]]):
+#             return False
 
 
 def get_state_trajectory_from_controls(start_pos, dt, controls):
@@ -437,195 +437,195 @@ def get_trajectory_negcircle(start_pos, dt, r, v, angle):
     return states, controls
 
 
-class TrajectoryTracker(object):
-    """
-    Class to track a given trajectory. Uses LQR to generate a controller
-    around the system that has been linearized around the trajectory.
-    """
+# class TrajectoryTracker(object):
+#     """
+#     Class to track a given trajectory. Uses LQR to generate a controller
+#     around the system that has been linearized around the trajectory.
+#     """
 
-    def __init__(self, system, action_server):
-        """
-        Provide system that should track the trajectory.
-        """
-        self.system = system
-        self._as = action_server
+#     def __init__(self, system, action_server):
+#         """
+#         Provide system that should track the trajectory.
+#         """
+#         self.system = system
+#         self._as = action_server
 
-    def generate_plan(self, xs, us=None):
-        """
-        Generates a feedback controller that tracks the state trajectory
-        specified by xs. Optionally specify a control trajectory us, otherwise
-        it is automatically inferred.
+#     def generate_plan(self, xs, us=None):
+#         """
+#         Generates a feedback controller that tracks the state trajectory
+#         specified by xs. Optionally specify a control trajectory us, otherwise
+#         it is automatically inferred.
 
-        :param xs: List of states that define the trajectory.
-        :param us: List of controls that define the trajectory. If None,
-                   controls are inferred from the state trajectory.
+#         :param xs: List of states that define the trajectory.
+#         :param us: List of controls that define the trajectory. If None,
+#                    controls are inferred from the state trajectory.
 
-        :returns: LQR controller that can track the specified trajectory.
-        :rtype: LQRSolver
-        """
+#         :returns: LQR controller that can track the specified trajectory.
+#         :rtype: LQRSolver
+#         """
 
-        iters = 2
-        if us is None:
-            # Initialize with simple non-saturated controls.
-            us = np.zeros((len(xs), 2), dtype=np.float32) + 0.1
+#         iters = 2
+#         if us is None:
+#             # Initialize with simple non-saturated controls.
+#             us = np.zeros((len(xs), 2), dtype=np.float32) + 0.1
 
-        for i in range(iters):
-            T = len(us)
-            As = []
-            Bs = []
-            Cs = []
-            Qs = []
-            Rs = []
-            x_costs = []
-            u_costs = []
-            total_cost = 0.0
-            controls = us
-            states = xs
-            for j in range(T):
+#         for i in range(iters):
+#             T = len(us)
+#             As = []
+#             Bs = []
+#             Cs = []
+#             Qs = []
+#             Rs = []
+#             x_costs = []
+#             u_costs = []
+#             total_cost = 0.0
+#             controls = us
+#             states = xs
+#             for j in range(T):
 
-                if self._as.is_preempt_requested():
-                    rospy.loginfo(
-                        "Preempted the ILQR execution. Plan generation failed"
-                    )
-                    return False
+#                 if self._as.is_preempt_requested():
+#                     rospy.loginfo(
+#                         "Preempted the ILQR execution. Plan generation failed"
+#                     )
+#                     return False
 
-                A, B, C, _ = self.system.dynamics_fn(states[j], controls[j])
-                As.append(A)
-                Bs.append(B)
-                Cs.append(C)
-                Q, q, q_, x_cost = self.system.get_system_cost(xs[j], states[j])
-                Qs.append((Q, q, q_))
-                R, r, r_, u_cost_ = self.system.get_control_cost(controls[j])
-                u_cost = np.dot(
-                    np.dot(controls[j][:, np.newaxis].T, R), controls[j][:, np.newaxis]
-                )
-                Rs.append(R)
-                total_cost += x_cost + u_cost
-                x_costs.append(x_cost)
-                u_costs.append(u_cost)
-            plan = LQRSolver(As, Bs, Cs, Qs, Rs, states, controls)
-            plan.solve()
-            if i < iters - 1:
-                # We will do more iterations
-                us = self._compute_controls(states[0], plan)
-        return plan
+#                 A, B, C, _ = self.system.dynamics_fn(states[j], controls[j])
+#                 As.append(A)
+#                 Bs.append(B)
+#                 Cs.append(C)
+#                 Q, q, q_, x_cost = self.system.get_system_cost(xs[j], states[j])
+#                 Qs.append((Q, q, q_))
+#                 R, r, r_, u_cost_ = self.system.get_control_cost(controls[j])
+#                 u_cost = np.dot(
+#                     np.dot(controls[j][:, np.newaxis].T, R), controls[j][:, np.newaxis]
+#                 )
+#                 Rs.append(R)
+#                 total_cost += x_cost + u_cost
+#                 x_costs.append(x_cost)
+#                 u_costs.append(u_cost)
+#             plan = LQRSolver(As, Bs, Cs, Qs, Rs, states, controls)
+#             plan.solve()
+#             if i < iters - 1:
+#                 # We will do more iterations
+#                 us = self._compute_controls(states[0], plan)
+#         return plan
 
-    def _compute_controls(self, start_state, plan):
-        state = start_state
-        us = []
-        for j in range(plan.T):
-            u = plan.get_control(state, j)
-            _, _, _, state = self.system.dynamics_fn(state, u)
-            us.append(u)
-        us = np.array(us)
-        return us
+#     def _compute_controls(self, start_state, plan):
+#         state = start_state
+#         us = []
+#         for j in range(plan.T):
+#             u = plan.get_control(state, j)
+#             _, _, _, state = self.system.dynamics_fn(state, u)
+#             us.append(u)
+#         us = np.array(us)
+#         return us
 
-    def stop(self):
-        """
-        Stops the base.
-        """
-        msg = Twist()
-        msg.linear.x = 0
-        msg.angular.z = 0
-        self.ctrl_pub.publish(msg)
+#     def stop(self):
+#         """
+#         Stops the base.
+#         """
+#         msg = Twist()
+#         msg.linear.x = 0
+#         msg.angular.z = 0
+#         self.ctrl_pub.publish(msg)
 
-    def execute_plan(self, plan, close_loop=True):
-        """
-        Executes the plan, check for conditions like bumps, etc.
-        Plan is object returned from generate_plan.
-        Also stores the plan execution into
-        variable self._trajectory_tracker_execution.
+#     def execute_plan(self, plan, close_loop=True):
+#         """
+#         Executes the plan, check for conditions like bumps, etc.
+#         Plan is object returned from generate_plan.
+#         Also stores the plan execution into
+#         variable self._trajectory_tracker_execution.
 
-        :param plan: Object returned from generate_plan function.
-        :param close_loop: Whether to use feedback controller, or apply
-                           open-loop commands.
-        :type plan: LQRSolver
-        :type close_loop: bool
+#         :param plan: Object returned from generate_plan function.
+#         :param close_loop: Whether to use feedback controller, or apply
+#                            open-loop commands.
+#         :type plan: LQRSolver
+#         :type close_loop: bool
 
-        :returns: Weather plan execution was successful or not.
-        :rtype: bool
-        """
-        twist_min = np.array([self.min_v, self.min_w], dtype=np.float32)
-        twist_max = np.array([self.max_v, self.max_w], dtype=np.float32)
-        twist = Twist()
-        success = True
-        xs = []
-        xrefs = []
-        us = []
-        urefs = []
-        for i in range(plan.T):
+#         :returns: Weather plan execution was successful or not.
+#         :rtype: bool
+#         """
+#         twist_min = np.array([self.min_v, self.min_w], dtype=np.float32)
+#         twist_max = np.array([self.max_v, self.max_w], dtype=np.float32)
+#         twist = Twist()
+#         success = True
+#         xs = []
+#         xrefs = []
+#         us = []
+#         urefs = []
+#         for i in range(plan.T):
 
-            if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the ILQR execution. Execution failed")
-                return False
+#             if self._as.is_preempt_requested():
+#                 rospy.loginfo("Preempted the ILQR execution. Execution failed")
+#                 return False
 
-            if self.should_stop:
-                self.stop()
-                self.should_stop = False
-                return False
+#             if self.should_stop:
+#                 self.stop()
+#                 self.should_stop = False
+#                 return False
 
-            # Apply control for this time stpe.
-            # Read the current state of the system and apply control.
-            x = self.state.state_f.copy()
-            u = plan.get_control(x, i)
-            u_ref = plan.u_refs[i]
-            if close_loop:
-                u_apply = u.copy()
-            else:
-                u_apply = u_ref.copy()
-            u_apply = np.clip(u_apply, a_min=twist_min, a_max=twist_max)
-            twist.linear.x = u_apply[0]
-            twist.angular.z = u_apply[1]
-            self.ctrl_pub.publish(twist)
+#             # Apply control for this time stpe.
+#             # Read the current state of the system and apply control.
+#             x = self.state.state_f.copy()
+#             u = plan.get_control(x, i)
+#             u_ref = plan.u_refs[i]
+#             if close_loop:
+#                 u_apply = u.copy()
+#             else:
+#                 u_apply = u_ref.copy()
+#             u_apply = np.clip(u_apply, a_min=twist_min, a_max=twist_max)
+#             twist.linear.x = u_apply[0]
+#             twist.angular.z = u_apply[1]
+#             self.ctrl_pub.publish(twist)
 
-            xs.append(x)
-            us.append(u_apply)
-            xrefs.append(plan.x_refs[i])
-            urefs.append(plan.u_refs[i])
-            # wait for 0.1 seconds (10 HZ) and publish again
-            self.rate.sleep()
-        xs = np.array(xs).reshape((-1, 3))
-        xrefs = np.array(xrefs).reshape((-1, 3))
-        urefs = np.array(urefs).reshape((-1, 2))
-        us = np.array(us).reshape((-1, 2))
-        xus = np.concatenate((xs, us), 1)
-        xurefs = np.concatenate((xrefs, urefs), 1)
-        self._trajectory_tracker_execution = Foo(xus=xus, xurefs=xurefs)
-        return success
+#             xs.append(x)
+#             us.append(u_apply)
+#             xrefs.append(plan.x_refs[i])
+#             urefs.append(plan.u_refs[i])
+#             # wait for 0.1 seconds (10 HZ) and publish again
+#             self.rate.sleep()
+#         xs = np.array(xs).reshape((-1, 3))
+#         xrefs = np.array(xrefs).reshape((-1, 3))
+#         urefs = np.array(urefs).reshape((-1, 2))
+#         us = np.array(us).reshape((-1, 2))
+#         xus = np.concatenate((xs, us), 1)
+#         xurefs = np.concatenate((xrefs, urefs), 1)
+#         self._trajectory_tracker_execution = Foo(xus=xus, xurefs=xurefs)
+#         return success
 
-    def plot_plan_execution(self, file_name=None):
-        """
-        Plots the execution of the plan.
+#     def plot_plan_execution(self, file_name=None):
+#         """
+#         Plots the execution of the plan.
 
-        :param file_name: Name of file to plot plan execution.
-        :type file_name: string
-        """
-        gs = gridspec.GridSpec(5, 10)
-        gs.update(left=0.05, right=0.95, hspace=0.05, wspace=0.10)
-        axes = [plt.subplot(gs[i, :5]) for i in range(5)]
-        axes.append(plt.subplot(gs[:, 5:]))
-        names = ["x", "y", "theta", "v", "w"]
+#         :param file_name: Name of file to plot plan execution.
+#         :type file_name: string
+#         """
+#         gs = gridspec.GridSpec(5, 10)
+#         gs.update(left=0.05, right=0.95, hspace=0.05, wspace=0.10)
+#         axes = [plt.subplot(gs[i, :5]) for i in range(5)]
+#         axes.append(plt.subplot(gs[:, 5:]))
+#         names = ["x", "y", "theta", "v", "w"]
 
-        xus = self._trajectory_tracker_execution.xus
-        xurefs = self._trajectory_tracker_execution.xurefs
+#         xus = self._trajectory_tracker_execution.xus
+#         xurefs = self._trajectory_tracker_execution.xurefs
 
-        for i in range(5):
-            ax = axes[i]
-            ax.plot(xus[:, i], "r--", label="odom", lw=3)
-            ax.plot(xurefs[:, i], "b--", label="ref", lw=2)
-            ax.set_title(names[i], x=0.1, y=0.8)
-            ax.grid(True)
-        ax = axes[5]
-        ax.plot(xus[:, 0], xus[:, 1], "rs", label="odom", alpha=0.5)
-        ax.plot(xurefs[:, 0], xurefs[:, 1], "b*", label="ref", alpha=0.5)
-        ax.axis("equal")
-        ax.grid(True)
-        ax.legend()
-        if file_name is not None:
-            plt.savefig(file_name, bbox_inches="tight")
-            plt.close()
-        else:
-            plt.show()
+#         for i in range(5):
+#             ax = axes[i]
+#             ax.plot(xus[:, i], "r--", label="odom", lw=3)
+#             ax.plot(xurefs[:, i], "b--", label="ref", lw=2)
+#             ax.set_title(names[i], x=0.1, y=0.8)
+#             ax.grid(True)
+#         ax = axes[5]
+#         ax.plot(xus[:, 0], xus[:, 1], "rs", label="odom", alpha=0.5)
+#         ax.plot(xurefs[:, 0], xurefs[:, 1], "b*", label="ref", alpha=0.5)
+#         ax.axis("equal")
+#         ax.grid(True)
+#         ax.legend()
+#         if file_name is not None:
+#             plt.savefig(file_name, bbox_inches="tight")
+#             plt.close()
+#         else:
+#             plt.show()
 
 
 class LQRSolver(object):
@@ -853,7 +853,7 @@ class ILQRSolver(object):
     def unroll(self, dyn_fn, start_state, controls):
         """
         Obtain state trajectory by applying controls on the system defined by
-        the dynamics function dyn_fn. 
+        the dynamics function dyn_fn.
 
         :param Q_fn: State cost function that takes as input x_goal, x_ref,
                      time_step, lqr_iteration, and returns quadratic
@@ -931,7 +931,7 @@ class ILQRSolver(object):
         """
         Search for the step size that improves the cost function over LQR
         iterations.
-        
+
         :param ilqr_iter: Which ILQR iteration are we doing so as to compute
                           the cost function which may depend on the
                           ilqr_iteration for a log barrier method.
@@ -942,7 +942,7 @@ class ILQRSolver(object):
         :type ref_cost: float
         :type ref_controls: numpy array
 
-        :return: step size, updated controls, updated cost 
+        :return: step size, updated controls, updated cost
         :rtype: float, numpy array, float
         """
         out_controls = ref_controls
