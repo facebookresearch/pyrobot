@@ -29,7 +29,7 @@ def create_robot():
 @pytest.mark.parametrize(
     "target_position", [[0, 0.7], [0.4, 0.4], [0.4, -0.4], [-0.4, 0.4], [-0.4, -0.4]]
 )
-def test_position_control(create_robot, target_position):
+def test_camera_position_control(create_robot, target_position):
     bot = create_robot
     bot.camera.reset()
     bot.camera.set_pan_tilt(target_position[0], target_position[1], wait=True)
@@ -43,9 +43,9 @@ def test_get_images(create_robot):
     rgb_img = bot.camera.get_rgb()
     depth_img = bot.camera.get_depth()
     assert depth_img is not None
-    assert rgb_img is not None
+    assert rgb_img is not None and rgb_img.shape[2] == 3
     rgb_img, depth_img = bot.camera.get_rgb_depth()
-    assert rgb_img is not None
+    assert rgb_img is not None and rgb_img.shape[2] == 3
     assert depth_img is not None
 
 
@@ -59,13 +59,14 @@ posns = np.array(
     ],
     dtype=np.float32,
 )
-    
+trans_thresh = 0.01
+angular_thresh = np.deg2rad(1)
+
 @pytest.mark.parametrize("posn", posns)
 def test_absolute_position_control(
     create_robot, posn,
 ):
     bot = create_robot
-    start_state = np.array(bot.base.get_state("odom"))
     bot.base.go_to_absolute(posn)
     end_state = np.array(bot.base.get_state("odom"))
 
@@ -73,7 +74,7 @@ def test_absolute_position_control(
     angle = end_state[2] - posn[2]
     angle = np.abs(wrap_theta(angle))
     assert dist < trans_thresh
-    assert angle * 180.0 / np.pi < angular_thresh
+    assert angle < angular_thresh
     
 @pytest.mark.parametrize("posn", posns)
 def test_relative_position_control(
@@ -89,5 +90,5 @@ def test_relative_position_control(
     angle = end_state[2] - desired_target[2]
     angle = np.abs(wrap_theta(angle))
     assert dist < trans_thresh
-    assert angle * 180.0 / np.pi < angular_thresh
+    assert angle < angular_thresh
 
