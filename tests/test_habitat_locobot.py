@@ -58,10 +58,24 @@ posns = np.array(
     ],
     dtype=np.float32,
 )
-
-
+    
 @pytest.mark.parametrize("posn", posns)
-def _test_relative_position_control(
+def test_absolute_position_control(
+    create_robot, posn,
+):
+    bot = create_robot
+    start_state = np.array(bot.base.get_state("odom"))
+    bot.base.go_to_absolute(posn)
+    end_state = np.array(bot.base.get_state("odom"))
+
+    dist = np.linalg.norm(end_state[:2] - posn[:2])
+    angle = end_state[2] - posn[2]
+    angle = np.abs(wrap_theta(angle))
+    assert dist < trans_thresh
+    assert angle * 180.0 / np.pi < angular_thresh
+    
+@pytest.mark.parametrize("posn", posns)
+def test_relative_position_control(
     create_robot, posn,
 ):
     bot = create_robot
@@ -75,3 +89,4 @@ def _test_relative_position_control(
     angle = np.abs(wrap_theta(angle))
     assert dist < trans_thresh
     assert angle * 180.0 / np.pi < angular_thresh
+
