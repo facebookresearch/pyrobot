@@ -20,6 +20,7 @@ from geometry_msgs.msg import Twist, Pose
 from sensor_msgs.msg import JointState
 from tf_conversions import posemath
 
+
 class KDLSolver(object):
     """docstring for Kinematics"""
 
@@ -102,22 +103,22 @@ class KDLSolver(object):
 
     def rot_mat_to_quat(self, rot):
         """
-		Convert the rotation matrix into quaternion.
-		:param quat: the rotation matrix (shape: :math:`[3, 3]`)
-		:type quat: numpy.ndarray
-		:return: quaternion [x, y, z, w] (shape: :math:`[4,]`)
-		:rtype: numpy.ndarray
-		"""
+        Convert the rotation matrix into quaternion.
+        :param quat: the rotation matrix (shape: :math:`[3, 3]`)
+        :type quat: numpy.ndarray
+        :return: quaternion [x, y, z, w] (shape: :math:`[4,]`)
+        :rtype: numpy.ndarray
+        """
         R = np.eye(4)
         R[:3, :3] = rot
         return tf.transformations.quaternion_from_matrix(R)
 
     def joints_to_kdl(self, joint_values):
         """
-		Convert the numpy array into KDL data format
-		:param joint_values: values for the joints
-		:return: kdl data type
-		"""
+        Convert the numpy array into KDL data format
+        :param joint_values: values for the joints
+        :return: kdl data type
+        """
         num_jts = len(joint_values)
         kdl_array = kdl.JntArray(num_jts)
         for idx in range(num_jts):
@@ -126,19 +127,21 @@ class KDLSolver(object):
 
     def fk(self, joint_positions, des_frame):
         """
-		Given joint angles, compute the pose of desired_frame with respect
-		to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame
-		must be in self.arm_link_names
-		:param joint_positions: joint angles
-		:param des_frame: desired frame
-		:type joint_positions: np.ndarray
-		:type des_frame: string
-		:return: translational vector and rotational matrix
-		:rtype: np.ndarray, np.ndarray
-		"""
+        Given joint angles, compute the pose of desired_frame with respect
+        to the base frame (self.configs.ARM.ARM_BASE_FRAME). The desired frame
+        must be in self.arm_link_names
+        :param joint_positions: joint angles
+        :param des_frame: desired frame
+        :type joint_positions: np.ndarray
+        :type des_frame: string
+        :return: translational vector and rotational matrix
+        :rtype: np.ndarray, np.ndarray
+        """
 
         joint_positions = np.asarray(joint_positions).flatten()
-        assert joint_positions.size == self.arm_dof, "Forward Kinenatics: Invalid length of joint angles!"
+        assert (
+            joint_positions.size == self.arm_dof
+        ), "Forward Kinenatics: Invalid length of joint angles!"
 
         kdl_jnt_angles = self.joints_to_kdl(joint_positions)
 
@@ -154,9 +157,11 @@ class KDLSolver(object):
         quat = list(self.rot_mat_to_quat(pose[:3, :3]))
         return pos, quat
 
+
 ###############
 # Helper Func #
 ###############
+
 
 def treeFromFile(filename):
     """
@@ -167,6 +172,7 @@ def treeFromFile(filename):
     with open(filename) as urdf_file:
         return treeFromUrdfModel(urdf.URDF.from_xml_string(urdf_file.read()))
 
+
 def treeFromParam(param):
     """
     Construct a PyKDL.Tree from an URDF in a ROS parameter.
@@ -174,6 +180,7 @@ def treeFromParam(param):
     """
 
     return treeFromUrdfModel(urdf.URDF.from_parameter_server(param))
+
 
 def treeFromString(xml):
     """
@@ -183,14 +190,13 @@ def treeFromString(xml):
 
     return treeFromUrdfModel(urdf.URDF.from_xml_string(xml))
 
+
 def _toKdlPose(pose):
     # URDF might have RPY OR XYZ unspecified. Both default to zeros
     rpy = pose.rpy if pose and pose.rpy and len(pose.rpy) == 3 else [0, 0, 0]
     xyz = pose.xyz if pose and pose.xyz and len(pose.xyz) == 3 else [0, 0, 0]
 
-    return kdl.Frame(
-          kdl.Rotation.RPY(*rpy),
-          kdl.Vector(*xyz))
+    return kdl.Frame(kdl.Rotation.RPY(*rpy), kdl.Vector(*xyz))
 
 
 def _toKdlInertia(i):
@@ -199,29 +205,38 @@ def _toKdlInertia(i):
     origin = _toKdlPose(i.origin)
     inertia = i.inertia
     return origin.M * kdl.RigidBodyInertia(
-            i.mass, origin.p,
-            kdl.RotationalInertia(inertia.ixx, inertia.iyy, inertia.izz, inertia.ixy, inertia.ixz, inertia.iyz));
+        i.mass,
+        origin.p,
+        kdl.RotationalInertia(
+            inertia.ixx, inertia.iyy, inertia.izz, inertia.ixy, inertia.ixz, inertia.iyz
+        ),
+    )
+
 
 def _toKdlJoint(jnt):
 
-    fixed = lambda j,F: kdl.Joint(j.name, getattr(kdl.Joint, 'None'))
-    rotational = lambda j,F: kdl.Joint(j.name, F.p, F.M * kdl.Vector(*j.axis), kdl.Joint.RotAxis)
-    translational = lambda j,F: kdl.Joint(j.name, F.p, F.M * kdl.Vector(*j.axis), kdl.Joint.TransAxis)
+    fixed = lambda j, F: kdl.Joint(j.name, getattr(kdl.Joint, "None"))
+    rotational = lambda j, F: kdl.Joint(
+        j.name, F.p, F.M * kdl.Vector(*j.axis), kdl.Joint.RotAxis
+    )
+    translational = lambda j, F: kdl.Joint(
+        j.name, F.p, F.M * kdl.Vector(*j.axis), kdl.Joint.TransAxis
+    )
 
     type_map = {
-            'fixed': fixed,
-            'revolute': rotational,
-            'continuous': rotational,
-            'prismatic': translational,
-            'floating': fixed,
-            'planar': fixed,
-            'unknown': fixed,
-            }
+        "fixed": fixed,
+        "revolute": rotational,
+        "continuous": rotational,
+        "prismatic": translational,
+        "floating": fixed,
+        "planar": fixed,
+        "unknown": fixed,
+    }
 
     return type_map[jnt.type](jnt, _toKdlPose(jnt.origin))
 
-def _add_children_to_tree(robot_model, root, tree):
 
+def _add_children_to_tree(robot_model, root, tree):
 
     # constructs the optional inertia
     inert = kdl.RigidBodyInertia(0)
@@ -234,10 +249,8 @@ def _add_children_to_tree(robot_model, root, tree):
 
     # construct the kdl segment
     sgm = kdl.Segment(
-        root.name,
-        _toKdlJoint(parent_joint),
-        _toKdlPose(parent_joint.origin),
-        inert)
+        root.name, _toKdlJoint(parent_joint), _toKdlPose(parent_joint.origin), inert
+    )
 
     # add segment to tree
     if not tree.addSegment(sgm, parent_link_name):
@@ -246,14 +259,15 @@ def _add_children_to_tree(robot_model, root, tree):
     if root.name not in robot_model.child_map:
         return True
 
-    children = [robot_model.link_map[l] for (j,l) in robot_model.child_map[root.name]]
+    children = [robot_model.link_map[l] for (j, l) in robot_model.child_map[root.name]]
 
     # recurslively add all children
     for child in children:
         if not _add_children_to_tree(robot_model, child, tree):
             return False
 
-    return True;
+    return True
+
 
 def treeFromUrdfModel(robot_model, quiet=False):
     """
@@ -265,18 +279,22 @@ def treeFromUrdfModel(robot_model, quiet=False):
     root = robot_model.link_map[robot_model.get_root()]
 
     if root.inertial and not quiet:
-        print("The root link %s has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF." % root.name);
+        print(
+            "The root link %s has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF."
+            % root.name
+        )
 
     ok = True
     tree = kdl.Tree(root.name)
 
     #  add all children
-    for (joint,child) in robot_model.child_map[root.name]:
+    for (joint, child) in robot_model.child_map[root.name]:
         if not _add_children_to_tree(robot_model, robot_model.link_map[child], tree):
             ok = False
             break
 
     return (ok, tree)
+
 
 if __name__ == "__main__":
     server = Kinematics()

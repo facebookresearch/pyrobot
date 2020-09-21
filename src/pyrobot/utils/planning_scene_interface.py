@@ -69,12 +69,12 @@ class PlanningSceneInterface(object):
         """
         Constructor of PlanningSceneInterface class
 
-        :param frame: The fixed frame in which planning is being 
+        :param frame: The fixed frame in which planning is being
                         done (needs to be part of robot?)
         :param ns: A namespace to push all topics down into.
-        :param init_from_service: Whether to initialize our list of objects 
-                    by calling the service 
-                    NOTE: this requires that said service be in the move_group 
+        :param init_from_service: Whether to initialize our list of objects
+                    by calling the service
+                    NOTE: this requires that said service be in the move_group
                     launch file, which is not the default from the setup assistant.
 
         """
@@ -368,7 +368,7 @@ class PlanningSceneInterface(object):
     def removeCollisionObject(self, name, use_service=True):
         """
         Removes an object from the scene
-        
+
         :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         """
@@ -388,8 +388,8 @@ class PlanningSceneInterface(object):
 
     def removeAttachedObject(self, name, use_service=True):
         """
-        Removes an attached object. 
-        
+        Removes an attached object.
+
         :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         """

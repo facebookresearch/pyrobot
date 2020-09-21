@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 
 import copy
@@ -18,7 +17,6 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 
-
 from pyrobot.utils.util import try_cv2_import
 
 cv2 = try_cv2_import()
@@ -26,7 +24,6 @@ cv2 = try_cv2_import()
 from cv_bridge import CvBridge, CvBridgeError
 
 import message_filters
-
 
 
 class Camera(object):
@@ -132,5 +129,3 @@ class Camera(object):
         P = copy.deepcopy(self.camera_P)
         self.camera_info_lock.release()
         return P[:3, :3]
-
-

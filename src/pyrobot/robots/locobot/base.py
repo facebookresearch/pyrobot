@@ -196,7 +196,7 @@ class BaseState(BaseSafetyCallbacks):
         BaseSafetyCallbacks.__init__(self, base)
 
     def _get_odom_state(self):
-        """ Returns the base pose in the (x,y, yaw) format as computed from
+        """Returns the base pose in the (x,y, yaw) format as computed from
         Wheel encoder readings."""
         state = self.state.state_f
         return state.tolist()
@@ -274,7 +274,9 @@ class LoCoBotBase(Base):
 
         self.action_name = "pyrobot/locobot/base/controller_server"
         self.controller_sub = rospy.Subscriber(
-            self.action_name, Empty, self._execute_controller,
+            self.action_name,
+            Empty,
+            self._execute_controller,
         )
         self._as = LocalActionServer()
         self.controller_pub = rospy.Publisher(self.action_name, Empty, queue_size=1)
@@ -430,7 +432,9 @@ class LoCoBotBase(Base):
             )
             if self.base_controller == "ilqr":
                 goto = partial(
-                    self.go_to_relative, close_loop=self.close_loop, smooth=self.smooth,
+                    self.go_to_relative,
+                    close_loop=self.close_loop,
+                    smooth=self.smooth,
                 )
                 result = self.planner.move_to_goal(self.xyt_position, goto)
             elif self.base_controller == "proportional":
@@ -531,7 +535,7 @@ class LoCoBotBase(Base):
                            account of odometry.
         :param smooth: When set to "True", ensures that the
                        motion leading to the goal is a smooth one.
-        :param wait: Makes the process wait at this funciton until the execution is 
+        :param wait: Makes the process wait at this funciton until the execution is
                        complete
 
         :type xyt_position: list or np.ndarray
@@ -562,7 +566,7 @@ class LoCoBotBase(Base):
                            account of odometry.
         :param smooth: When set to "True", ensures that the motion
                        leading to the goal is a smooth one.
-        :param wait: Makes the process wait at this funciton until the execution is 
+        :param wait: Makes the process wait at this funciton until the execution is
                        complete
 
         :type xyt_position: list or np.ndarray
@@ -602,7 +606,7 @@ class LoCoBotBase(Base):
         ABORTED = 4
         FREE = 5
         UNKOWN = 6
-        PREEMPTING = 7     
+        PREEMPTING = 7
         :rtype: LocalActionStatus
 
         """

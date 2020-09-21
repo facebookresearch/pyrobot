@@ -34,6 +34,7 @@ from pyrobot_bridge.msg import (
 )
 from actionlib_msgs.msg import GoalStatus
 
+
 class Gripper(object):
     """
     This is a parent class on which the robot

@@ -46,7 +46,7 @@ class LoCoBotGripper(Gripper):
 
     def get_gripper_state(self):
         """
-        Return the gripper state. 
+        Return the gripper state.
 
         :return: state
 
