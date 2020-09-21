@@ -59,7 +59,9 @@ posns = np.array(
     ],
     dtype=np.float32,
 )
-    
+trans_thresh = 0.05 # meters
+angular_thresh = 5 # degrees
+
 @pytest.mark.parametrize("posn", posns)
 def test_absolute_position_control(
     create_robot, posn,
