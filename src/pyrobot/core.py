@@ -685,24 +685,12 @@ class Arm(object):
                     "Moveit is not initialized, " "did you pass in use_moveit=True?"
                 )
 
-            self._cancel_moveit_goal()
-
             if isinstance(positions, np.ndarray):
                 positions = positions.tolist()
 
             rospy.loginfo("Moveit Motion Planning...")
 
-            moveit_goal = MoveitGoal()
-            moveit_goal.wait = wait
-            moveit_goal.action_type = "set_joint_positions"
-            moveit_goal.values = positions
-            self._moveit_client.send_goal(moveit_goal)
-
-            if wait:
-                self._moveit_client.wait_for_result()
-                status = self._moveit_client.get_state()
-                if status == GoalStatus.SUCCEEDED:
-                    result = True
+            self.moveit_group.moveToJointPosition(positions)
         else:
             self._pub_joint_positions(positions)
             if wait:
@@ -914,8 +902,6 @@ class Arm(object):
                     " initialized, did you pass "
                     "in use_moveit=True?"
                 )
-
-            self._cancel_moveit_goal()
 
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
             cur_pos, cur_ori, cur_quat = ee_pose

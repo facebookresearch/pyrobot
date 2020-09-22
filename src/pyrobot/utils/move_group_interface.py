@@ -65,7 +65,7 @@ class MoveGroupInterface(object):
         self.ee_frame = gripper_frame
 
     def moveToJointPosition(
-        self, joints, positions, tolerance=0.01, wait=True, **kwargs
+        self, positions, tolerance=0.01, wait=True, **kwargs
     ):
         """
         Move the arm to set of joint position goals
@@ -84,7 +84,7 @@ class MoveGroupInterface(object):
         """
 
         # Check arguments
-        p_out = self.motionPlanToJointPosition(joints, positions, tolerance, wait)
+        p_out = self.motionPlanToJointPosition(positions, tolerance, wait)
  
         self.move_group_interface.execute(p_out)
         return p_out
@@ -152,7 +152,7 @@ class MoveGroupInterface(object):
         return p_out
 
     def motionPlanToJointPosition(
-        self, joints, positions, tolerance=0.01, wait=True, **kwargs
+        self, positions, tolerance=0.01, wait=True, **kwargs
     ):
         """
         Move the arm to set of joint position goals
