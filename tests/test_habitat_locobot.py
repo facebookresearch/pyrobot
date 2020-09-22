@@ -59,6 +59,7 @@ posns = np.array(
     ],
     dtype=np.float32,
 )
+
 trans_thresh = 0.01
 angular_thresh = np.deg2rad(1)
 
