@@ -20,10 +20,7 @@ class LoCoBotArm(Arm):
 
     def __init__(
         self,
-        configs,
-        control_mode="position",
-        moveit_planner="RRTConnectkConfigDefault",
-        use_moveit=True,
+        configs
     ):
         """
         The constructor for LoCoBotArm class.
