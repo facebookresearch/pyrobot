@@ -17,7 +17,6 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from pyrobot_bridge.srv import *
 
 from pyrobot.utils.util import try_cv2_import
 
@@ -28,10 +27,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import message_filters
 
 import actionlib
-from pyrobot_bridge.msg import (
-    MoveitAction,
-    MoveitGoal,
-)
+
 from actionlib_msgs.msg import GoalStatus
 
 
@@ -46,11 +42,7 @@ class Arm(object):
 
     def __init__(
         self,
-        configs,
-        moveit_planner="ESTkConfigDefault",
-        planning_time=30,
-        analytical_ik=None,
-        use_moveit=True,
+        configs
     ):
         """
         Constructor for Arm parent class.
@@ -67,20 +59,11 @@ class Arm(object):
         :type use_moveit: bool
         """
         self.configs = configs
-        self.moveit_planner = moveit_planner
         self.planning_time = planning_time
 
         self.use_moveit = use_moveit
 
         self.joint_state_lock = threading.RLock()
-        self.tf_listener = tf.TransformListener()
-        if self.use_moveit:
-            self._init_moveit()
-
-        if analytical_ik is not None:
-            self.ana_ik_solver = analytical_ik(
-                configs.ARM_BASE_FRAME, configs.EE_FRAME
-            )
 
         self.arm_joint_names = self.configs.JOINT_NAMES
         self.arm_dof = len(self.arm_joint_names)
@@ -93,29 +76,9 @@ class Arm(object):
             configs.ROSTOPIC_JOINT_STATES, JointState, self._callback_joint_states
         )
 
-        # Ros-Params
-        rospy.set_param("pyrobot/base_link", configs.ARM_BASE_FRAME)
-        rospy.set_param("pyrobot/gripper_link", configs.EE_FRAME)
-        rospy.set_param(
-            "pyrobot/robot_description", configs.ARM_ROBOT_DSP_PARAM_NAME
-        )
-
         # Publishers
         self.joint_pub = None
         self._setup_joint_pub()
-
-        # Services
-        self._ik_service = rospy.ServiceProxy("pyrobot/ik", IkCommand)
-        try:
-            self._ik_service.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Inverse Kinematics Service!!")
-
-        self._fk_service = rospy.ServiceProxy("pyrobot/fk", FkCommand)
-        try:
-            self._fk_service.wait_for_service(timeout=3)
-        except:
-            rospy.logerr("Timeout waiting for Forward Kinematics Service!!")
 
     @abstractmethod
     def go_home(self):
@@ -123,72 +86,6 @@ class Arm(object):
         Reset robot to default home position
         """
         pass
-
-    @property
-    def pose_ee(self):
-        """
-        Return the end effector pose w.r.t 'ARM_BASE_FRAME'
-
-        :return:
-                trans: translational vector (shape: :math:`[3, 1]`)
-
-                rot_mat: rotational matrix (shape: :math:`[3, 3]`)
-
-                quat: rotational matrix in the form
-                of quaternion (shape: :math:`[4,]`)
-
-        :rtype: tuple (trans, rot_mat, quat)
-        """
-        return self.get_ee_pose(base_frame=self.configs.ARM_BASE_FRAME)
-
-    def get_ee_pose(self, base_frame):
-        """
-        [deprecated]
-        Return the end effector pose with respect to the base_frame
-
-        :param base_frame: reference frame
-        :type base_frame: string
-        :return:
-                tuple (trans, rot_mat, quat)
-
-                trans: translational vector (shape: :math:`[3, 1]`)
-
-                rot_mat: rotational matrix (shape: :math:`[3, 3]`)
-
-                quat: rotational matrix in the form
-                of quaternion (shape: :math:`[4,]`)
-
-        :rtype: tuple or ROS PoseStamped
-        """
-        return self.get_transform(base_frame, self.configs.EE_FRAME)
-
-    def get_transform(self, src_frame, dest_frame):
-        """
-        [deprecated]
-        Return the transform from the src_frame to dest_frame
-
-        :param src_frame: source frame
-        :param dest_frame: destination frame
-        :type src_frame: string
-        :type dest_frame: basestring
-        :return:
-               tuple (trans, rot_mat, quat )
-
-               trans: translational vector (shape: :math:`[3, 1]`)
-
-               rot_mat: rotational matrix (shape: :math:`[3, 3]`)
-
-               quat: rotational matrix in the form
-               of quaternion (shape: :math:`[4,]`)
-
-        :rtype: tuple or ROS PoseStamped
-        """
-        trans, quat = prutil.get_tf_transform(self.tf_listener, src_frame, dest_frame)
-        rot_mat = prutil.quat_to_rot_mat(quat)
-        trans = np.array(trans).reshape(-1, 1)
-        rot_mat = np.array(rot_mat)
-        quat = np.array(quat)
-        return trans, rot_mat, quat
 
     def get_joint_angles(self):
         """
@@ -306,25 +203,6 @@ class Arm(object):
             result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
             return result
 
-    def make_plan_joint_positions(self, positions, **kwargs):
-        """[deprecated]"""
-        result = None
-        if isinstance(positions, np.ndarray):
-            positions = positions.flatten().tolist()
-
-        if not self.use_moveit:
-            raise ValueError(
-                "Moveit is not initialized, " "did you pass in use_moveit=True?"
-            )
-
-        rospy.loginfo("Moveit Motion Planning...")
-
-        raise NotImplementedError
-        # result = self.moveit_group.motionPlanToJointPosition(
-        #     self.arm_joint_names, positions
-        # )
-        # return [p.positions for p in result]
-
     def set_joint_velocities(self, velocities, **kwargs):
         """
         Sets the desired joint velocities for all arm joints
@@ -342,397 +220,6 @@ class Arm(object):
         :type torques: list
         """
         self._pub_joint_torques(torques)
-
-    def set_ee_pose(
-        self, position, orientation, plan=True, wait=True, numerical=True, **kwargs
-    ):
-        """
-        [deprecated]
-        Commands robot arm to desired end-effector pose
-        (w.r.t. 'ARM_BASE_FRAME').
-        Computes IK solution in joint space and calls set_joint_positions.
-        Will wait for command to complete if wait is set to True.
-        :param position: position of the end effector (shape: :math:`[3,]`)
-        :param orientation: orientation of the end effector
-                            (can be rotation matrix, euler angles (yaw,
-                            pitch, roll), or quaternion)
-                            (shape: :math:`[3, 3]`, :math:`[3,]`
-                            or :math:`[4,]`)
-                            The convention of the Euler angles here
-                            is z-y'-x' (intrinsic rotations),
-                            which is one type of Tait-Bryan angles.
-        :param plan: use moveit the plan a path to move to the desired pose
-        :param wait: wait until the desired pose is achieved
-        :param numerical: use numerical inverse kinematics solver or
-                          analytical inverse kinematics solver
-        :type position: np.ndarray
-        :type orientation: np.ndarray
-        :type plan: bool
-        :type wait: bool
-        :type numerical: bool
-        :return: Returns True if command succeeded, False otherwise
-        :rtype: bool
-        """
-        joint_positions = self.compute_ik(position, orientation, numerical=numerical)
-        result = False
-        if joint_positions is None:
-            rospy.logerr("No IK solution found; check if target_pose is valid")
-        else:
-            result = self.set_joint_positions(joint_positions, plan=plan, wait=wait)
-        return result
-
-    def make_plan_pose(
-        self, position, orientation, wait=True, numerical=True, **kwargs
-    ):
-    """[deprecated]"""
-
-        if not self.use_moveit:
-            raise ValueError(
-                "Using plan=True when moveit is not"
-                " initialized, did you pass "
-                "in use_moveit=True?"
-            )
-        pose = Pose()
-        position = position.flatten()
-        if orientation.size == 4:
-            orientation = orientation.flatten()
-            ori_x = orientation[0]
-            ori_y = orientation[1]
-            ori_z = orientation[2]
-            ori_w = orientation[3]
-        elif orientation.size == 3:
-            quat = prutil.euler_to_quat(orientation)
-            ori_x = quat[0]
-            ori_y = quat[1]
-            ori_z = quat[2]
-            ori_w = quat[3]
-        elif orientation.size == 9:
-            quat = prutil.rot_mat_to_quat(orientation)
-            ori_x = quat[0]
-            ori_y = quat[1]
-            ori_z = quat[2]
-            ori_w = quat[3]
-        else:
-            raise TypeError(
-                "Orientation must be in one "
-                "of the following forms:"
-                "rotation matrix, euler angles, or quaternion"
-            )
-        pose.position.x, pose.position.y, pose.position.z = (
-            position[0],
-            position[1],
-            position[2],
-        )
-        (
-            pose.orientation.x,
-            pose.orientation.y,
-            pose.orientation.z,
-            pose.orientation.w,
-        ) = (ori_x, ori_y, ori_z, ori_w)
-
-        raise NotImplementedError
-        # result = self.moveit_group.motionPlanToPose(pose, wait=True)
-        # return [p.positions for p in result]
-
-    def move_ee_xyz(
-        self,
-        displacement,
-        eef_step=0.005,
-        numerical=True,
-        plan=True,
-        wait=True,
-        **kwargs
-    ):
-        """
-        [deprecated] after implement Cartisian planning
-        Keep the current orientation fixed, move the end
-        effector in {xyz} directions
-
-        :param displacement: (delta_x, delta_y, delta_z)
-        :param eef_step: resolution (m) of the interpolation
-                         on the cartesian path
-        :param numerical: use numerical inverse kinematics solver or
-                          analytical inverse kinematics solver
-        :param plan: use moveit the plan a path to move to the
-                     desired pose. If False,
-                     it will do linear interpolation along the path,
-                     and simply use IK solver to find the
-                     sequence of desired joint positions and
-                     then call `set_joint_positions`
-        :type displacement: np.ndarray
-        :type eef_step: float
-        :type numerical: bool
-        :type plan: bool
-        :return: whether the movement is successful or not
-        :rtype: bool
-        """
-        displacement = displacement.reshape(-1, 1)
-
-        path_len = np.linalg.norm(displacement)
-        num_pts = int(np.ceil(path_len / float(eef_step)))
-        if num_pts <= 1:
-            num_pts = 2
-        if (hasattr(self, "ana_ik_solver") and not numerical) or not plan:
-
-            if not wait:
-                raise NotImplementedError(
-                    "Not wait is supported only in plan=True case."
-                )
-
-            ee_pose = self.get_ee_pose(self.configs.ARM_BASE_FRAME)
-            cur_pos, cur_ori, cur_quat = ee_pose
-            waypoints_sp = np.linspace(0, path_len, num_pts)
-            waypoints = cur_pos + waypoints_sp / float(path_len) * displacement
-            way_joint_positions = []
-            qinit = self.get_joint_angles().tolist()
-            for i in range(waypoints.shape[1]):
-                joint_positions = self.compute_ik(
-                    waypoints[:, i].flatten(),
-                    cur_quat,
-                    qinit=qinit,
-                    numerical=numerical,
-                )
-                if joint_positions is None:
-                    rospy.logerr(
-                        "No IK solution found; " "check if target_pose is valid"
-                    )
-                    return False
-                way_joint_positions.append(copy.deepcopy(joint_positions))
-                qinit = copy.deepcopy(joint_positions)
-            success = False
-            for joint_positions in way_joint_positions:
-                success = self.set_joint_positions(
-                    joint_positions, plan=plan, wait=True
-                )
-
-            return success
-        else:
-            if not self.use_moveit:
-                raise ValueError(
-                    "Using plan=True when moveit is not"
-                    " initialized, did you pass "
-                    "in use_moveit=True?"
-                )
-
-            self._cancel_moveit_goal()
-
-            ee_pose = self.get_ee_pose(self.configs.ARM_BASE_FRAME)
-            cur_pos, cur_ori, cur_quat = ee_pose
-            cur_pos = np.array(cur_pos).reshape(-1, 1)
-            cur_quat = np.array(cur_quat)
-
-            waypoints_sp = np.linspace(0, path_len, num_pts)
-            waypoints = cur_pos + waypoints_sp / path_len * displacement
-            moveit_waypoints = []
-            wpose = Pose()
-            for i in range(waypoints.shape[1]):
-                if i < 1:
-                    continue
-                wpose.position.x = waypoints[0, i]
-                wpose.position.y = waypoints[1, i]
-                wpose.position.z = waypoints[2, i]
-                wpose.orientation.x = cur_quat[0]
-                wpose.orientation.y = cur_quat[1]
-                wpose.orientation.z = cur_quat[2]
-                wpose.orientation.w = cur_quat[3]
-                moveit_waypoints.append(copy.deepcopy(wpose))
-
-            moveit_goal = MoveitGoal()
-            moveit_goal.wait = wait
-            moveit_goal.action_type = "move_ee_xyz"
-            moveit_goal.waypoints = moveit_waypoints
-            moveit_goal.eef_step = eef_step
-            self._moveit_client.send_goal(moveit_goal)
-
-            if wait:
-                self._moveit_client.wait_for_result()
-                status = self._moveit_client.get_state()
-                if status != GoalStatus.SUCCEEDED:
-                    return False
-
-                ee_pose = self.get_ee_pose(self.configs.ARM_BASE_FRAME)
-                cur_pos, cur_ori, cur_quat = ee_pose
-
-                cur_pos = np.array(cur_pos).reshape(-1, 1)
-
-                success = True
-                diff = cur_pos.flatten() - waypoints[:, -1].flatten()
-                error = np.linalg.norm(diff)
-                if error > self.configs.MAX_EE_ERROR:
-                    rospy.logerr("Move end effector along xyz failed!")
-                    success = False
-                return success
-
-    def _cancel_moveit_goal(self):
-        if not self._moveit_client.gh:
-            return
-        # 2 is for "Done" state of action
-        if self._moveit_client.simple_state != 2:
-            self._moveit_client.cancel_all_goals()
-
-    def compute_fk_position(self, joint_positions, des_frame):
-        """
-        [deprecated]
-        Given joint angles, compute the pose of desired_frame with respect
-        to the base frame (self.configs.ARM_BASE_FRAME). The desired frame
-        must be in self.arm_link_names
-
-        :param joint_positions: joint angles
-        :param des_frame: desired frame
-        :type joint_positions: np.ndarray
-        :type des_frame: string
-        :return: translational vector and rotational matrix
-        :rtype: np.ndarray, np.ndarray
-        """
-        joint_positions = joint_positions.flatten()
-
-        req = FkCommandRequest()
-        req.joint_angles = list(joint_positions)
-        req.end_frame = des_frame
-        try:
-            resp = self._fk_service(req)
-        except:
-            rospy.logerr("FK Service call failed")
-            resp = FkCommandResponse()
-            resp.success = False
-
-        if not resp.success:
-            return None
-
-        pos = np.asarray(resp.pos).reshape(3, 1)
-        rot = prutil.quat_to_rot_mat(resp.quat)
-        return pos, rot
-
-    def get_jacobian(self, joint_angles):
-        """
-        Return the geometric jacobian on the given joint angles.
-        Refer to P112 in "Robotics: Modeling, Planning, and Control"
-
-        :param joint_angles: joint_angles
-        :type joint_angles: list or flattened np.ndarray
-        :return: jacobian
-        :rtype: np.ndarray
-        """
-        raise NotImplementedError
-
-    def compute_fk_velocity(self, joint_positions, joint_velocities, des_frame):
-        """
-        Given joint_positions and joint velocities,
-        compute the velocities of des_frame with respect
-        to the base frame
-
-        :param joint_positions: joint positions
-        :param joint_velocities: joint velocities
-        :param des_frame: end frame
-        :type joint_positions: np.ndarray
-        :type joint_velocities: np.ndarray
-        :type des_frame: string
-        :return: translational and rotational
-                 velocities (vx, vy, vz, wx, wy, wz)
-        :rtype: np.ndarray
-        """
-        raise NotImplementedError
-
-    def compute_ik(self, position, orientation, qinit=None, numerical=True):
-        """
-        [deprecated]
-        Inverse kinematics
-
-        :param position: end effector position (shape: :math:`[3,]`)
-        :param orientation: end effector orientation.
-                            It can be quaternion ([x,y,z,w],
-                            shape: :math:`[4,]`),
-                            euler angles (yaw, pitch, roll
-                            angles (shape: :math:`[3,]`)),
-                            or rotation matrix (shape: :math:`[3, 3]`)
-        :param qinit: initial joint positions for numerical IK
-        :param numerical: use numerical IK or analytical IK
-        :type position: np.ndarray
-        :type orientation: np.ndarray
-        :type qinit: list
-        :type numerical: bool
-        :return: None or joint positions
-        :rtype: np.ndarray
-        """
-        position = position.flatten()
-        if orientation.size == 4:
-            orientation = orientation.flatten()
-            ori_x = orientation[0]
-            ori_y = orientation[1]
-            ori_z = orientation[2]
-            ori_w = orientation[3]
-        elif orientation.size == 3:
-            quat = prutil.euler_to_quat(orientation)
-            ori_x = quat[0]
-            ori_y = quat[1]
-            ori_z = quat[2]
-            ori_w = quat[3]
-        elif orientation.size == 9:
-            quat = prutil.rot_mat_to_quat(orientation)
-            ori_x = quat[0]
-            ori_y = quat[1]
-            ori_z = quat[2]
-            ori_w = quat[3]
-        else:
-            raise TypeError(
-                "Orientation must be in one "
-                "of the following forms:"
-                "rotation matrix, euler angles, or quaternion"
-            )
-        if qinit is None:
-            qinit = self.get_joint_angles().tolist()
-        elif isinstance(qinit, np.ndarray):
-            qinit = qinit.flatten().tolist()
-        if numerical:
-            pos_tol = self.configs.IK_POSITION_TOLERANCE
-            ori_tol = self.configs.IK_ORIENTATION_TOLERANCE
-
-            req = IkCommandRequest()
-            req.init_joint_positions = qinit
-            req.pose = [
-                position[0],
-                position[1],
-                position[2],
-                ori_x,
-                ori_y,
-                ori_z,
-                ori_w,
-            ]
-            req.tolerance = 3 * [pos_tol] + 3 * [ori_tol]
-
-            try:
-                resp = self._ik_service(req)
-            except:
-                rospy.logerr("IK Service call failed")
-                resp = IkCommandResponse()
-                resp.success = False
-
-            if not resp.success:
-                joint_positions = None
-            else:
-                joint_positions = resp.joint_positions
-        else:
-            if not hasattr(self, "ana_ik_solver"):
-                raise TypeError(
-                    "Analytical solver not provided, "
-                    "please use `numerical=True`"
-                    "to use the numerical method "
-                    "for inverse kinematics"
-                )
-            else:
-                joint_positions = self.ana_ik_solver.get_ik(
-                    qinit,
-                    position[0],
-                    position[1],
-                    position[2],
-                    ori_x,
-                    ori_y,
-                    ori_z,
-                    ori_w,
-                )
-        if joint_positions is None:
-            return None
-        return np.array(joint_positions)
 
     def _callback_joint_states(self, msg):
         """
@@ -766,28 +253,6 @@ class Arm(object):
         joint_state = JointState()
         joint_state.effort = tuple(torques)
         self.joint_pub.publish(joint_state)
-
-    def _init_moveit(self):
-        """
-        [deprecated]
-        Initialize moveit and setup move_group object
-        """
-        rospy.set_param("pyrobot/moveit_planner", self.moveit_planner)
-        rospy.set_param("pyrobot/move_group_name", self.configs.MOVEGROUP_NAME)
-        self._moveit_client = actionlib.SimpleActionClient(
-            "/pyrobot/moveit_server", MoveitAction
-        )
-
-        rospy.sleep(0.1)  # Ensures client spins up properly
-        server_up = self._moveit_client.wait_for_server(timeout=rospy.Duration(10.0))
-        if not server_up:
-            rospy.logerr(
-                "Timed out waiting for the pyrobot-moveit server"
-                " Action Server to connect. Start the action server"
-                " before running example."
-            )
-            rospy.signal_shutdown("Timed out waiting for Action Server")
-            sys.exit(1)
 
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()
