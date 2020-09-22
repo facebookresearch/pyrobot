@@ -44,6 +44,7 @@ fi
 echo "Python $PYTHON_VERSION chosen for pyRobot installation."
 sudo apt-get -y install python-virtualenv
 sudo apt-get -y install ros-$ROS_NAME-orocos-kdl ros-$ROS_NAME-kdl-parser-py ros-$ROS_NAME-python-orocos-kdl ros-$ROS_NAME-trac-ik
+sudo apt-get install ros-$ROS_NAME-pybind11-catkin
 
 if [ $PYTHON_VERSION == "2" ]; then
 	virtualenv_name="pyenv_pyrobot_python2"
@@ -90,17 +91,17 @@ if [ $PYTHON_VERSION == "3" ]; then
 		cd $PYROBOT_PYTHON3_WS/src
 
 		if [ $ROS_NAME == "kinetic" ]; then
-			git clone -b indigo-devel https://github.com/ros/geometry
+			git clone -b melodic-pyrobot https://github.com/Jekyll1021/geometry
 			git clone -b indigo-devel https://github.com/ros/geometry2
 			git clone -b python3_patch https://github.com/kalyanvasudev/vision_opencv.git
 		else
 			git clone -b melodic-pyrobot https://github.com/Jekyll1021/geometry
 			git clone -b melodic-devel https://github.com/ros/geometry2
 			git clone -b python3_patch_melodic https://github.com/kalyanvasudev/vision_opencv.git
-			git clone https://github.com/Jekyll1021/kinematics
-			git clone https://github.com/Jekyll1021/moveit_pybind.git
 		fi
 		
+		git clone https://github.com/Jekyll1021/kinematics
+		git clone https://github.com/Jekyll1021/moveit_pybind.git
 		git clone -b patch-1 https://github.com/kalyanvasudev/ros_comm.git
 
 		cd ..
