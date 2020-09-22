@@ -22,13 +22,16 @@ jobs:
       - run:
           name: Installer Python3
           command: |
+            cd ~/project
+            git submodule update --init
+            mkdir -p ~/low_cost_ws/src
+            mv ~/project ~/low_cost_ws/src/pyrobot
+   
             sudo apt-get update
-            
-            
             pip install catkin_pkg
             
             source ~/.bashrc
-            cd ~/project/robots/LoCoBot/install
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 3 -l interbotix
             
@@ -113,7 +116,7 @@ jobs:
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
             export PATH=/usr/local/cuda/bin:$PATH
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             pytest test_habitat_locobot.py -v
             
        
@@ -127,12 +130,16 @@ jobs:
       - run:
           name: Installer Python2
           command: |
+            cd ~/project
+            git submodule update --init
+            mkdir -p ~/low_cost_ws/src
+            mv ~/project ~/low_cost_ws/src/pyrobot
             sudo apt-get install -y python-rosdep
             sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
             # sudo rm -rf /etc/apt/sources.list.d/ros1-latest.list*
             # https://answers.ros.org/question/325039/apt-update-fails-cannot-install-pkgs-key-not-working/
             # sudo apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
-            cd ~/project/robots/LoCoBot/install
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2 -l cmu
  
@@ -143,10 +150,10 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            cd ~/project
+            cd ~/low_cost_ws/src/pyrobot
             chmod +x install_pyrobot.sh
             ./install_pyrobot.sh -p 3
-            cd ~/project/robots/LoCoBot
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
@@ -181,7 +188,7 @@ jobs:
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python2/bin/activate
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -194,7 +201,7 @@ jobs:
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -209,9 +216,13 @@ jobs:
       - run:
           name: Installer Python2
           command: |
+            cd ~/project
+            git submodule update --init
+            mkdir -p ~/low_cost_ws/src
+            mv ~/project ~/low_cost_ws/src/pyrobot
             sudo apt-get install -y python-rosdep
             sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
-            cd ~/project/robots/LoCoBot/install
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2 -l interbotix
  
@@ -222,10 +233,10 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            cd ~/project
+            cd ~/low_cost_ws/src/pyrobot
             chmod +x install_pyrobot.sh
             ./install_pyrobot.sh -p 3
-            cd ~/project/robots/LoCoBot
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
@@ -252,7 +263,7 @@ jobs:
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python2/bin/activate
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -265,7 +276,7 @@ jobs:
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
