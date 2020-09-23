@@ -117,11 +117,13 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
         ros_launch_manager.launch_cfg(algorithm_cfg.ros_launch, ns=ns)
 
     if "conf" not in algorithm_cfg.keys():
-        algorithm_cfg.conf = {}
+        conf = {}
+    else:
+        conf = algorithm_cfg.conf
 
     algorithm = instantiate(
         algorithm_cfg.algorithm,
-        configs=algorithm_cfg.conf,
+        configs=conf,
         world=world,
         ros_launch_manager=ros_launch_manager,
         robots=robots,

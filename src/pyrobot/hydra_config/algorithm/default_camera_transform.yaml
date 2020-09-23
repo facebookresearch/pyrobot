@@ -1,0 +1,20 @@
+name: 'default_camera_transform'
+
+ros_launch: null
+
+algorithm:
+  _target_: pyrobot.algorithms.camera_transform_impl.default_camera_transform.DefaultCameraTransform
+
+robot_labels: ['locobot']
+
+conf:
+  SUBSAMPLE_PIXS : 1
+  # minimum depth values to be considered as valid
+  DEPTH_MIN : 0.2
+  # maximum depth values to be considered as valid
+  DEPTH_MAX : 1.5
+  # Factor to scale depth image by to convert it into meters
+  DEPTH_MAP_FACTOR : 1000
+
+dependencies:
+  - algorithm: 'tf_transform'

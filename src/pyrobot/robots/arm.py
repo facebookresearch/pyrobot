@@ -48,20 +48,8 @@ class Arm(object):
         Constructor for Arm parent class.
 
         :param configs: configurations for arm
-        :param moveit_planner: moveit planner type
-        :param analytical_ik: customized analytical ik class
-                              if you have one, None otherwise
-        :param use_moveit: use moveit or not, default is True
-
-        :type configs: YACS CfgNode
-        :type moveit_planner: string
-        :type analytical_ik: None or an Analytical ik class
-        :type use_moveit: bool
         """
         self.configs = configs
-        self.planning_time = planning_time
-
-        self.use_moveit = use_moveit
 
         self.joint_state_lock = threading.RLock()
 

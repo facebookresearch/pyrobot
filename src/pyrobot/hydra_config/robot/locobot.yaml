@@ -51,6 +51,8 @@ common:
     SUBSAMPLE_PIXS : 1
     # publishing frequence of the occupancy map
     OCCUPANCY_MAP_RATE : 0.5
+    # Factor to scale depth image by to convert it into meters
+    DEPTH_MAP_FACTOR : 1000
 
 modules:
 
@@ -235,11 +237,22 @@ modules:
       ROSTOPIC_SET_PAN : "/pan/command"
       # topic name to set tilt angle
       ROSTOPIC_SET_TILT : "/tilt/command"
-      # Factor to scale depth image by to convert it into meters
-      DEPTH_MAP_FACTOR : 1000
 
       ROSTOPIC_JOINT_STATES : "/joint_states"
-      VSLAM : ${common.VSLAM}
+      
+      BASE_FRAME : "/base_link"
+
+      RGB_CAMERA_CENTER_FRAME : "/camera_color_optical_frame"
+
+      DEPTH_MAP_FACTOR : 1000
+
+      Camera.fx: 619.8997192382812
+      Camera.fy: 620.1099853515625
+      Camera.cx: 320.65399169921875
+      Camera.cy: 241.11248779296875
+
+      Camera.width: 640
+      Camera.height: 480
 
 
   # TODO: break the above camera class into arm and camera
