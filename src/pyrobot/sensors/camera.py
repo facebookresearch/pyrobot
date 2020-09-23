@@ -101,7 +101,7 @@ class Camera(object):
         self.camera_img_lock.acquire()
         depth = copy.deepcopy(self.depth_img)
         self.camera_img_lock.release()
-        depth = depth / self.configs.CAMERA.DEPTH_MAP_FACTOR
+        depth = depth / self.configs.DEPTH_MAP_FACTOR
         return depth
 
     def get_rgb_depth(self):

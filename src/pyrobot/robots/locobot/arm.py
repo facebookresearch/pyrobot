@@ -48,12 +48,9 @@ class LoCoBotArm(Arm):
             )
             return
         self.CONTROL_MODES = {"position": 0, "velocity": 1, "torque": 2}
-        self.mode_control = self.CONTROL_MODES[control_mode]
+        self.mode_control = self.CONTROL_MODES["position"]
         super(LoCoBotArm, self).__init__(
             configs=configs,
-            moveit_planner=moveit_planner,
-            analytical_ik=AIK,
-            use_moveit=use_moveit,
         )
 
         self.joint_stop_pub = rospy.Publisher(
