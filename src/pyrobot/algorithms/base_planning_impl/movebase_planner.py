@@ -1,4 +1,6 @@
 from pyrobot.algorithms.base_planner import BasePlanner
+from pyrobot.algorithms.base_controller import BaseController
+
 from pyrobot.robots.locobot.base_control_utils import build_pose_msg
 
 import tf
@@ -31,11 +33,13 @@ class MovebasePlanner(BasePlanner):
 
         self.bot_base = self.robots[self.robot_label]["base"]
 
-        self.MAP_FRAME = self.configs.MAP_FRAME
-        self.BASE_FRAME = self.configs.BASE_FRAME
+        self.base_state = self.bot_base.base_state
+        self.MAP_FRAME = self.bot_base.configs.MAP_FRAME
+        self.BASE_FRAME = self.bot_base.configs.BASE_FRAME
+
         self.point_idx = self.configs.TRACKED_POINT
 
-        rospy.wait_for_service(self.configs.PLAN_TOPIC, timeout=3)
+        rospy.wait_for_service(self.configs.PLAN_TOPIC, timeout=30)
         try:
             self.plan_srv = rospy.ServiceProxy(self.configs.PLAN_TOPIC, GetPlan)
         except rospy.ServiceException:
@@ -44,7 +48,7 @@ class MovebasePlanner(BasePlanner):
 					Make sure build_map in script and \
 						use_map in roslauch are set to the same value"
             )
-        self.start_state = _build_pose_msg(0, 0, 0, self.BASE_FRAME)
+        self.start_state = build_pose_msg(0, 0, 0, self.BASE_FRAME)
         self.tolerance = self.configs.PLAN_TOL
         self._transform_listener = tf.TransformListener()
 
@@ -54,6 +58,9 @@ class MovebasePlanner(BasePlanner):
         frame for the given (x, y, theta
         """
         goal_state = build_pose_msg(x, y, theta, self.MAP_FRAME)
+        self._transform_listener.waitForTransform(
+            self.base_frame, self.bot_base.configs.MAP_FRAME, rospy.Time.now(), rospy.Duration(3)
+        )
         start_state = self._transform_listener.transformPose(
             self.MAP_FRAME, self.start_state
         )
@@ -142,7 +149,28 @@ class MovebasePlanner(BasePlanner):
             return False
 
     def check_cfg(self):
-        raise NotImplementedError()
+        assert len(self.robots.keys()) == 1, "One Planner only handle one base!"
+        robot_label = list(self.robots.keys())[0]
+        assert (
+            "base" in self.robots[robot_label].keys()
+        ), "base required for base planners!"
+
+        assert (
+            len(self.algorithms.keys()) == 1
+        ), "MovebasePlanner has one dependency!"
+
+        assert (
+            "BaseController" in self.algorithms.keys()
+        ), "MovebasePlanner only depend on BaseController!"
+
+        assert isinstance(
+            self.algorithms["BaseController"], BaseController
+        ), "BaseController module needs to extend BaseController base class!"
+
+        assert "PLAN_TOPIC" in self.configs.keys()
+        assert "PLAN_TOL" in self.configs.keys()
+        assert "TRACKED_POINT" in self.configs.keys()
+        assert "TRESHOLD_LIN" in self.configs.keys()
 
     def _compute_relative_ang_dist(self, point2):
         # point 1 is the base point 2 is the point on the path

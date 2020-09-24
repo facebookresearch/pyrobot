@@ -57,7 +57,7 @@ class OdomLocalizer(BaseLocalizer):
             "base" in self.robots[robot_label].keys()
         ), "base required for base localizers!"
         assert (
-            "ROSTOPIC_ODOMETRY" in self.robots[robot_label]["base"].config.keys()
+            "ROSTOPIC_ODOMETRY" in self.robots[robot_label]["base"].configs.keys()
         ), "ROSTOPIC_ODOMETRY required for odom localizers!"
 
     def _odometry_callback(self, msg, state_var):

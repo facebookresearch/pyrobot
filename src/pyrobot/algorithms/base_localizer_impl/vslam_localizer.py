@@ -41,7 +41,7 @@ class VSLAMLocalizer(BaseLocalizer):
             map_img_dir=self.configs.MAP_IMG_DIR,
             cam_pose_tp=self.configs.ROSTOPIC_CAMERA_POSE,
             cam_traj_tp=self.configs.ROSTOPIC_CAMERA_TRAJ,
-            base_frame=self.configs.VSLAM_BASE_FRAME,
+            base_frame=self.bot_base.configs.BASE_FRAME,
             camera_frame=self.configs.RGB_CAMERA_CENTER_FRAME,
             occ_map_rate=self.configs.OCCUPANCY_MAP_RATE,
             z_min=self.configs.Z_MIN_TRESHOLD_OCC_MAP,

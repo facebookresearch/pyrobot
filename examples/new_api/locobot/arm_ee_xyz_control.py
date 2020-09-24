@@ -15,7 +15,7 @@ import copy
 
 def main():
     
-    world =  World(config_name='env/simple_env.yaml')
+    world =  World(config_name='env/arm_env.yaml')
 
     bot = world.robots['locobot']
 
@@ -25,7 +25,7 @@ def main():
     cur_pos, cur_quat = ee_pose
     tar_pos = cur_pos + displacement
 
-    world.algorithms['moveit_planner'].plan_end_effector_pose(tar_pos, cur_quat)
+    world.algorithms['moveit_kin_planner'].plan_end_effector_pose(tar_pos, cur_quat)
     # we see kinematics dependency also gets initiated 
     print("Kinematics module initiated T/F:", "Kinematics" in new_planner.algorithms.keys() and isinstance(new_planner.algorithms["Kinematics"], Kinematics))
 

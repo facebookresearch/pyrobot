@@ -28,6 +28,12 @@ class BaseController(Algorithm):
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=True):
         raise NotImplementedError()
 
+    def track_trajectory(self, states, close_loop=True):
+        raise NotImplementedError()
+
+    def stop(self):
+        raise NotImplementedError()
+
     def check_cfg(self):
         raise NotImplementedError()
 

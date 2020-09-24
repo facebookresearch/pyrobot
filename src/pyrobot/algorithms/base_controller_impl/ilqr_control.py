@@ -1,10 +1,14 @@
 from pyrobot.algorithms.base_controller import BaseController
-from pyrobot.robots.locobot.base_control_utils import LQRSolver
+from pyrobot.algorithms.base_localizer import BaseLocalizer
+from pyrobot.robots.locobot.base_control_utils import LQRSolver, _get_absolute_pose, position_control_init_fn
 from pyrobot.robots.locobot.bicycle_model import Foo, BicycleSystem
 
 from geometry_msgs.msg import Twist
 
 import rospy
+import copy
+
+import numpy as np
 
 
 class ILQRControl(BaseController):
@@ -29,14 +33,13 @@ class ILQRControl(BaseController):
             sensors,
             algorithms,
         )
-        self.action_name = "pyrobot/locobot/base/controller_server"
 
         self.robot_label = list(self.robots.keys())[0]
         self.bot_base = self.robots[self.robot_label]["base"]
 
         self._as = self.bot_base._as
 
-        self.ctrl_pub = rospy.Publisher(self.action_name, Empty, queue_size=1)
+        self.ctrl_pub = self.bot_base.ctrl_pub
 
         self.max_v = self.configs.MAX_ABS_FWD_SPEED
         self.min_v = -self.configs.MAX_ABS_FWD_SPEED
@@ -44,8 +47,6 @@ class ILQRControl(BaseController):
         self.min_w = -self.configs.MAX_ABS_TURN_SPEED
         self.rate = rospy.Rate(self.configs.BASE_CONTROL_RATE)
         self.dt = 1.0 / self.configs.BASE_CONTROL_RATE
-
-        self.should_stop = False
 
         self.system = BicycleSystem(
             self.dt, self.min_v, self.max_v, self.min_w, self.max_w
@@ -62,10 +63,28 @@ class ILQRControl(BaseController):
         reverse = self.min_v < 0
         states = self._compute_trajectory_no_map(start_pos, goal_pos, smooth, reverse)
         # Compute and execute the plan.
-        return self._track_trajectory(states, close_loop=close_loop)
+        return self.track_trajectory(states, close_loop=close_loop)
 
     def check_cfg(self):
-        raise NotImplementedError()
+        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
+        robot_label = list(self.robots.keys())[0]
+        assert (
+            "base" in self.robots[robot_label].keys()
+        ), "base required for base controllers!"
+
+        assert (
+            len(self.algorithms.keys()) == 1
+        ), "ilqr controller only have one dependency!"
+        assert (
+            list(self.algorithms.keys())[0] == "BaseLocalizer"
+        ), "ilqr controller only depend on BaseLocalizer!"
+        assert isinstance(
+            self.algorithms["BaseLocalizer"], BaseLocalizer
+        ), "BaseLocalizer module needs to extend BaseLocalizer base class!"
+
+        assert "MAX_ABS_FWD_SPEED" in self.configs.keys()
+        assert "MAX_ABS_TURN_SPEED" in self.configs.keys()
+        assert "BASE_CONTROL_RATE" in self.configs.keys()
 
     def _compute_trajectory_no_map(self, start_pos, goal_pos, smooth, reverse):
         typ = "smooth" if smooth else "sharp"
@@ -74,7 +93,7 @@ class ILQRControl(BaseController):
         )
         return init_states
 
-    def _track_trajectory(self, states, controls=None, close_loop=True):
+    def track_trajectory(self, states, close_loop=True):
         """
         State trajectory that the robot should track using ILQR control.
 
@@ -88,13 +107,13 @@ class ILQRControl(BaseController):
         :type close_loop: bool
         """
         # Compute plan
-        plan = self._generate_plan(states, controls)
+        plan = self._generate_plan(states)
         if not plan:
             return False
         # Execute a plan
         return self._execute_plan(plan, close_loop)
 
-    def _generate_plan(self, xs, us=None):
+    def _generate_plan(self, xs):
         """Generates a feedback controller that tracks the state trajectory
         specified by xs. Optionally specify a control trajectory us, otherwise
         it is automatically inferred.
@@ -108,9 +127,9 @@ class ILQRControl(BaseController):
         """
 
         iters = 2
-        if us is None:
-            # Initialize with simple non-saturated controls.
-            us = np.zeros((len(xs), 2), dtype=np.float32) + 0.1
+    
+        # Initialize with simple non-saturated controls.
+        us = np.zeros((len(xs), 2), dtype=np.float32) + 0.1
 
         for i in range(iters):
             T = len(us)
@@ -193,9 +212,9 @@ class ILQRControl(BaseController):
                 rospy.loginfo("Preempted the ILQR execution. Execution failed")
                 return False
 
-            if self.should_stop:
-                self._stop()
-                self.should_stop = False
+            if self.bot_base.base_state.should_stop:
+                self.stop()
+                self.bot_base.base_state.should_stop = False
                 return False
 
             # Apply control for this time stpe.
@@ -227,7 +246,7 @@ class ILQRControl(BaseController):
         self._trajectory_tracker_execution = Foo(xus=xus, xurefs=xurefs)
         return success
 
-     def _stop(self):
+    def stop(self):
         """
         Stops the base.
         """

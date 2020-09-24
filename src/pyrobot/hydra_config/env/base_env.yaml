@@ -12,15 +12,6 @@ environment:
         frame: 'map'
 
   sensors: null
-  # sensors: 
-  #   - sensor: 'azure_kinect_camera'
-  #     label: 'kinect'
-  #     ns: ''
-  #     overrides: []
-  #     transform: 
-  #       position: [0.0,0.0,0.0]
-  #       rotation: [0.0,0.0,0.0,1.0]
-  #       frame: 'map'
 
   
   # TODO: This will be populated by any default table tops, maps etc.  
@@ -28,8 +19,11 @@ environment:
 
 
   # TODO: Will depend on the robots and sensors available
-  algorithms: null
-
+  algorithms: 
+    - algorithm: 'movebase_planner'
+      label: 'movebase_planner'
+      ns: ''
+      overrides: []
 
   # If sim, add any simulator related config
   simlator: null # other options: habitat and gazebo
