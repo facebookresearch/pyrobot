@@ -2,3 +2,5 @@ name: 'odom_localizer'
 
 algorithm:
   _target_: pyrobot.algorithms.base_localizer_impl.odom_localizer.OdomLocalizer
+
+robot_labels: ['locobot']

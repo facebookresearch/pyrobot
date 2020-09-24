@@ -34,12 +34,6 @@ from pyrobot.robots.locobot.base_control_utils import (
     LocalActionStatus,
     LocalActionServer,
 )
-from pyrobot.robots.locobot.base_controllers import (
-    ProportionalControl,
-    ILQRControl,
-    MoveBaseControl,
-    GPMPControl,
-)
 
 import actionlib
 from control_msgs.msg import (
@@ -286,8 +280,7 @@ class LoCoBotBase(Base):
         self.xyt_positions = None
         self.controls = None
 
-        self.load_planner(base_planner)
-        self.load_controller(base_controller)
+        #self.load_planner(base_planner)
         rospy.on_shutdown(self.clean_shutdown)
 
     # TODO: change this to a planner object.
@@ -345,20 +338,13 @@ class LoCoBotBase(Base):
         # Set up low-level controllers.
         if base_controller is None:
             base_controller = self.configs.BASE_CONTROLLER
-        assert base_controller in ["proportional", "ilqr", "movebase", "gpmp"], (
+        assert base_controller in ["proportional", "movebase", "gpmp"], (
             "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
             "movebase, gpmp but is {:s}".format(base_controller)
         )
         self.base_controller = base_controller
-        if base_controller == "ilqr":
-            self.controller = ILQRControl(
-                self.base_state, self.ctrl_pub, self.configs, self._as
-            )
-        elif base_controller == "proportional":
-            self.controller = ProportionalControl(
-                self.base_state, self.ctrl_pub, self.configs, self._as
-            )
-        elif base_controller == "movebase":
+
+        if base_controller == "movebase":
             self.controller = MoveBaseControl(self.base_state, self.configs, self._as)
         elif base_controller == "gpmp":
             self.controller = GPMPControl(self, self.base_state, self.configs, self._as)
@@ -463,9 +449,6 @@ class LoCoBotBase(Base):
         self._as.disable()
         self.stop()
         self.controller_sub.unregister()
-
-        if self.base_controller == "gpmp" or self.base_controller == "movebase":
-            self.controller.cancel_goal()
 
         # del self._as
 

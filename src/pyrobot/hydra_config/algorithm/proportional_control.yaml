@@ -1,0 +1,22 @@
+name: 'proportional_control'
+
+algorithm:
+  _target_: pyrobot.algorithms.base_controller_impl.proportional_control.ProportionalControl
+
+robot_labels: ['locobot']
+
+conf:
+  MAX_ABS_TURN_SPEED_P_CONTROLLER: 1
+  MAX_ABS_FWD_SPEED_P_CONTROLLER: 0.5
+  TRANSLATION_TRESHOLD: 0.01
+  ROT_ERR_THR: 0.017453292519943295
+  LIN_ERR_THR: 0.01
+  ROT_MOVE_THR: 0.017453292519943295
+  LIN_MOVE_THR: 0.01
+  VEL_DELTA: 0.01
+  HZ: 20
+  IGNORE_COLLISIONS: False
+  SLEEP_TIME: 0.1
+
+dependencies:
+  - algorithm: 'odom_localizer'

@@ -91,11 +91,6 @@ modules:
       ROSTOPIC_JOINT_STATES : "/joint_states"
       # topic name to set joint position/velocity/torque
       ROSTOPIC_SET_JOINT : "/goal_dynamixel_position"
-
-      ROSSRV_CART_PATH : "/compute_cartesian_path"
-
-      ROSSRV_MP_PATH : "/plan_kinematic_path"
-
       # individual joint motor control command
       ROSSERVICE_JOINT_COMMAND : "/joint_command"
       # stop command for all motors
@@ -123,7 +118,7 @@ modules:
       BASE_TYPE : "kobuki"
       # Type of contrller being used for postion control
       # 'ilqr' or 'proportional' or 'movebase'
-      BASE_CONTROLLER : "ilqr"
+      BASE_CONTROLLER : null
       # Type of planner being used for slam base path planning 'movebase'
       BASE_PLANNER : "movebase"
       # Rostopic on which the velocity commands to be published
@@ -176,6 +171,8 @@ modules:
       GPMP_SERVER_NAME : "/gpmp_controller"
       # GPMP control requires the turtlebot trajectory server name
       TURTLEBOT_TRAJ_SERVER_NAME : "/turtle/base_controller/trajectory"
+
+      BASE_FRAME : "/base_link"
 
       # TODO: move vslam to algorithms!
       VSLAM : ${common.VSLAM}

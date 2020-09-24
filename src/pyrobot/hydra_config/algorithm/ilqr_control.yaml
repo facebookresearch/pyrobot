@@ -11,4 +11,4 @@ conf:
   BASE_CONTROL_RATE: 10
 
 dependencies:
-  - algorithm: 'vslam_localizer'
+  - algorithm: 'odom_localizer'
