@@ -1,10 +1,11 @@
 <launch>  
   <arg name="base"/>
-
+  <arg name="world_name" default="ground"/>
   <!-- Static transform to make camera work in sim -->
   <node pkg="tf" type="static_transform_publisher" name="cam_transform" args="0 0 0 0 0 0 /camera_link /camera_color_optical_frame 100" />
 
   <include file="$(find locobot_gazebo)/launch/empty_world.launch">  
+    <arg name="world_name" value="$(find locobot_gazebo)/worlds/$(arg world_name).world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
