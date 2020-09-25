@@ -29,10 +29,10 @@ def get_time_str():
 def main(_):
     bot = Robot(
         FLAGS.botname,
-        base_config={
-            "base_controller": FLAGS.base_controller,
-            "base_planner": FLAGS.base_planner,
-        },
+       # base_config={
+       #     "base_controller": FLAGS.base_controller,
+       #     "base_planner": FLAGS.base_planner,
+       # },
     )
     posn = np.asarray(FLAGS.relative_position, dtype=np.float64, order="C")
     bot.base.go_to_relative(
