@@ -1,7 +1,10 @@
 from pyrobot.algorithms.base_controller import BaseController
 from pyrobot.algorithms.base_localizer import BaseLocalizer
-from pyrobot.robots.locobot.base_control_utils import LQRSolver, _get_absolute_pose, position_control_init_fn
-from pyrobot.robots.locobot.bicycle_model import Foo, BicycleSystem
+
+from pyrobot.algorithms.base_controller_impl.ilqr_utils import Foo, BicycleSystem
+
+from pyrobot.algorithms.base_controller_impl.base_control_utils import LQRSolver, _get_absolute_pose, position_control_init_fn
+
 
 from geometry_msgs.msg import Twist
 

@@ -1,7 +1,7 @@
 from pyrobot.algorithms.base_controller import BaseController
 from pyrobot.algorithms.base_localizer import BaseLocalizer
 
-from pyrobot.robots.locobot.base_control_utils import build_pose_msg
+from pyrobot.algorithms.base_controller_impl.base_control_utils import build_pose_msg, _get_absolute_pose
 
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
@@ -65,10 +65,12 @@ class ProportionalControl(BaseController):
 
         self._transform_listener = TransformListener()
 
-    def go_to_relative(self, xyt_position, close_loop=True, smooth=True):
-        raise NotImplementedError()
+    def go_to_relative(self, xyt_position, close_loop=True, smooth=False):
+        start_pos = self.algorithms["BaseLocalizer"].get_odom_state()
+        goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
+        return self.go_to_absolute(goal_pos, close_loop, smooth)
 
-    def go_to_absolute(self, xyt_position, close_loop=True, smooth=True):
+    def go_to_absolute(self, xyt_position, close_loop=True, smooth=False):
         assert (
             not smooth
         ), "Proportional controller \
@@ -81,7 +83,7 @@ class ProportionalControl(BaseController):
             xyt_position[0], xyt_position[1], xyt_position[2], self.bot_base.configs.MAP_FRAME
         )
         self._transform_listener.waitForTransform(
-            self.base_frame, self.bot_base.configs.MAP_FRAME, rospy.Time.now(), rospy.Duration(3)
+            self.base_frame, self.bot_base.configs.MAP_FRAME, rospy.Time(0), rospy.Duration(3)
         )
         base_pose = self._transform_listener.transformPose(
             self.base_frame, pose_stamped

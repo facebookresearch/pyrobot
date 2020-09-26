@@ -47,8 +47,6 @@ class LoCoBotArm(Arm):
                 "arm correctly using PyRobot!!!"
             )
             return
-        self.CONTROL_MODES = {"position": 0, "velocity": 1, "torque": 2}
-        self.mode_control = self.CONTROL_MODES["position"]
         super(LoCoBotArm, self).__init__(
             configs=configs,
         )
@@ -57,14 +55,13 @@ class LoCoBotArm(Arm):
             self.configs.ROSTOPIC_STOP_EXECUTION, Empty, queue_size=1
         )
         # Services
-        if self.mode_control == self.CONTROL_MODES["position"]:
-            self.joint_cmd_srv = rospy.ServiceProxy(
-                self.configs.ROSSERVICE_JOINT_COMMAND, JointCommand
-            )
-        elif self.mode_control == self.CONTROL_MODES["torque"]:
-            self.torque_cmd_srv = rospy.ServiceProxy(
-                self.configs.ROSTOPIC_TORQUE_COMMAND, JointCommand
-            )
+        self.joint_cmd_srv = rospy.ServiceProxy(
+            self.configs.ROSSERVICE_JOINT_COMMAND, JointCommand
+        )
+        
+        self.torque_cmd_srv = rospy.ServiceProxy(
+            self.configs.ROSTOPIC_TORQUE_COMMAND, JointCommand
+        )
 
     def set_joint_velocities(self, velocities, **kwargs):
         raise NotImplementedError("Velocity control for " "locobot not supported yet!")

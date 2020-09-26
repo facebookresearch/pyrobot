@@ -20,6 +20,8 @@ from geometry_msgs.msg import Twist, Pose
 from sensor_msgs.msg import JointState
 from tf_conversions import posemath
 
+from .trac_ik_solver import IKSolver
+
 
 class KDLSolver(object):
     """docstring for Kinematics"""
@@ -37,7 +39,7 @@ class KDLSolver(object):
         self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
         self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
         self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
-        self.ik_solver = kdl.ChainIkSolverPos_LMA(self.urdf_chain)
+        self.ik_solver = IKSolver(base_link, gripper_link, urdf_string=urdf_string)
 
     def _get_kdl_link_names(self):
         num_links = self.urdf_chain.getNrOfSegments()
@@ -70,22 +72,25 @@ class KDLSolver(object):
             and len(init_joint_positions) == self.arm_dof
         ), "Incorrect IK request. Please fix it."
 
-        q_init = self.joints_to_kdl(init_joint_positions)
-        p_in = Pose()
-        p_in.position.x = pose[0]
-        p_in.position.y = pose[1]
-        p_in.position.z = pose[2]
-        p_in.orientation.x = pose[3]
-        p_in.orientation.y = pose[4]
-        p_in.orientation.z = pose[5]
-        p_in.orientation.w = pose[6]
-        p_in = posemath.fromMsg(p_in)
-        q_out = kdl.JntArray(len(list(q_init)))
-        ig = self.ik_solver.CartToJnt(q_init, p_in, q_out)
+        solution = self.ik_solver.get_ik(init_joint_positions, 
+            pose[0], 
+            pose[1], 
+            pose[2], 
+            pose[3], 
+            pose[4], 
+            pose[5], 
+            pose[6],
+            tolerance[0],
+            tolerance[1],
+            tolerance[2],
+            tolerance[3],
+            tolerance[4],
+            tolerance[5],
+        )
 
-        assert ig >= 0, "Inverse Kinenatics: KDL Pos JntToCart error!"
+        assert solution, "Inverse Kinenatics: Trac IK no solution!"
 
-        joint_positions = list(q_out)
+        joint_positions = list(solution)
 
         return joint_positions
 
