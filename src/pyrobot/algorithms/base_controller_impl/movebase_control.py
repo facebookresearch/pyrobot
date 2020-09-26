@@ -1,6 +1,7 @@
 from pyrobot.algorithms.base_controller import BaseController
+from pyrobot.algorithms.base_localizer import BaseLocalizer
 
-from pyrobot.robots.locobot.base_control_utils import build_pose_msg
+from pyrobot.algorithms.base_controller_impl.base_control_utils import build_pose_msg, _get_absolute_pose
 
 import actionlib
 from actionlib_msgs.msg import GoalStatusArray, GoalID
@@ -59,10 +60,12 @@ class MovebaseControl(BaseController):
 
         self.execution_status = None
 
-    def go_to_relative(self, xyt_position, close_loop=True, smooth=True):
-        raise NotImplementedError()
+    def go_to_relative(self, xyt_position, close_loop=True, smooth=False):
+        start_pos = self.algorithms["BaseLocalizer"].get_odom_state()
+        goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
+        return self.go_to_absolute(goal_pos, close_loop, smooth)
 
-    def go_to_absolute(self, xyt_position, close_loop=True, smooth=True):
+    def go_to_absolute(self, xyt_position, close_loop=True, smooth=False):
         assert not smooth, "movebase controller cannot generate smooth motion"
         assert close_loop, "movebase controller cannot work in open loop"
         return self._send_action_goal(
@@ -87,6 +90,16 @@ class MovebaseControl(BaseController):
         assert (
             "base" in self.robots[robot_label].keys()
         ), "base required for base controllers!"
+
+        assert (
+            len(self.algorithms.keys()) == 1
+        ), "Movebase controller only have one dependency!"
+        assert (
+            list(self.algorithms.keys())[0] == "BaseLocalizer"
+        ), "Movebase controller only depend on BaseLocalizer!"
+        assert isinstance(
+            self.algorithms["BaseLocalizer"], BaseLocalizer
+        ), "BaseLocalizer module needs to extend BaseLocalizer base class!"
 
         assert "ROSTOPIC_BASE_ACTION_COMMAND" in self.configs.keys()
         assert "ROSTOPIC_MOVE_BASE_STATUS" in self.configs.keys()

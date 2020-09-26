@@ -1,0 +1,17 @@
+name: 'gpmp_control'
+
+algorithm:
+  _target_: pyrobot.algorithms.base_controller_impl.gpmp_control.GPMPControl
+
+robot_labels: ['locobot']
+
+conf:
+  USE_MAP: false
+  TRACKED_POINT: 8
+  GPMP_SERVER_NAME: "/gpmp_controller"
+  TURTLEBOT_TRAJ_SERVER_NAME: "/turtle/base_controller/trajectory"
+  GOAL_TOLERANCE: 0.1
+  EXEC_TIME: 600
+
+dependencies:
+  - algorithm: 'odom_localizer'

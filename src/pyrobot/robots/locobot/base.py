@@ -29,8 +29,6 @@ from pyrobot.robots.base import Base
 from std_msgs.msg import Empty
 
 from pyrobot.robots.locobot.base_control_utils import (
-    MoveBasePlanner,
-    _get_absolute_pose,
     LocalActionStatus,
     LocalActionServer,
 )
@@ -42,7 +40,6 @@ from control_msgs.msg import (
 )
 from std_msgs.msg import Empty
 
-from pyrobot.robots.locobot.bicycle_model import wrap_theta
 from actionlib_msgs.msg import GoalStatus
 
 
@@ -128,91 +125,13 @@ class BaseSafetyCallbacks(object):
         for s in self.subscribers:
             s.unregister()
 
-
-class XYTState(object):
-    """
-    This class object which can be used used to hold the pose of the base of
-    the robot i.e, (x,y, yaw)
-    """
-
-    def __init__(self):
-        self.x = 0.0
-        self.y = 0.0
-        self.theta = 0.0
-        self.old_theta = 0
-        self._state_f = np.array([self.x, self.y, self.theta], dtype=np.float32).T
-        self.update_called = False
-
-    def update(self, x, y, theta):
-        """Updates the state being stored by the object."""
-        theta = wrap_theta(theta - self.old_theta) + self.old_theta
-        self.old_theta = theta
-        self.theta = theta
-        self.x = x
-        self.y = y
-        self._state_f = np.array([self.x, self.y, self.theta], dtype=np.float32).T
-        self.update_called = True
-
-    @property
-    def state_f(self):
-        """Returns the current state as a numpy array."""
-        assert self.update_called, "Odometry callback hasn't been called."
-        return self._state_f
-
-
 class BaseState(BaseSafetyCallbacks):
-    def __init__(self, base, build_map, map_img_dir, configs):
+    def __init__(self, base, configs):
         # Set up SLAM, if requested.
         self.configs = configs
-        self.build_map = build_map
-        if self.build_map:
-            assert USE_ORB_SLAM2, "Error: Failed to import orb_slam2_ros"
-            self.vslam = VisualSLAM(
-                map_img_dir=map_img_dir,
-                cam_pose_tp=self.configs.VSLAM.ROSTOPIC_CAMERA_POSE,
-                cam_traj_tp=self.configs.VSLAM.ROSTOPIC_CAMERA_TRAJ,
-                base_frame=self.configs.VSLAM.VSLAM_BASE_FRAME,
-                camera_frame=self.configs.VSLAM.RGB_CAMERA_CENTER_FRAME,
-                occ_map_rate=self.configs.VSLAM.OCCUPANCY_MAP_RATE,
-                z_min=self.configs.Z_MIN_TRESHOLD_OCC_MAP,
-                z_max=self.configs.Z_MAX_TRESHOLD_OCC_MAP,
-            )
-
-        # Setup odometry callback.
-        self.state = XYTState()
-        s = rospy.Subscriber(
-            configs.ROSTOPIC_ODOMETRY,
-            Odometry,
-            lambda msg: self._odometry_callback(msg, "state"),
-        )
-        self.subscribers = [s]
-
         BaseSafetyCallbacks.__init__(self, base)
 
-    def _get_odom_state(self):
-        """Returns the base pose in the (x,y, yaw) format as computed from
-        Wheel encoder readings."""
-        state = self.state.state_f
-        return state.tolist()
-
-    def _odometry_callback(self, msg, state_var):
-        """Callback function to populate the state object."""
-        orientation_q = msg.pose.pose.orientation
-        orientation_list = [
-            orientation_q.x,
-            orientation_q.y,
-            orientation_q.z,
-            orientation_q.w,
-        ]
-        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
-        state = copy.deepcopy(getattr(self, state_var))
-        state.update(msg.pose.pose.position.x, msg.pose.pose.position.y, yaw)
-        setattr(self, state_var, state)
-
     def __del__(self):
-        """Delete callback on deletion of object."""
-        for s in self.subscribers:
-            s.unregister()
         BaseSafetyCallbacks.__del__(self)
 
 
@@ -262,7 +181,7 @@ class LoCoBotBase(Base):
             map_img_dir = os.path.join(expanduser("~"), ".ros/Imgs")
 
         self.build_map = rospy.get_param("use_vslam", False)
-        self.base_state = BaseState(base, self.build_map, map_img_dir, configs)
+        self.base_state = BaseState(base, configs)
 
         ###################### Action server specific things######################
 
@@ -280,7 +199,6 @@ class LoCoBotBase(Base):
         self.xyt_positions = None
         self.controls = None
 
-        #self.load_planner(base_planner)
         rospy.on_shutdown(self.clean_shutdown)
 
     # TODO: change this to a planner object.
@@ -314,40 +232,6 @@ class LoCoBotBase(Base):
             # No path planning is done here.
             self.planner = None
         self.base_planner = base_planner
-
-        rospy.sleep(2)
-
-    # TODO: change this to a controller object.
-    # This requires uniformity across all controllers
-    def load_controller(self, base_controller=None):
-
-        """
-        Method to load a particular controller for Locobot base
-
-        :param base_controller: Name of the controller to be loaded
-
-        :type base_controller: string
-        """
-        if not self._as.is_available():
-            rospy.logwarn(
-                "Current controller is use by action server.\
-                Please consider using cancel_goal method before calling this method."
-            )
-            return False
-
-        # Set up low-level controllers.
-        if base_controller is None:
-            base_controller = self.configs.BASE_CONTROLLER
-        assert base_controller in ["proportional", "movebase", "gpmp"], (
-            "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
-            "movebase, gpmp but is {:s}".format(base_controller)
-        )
-        self.base_controller = base_controller
-
-        if base_controller == "movebase":
-            self.controller = MoveBaseControl(self.base_state, self.configs, self._as)
-        elif base_controller == "gpmp":
-            self.controller = GPMPControl(self, self.base_state, self.configs, self._as)
 
         rospy.sleep(2)
 

@@ -1,4 +1,5 @@
 from pyrobot.algorithms.base_controller import BaseController
+from pyrobot.algorithms.base_localizer import BaseLocalizer
 
 from pyrobot.robots.locobot.base_control_utils import check_server_client_link
 
@@ -71,7 +72,9 @@ class GPMPControl(BaseController):
         self.exec_time = self.configs.EXEC_TIME
 
     def go_to_relative(self, xyt_position, close_loop=True, smooth=True):
-        raise NotImplementedError()
+        start_pos = self.algorithms["BaseLocalizer"].get_odom_state()
+        goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
+        return self.go_to_absolute(goal_pos, close_loop, smooth)
 
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=True):
         if self.use_map:
@@ -102,10 +105,30 @@ class GPMPControl(BaseController):
             self.bot_base.ctrl_pub.publish(msg)
 
     def check_cfg(self):
-        raise NotImplementedError()
+        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
+        robot_label = list(self.robots.keys())[0]
+        assert (
+            "base" in self.robots[robot_label].keys()
+        ), "base required for base controllers!"
+
+        assert (
+            len(self.algorithms.keys()) == 1
+        ), "GPMP controller only have one dependency!"
+        assert (
+            list(self.algorithms.keys())[0] == "BaseLocalizer"
+        ), "GPMP controller only depend on BaseLocalizer!"
+        assert isinstance(
+            self.algorithms["BaseLocalizer"], BaseLocalizer
+        ), "BaseLocalizer module needs to extend BaseLocalizer base class!"
+
+        assert "USE_MAP" in self.configs.keys()
+        assert "TRACKED_POINT" in self.configs.keys()
+        assert "GPMP_SERVER_NAME" in self.configs.keys()
+        assert "TURTLEBOT_TRAJ_SERVER_NAME" in self.configs.keys()
+        assert "GOAL_TOLERANCE" in self.configs.keys()
+        assert "EXEC_TIME" in self.configs.keys()
 
     def _build_goal_msg(self, pose, vel, tolerance, exec_time):
-
         traj_ = FollowJointTrajectoryGoal()
         point = JointTrajectoryPoint()
 

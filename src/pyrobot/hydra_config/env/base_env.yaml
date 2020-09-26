@@ -20,8 +20,18 @@ environment:
 
   # TODO: Will depend on the robots and sensors available
   algorithms: 
-    - algorithm: 'movebase_planner'
-      label: 'movebase_planner'
+    - algorithm: 'movebase_control'
+      label: 'movebase_control'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'ilqr_control'
+      label: 'ilqr_control'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'proportional_control'
+      label: 'proportional_control'
       ns: ''
       overrides: []
 

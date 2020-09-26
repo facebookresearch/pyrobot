@@ -1,5 +1,7 @@
 from pyrobot.algorithms.base_localizer import BaseLocalizer
 
+from pyrobot.algorithms.base_controller_impl.base_control_utils import wrap_theta
+
 import rospy
 import tf
 
@@ -9,9 +11,6 @@ from nav_msgs.msg import Odometry
 
 import numpy as np
 
-
-def _wrap_theta(theta):
-    return np.mod(theta + np.pi, np.pi * 2) - np.pi
 
 
 class OdomLocalizer(BaseLocalizer):
@@ -35,7 +34,8 @@ class OdomLocalizer(BaseLocalizer):
             algorithms,
         )
         self.configs = configs
-        self.state = [0.0, 0.0, 0.0]
+
+        self.state = XYTState()
 
         self.robot_label = list(self.robots.keys())[0]
 
@@ -48,7 +48,8 @@ class OdomLocalizer(BaseLocalizer):
         )
 
     def get_odom_state(self):
-        return (np.array(self.state, dtype=np.float32).T).copy()
+        state = self.state.state_f
+        return (np.array(state, dtype=np.float32).T).copy()
 
     def check_cfg(self):
         assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
@@ -67,11 +68,43 @@ class OdomLocalizer(BaseLocalizer):
             orientation_q.x,
             orientation_q.y,
             orientation_q.z,
-            orientation_q.w,
-        ]
-        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
+            orientation_q.w]
+        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+            orientation_list)
         state = copy.deepcopy(getattr(self, state_var))
-        self.state[0] = msg.pose.pose.position.x
-        self.state[1] = msg.pose.pose.position.y
-        self.state[2] = _wrap_theta(yaw - self.state[2]) + self.state[2]
+        state.update(msg.pose.pose.position.x, msg.pose.pose.position.y, yaw)
         setattr(self, state_var, state)
+
+
+class XYTState(object):
+    """
+    This class object which can be used used to hold the pose of the base of
+    the robot i.e, (x,y, yaw)
+    """
+
+    def __init__(self):
+        self.x = 0.
+        self.y = 0.
+        self.theta = 0.
+        self.old_theta = 0
+        self._state_f = np.array([self.x, self.y, self.theta],
+                                 dtype=np.float32).T
+        self.update_called = False
+
+    def update(self, x, y, theta):
+        """Updates the state being stored by the object."""
+        theta = wrap_theta(theta - self.old_theta) + self.old_theta
+        self.old_theta = theta
+        self.theta = theta
+        self.x = x
+        self.y = y
+        self._state_f = np.array([self.x, self.y, self.theta],
+                                 dtype=np.float32).T
+        self.update_called = True
+
+    @property
+    def state_f(self):
+        """Returns the current state as a numpy array."""
+        assert (self.update_called), "Odometry callback hasn't been called."
+        return self._state_f
+

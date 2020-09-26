@@ -1,7 +1,7 @@
 from pyrobot.algorithms.base_planner import BasePlanner
 from pyrobot.algorithms.base_controller import BaseController
 
-from pyrobot.robots.locobot.base_control_utils import build_pose_msg
+from pyrobot.algorithms.base_controller_impl.base_control_utils import build_pose_msg
 
 import tf
 import rospy
