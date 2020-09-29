@@ -160,7 +160,10 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  scripts/CircleDr.py
+  scripts/tests/CircleDr.py
+  scripts/depth_collect.py
+  scripts/starter_file.py
+  scripts/tests/camera_control.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
