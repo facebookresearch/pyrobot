@@ -3,18 +3,18 @@
   <model name='long_barrier.sdf'>
     <link name='link_0'>
       <inertial>
-        <mass>1</mass>
+        <mass>14000</mass>
         <inertia>
-          <ixx>0.166667</ixx>
+          <ixx>2333.33</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>0.166667</iyy>
+          <iyy>58333.3</iyy>
           <iyz>0</iyz>
-          <izz>0.166667</izz>
+          <izz>58333.3</izz>
         </inertia>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose frame=''>0 -1 0 0 -0 0</pose>
       </inertial>
-      <pose frame=''>-0.729597 -1.62176 0.5 0 -0 0</pose>
+      <pose frame=''>-0.26022 -1.61939 0.044072 -0.003326 0.174444 0.180842</pose>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>

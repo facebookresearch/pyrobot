@@ -1,5 +1,5 @@
 <launch>
-    <arg name="use_camera" default="false"/>
+    <arg name="use_camera" default="true"/>
     <arg name="use_arm" default="false"/>
     <arg name="use_vslam" default="false"/>
     <arg name="use_base" default="true"/>
