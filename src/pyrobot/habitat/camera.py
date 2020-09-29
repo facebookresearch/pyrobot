@@ -64,7 +64,7 @@ class LoCoBotCamera(object):
         Itc = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
         return Itc
 
-    def pix_to_3dpt(self, rs, cs, in_cam=False, initial_rotation=None):
+    def pix_to_3dpt(self, rs, cs, in_cam=False):
         """
         Get the 3D points of the pixels in RGB images.
 
@@ -80,11 +80,6 @@ class LoCoBotCamera(object):
                    which means all columns.
         :param in_cam: return points in camera frame,
                        otherwise, return points in base frame
-
-        :param initial_rotation: a known initial rotation of the camera sensor
-                                 to calibrate habitat origin. The default value
-                                 is None which means it uses the Habitat-reported
-                                 value.
 
         :type rs: list or np.ndarray
         :type cs: list or np.ndarray
@@ -108,10 +103,10 @@ class LoCoBotCamera(object):
         if in_cam:
             return pts, colors
 
-        pts = self._cam2pyrobot(pts, initial_rotation=initial_rotation)
+        pts = self._cam2pyrobot(pts)
         return pts, colors
 
-    def _cam2pyrobot(self, pts, initial_rotation=None):
+    def _cam2pyrobot(self, pts):
         """
         here, points are  given in camera frame
         the thing to do next is to transform the points from camera frame into the
@@ -121,13 +116,8 @@ class LoCoBotCamera(object):
         So, CAMERA frame -> HABITAT frame -> PYROBOT frame (robot base frame)
         :param pts: point coordinates in camera frame
                   (shape: :math:`[N, 3]`)
-        :param initial_rotation: a known initial rotation of the camera sensor
-                                 to calibrate habitat origin. The default value
-                                 is None which means it uses the Habitat-reported
-                                 value.
 
         :type pts: np.ndarray
-        :type initial_rotation: float
 
         :returns: pts
 
@@ -139,8 +129,7 @@ class LoCoBotCamera(object):
 
         cur_state = self.agent.get_state()
         cur_sensor_state = cur_state.sensor_states['rgb']
-        if initial_rotation is None:
-            initial_rotation = cur_state.rotation
+        initial_rotation = cur_state.rotation
         rot_init_rotation = self._rot_matrix(initial_rotation)
 
         ros_to_habitat_frame = np.array([[0.0, -1.0, 0.0],
@@ -163,17 +152,12 @@ class LoCoBotCamera(object):
         quat_list = [habitat_quat.x, habitat_quat.y, habitat_quat.z, habitat_quat.w]
         return prutil.quat_to_rot_mat(quat_list)
 
-    def get_current_pcd(self, in_cam=True, initial_rotation=None):
+    def get_current_pcd(self, in_cam=True):
         """
 		Return the point cloud at current time step (one frame only)
 
 		:param in_cam: return points in camera frame,
 		               otherwise, return points in base frame
-
-                :param initial_rotation: a known initial rotation of the camera sensor
-                                 to calibrate habitat origin. The default value
-                                 is None which means it uses the Habitat-reported
-                                 value.
 
 		:type in_cam: bool
 		:returns: tuple (pts, colors)
@@ -188,7 +172,7 @@ class LoCoBotCamera(object):
         pts = pcd_in_cam[:3, :].T
         if in_cam:
             return pts, colors
-        pts = self._cam2pyrobot(pts, initial_rotation=initial_rotation)
+        pts = self._cam2pyrobot(pts)
         return pts, colors
 
     @property
