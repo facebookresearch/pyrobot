@@ -82,7 +82,8 @@ def test_camera_matrix(create_robot):
 
 def test_pix_to_3dpt(create_robot):
     bot = create_robot
-    thr = 1e-2
+    pos_thr = 1e-2
+    pix_thr = 3
     # set the agent and sensor state
     state = AgentState(position=np.array([-1.1051195, 0.12259939, 18.529133], dtype=np.float32),
                        rotation=quaternion(-1, 0, 0, 0), velocity=np.array([0., 0., 0.]),
@@ -130,15 +131,16 @@ def test_pix_to_3dpt(create_robot):
                          [87, 71, 63]], dtype=np.uint8)
     loc_in_base, color_in_base = bot.camera.pix_to_3dpt(r, c)
     loc_in_cam, color_in_cam = bot.camera.pix_to_3dpt(r, c, in_cam=True)
-    assert np.allclose(gt_loc_base, loc_in_base, rtol=thr) and \
-           np.allclose(gt_color, color_in_base, rtol=thr)
-    assert np.allclose(gt_loc_cam, loc_in_cam, rtol=thr) and \
-           np.allclose(gt_color, color_in_cam, rtol=thr)
+    assert np.allclose(gt_loc_base, loc_in_base, rtol=pos_thr) and \
+           np.allclose(gt_color, color_in_base, rtol=pix_thr)
+    assert np.allclose(gt_loc_cam, loc_in_cam, rtol=pos_thr) and \
+           np.allclose(gt_color, color_in_cam, rtol=pix_thr)
 
 
 def test_pcd(create_robot):
     bot = create_robot
-    thr = 1e-2
+    pos_thr = 1e-2
+    pix_thr = 3
     # set the agent and sensor state
     state = AgentState(position=np.array([-1.1051195, 0.12259939, 18.529133], dtype=np.float32),
                        rotation=quaternion(-1, 0, 0, 0), velocity=np.array([0., 0., 0.]),
@@ -187,10 +189,10 @@ def test_pcd(create_robot):
                          [119, 86, 67],
                          [131, 117, 104],
                          [154, 131, 104]], dtype=np.uint8)
-    assert np.allclose(gt_pcd_in_base, pts_in_base[gt_indx],  rtol=thr) and \
-           np.allclose(gt_color, color_in_base[gt_indx], rtol=thr)
-    assert np.allclose(gt_pcd_in_cam, pts_in_cam[gt_indx], rtol=thr) and \
-           np.allclose(gt_color, color_in_cam[gt_indx], rtol=thr)
+    assert np.allclose(gt_pcd_in_base, pts_in_base[gt_indx],  rtol=pos_thr) and \
+           np.allclose(gt_color, color_in_base[gt_indx], rtol=pix_thr)
+    assert np.allclose(gt_pcd_in_cam, pts_in_cam[gt_indx], rtol=pos_thr) and \
+           np.allclose(gt_color, color_in_cam[gt_indx], rtol=pix_thr)
 
 
 posns = np.array(
