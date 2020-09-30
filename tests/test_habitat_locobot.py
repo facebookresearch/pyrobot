@@ -31,7 +31,7 @@ def create_robot():
 def test_camera_reset(create_robot):
     bot = create_robot
     bot.camera.reset()
-    assert np.sum(np.abs(bot.camera.get_state())) < 1e-3
+    assert np.allclose(bot.camera.get_state(), [0.0, 0.0], rtol=1e-3)
 
 
 @pytest.mark.parametrize(
@@ -42,18 +42,17 @@ def test_camera_position_control(create_robot, target_position):
     bot = create_robot
     bot.camera.reset()
     bot.camera.set_pan_tilt(target_position[0], target_position[1], wait=True)
-    assert np.sum(np.abs(np.array(bot.camera.get_state()) - np.array(target_position))) < thr
-    assert np.sum(np.abs(np.array(bot.camera.state) - np.array(target_position))) < thr
-    assert np.sum(np.abs(np.array([bot.camera.get_pan(), bot.camera.get_tilt()])
-                         - np.array(target_position))) < thr
+    assert np.allclose(bot.camera.get_state(), target_position, rtol=thr)
+    assert np.allclose(bot.camera.state, target_position, rtol=thr)
+    assert np.allclose([bot.camera.get_pan(), bot.camera.get_tilt()], np.array(target_position), rtol=thr)
 
     bot.camera.reset()
     bot.camera.set_pan(target_position[0], wait=True)
     bot.camera.set_tilt(target_position[1], wait=True)
-    assert np.sum(np.abs(np.array(bot.camera.get_state()) - np.array(target_position))) < thr
-    assert np.sum(np.abs(np.array(bot.camera.state) - np.array(target_position))) < thr
-    assert np.sum(np.abs(np.array([bot.camera.get_pan(), bot.camera.get_tilt()])
-                         - np.array(target_position))) < thr
+    assert np.allclose(bot.camera.get_state(), target_position, rtol=thr)
+    assert np.allclose(bot.camera.state, target_position, rtol=thr)
+    assert np.allclose([bot.camera.get_pan(), bot.camera.get_tilt()], np.array(target_position), rtol=thr)
+
 
 def test_get_images(create_robot):
     bot = create_robot
@@ -70,6 +69,7 @@ def test_get_images(create_robot):
 
 
 def test_camera_matrix(create_robot):
+    thr = 1e-3
     bot = create_robot
     rgb_sensor, depth_sensor = bot.camera.agent.agent_config.sensor_specifications
     xc, yc = rgb_sensor.resolution[0] / 2.0, rgb_sensor.resolution[1] / 2.0,
@@ -77,11 +77,12 @@ def test_camera_matrix(create_robot):
     camera_mat = np.array([[f, 0, xc],
                            [0, f, yc],
                            [0, 0, 1]])
-    assert np.sum(np.abs(camera_mat - bot.camera.get_intrinsics())) < 1e-3
+    assert np.allclose(camera_mat, bot.camera.get_intrinsics(), rtol=thr)
 
 
 def test_pix_to_3dpt(create_robot):
     bot = create_robot
+    thr = 1e-2
     # set the agent and sensor state
     state = AgentState(position=np.array([-1.1051195, 0.12259939, 18.529133], dtype=np.float32),
                        rotation=quaternion(-1, 0, 0, 0), velocity=np.array([0., 0., 0.]),
@@ -129,14 +130,15 @@ def test_pix_to_3dpt(create_robot):
                          [87, 71, 63]], dtype=np.uint8)
     loc_in_base, color_in_base = bot.camera.pix_to_3dpt(r, c)
     loc_in_cam, color_in_cam = bot.camera.pix_to_3dpt(r, c, in_cam=True)
-    assert np.sum(np.abs(gt_loc_base - loc_in_base)) < 1e-3 and \
-           np.sum(np.abs(gt_color - color_in_base)) < 1e-3
-    assert np.sum(np.abs(gt_loc_cam - loc_in_cam)) < 1e-3 and \
-           np.sum(np.abs(gt_color - color_in_cam)) < 1e-3
+    assert np.allclose(gt_loc_base, loc_in_base, rtol=thr) and \
+           np.allclose(gt_color, color_in_base, rtol=thr)
+    assert np.allclose(gt_loc_cam, loc_in_cam, rtol=thr) and \
+           np.allclose(gt_color, color_in_cam, rtol=thr)
 
 
 def test_pcd(create_robot):
     bot = create_robot
+    thr = 1e-2
     # set the agent and sensor state
     state = AgentState(position=np.array([-1.1051195, 0.12259939, 18.529133], dtype=np.float32),
                        rotation=quaternion(-1, 0, 0, 0), velocity=np.array([0., 0., 0.]),
@@ -185,10 +187,10 @@ def test_pcd(create_robot):
                          [119, 86, 67],
                          [131, 117, 104],
                          [154, 131, 104]], dtype=np.uint8)
-    assert np.sum(np.abs(gt_pcd_in_base - pts_in_base[gt_indx])) < 1e-3 and \
-           np.sum(np.abs(gt_color - color_in_base[gt_indx])) < 1e-3
-    assert np.sum(np.abs(gt_pcd_in_cam - pts_in_cam[gt_indx])) < 1e-3 and \
-           np.sum(np.abs(gt_color - color_in_cam[gt_indx])) < 1e-3
+    assert np.allclose(gt_pcd_in_base, pts_in_base[gt_indx],  rtol=thr) and \
+           np.allclose(gt_color, color_in_base[gt_indx], rtol=thr)
+    assert np.allclose(gt_pcd_in_cam, pts_in_cam[gt_indx], rtol=thr) and \
+           np.allclose(gt_color, color_in_cam[gt_indx], rtol=thr)
 
 
 posns = np.array(
