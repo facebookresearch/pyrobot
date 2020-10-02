@@ -411,10 +411,10 @@ if [ $INSTALL_TYPE == "full" ]; then
 	sudo usermod -a -G dialout $USER
 fi
 
-# Step 8 - Install GPMP specific things
-cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
-chmod +x install_gpmp2.sh
-source install_gpmp2.sh
+# # Step 8 - Install GPMP specific things
+# cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot/install
+# chmod +x install_gpmp2.sh
+# source install_gpmp2.sh
 
 end_time="$(date -u +%s)"
 elapsed="$(($end_time-$start_time))"
