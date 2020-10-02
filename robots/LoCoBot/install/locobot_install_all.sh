@@ -102,6 +102,7 @@ declare -a package_names=(
 	"libusb-1.0-0-dev"
 	"libgtk-3-dev" 
 	"libglfw3-dev"
+	"joy"
 	)
 install_packages "${package_names[@]}"
 
