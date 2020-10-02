@@ -11,7 +11,12 @@ jobs:
       - run:
           name: Installer Python3
           command: |
-            sudo apt-get update
+            sudo apt-get install -y python-rosdep
+            sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
+            cd ~/project/robots/LoCoBot/install
+            chmod +x locobot_install_all.sh
+            
+            sudo apt-get install -y software-properties-common
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
