@@ -16,6 +16,7 @@ jobs:
             sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
+            ./locobot_install_all.sh -t sim_only -p 3 -l interbotix
             
             sudo apt-get install -y software-properties-common
             source ~/.bashrc
