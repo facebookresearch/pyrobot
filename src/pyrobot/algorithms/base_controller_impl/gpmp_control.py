@@ -105,11 +105,7 @@ class GPMPControl(BaseController):
             self.bot_base.ctrl_pub.publish(msg)
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
-        robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for base controllers!"
+        super().check_cfg()
 
         assert (
             len(self.algorithms.keys()) == 1
@@ -173,7 +169,7 @@ class GPMPControl(BaseController):
                 status = self.gpmp_ctrl_client_.get_state()
             return True
         else:
-            return None
+            return False
 
     def _go_to_absolute_with_map(self, xyt_position, close_loop=True, smooth=True):
         cur_state = self.algorithms["BaseLocalizer"].get_odom_state()

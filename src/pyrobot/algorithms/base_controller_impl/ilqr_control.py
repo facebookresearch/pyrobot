@@ -69,11 +69,7 @@ class ILQRControl(BaseController):
         return self.track_trajectory(states, close_loop=close_loop)
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
-        robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for base controllers!"
+        super().check_cfg()
 
         assert (
             len(self.algorithms.keys()) == 1

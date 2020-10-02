@@ -7,8 +7,8 @@ import numpy as np
 
 
 class MoveitPlanner(MotionPlanner):
-    """Implementation of moveit!-based motion planning algorithm.
-    Specifically, forward/inverse kinematics, and jacobian.
+    """
+    Implementation of moveit!-based motion planning algorithm.
     """
 
     def __init__(
@@ -77,7 +77,7 @@ class MoveitPlanner(MotionPlanner):
         p_out = self.move_group_interface.plan()
         self.move_group_interface.execute(p_out)
 
-        return p_out
+        return p_out.trajectory.joint_trajectory
 
     def plan_joint_angles(self, target_joint):
         self.move_group_interface.clearPoseTargets()
@@ -85,29 +85,12 @@ class MoveitPlanner(MotionPlanner):
         success = self.move_group_interface.setJointValueTarget(target_joint)
 
         p_out = self.move_group_interface.plan()
-        print(
-            success,
-            len(p_out.trajectory.joint_trajectory.points),
-            p_out.trajectory.joint_trajectory.points[0].positions,
-        )
+        
         self.move_group_interface.execute(p_out)
-        return p_out
+        return p_out.trajectory.joint_trajectory
 
     def compute_cartesian_path(self, waypoints, eef_step, jump_threshold):
         raise NotImplementedError()
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One motion planner only handle one arm!"
-        robot_label = list(self.robots.keys())[0]
-        assert (
-            "arm" in self.robots[robot_label].keys()
-        ), "Arm required for MotionPlanners!"
-        assert (
-            "ARM_BASE_FRAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "ARM_BASE_FRAME required for KDL solver!"
-        assert (
-            "EE_FRAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "EE_FRAME required for KDL solver!"
-        assert (
-            "ARM_ROBOT_DSP_PARAM_NAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "ARM_ROBOT_DSP_PARAM_NAME required for KDL solver!"
+        super().check_cfg()

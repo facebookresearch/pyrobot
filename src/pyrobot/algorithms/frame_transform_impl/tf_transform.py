@@ -6,8 +6,8 @@ import rospy
 
 
 class TFTransform(FrameTransform):
-    """base class of Motion Planning algorithms.
-    Specifically, forward/inverse kinematics, and jacobian.
+    """
+    Implementation of tf-based FrameTransform algorithms.
     """
 
     def __init__(
@@ -30,13 +30,13 @@ class TFTransform(FrameTransform):
 
         self.tf_listener = TransformListener()
 
-    def get_transform(self, target_frame, source_frame):
+    def get_transform(self, source_frame, target_frame):
         try:
             self.tf_listener.waitForTransform(
-                target_frame, source_frame, rospy.Time(0), rospy.Duration(3)
+                source_frame, target_frame, rospy.Time(0), rospy.Duration(3)
             )
             (trans, quat) = self.tf_listener.lookupTransform(
-                target_frame, source_frame, rospy.Time(0)
+                source_frame, target_frame, rospy.Time(0)
             )
         except (
             tf.LookupException,
@@ -45,7 +45,7 @@ class TFTransform(FrameTransform):
         ):
             raise RuntimeError(
                 "Cannot fetch the transform from"
-                " {0:s} to {1:s}".format(target_frame, source_frame)
+                " {0:s} to {1:s}".format(source_frame, target_frame)
             )
         return trans, quat
 

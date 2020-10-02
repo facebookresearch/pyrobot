@@ -28,8 +28,9 @@ class DefaultCameraTransform(CameraTransform):
         if len(self.robots.keys()) > 0:
             self.robot_label = list(self.robots.keys())[0]
             self.camera = self.robots[self.robot_label]["camera"]
-
-        # TODO: Camera Sensor only
+        else:
+            self.sensor_label = list(self.sensors.keys())[0]
+            self.camera = self.sensors[self.sensor_label]
 
         self.base_frame = self.camera.configs["BASE_FRAME"]
         self.cam_frame = self.camera.configs["RGB_CAMERA_CENTER_FRAME"]
@@ -52,7 +53,7 @@ class DefaultCameraTransform(CameraTransform):
         self.uv_one_in_cam = np.dot(self.intrinsic_mat_inv, self.uv_one)
 
 
-    def pix_to_pt(self, rows, columns, depth_img, rgb_img=None, in_cam=False):
+    def pix_to_pt(self, rows, columns, depth_img, rgb_img=None, in_cam=True):
         trans, quat = self.algorithms["FrameTransform"].get_transform(self.cam_frame, self.base_frame)
         rot = prutil.quat_to_rot_mat(quat)
         base2cam_trans = np.array(trans).reshape(-1, 1)
@@ -74,7 +75,7 @@ class DefaultCameraTransform(CameraTransform):
         pts = pts + base2cam_trans.T
         return pts, colors
 
-    def pcd_from_img(self, depth_img, rgb_img=None, in_cam=False):
+    def pcd_from_img(self, depth_img, rgb_img=None, in_cam=True):
         trans, quat = self.algorithms["FrameTransform"].get_transform(self.cam_frame, self.base_frame)
         rot = prutil.quat_to_rot_mat(quat)
         base2cam_trans = np.array(trans).reshape(-1, 1)
@@ -108,8 +109,8 @@ class DefaultCameraTransform(CameraTransform):
         pts = pts + base2cam_trans.T
         return pts, rgb
 
-    def get_extrinsics(self, src, tgt):
-        trans, quat = self.algorithms["FrameTransform"].get_transform(src, tgt)
+    def get_transform_matrix(self, source_frame, target_frame):
+        trans, quat = self.algorithms["FrameTransform"].get_transform(source_frame, target_frame)
         rot = prutil.quat_to_rot_mat(quat)
         T = np.eye(4)
         T[:3, :3] = rot
@@ -125,15 +126,8 @@ class DefaultCameraTransform(CameraTransform):
         return Itc
 
     def check_cfg(self):
-        assert len(self.robots.keys()) + len(self.sensors.keys()) == 1, "One camera transform only handle one camera!"
+        super().check_cfg()
         
-        if len(self.robots.keys()) > 0:
-            robot_label = list(self.robots.keys())[0]
-            assert (
-                "camera" in self.robots[robot_label].keys()
-            ), "Camera required for CameraTransform!"
-            camera = self.robots[robot_label]["camera"]
-
         assert (
             len(self.algorithms.keys()) == 1
         ), "CameraTransform only have one dependency!"
@@ -145,30 +139,6 @@ class DefaultCameraTransform(CameraTransform):
         assert isinstance(
             self.algorithms["FrameTransform"], FrameTransform
         ), "FrameTransform module needs to extend FrameTransform base class!"
-
-        assert (
-            "Camera.fx" in camera.configs.keys()
-        ), "Camera.fx required for camera intrinsics!"
-
-        assert (
-            "Camera.fy" in camera.configs.keys()
-        ), "Camera.fy required for camera intrinsics!"
-
-        assert (
-            "Camera.cx" in camera.configs.keys()
-        ), "Camera.cx required for camera intrinsics!"
-
-        assert (
-            "Camera.cy" in camera.configs.keys()
-        ), "Camera.cy required for camera intrinsics!"
-
-        assert (
-            "Camera.height" in camera.configs.keys()
-        ), "Camera.height required for camera intrinsics!"
-
-        assert (
-            "Camera.width" in camera.configs.keys()
-        ), "Camera.width required for camera intrinsics!"
 
         assert (
             "SUBSAMPLE_PIXS" in self.configs.keys()

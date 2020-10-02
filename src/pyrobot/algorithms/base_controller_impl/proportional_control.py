@@ -19,9 +19,7 @@ from numpy import sign
 
 
 class ProportionalControl(BaseController):
-    """base class of Motion Planning algorithms.
-    Specifically, forward/inverse kinematics, and jacobian.
-    """
+
 
     def __init__(
         self,
@@ -99,12 +97,8 @@ class ProportionalControl(BaseController):
         self.bot_base.base_state.should_stop = False
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
-        robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for base controllers!"
-
+        super().check_cfg()
+        
         assert (
             len(self.algorithms.keys()) == 1
         ), "Proportional controller only have one dependency!"

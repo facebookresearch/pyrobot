@@ -88,49 +88,6 @@ class LoCoBotArm(Arm):
             )
             return False
 
-    def set_ee_pose_pitch_roll(
-        self, position, pitch, roll=None, plan=True, wait=True, numerical=True, **kwargs
-    ):
-        """
-        Commands robot arm to desired end-effector pose
-        (w.r.t. 'ARM_BASE_FRAME').
-        Computes IK solution in joint space and calls set_joint_positions.
-        Will wait for command to complete if wait is set to True.
-
-        :param position: position of the end effector (shape: :math:`[3,]`)
-        :param pitch: pitch angle
-        :param roll: roll angle
-        :param plan: use moveit the plan a path to move to the desired pose
-        :param wait: wait until the desired pose is achieved
-        :param numerical: use numerical inverse kinematics solver or
-                          analytical inverse kinematics solver
-        :type position: np.ndarray
-        :type pitch: float
-        :type roll: float
-        :type plan: bool
-        :type wait: bool
-        :type numerical: bool
-        :return result: Returns True if command succeeded, False otherwise
-        :rtype: bool
-        """
-        position = np.array(position).flatten()
-        base_offset, _, _ = self.get_transform(
-            self.configs.ARM_BASE_FRAME, "arm_base_link"
-        )
-        yaw = np.arctan2(position[1] - base_offset[1], position[0] - base_offset[0])
-        if roll is None:
-            # read the current roll angle
-            roll = -self.get_joint_angle("joint_5")
-        euler = np.array([yaw, pitch, roll])
-        return self.set_ee_pose(
-            position=position,
-            orientation=euler,
-            plan=plan,
-            wait=wait,
-            numerical=numerical,
-            **kwargs
-        )
-
     def set_joint_torques(self, torques, **kwargs):
         """
         Sets the desired joint torques for all arm joints.

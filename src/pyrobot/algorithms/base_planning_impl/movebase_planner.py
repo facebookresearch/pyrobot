@@ -55,9 +55,9 @@ class MovebasePlanner(BasePlanner):
     def get_plan_absolute(self, x, y, theta):
         """
         Gets plan as a list of poses in the world
-        frame for the given (x, y, theta
+        frame for the given (x, y, theta)
         """
-        goal_state = build_pose_msg(x, y, theta, self.MAP_FRAME)
+        goal_state = build_pose_msg(x, y, thetaheta, self.MAP_FRAME)
         self._transform_listener.waitForTransform(
             self.base_frame, self.bot_base.configs.MAP_FRAME, rospy.Time.now(), rospy.Duration(3)
         )
@@ -68,12 +68,13 @@ class MovebasePlanner(BasePlanner):
             start=start_state, goal=goal_state, tolerance=self.tolerance
         )
 
-        status = True
-        if len(response.plan.poses) == 0:
-            status = False
-        return response.plan.poses, status
+        assert (
+            len(response.plan.poses) > 0
+        ), "Failed to find a valid plan!"
+        
+        return response.plan.poses
 
-    def move_to_goal(self, goal):
+    def move_to_goal(self, x, y, theta):
         """
         Moves the robot to the robot to given goal state in the absolute frame
         (world frame).
@@ -86,13 +87,13 @@ class MovebasePlanner(BasePlanner):
         :type goal: list
         :type go_to_rative: function of the form foo([x,y,theta])
         """
-        plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
+        plan, plan_status = self.get_plan_absolute(x, y, theta)
         if not plan_status:
             rospy.loginfo("Failed to find a valid plan!")
             return False
 
         if len(plan) < self.point_idx:
-            point = goal
+            point = [x, y, theta]
         else:
             point = [
                 plan[self.point_idx - 1].pose.position.x,
@@ -100,11 +101,11 @@ class MovebasePlanner(BasePlanner):
                 0,
             ]
 
-        g_angle, g_distance = self._compute_relative_ang_dist(goal)
+        g_angle, g_distance = self._compute_relative_ang_dist(x, y, theta)
 
         while g_distance > self.configs.TRESHOLD_LIN:
 
-            plan, plan_status = self.get_plan_absolute(goal[0], goal[1], goal[2])
+            plan, plan_status = self.get_plan_absolute(x, y, theta)
 
             if self._as.is_preempt_requested():
                 return False
@@ -114,7 +115,7 @@ class MovebasePlanner(BasePlanner):
                 return False
 
             if len(plan) < self.point_idx:
-                point = goal
+                point = [x, y, theta]
             else:
                 point = [
                     plan[self.point_idx - 1].pose.position.x,
@@ -122,18 +123,18 @@ class MovebasePlanner(BasePlanner):
                     0,
                 ]
 
-            angle, distance = self._compute_relative_ang_dist(point)
-            g_angle, g_distance = self._compute_relative_ang_dist(goal)
+            angle, distance = self._compute_relative_ang_dist(point[0], point[1], point[2])
+            g_angle, g_distance = self._compute_relative_ang_dist(x, y, theta)
             if not self.algorithms["BaseController"].go_to_relative([0, 0, angle]):
                 return False
             if not self.algorithms["BaseController"].go_to_relative([distance, 0, 0]):
                 return False
 
-        g_angle, g_distance = self._compute_relative_ang_dist(goal)
+        g_angle, g_distance = self._compute_relative_ang_dist(x, y, theta)
 
         rospy.loginfo("Adujusting Orientation at goal..{}.".format(g_angle))
 
-        pose_stamped = build_pose_msg(goal[0], goal[1], goal[2], self.MAP_FRAME)
+        pose_stamped = build_pose_msg(x, y, theta, self.MAP_FRAME)
         base_pose = self._transform_listener.transformPose(
             self.BASE_FRAME, pose_stamped
         )
@@ -149,11 +150,7 @@ class MovebasePlanner(BasePlanner):
             return False
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One Planner only handle one base!"
-        robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for base planners!"
+        super().check_cfg()
 
         assert (
             len(self.algorithms.keys()) == 1
@@ -172,10 +169,10 @@ class MovebasePlanner(BasePlanner):
         assert "TRACKED_POINT" in self.configs.keys()
         assert "TRESHOLD_LIN" in self.configs.keys()
 
-    def _compute_relative_ang_dist(self, point2):
+    def _compute_relative_ang_dist(self, x, y, theta):
         # point 1 is the base point 2 is the point on the path
         # convert point 2 to base frame
-        pose_stamped = build_pose_msg(point2[0], point2[1], 0, self.MAP_FRAME)
+        pose_stamped = build_pose_msg(x, y, 0, self.MAP_FRAME)
         base_pose = self._transform_listener.transformPose(
             self.BASE_FRAME, pose_stamped
         )

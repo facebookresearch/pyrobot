@@ -14,7 +14,6 @@ import numpy as np
 
 
 class OdomLocalizer(BaseLocalizer):
-    """base class of camera transformation algorithms."""
 
     def __init__(
         self,
@@ -52,11 +51,9 @@ class OdomLocalizer(BaseLocalizer):
         return (np.array(state, dtype=np.float32).T).copy()
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
+        super().check_cfg()
+        
         robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for base localizers!"
         assert (
             "ROSTOPIC_ODOMETRY" in self.robots[robot_label]["base"].configs.keys()
         ), "ROSTOPIC_ODOMETRY required for odom localizers!"

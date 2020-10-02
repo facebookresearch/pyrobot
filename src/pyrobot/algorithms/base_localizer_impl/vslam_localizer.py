@@ -11,7 +11,6 @@ import numpy as np
 
 
 class VSLAMLocalizer(BaseLocalizer):
-    """base class of camera transformation algorithms."""
 
     def __init__(
         self,
@@ -52,11 +51,7 @@ class VSLAMLocalizer(BaseLocalizer):
         return self.vslam.base_pose.copy()
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One Localizer only handle one base!"
-        robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for base localizers!"
+        super().check_cfg()
 
         assert "MAP_IMG_DIR" in self.configs.keys()
         assert "ROSTOPIC_CAMERA_POSE" in self.configs.keys()

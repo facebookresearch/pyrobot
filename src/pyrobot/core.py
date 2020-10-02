@@ -89,7 +89,6 @@ def make_sensor(sensor_cfg, ns="", overrides=[], ros_launch_manager=None):
 def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager=None):
 
     # TODO: add check if the algorithm name passed is correct
-
     if isinstance(algorithm_cfg, str):
         algorithm_cfg = compose("algorithm/" + algorithm_cfg + ".yaml", overrides)
     elif not isinstance(algorithm_cfg, DictConfig):
@@ -106,9 +105,14 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
     dependencies = {}
     if "dependencies" in algorithm_cfg.keys() and algorithm_cfg.dependencies:
         for dependency_cfg in algorithm_cfg.dependencies:
-            dependency = make_algorithm(
-                dependency_cfg["algorithm"], world, ns, overrides, ros_launch_manager
-            )
+            if dependency_cfg["algorithm"] in world._algorithms_pool.keys():
+                dependency = world._algorithms_pool[dependency_cfg["algorithm"]]
+            else:
+                dependency = make_algorithm(
+                    dependency_cfg["algorithm"], world, ns, overrides, ros_launch_manager
+                )
+                world._algorithms_pool[dependency_cfg["algorithm"]] = dependency
+
             dependencies[dependency.get_class_name()] = dependency
 
     if "ros_launch" in algorithm_cfg.keys() and algorithm_cfg.ros_launch:
@@ -164,7 +168,11 @@ class World(object):
 
         self.robots = {}
         self.sensors = {}
+        # public accessible algorithms
         self.algorithms = {}
+        # pool of all the available algorithms in the backend
+        self._algorithms_pool = {}
+
         self.objects = {}
         self.simulator = {}
         # Any sensor streams and commands are stored here
@@ -211,9 +219,12 @@ class World(object):
         )
 
     def add_algorithm(self, algorithm_cfg, label, ns="", overrides=[]):
-        self.algorithms[label] = make_algorithm(
-            algorithm_cfg, self, ns, overrides, self.ros_launch_manager
-        )
+        if label in self._algorithms_pool.keys():
+            self.algorithms[label] = self._algorithms_pool[label]
+        else:
+            self.algorithms[label] = make_algorithm(
+                algorithm_cfg, self, ns, overrides, self.ros_launch_manager
+            )
 
 
 class RosLaunchManager(object):

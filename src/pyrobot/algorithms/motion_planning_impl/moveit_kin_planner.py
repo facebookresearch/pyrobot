@@ -8,8 +8,9 @@ import numpy as np
 
 
 class MoveitKinPlanner(MotionPlanner):
-    """Implementation of moveit!-based motion planning algorithm with kinematics dependency."""
-
+    """
+    Implementation of moveit!-based motion planning algorithm, with explicit kinematics dependency.
+    """
     def __init__(
         self,
         configs,
@@ -53,28 +54,14 @@ class MoveitKinPlanner(MotionPlanner):
         raise NotImplementedError()
 
     def check_cfg(self):
-        assert len(self.robots.keys()) == 1, "One motion planner only handle one arm!"
-        robot_label = list(self.robots.keys())[0]
+        super().check_cfg()
 
         assert (
             len(self.algorithms.keys()) == 1
-        ), "Motion planner only have one dependency!"
+        ), "MoveitKinPlanner only have one dependency!"
         assert (
             list(self.algorithms.keys())[0] == "Kinematics"
-        ), "Motion planner only depend on Kinematics!"
+        ), "MoveitKinPlanner only depend on Kinematics!"
         assert isinstance(
             self.algorithms["Kinematics"], Kinematics
         ), "Kinematics module needs to extend Kinematics base class!"
-
-        assert (
-            "arm" in self.robots[robot_label].keys()
-        ), "Arm required for MotionPlanners!"
-        assert (
-            "ARM_BASE_FRAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "ARM_BASE_FRAME required for KDL solver!"
-        assert (
-            "EE_FRAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "EE_FRAME required for KDL solver!"
-        assert (
-            "ARM_ROBOT_DSP_PARAM_NAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "ARM_ROBOT_DSP_PARAM_NAME required for KDL solver!"
