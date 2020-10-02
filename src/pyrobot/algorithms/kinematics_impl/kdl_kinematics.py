@@ -7,8 +7,8 @@ import numpy as np
 
 
 class KDLKinematics(Kinematics):
-    """Implementation of KDL-based Kinematics algorithms.
-    Specifically, forward/inverse kinematics, and jacobian.
+    """
+    Implementation of KDL-based Kinematics algorithms.
     """
 
     def __init__(
@@ -85,25 +85,13 @@ class KDLKinematics(Kinematics):
         return joint_positions
 
     def forward_kinematics(self, joint_pos, target_frame):
-        pos, quat = self.kdl_solver.fk(joint_positions, des_frame)
+        pos, quat = self.kdl_solver.fk(joint_pos, target_frame)
         pos = np.asarray(pos).reshape(3, 1)
         rot = prutil.quat_to_rot_mat(quat)
         return pos, rot
 
     def check_cfg(self):
-        assert (
-            len(self.robots.keys()) == 1
-        ), "One Kinematics solver only handle one arm!"
-        robot_label = list(self.robots.keys())[0]
-        assert "arm" in self.robots[robot_label].keys(), "Arm required for kinematics!"
-        assert (
-            "ARM_BASE_FRAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "ARM_BASE_FRAME required for KDL solver!"
-        assert (
-            "EE_FRAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "EE_FRAME required for KDL solver!"
-        assert (
-            "ARM_ROBOT_DSP_PARAM_NAME" in self.robots[robot_label]["arm"].configs.keys()
-        ), "ARM_ROBOT_DSP_PARAM_NAME required for KDL solver!"
+        super().check_cfg()
+
         assert "IK_POSITION_TOLERANCE" in self.configs.keys()
         assert "IK_ORIENTATION_TOLERANCE" in self.configs.keys()

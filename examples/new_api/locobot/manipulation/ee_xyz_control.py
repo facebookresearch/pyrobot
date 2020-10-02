@@ -19,8 +19,6 @@ def main():
 
     bot["arm"].go_home()
 
-    np.set_printoptions(precision=4, suppress=True)
-
     displacement = np.array([0, 0, -0.15])
 
     ee_pose = world.algorithms['tf_transform'].get_transform(bot['arm'].configs.ARM_BASE_FRAME, bot['arm'].configs.EE_FRAME)

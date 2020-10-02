@@ -35,6 +35,11 @@ environment:
       ns: ''
       overrides: []
 
+    - algorithm: 'kdl_kinematics'
+      label: 'kdl_kinematics'
+      ns: ''
+      overrides: []
+
 
   # If sim, add any simulator related config
   simlator: null # other options: habitat and gazebo

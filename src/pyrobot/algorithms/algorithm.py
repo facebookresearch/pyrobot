@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Algorithm:
+class Algorithm(ABC):
     """Abstract base class for algorithms."""
 
     def __init__(

@@ -35,6 +35,11 @@ environment:
       ns: ''
       overrides: []
 
+    - algorithm: 'odom_localizer'
+      label: 'odom_localizer'
+      ns: ''
+      overrides: []
+
   # If sim, add any simulator related config
   simlator: null # other options: habitat and gazebo
 
