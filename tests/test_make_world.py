@@ -8,13 +8,7 @@ import pytest
 import rospy
 from pyrobot import World
 
-
-@pytest.fixture
-def botname(request):
-    return request.config.getoption("botname")
-
-
 @pytest.mark.parametrize("world_config", ["env/simple_env.yaml"])
-def test_make_world(botname, world_config):
+def test_make_world(world_config):
     world = World(world_config)
     return world
