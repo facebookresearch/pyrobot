@@ -162,6 +162,7 @@ class World(object):
         if configs_path is None:
             configs_path = "hydra_config"
         try:
+            print("initializing {}".format(configs_path))
             initialize(configs_path)
         except AssertionError as error:
             logging.warning(error)
