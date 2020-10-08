@@ -27,70 +27,70 @@ class Kinematics(object):
     """docstring for Kinematics"""
 
     def __init__(self):
-        self.init_done = False
-        rospy.init_node("pyrobot_kinematics")
+		self.init_done = False
+		rospy.init_node("pyrobot_kinematics")
+		
+		self.ik_srv = rospy.Service("pyrobot/ik", IkCommand, self.ik_server)
+		self.fk_srv = rospy.Service("pyrobot/fk", FkCommand, self.fk_server
+					    rospy.spin()
 
-        self.ik_srv = rospy.Service("pyrobot/ik", IkCommand, self.ik_server)
-        self.fk_srv = rospy.Service("pyrobot/fk", FkCommand, self.fk_server)
-        rospy.spin()
+    
+  
+			
 
-    def _init_kinematics(self):
-        # Ros-Params
-        base_link = rospy.get_param("pyrobot/base_link")
-        gripper_link = rospy.get_param("pyrobot/gripper_link")
-        robot_description = rospy.get_param("pyrobot/robot_description")
 
-        urdf_string = rospy.get_param(robot_description)
-        self.num_ik_solver = trac_ik.IK(
-            base_link, gripper_link, urdf_string=urdf_string
-        )
+					    def _init_kinematics(self):
+					    # Ros-Params
+					    base_link = rospy.get_param("pyrobot/base_link")
+					    gripper_link = rospy.get_param("pyrobot/gripper_link")
+					    robot_description = rospy.get_param("pyrobot/robot_description")
+					    urdf_string = rospy.get_param(robot_description)
+					    self.num_ik_solver = trac_ik.IK(
+						    base_link, gripper_link, urdf_string=urdf_string) _, self.urdf_tree = treeFromParam(robot_description) self.urdf_chain = self.urdf_tree.getChain(base_link, gripper_link)
+        
+					    self.arm_joint_names = self._get_kdl_joint_names()
+					    self.arm_link_names = self._get_kdl_link_names()
+					    self.arm_dof = len(self.arm_joint_names)
+					    self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
+					    self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
+					    self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
 
-        _, self.urdf_tree = treeFromParam(robot_description)
-        self.urdf_chain = self.urdf_tree.getChain(base_link, gripper_link)
-        self.arm_joint_names = self._get_kdl_joint_names()
-        self.arm_link_names = self._get_kdl_link_names()
-        self.arm_dof = len(self.arm_joint_names)
+    
+					    def _get_kdl_link_names(self):
+					    num_links = self.urdf_chain.getNrOfSegments()
+					    link_names = []
+					    for i in range(num_links):
+					    link_names.append(self.urdf_chain.getSegment(i).getName())
+					    return copy.deepcopy(link_names)
 
-        self.jac_solver = kdl.ChainJntToJacSolver(self.urdf_chain)
-        self.fk_solver_pos = kdl.ChainFkSolverPos_recursive(self.urdf_chain)
-        self.fk_solver_vel = kdl.ChainFkSolverVel_recursive(self.urdf_chain)
-
-    def _get_kdl_link_names(self):
-        num_links = self.urdf_chain.getNrOfSegments()
-        link_names = []
-        for i in range(num_links):
-            link_names.append(self.urdf_chain.getSegment(i).getName())
-        return copy.deepcopy(link_names)
-
-    def _get_kdl_joint_names(self):
-        num_links = self.urdf_chain.getNrOfSegments()
-        num_joints = self.urdf_chain.getNrOfJoints()
-        joint_names = []
-        for i in range(num_links):
-            link = self.urdf_chain.getSegment(i)
-            joint = link.getJoint()
-            joint_type = joint.getType()
+    
+					    def _get_kdl_joint_names(self):
+					    num_links = self.urdf_chain.getNrOfSegments()
+					    num_joints = self.urdf_chain.getNrOfJoints()
+					    joint_names = []
+					    for i in range(num_links):
+					    link = self.urdf_chain.getSegment(i)
+					    joint = link.getJoint()
+					    joint_type = joint.getType()
             # JointType definition: [RotAxis,RotX,RotY,RotZ,TransAxis,
             #                        TransX,TransY,TransZ,None]
-            if joint_type > 1:
-                continue
-            joint_names.append(joint.getName())
-        assert num_joints == len(joint_names)
-        return copy.deepcopy(joint_names)
+					    
+					    if joint_type > 1:
+					    continue
+					    joint_names.append(joint.getName())
+					    assert num_joints == len(joint_names)
+					    return copy.deepcopy(joint_names)
 
-    def ik_server(self, req):
+					    
+					    def ik_server(self, req):
+					    if not self.init_done:
+					    self._init_kinematics()
+					    self.init_done = True
 
-        if not self.init_done:
-            self._init_kinematics()
-            self.init_done = True
-
-        resp = IkCommandResponse()
-
-        if (
-            len(req.pose) < 7
-            or len(req.tolerance) < 6
-            or len(req.init_joint_positions) != self.arm_dof
-        ):
+        
+					    resp = IkCommandResponse()
+					    if (
+            
             resp.success = False
             rospy.logerr("Incorrect IK service request. Please fix it.")
             return resp
