@@ -12,27 +12,16 @@ jobs:
           name: Installer Python3
           command: |
             sudo apt-get install -y python-rosdep
+            sudo apt-get install -y software-properties-common
+
             sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
             cd ~/project/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 3 -l interbotix
-            
-            sudo apt-get install -y software-properties-common
-            source ~/.bashrc
-            source /opt/ros/$ROS_DISTRO/setup.bash
-            source ~/low_cost_ws/devel/setup.bash
-            cd ~/project
-            chmod +x install_pyrobot.sh
-            ./install_pyrobot.sh -p 3
-            cd ~/project/robots/LoCoBot
-            source ~/pyenv_pyrobot_python3/bin/activate
-            pip3 install --ignore-installed -r requirements_python3.txt
-            deactivate
 
       - run:
           name: Run tests in Python3
           command: |
-            sleep 150 # Wait for Gazebo to properly spin up
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash

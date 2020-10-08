@@ -381,7 +381,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 	
 	cd $LOCOBOT_FOLDER/src/pyrobot
 	chmod +x install_pyrobot.sh
-	source install_pyrobot.sh  -p 3
+	source install_pyrobot.sh -p 3
 
 	virtualenv_name="pyenv_pyrobot_python3"
 	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
