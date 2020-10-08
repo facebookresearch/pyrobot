@@ -13,39 +13,28 @@ from pyrobot import World
 def create_world():
     return World(config_name='env/arm_env.yaml')
 
-@pytest.fixture
-def botname(request):
-    return request.config.getoption("botname")
-
-
-def test_get_ee_pose(create_world, botname):
+def test_get_ee_pose(create_world):
     world = create_world
     bot = world.robots['locobot']
     bot["arm"].go_home()
     time.sleep(1)
     trans, quat = world.algorithms['tf_transform'].get_transform(bot['arm'].configs.ARM_BASE_FRAME, bot['arm'].configs.EE_FRAME)
-    if "lite" in botname:
-        trans_des = np.array([0.3946, 0.0001, 0.3749]).reshape(3, 1)
-
-    else:
-        trans_des = np.array([0.4118, 0.0001, 0.3987]).reshape(3, 1)
+    
+    trans_des = np.array([0.4118, 0.0001, 0.3987]).reshape(3, 1)
     quat_des = np.array([0.0, 0.009, -0.0, 1.0])
     trans_err = np.linalg.norm(np.array(trans_des).flatten() - np.array(trans).flatten())
     quat_err = np.linalg.norm(np.array(quat).flatten() - np.array(quat_des).flatten())
     assert trans_err < 0.005
     assert quat_err < 0.005
 
-def test_compute_fk_position(create_world, botname):
+def test_compute_fk_position(create_world):
     world = create_world
     bot = world.robots['locobot']
     pos, rot = world.algorithms['kdl_kinematics'].forward_kinematics(
         np.array([0.1, 0.2, 0.3, 0.4, 0.5]), bot['arm'].configs.EE_FRAME
     )
-    if "lite" in botname:
-        pos_des = np.array([[0.3821], [0.0304], [0.22]])
-
-    else:
-        pos_des = np.array([[0.3994], [0.0304], [0.2438]])
+    
+    pos_des = np.array([[0.3994], [0.0304], [0.2438]])
     rot_des = np.array(
         [[0.6185, -0.4613, 0.6361], [0.0621, 0.8357, 0.5457], [-0.7833, -0.298, 0.5455]]
     )

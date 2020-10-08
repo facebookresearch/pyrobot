@@ -12,12 +12,7 @@ from pyrobot import World
 def create_world():
     return World(config_name='env/base_env.yaml')
 
-@pytest.fixture
-def botname(request):
-    return request.config.getoption("botname")
-
-
-def test_vel_cmd_v(create_world, botname):
+def test_vel_cmd_v(create_world):
     world = create_world
     bot = world.robots['locobot']
 
@@ -28,7 +23,7 @@ def test_vel_cmd_v(create_world, botname):
     dist = np.linalg.norm(state_after[:2] - state_before[:2])
     assert 0.3 < dist < 0.5
 
-def test_vel_cmd_w(create_world, botname):
+def test_vel_cmd_w(create_world):
     world = create_world
     bot = world.robots['locobot']
 
