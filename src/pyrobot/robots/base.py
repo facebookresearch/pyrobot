@@ -17,7 +17,6 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from pyrobot_bridge.srv import *
 
 from pyrobot.utils.util import try_cv2_import
 
