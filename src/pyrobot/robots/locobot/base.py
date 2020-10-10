@@ -14,7 +14,6 @@ import numpy as np
 import rospy
 import tf
 import tf.transformations
-from ca_msgs.msg import Bumper
 from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent
 from nav_msgs.msg import Odometry
 
@@ -57,36 +56,22 @@ class BaseSafetyCallbacks(object):
         self.wheel_drop = False
         self.subscribers = []
 
-        if base == "create":
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_BUMPER, Bumper, self.bumper_callback_create
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_CLIFF, Empty, self.cliff_callback
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_WHEELDROP, Empty, self.wheeldrop_callback
-            )
-            self.subscribers.append(s)
-        else:
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_BUMPER,
-                BumperEvent,
-                self.bumper_callback_kobuki,
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_CLIFF, CliffEvent, self.cliff_callback
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_WHEELDROP,
-                WheelDropEvent,
-                self.wheeldrop_callback,
-            )
-            self.subscribers.append(s)
+        s = rospy.Subscriber(
+            self.configs.ROSTOPIC_BUMPER,
+            BumperEvent,
+            self.bumper_callback_kobuki,
+        )
+        self.subscribers.append(s)
+        s = rospy.Subscriber(
+            self.configs.ROSTOPIC_CLIFF, CliffEvent, self.cliff_callback
+        )
+        self.subscribers.append(s)
+        s = rospy.Subscriber(
+            self.configs.ROSTOPIC_WHEELDROP,
+            WheelDropEvent,
+            self.wheeldrop_callback,
+        )
+        self.subscribers.append(s)
 
     def bumper_callback_create(self, data):
         bumped = data.is_left_pressed or data.is_right_pressed
