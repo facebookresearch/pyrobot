@@ -13,8 +13,10 @@ Here lies API documentation for `PyRobot <https://github.com/facebookresearch/py
    :maxdepth: 2
 
    core/core
+   algorithms/algorithms
+   robots/robots
+   sensors/sensors
    locobot/locobot
-   sawyer/sawyer
 
 :ref:`search`
 ==================

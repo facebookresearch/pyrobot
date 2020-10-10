@@ -7,8 +7,9 @@ PyRobot is built around the following core classes that encapsulate different co
 .. toctree::
    :maxdepth: 2
 
-   robot
-   base
-   arm
-   camera
-   gripper
+   world
+
+.. autofunction::pyrobot.core.make_robot
+.. autofunction::pyrobot.core.make_sensor
+.. autofunction::pyrobot.core.make_algorithm
+

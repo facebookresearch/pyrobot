@@ -9,7 +9,7 @@ ros_launch:
     common: "roslaunch base_navigation move_base.launch use_map:=false base:=kobuki"
 
 algorithm:
-  _target_: pyrobot.algorithms.base_planning_impl.movebase_planner.MovebasePlanner
+  _target_: pyrobot.algorithms.base_planner_impl.movebase_planner.MovebasePlanner
 
 robot_labels: ['locobot']
 
