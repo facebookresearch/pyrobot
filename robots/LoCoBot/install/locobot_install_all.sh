@@ -237,7 +237,7 @@ if [ ! -d "$LOCOBOT_FOLDER/src" ]; then
 fi
 if [ ! -d "$LOCOBOT_FOLDER/src/pyrobot" ]; then
 	cd $LOCOBOT_FOLDER/src
-	git clone https://github.com/facebookresearch/pyrobot.git
+	git clone https://github.com/Jekyll1021/pyrobot.git
 	cd pyrobot
 	git checkout API_0.4
 	git submodule update --init --recursive
@@ -383,6 +383,7 @@ if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER/src/pyrobot
 	chmod +x install_pyrobot.sh
 	source install_pyrobot.sh -p 3
+	pip install -e .
 
 	virtualenv_name="pyenv_pyrobot_python3"
 	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
