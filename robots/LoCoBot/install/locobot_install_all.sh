@@ -383,12 +383,14 @@ if [ $PYTHON_VERSION == "3" ]; then
 	cd $LOCOBOT_FOLDER/src/pyrobot
 	chmod +x install_pyrobot.sh
 	source install_pyrobot.sh -p 3
-	pip install -e .
 
 	virtualenv_name="pyenv_pyrobot_python3"
 	cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
 	source ~/${virtualenv_name}/bin/activate
 	pip3 install --ignore-installed -r requirements_python3.txt
+
+	cd $LOCOBOT_FOLDER/src/pyrobot
+	pip install -e .
 	deactivate
 fi
 
