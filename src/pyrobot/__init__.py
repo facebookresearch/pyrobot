@@ -7,3 +7,5 @@
 from pyrobot.core import World, make_algorithm
 from pyrobot.core import RosLaunchManager
 from pyrobot.version import __version__
+
+import pyrobot.utils
