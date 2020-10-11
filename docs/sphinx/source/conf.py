@@ -68,6 +68,7 @@ MOCK_MODULES = [
     "orb_slam2_ros",
     "bezier",
     "scipy.linalg",
+    "moveit_msgs",
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
