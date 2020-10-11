@@ -68,6 +68,8 @@ MOCK_MODULES = [
     "orb_slam2_ros",
     "bezier",
     "scipy.linalg",
+    "moveit_msgs",
+    "pyrobot.utils",
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
@@ -86,7 +88,7 @@ author = u"Lerrel Pinto"
 # The short X.Y version
 version = u""
 # The full version, including alpha/beta/rc tags
-release = u"0.0.1"
+release = u"0.4"
 
 
 # -- General configuration ---------------------------------------------------
