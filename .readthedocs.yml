@@ -22,6 +22,6 @@ python:
   version: 3.6
   system_packages: true
   install:
-    - method: pip
-        path: .
     - requirements: requirements_python3.txt
+    - method: pip
+      path: .
