@@ -19,9 +19,6 @@ import tf
 from geometry_msgs.msg import Twist, Pose, PoseStamped
 from sensor_msgs.msg import JointState, CameraInfo, Image
 
-from pyrobot.algorithms.motion_planner import MotionPlanner
-import pyrobot.utils.util as prutil
-
 from pyrobot.utils.util import try_cv2_import
 
 cv2 = try_cv2_import()

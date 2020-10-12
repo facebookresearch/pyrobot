@@ -77,6 +77,8 @@ import_dir = os.path.join(pyrobot_dir, "src/")
 sys.path.append(import_dir)
 import_dir = os.path.join(pyrobot_dir, "src/pyrobot/")
 sys.path.append(import_dir)
+import_dir = os.path.join(pyrobot_dir, "src/utils/")
+sys.path.append(import_dir)
 
 # -- Project information -----------------------------------------------------
 
