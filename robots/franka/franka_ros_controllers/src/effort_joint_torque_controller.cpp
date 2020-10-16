@@ -125,7 +125,7 @@ bool EffortJointTorqueController::init(hardware_interface::RobotHW* robot_hw,
   publisher_controller_states_.init(node_handle, "/franka_ros_interface/motion_controller/arm/joint_controller_states", 1);
 
   {
-    std::lock_guard<realtime_tools::RealtimePublisher<franka_core_msgs::JointControllerStates> > lock(
+    std::lock_guard<realtime_tools::RealtimePublisher<franka_control_msgs::JointControllerStates> > lock(
         publisher_controller_states_);
     publisher_controller_states_.msg_.controller_name = "effort_joint_torque_controller";
     publisher_controller_states_.msg_.names.resize(joint_limits_.joint_names.size());
@@ -202,9 +202,9 @@ std::array<double, 7> EffortJointTorqueController::saturateTorqueRate(
   return tau_d_saturated;
 }
 
-void EffortJointTorqueController::jointCmdCallback(const franka_core_msgs::JointCommandConstPtr& msg) {
+void EffortJointTorqueController::jointCmdCallback(const franka_control_msgs::JointCommandConstPtr& msg) {
 
-  if (msg->mode == franka_core_msgs::JointCommand::TORQUE_MODE){
+  if (msg->mode == franka_control_msgs::JointCommand::TORQUE_MODE){
     if (msg->effort.size() != 7) {
       ROS_ERROR_STREAM(
           "EffortJointTorqueController: Published Commands are not of size 7");

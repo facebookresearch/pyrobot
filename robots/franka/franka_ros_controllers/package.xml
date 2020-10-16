@@ -20,7 +20,7 @@
   <depend>franka_hw</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>
-  <depend>franka_core_msgs</depend>
+  <depend>franka_control_msgs</depend>
   <depend>libfranka</depend>
   <depend>pluginlib</depend>
   <depend>realtime_tools</depend>

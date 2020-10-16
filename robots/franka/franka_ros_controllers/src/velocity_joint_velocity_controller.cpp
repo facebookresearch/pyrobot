@@ -109,7 +109,7 @@ bool VelocityJointVelocityController::init(hardware_interface::RobotHW* robot_ha
   publisher_controller_states_.init(node_handle, "/franka_ros_interface/motion_controller/arm/joint_controller_states", 1);
 
   {
-    std::lock_guard<realtime_tools::RealtimePublisher<franka_core_msgs::JointControllerStates> > lock(
+    std::lock_guard<realtime_tools::RealtimePublisher<franka_control_msgs::JointControllerStates> > lock(
         publisher_controller_states_);
     publisher_controller_states_.msg_.controller_name = "velocity_joint_velocity_controller";
     publisher_controller_states_.msg_.names.resize(joint_limits_.joint_names.size());
@@ -171,9 +171,9 @@ bool VelocityJointVelocityController::checkVelocityLimits(std::vector<double> ve
   return false;
 }
 
-void VelocityJointVelocityController::jointVelCmdCallback(const franka_core_msgs::JointCommandConstPtr& msg) {
+void VelocityJointVelocityController::jointVelCmdCallback(const franka_control_msgs::JointCommandConstPtr& msg) {
 
-    if (msg->mode == franka_core_msgs::JointCommand::VELOCITY_MODE){
+    if (msg->mode == franka_control_msgs::JointCommand::VELOCITY_MODE){
       if (msg->velocity.size() != 7) {
         ROS_ERROR_STREAM(
             "VelocityJointVelocityController: Published Commands are not of size 7");

@@ -24,7 +24,7 @@
   <depend>dynamic_reconfigure</depend>
   <depend>franka_hw</depend>
   <depend>controller_manager</depend>
-  <depend>franka_core_msgs</depend>
+  <depend>franka_control_msgs</depend>
   <depend>franka_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>hardware_interface</depend>

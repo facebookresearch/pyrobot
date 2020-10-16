@@ -30,9 +30,9 @@
 #include <vector>
 
 #include <dynamic_reconfigure/server.h>
-#include <franka_core_msgs/JointCommand.h>
-#include <franka_core_msgs/JointControllerStates.h>
-#include <franka_core_msgs/JointLimits.h>
+#include <franka_control_msgs/JointCommand.h>
+#include <franka_control_msgs/JointControllerStates.h>
+#include <franka_control_msgs/JointLimits.h>
 
 #include <franka_hw/trigger_rate.h>
 #include <realtime_tools/realtime_publisher.h>
@@ -77,14 +77,14 @@ class EffortJointTorqueController : public controller_interface::MultiInterfaceC
 
   ros::Subscriber desired_joints_subscriber_;
 
-  franka_core_msgs::JointLimits joint_limits_;
+  franka_control_msgs::JointLimits joint_limits_;
 
   franka_hw::TriggerRate trigger_publish_;
-  realtime_tools::RealtimePublisher<franka_core_msgs::JointControllerStates> publisher_controller_states_;
+  realtime_tools::RealtimePublisher<franka_control_msgs::JointControllerStates> publisher_controller_states_;
 
   bool checkTorqueLimits(std::vector<double> torques);
 
-  void jointCmdCallback(const franka_core_msgs::JointCommandConstPtr& msg);
+  void jointCmdCallback(const franka_control_msgs::JointCommandConstPtr& msg);
 };
 
 }  // namespace franka_ros_controllers

@@ -33,7 +33,7 @@
 import sys
 import rospy
 import socket
-from franka_core_msgs.msg import JointLimits
+from franka_control_msgs.msg import JointLimits
 
 def _log_networking_error():
     print ("Failed to connect to the ROS parameter server!\n"
@@ -166,7 +166,7 @@ class RobotParams(object):
         (/robot_config/joint_config/joint_velocity_limit)
 
         :return: Joint limits for each joints
-        :rtype: franka_core_msgs.msg.JointLimits
+        :rtype: franka_control_msgs.msg.JointLimits
         """
 
         lims = JointLimits()

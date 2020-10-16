@@ -35,7 +35,7 @@
 
 #include <std_msgs/Float64.h>
 #include <realtime_tools/realtime_box.h>
-#include <franka_core_msgs/JointCommand.h>
+#include <franka_control_msgs/JointCommand.h>
 
 
 namespace franka_interface {
@@ -93,7 +93,7 @@ namespace franka_interface {
    *
    * @param[in] msg JointCommandConstPtr instance containing the joint commands.
    */
-    void jointCommandCallback(const franka_core_msgs::JointCommandConstPtr& msg);
+    void jointCommandCallback(const franka_control_msgs::JointCommandConstPtr& msg);
 
   /**
    * Switch controller depending on the mode specified.
