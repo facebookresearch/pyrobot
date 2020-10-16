@@ -379,11 +379,10 @@ deactivate
 
 
 virtualenv_name="pyenv_pyrobot_python3"
-cd $LOCOBOT_FOLDER/src/pyrobot/robots/LoCoBot
+cd $LOCOBOT_FOLDER/src/pyrobot
 source ~/${virtualenv_name}/bin/activate
 pip3 install --ignore-installed -r requirements_python3.txt
 
-cd $LOCOBOT_FOLDER/src/pyrobot
 pip install -e .
 deactivate
 
