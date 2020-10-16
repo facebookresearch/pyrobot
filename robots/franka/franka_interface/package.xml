@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<package format="2">>
+  <name>franka_interface</name>
+  <version>1.0.0</version>
+  <description>
+    ROS/Python interface classes for control of
+    Franka Panda robot through franka-ros and libfranka.
+  </description>
+
+  <maintainer email="sxs1412@bham.ac.uk">
+    Saif Sidhik
+  </maintainer>
+  <license>Apache 2.0</license>
+
+  <author>Saif Sidhik</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>eigen</build_depend>
+  <build_depend>franka_control</build_depend>
+
+  <depend>controller_interface</depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>franka_hw</depend>
+  <depend>controller_manager</depend>
+  <depend>franka_core_msgs</depend>
+  <depend>franka_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>hardware_interface</depend>
+  <depend>libfranka</depend>
+  <depend>pluginlib</depend>
+  <depend>realtime_tools</depend>
+  <depend>roscpp</depend>
+
+  <exec_depend>franka_control</exec_depend>
+  <exec_depend>franka_description</exec_depend>
+  <exec_depend>panda_moveit_config</exec_depend>
+  <exec_depend>franka_moveit</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
+
+  <export>
+    <controller_interface plugin="${prefix}/state_controller_plugin.xml"/>
+  </export>
+
+</package>

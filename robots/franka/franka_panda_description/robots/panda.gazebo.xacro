@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="panda_gazebo" params="robot_name load_gripper">
+
+        <gazebo reference="${robot_name}_link0">
+            <material>Gazebo/Grey</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link1 -->
+        <gazebo reference="${robot_name}_link1">
+            <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link2 -->
+        <gazebo reference="${robot_name}_link2">
+            <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link3 -->
+        <gazebo reference="${robot_name}_link3">
+            <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link4 -->
+        <gazebo reference="${robot_name}_link4">
+            <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link5 -->
+        <gazebo reference="${robot_name}_link5">
+            <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link6 -->
+        <gazebo reference="${robot_name}_link6">
+            <material>Gazebo/White</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link7 -->
+        <gazebo reference="${robot_name}_link7">
+            <material>Gazebo/Grey</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- Link8 -->
+        <gazebo reference="${robot_name}_link8">
+            <material>Gazebo/Grey</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <!-- LinkHand -->
+        <gazebo reference="${robot_name}_hand">
+            <material>Gazebo/Grey</material>
+            <mu1>0.2</mu1>
+            <mu2>0.2</mu2>
+        </gazebo>
+
+        <xacro:if value="${load_gripper}">
+            <!-- LinkRightFinger -->
+            <gazebo reference="${robot_name}_rightfinger">
+                <material>Gazebo/Grey</material>
+                <mu1>0.2</mu1>
+                <mu2>0.2</mu2>
+            </gazebo>
+
+            <!-- LinkLeftFinger -->
+            <gazebo reference="${robot_name}_leftfinger">
+                <material>Gazebo/Grey</material>
+                <mu1>0.2</mu1>
+                <mu2>0.2</mu2>
+            </gazebo>
+        </xacro:if>
+
+      <gazebo reference="${robot_name}_joint7">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <gazebo reference="${robot_name}_joint1">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <gazebo reference="${robot_name}_joint2">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <gazebo reference="${robot_name}_joint3">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <gazebo reference="${robot_name}_joint4">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <gazebo reference="${robot_name}_joint5">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <gazebo reference="${robot_name}_joint6">
+        <implicitSpringDamper>1</implicitSpringDamper>
+        <provideFeedback>true</provideFeedback>
+      </gazebo>
+      <xacro:if value="${load_gripper}">
+          <gazebo reference="${robot_name}_finger_joint1">
+            <implicitSpringDamper>1</implicitSpringDamper>
+            <provideFeedback>true</provideFeedback>
+          </gazebo>
+          <gazebo reference="${robot_name}_finger_joint2">
+            <implicitSpringDamper>1</implicitSpringDamper>
+            <provideFeedback>true</provideFeedback>
+          </gazebo>
+      </xacro:if>
+    </xacro:macro>
+
+</robot>
+

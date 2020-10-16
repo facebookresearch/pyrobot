@@ -1,0 +1,37 @@
+<library path="lib/libfranka_ros_controllers">
+  <class name="franka_ros_controllers/EffortJointImpedanceController"
+         type="franka_ros_controllers::EffortJointImpedanceController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Controller for commanding joint position and velocity of the Franka arm using impedance control (torque)
+    </description>
+  </class>
+  <class name="franka_ros_controllers/PositionJointPositionController"
+         type="franka_ros_controllers::PositionJointPositionController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Controller for commanding absolute joint positions of the Franka arm
+    </description>
+  </class>
+  <class name="franka_ros_controllers/EffortJointPositionController"
+         type="franka_ros_controllers::EffortJointPositionController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Controller for commanding joint position of the Franka arm using effort control (torque)
+    </description>
+  </class>  
+  <class name="franka_ros_controllers/EffortJointTorqueController"
+         type="franka_ros_controllers::EffortJointTorqueController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Controller for commanding joint torques of the Franka arm directly
+    </description>
+  </class>  
+  <class name="franka_ros_controllers/VelocityJointVelocityController"
+         type="franka_ros_controllers::VelocityJointVelocityController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Controller for commanding joint velocity of the Franka arm using internal joint velocity controller
+    </description>
+  </class> 
+</library>

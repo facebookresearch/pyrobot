@@ -1,0 +1,49 @@
+environment:
+  world_frame: 'map'
+
+  robots:
+    - robot: 'franka'
+      label: 'franka'
+      ns: ''
+      overrides: []
+      transform: 
+        position: [0.0,0.0,0.0]
+        rotation: [0.0,0.0,0.0,1.0]
+        frame: 'map'
+
+  sensors: null
+
+  
+  # TODO: This will be populated by any default table tops, maps etc.  
+  obstacles: null
+
+
+  # TODO: Will depend on the robots and sensors available
+  algorithms: 
+    - algorithm: 'tf_transform'
+      label: 'tf_transform'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'franka_moveit_planner'
+      label: 'moveit_planner'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'franka_kdl_kinematics'
+      label: 'kdl_kinematics'
+      ns: ''
+      overrides: []
+
+  # If sim, add any simulator related config
+  simlator: null # other options: habitat and gazebo
+
+
+  # TODO: move common ros things to this!
+  ros_launch:
+    ns: ''
+    name: 'world'
+    mode: realrobot
+    habitat: null
+    gazebo: null
+    realrobot: null

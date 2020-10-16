@@ -32,7 +32,7 @@ def main():
         },
     ]
 
-    world =  World(config_name='env/arm_env.yaml')
+    world =  World(config_name='env/locobot_arm_env.yaml')
 
     bot = world.robots['locobot']
     bot["arm"].go_home()

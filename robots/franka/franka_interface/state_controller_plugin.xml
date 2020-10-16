@@ -1,0 +1,5 @@
+<library path="lib/libcustom_franka_state_controller">
+  <class name="franka_interface/CustomFrankaStateController" type="franka_interface::CustomFrankaStateController" base_class_type="controller_interface::ControllerBase">
+    <description>A controller that publishes the complete robot state</description>
+  </class>
+</library>

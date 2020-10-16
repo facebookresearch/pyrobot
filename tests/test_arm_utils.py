@@ -11,7 +11,7 @@ from pyrobot import World
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name='env/arm_env.yaml')
+    return World(config_name='env/locobot_arm_env.yaml')
 
 def test_get_ee_pose(create_world):
     world = create_world
