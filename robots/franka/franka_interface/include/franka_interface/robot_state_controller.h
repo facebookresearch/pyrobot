@@ -37,8 +37,8 @@
 #include <franka_hw/franka_state_interface.h>
 #include <franka_hw/franka_model_interface.h>
 #include <franka_hw/trigger_rate.h>
-#include <franka_core_msgs/RobotState.h>
-#include <franka_core_msgs/EndPointState.h>
+#include <franka_control_msgs/RobotState.h>
+#include <franka_control_msgs/EndPointState.h>
 #include <geometry_msgs/WrenchStamped.h>
 #include <realtime_tools/realtime_publisher.h>
 #include <sensor_msgs/JointState.h>
@@ -92,10 +92,10 @@ class CustomFrankaStateController
   std::unique_ptr<franka_hw::FrankaModelHandle> model_handle_;
 
   realtime_tools::RealtimePublisher<tf2_msgs::TFMessage> publisher_transforms_;
-  realtime_tools::RealtimePublisher<franka_core_msgs::RobotState> publisher_franka_state_;
+  realtime_tools::RealtimePublisher<franka_control_msgs::RobotState> publisher_franka_state_;
   realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_joint_states_;
   realtime_tools::RealtimePublisher<sensor_msgs::JointState> publisher_joint_states_desired_;
-  realtime_tools::RealtimePublisher<franka_core_msgs::EndPointState> publisher_tip_state_;
+  realtime_tools::RealtimePublisher<franka_control_msgs::EndPointState> publisher_tip_state_;
   franka_hw::TriggerRate trigger_publish_;
   franka::RobotState robot_state_;
   uint64_t sequence_number_ = 0;

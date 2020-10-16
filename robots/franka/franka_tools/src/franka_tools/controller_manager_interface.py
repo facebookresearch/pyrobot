@@ -32,7 +32,7 @@ from copy import deepcopy
 from controller_manager_msgs.msg import ControllerState
 from controller_manager_msgs.srv import *
 import socket
-from franka_core_msgs.msg import JointControllerStates
+from franka_control_msgs.msg import JointControllerStates
 
 from franka_tools import ControllerParamConfigClient
 

@@ -32,9 +32,9 @@
 #include <dynamic_reconfigure/server.h>
 #include <franka_ros_controllers/joint_controller_paramsConfig.h>
 
-#include <franka_core_msgs/JointCommand.h>
-#include <franka_core_msgs/JointControllerStates.h>
-#include <franka_core_msgs/JointLimits.h>
+#include <franka_control_msgs/JointCommand.h>
+#include <franka_control_msgs/JointControllerStates.h>
+#include <franka_control_msgs/JointLimits.h>
 
 #include <mutex>
 #include <franka_hw/trigger_rate.h>
@@ -74,21 +74,21 @@ class PositionJointPositionController : public controller_interface::MultiInterf
 
   double param_change_filter_{0.005};
 
-  franka_core_msgs::JointLimits joint_limits_;
+  franka_control_msgs::JointLimits joint_limits_;
   
   // Dynamic reconfigure
   std::unique_ptr< dynamic_reconfigure::Server<franka_ros_controllers::joint_controller_paramsConfig> > dynamic_server_joint_controller_params_;
   ros::NodeHandle dynamic_reconfigure_joint_controller_params_node_;
 
   franka_hw::TriggerRate trigger_publish_;
-  realtime_tools::RealtimePublisher<franka_core_msgs::JointControllerStates> publisher_controller_states_;
+  realtime_tools::RealtimePublisher<franka_control_msgs::JointControllerStates> publisher_controller_states_;
 
   bool checkPositionLimits(std::vector<double> positions);
 
 
   void jointControllerParamCallback(franka_ros_controllers::joint_controller_paramsConfig& config,
                                uint32_t level);
-  void jointPosCmdCallback(const franka_core_msgs::JointCommandConstPtr& msg);
+  void jointPosCmdCallback(const franka_control_msgs::JointCommandConstPtr& msg);
 };
 
 }  // namespace franka_ros_controllers

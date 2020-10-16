@@ -39,8 +39,8 @@ import numpy as np
 from copy import deepcopy
 from rospy_message_converter import message_converter
 
-from franka_core_msgs.msg import JointCommand
-from franka_core_msgs.msg import RobotState, EndPointState
+from franka_control_msgs.msg import JointCommand
+from franka_control_msgs.msg import RobotState, EndPointState
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 
@@ -254,7 +254,7 @@ class ArmInterface(object):
         """
         Return the joint limits (defined in the parameter server)
 
-        :rtype: franka_core_msgs.msg.JointLimits
+        :rtype: franka_control_msgs.msg.JointLimits
         :return: JointLimits
         """
         return self._joint_limits

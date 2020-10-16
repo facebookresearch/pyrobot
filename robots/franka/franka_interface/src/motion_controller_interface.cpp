@@ -72,10 +72,10 @@ void MotionControllerInterface::init(ros::NodeHandle& nh,
     }
   }
 
-  controller_name_to_mode_map_[position_controller_name_] = franka_core_msgs::JointCommand::POSITION_MODE;
-  controller_name_to_mode_map_[torque_controller_name_] = franka_core_msgs::JointCommand::TORQUE_MODE;
-  controller_name_to_mode_map_[impedance_controller_name_] = franka_core_msgs::JointCommand::IMPEDANCE_MODE;
-  controller_name_to_mode_map_[velocity_controller_name_] = franka_core_msgs::JointCommand::VELOCITY_MODE;
+  controller_name_to_mode_map_[position_controller_name_] = franka_control_msgs::JointCommand::POSITION_MODE;
+  controller_name_to_mode_map_[torque_controller_name_] = franka_control_msgs::JointCommand::TORQUE_MODE;
+  controller_name_to_mode_map_[impedance_controller_name_] = franka_control_msgs::JointCommand::IMPEDANCE_MODE;
+  controller_name_to_mode_map_[velocity_controller_name_] = franka_control_msgs::JointCommand::VELOCITY_MODE;
   controller_name_to_mode_map_[trajectory_controller_name_] = -1;
 
   if (! default_defined){
@@ -165,28 +165,28 @@ bool MotionControllerInterface::switchControllers(int control_mode) {
   {
     switch (control_mode)
     {
-      case franka_core_msgs::JointCommand::POSITION_MODE:
+      case franka_control_msgs::JointCommand::POSITION_MODE:
         start_controllers.push_back(position_controller_name_);
         stop_controllers.push_back(impedance_controller_name_);
         stop_controllers.push_back(torque_controller_name_);
         stop_controllers.push_back(velocity_controller_name_);
         stop_controllers.push_back(trajectory_controller_name_);
         break;
-      case franka_core_msgs::JointCommand::IMPEDANCE_MODE:
+      case franka_control_msgs::JointCommand::IMPEDANCE_MODE:
         start_controllers.push_back(impedance_controller_name_);
         stop_controllers.push_back(position_controller_name_);
         stop_controllers.push_back(torque_controller_name_);
         stop_controllers.push_back(velocity_controller_name_);
         stop_controllers.push_back(trajectory_controller_name_);
         break;
-      case franka_core_msgs::JointCommand::TORQUE_MODE:
+      case franka_control_msgs::JointCommand::TORQUE_MODE:
         start_controllers.push_back(torque_controller_name_);
         stop_controllers.push_back(position_controller_name_);
         stop_controllers.push_back(impedance_controller_name_);
         stop_controllers.push_back(velocity_controller_name_);
         stop_controllers.push_back(trajectory_controller_name_);
         break;
-      case franka_core_msgs::JointCommand::VELOCITY_MODE:
+      case franka_control_msgs::JointCommand::VELOCITY_MODE:
         start_controllers.push_back(velocity_controller_name_);
         stop_controllers.push_back(position_controller_name_);
         stop_controllers.push_back(impedance_controller_name_);
@@ -215,7 +215,7 @@ bool MotionControllerInterface::switchControllers(int control_mode) {
   return true;
 }
 
-void MotionControllerInterface::jointCommandCallback(const franka_core_msgs::JointCommandConstPtr& msg) {
+void MotionControllerInterface::jointCommandCallback(const franka_control_msgs::JointCommandConstPtr& msg) {
   // lock out other thread(s) which are getting called back via ros.
   std::lock_guard<std::mutex> guard(mtx_);
   if(switchControllers(msg->mode)) {

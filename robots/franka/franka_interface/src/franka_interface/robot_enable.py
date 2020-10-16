@@ -35,7 +35,7 @@ import rospy
 from threading import Lock
 
 from franka_control.msg import ErrorRecoveryActionGoal
-from franka_core_msgs.msg import RobotState
+from franka_control_msgs.msg import RobotState
 
 import franka_dataflow
 from robot_params import RobotParams

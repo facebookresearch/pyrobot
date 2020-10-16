@@ -124,7 +124,7 @@ bool PositionJointPositionController::init(hardware_interface::RobotHW* robot_ha
   publisher_controller_states_.init(node_handle, "/franka_ros_interface/motion_controller/arm/joint_controller_states", 1);
 
   {
-    std::lock_guard<realtime_tools::RealtimePublisher<franka_core_msgs::JointControllerStates> > lock(
+    std::lock_guard<realtime_tools::RealtimePublisher<franka_control_msgs::JointControllerStates> > lock(
         publisher_controller_states_);
     publisher_controller_states_.msg_.controller_name = "position_joint_position_controller";
     publisher_controller_states_.msg_.names.resize(joint_limits_.joint_names.size());
@@ -187,9 +187,9 @@ bool PositionJointPositionController::checkPositionLimits(std::vector<double> po
   return false;
 }
 
-void PositionJointPositionController::jointPosCmdCallback(const franka_core_msgs::JointCommandConstPtr& msg) {
+void PositionJointPositionController::jointPosCmdCallback(const franka_control_msgs::JointCommandConstPtr& msg) {
 
-    if (msg->mode == franka_core_msgs::JointCommand::POSITION_MODE){
+    if (msg->mode == franka_control_msgs::JointCommand::POSITION_MODE){
       if (msg->position.size() != 7) {
         ROS_ERROR_STREAM(
             "PositionJointPositionController: Published Commands are not of size 7");
