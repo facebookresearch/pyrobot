@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package>
+  <name>franka_control_msgs</name>
+  <version>1.0.0</version>
+  <description>
+    Messages and Services required for communication with the Franka robot when using 
+    franka_ros_interface and panda_simulator
+  </description>
+
+  <maintainer email="sxs1412@bham.ac.uk">
+    Saif Sidhik
+  </maintainer>
+  <license>Apache 2.0</license>
+
+  <author>Saif Sidhik</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- package contains messages -->
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>control_msgs</build_depend>
+  <build_depend>franka_msgs</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>franka_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>control_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>actionlib_msgs</run_depend>
+
+</package>

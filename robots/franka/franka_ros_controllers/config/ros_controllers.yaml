@@ -1,0 +1,95 @@
+position_joint_position_controller:
+    type: franka_ros_controllers/PositionJointPositionController
+    joint_names:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+
+velocity_joint_velocity_controller:
+    type: franka_ros_controllers/VelocityJointVelocityController
+    joint_names:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+
+
+effort_joint_impedance_controller:
+    type: franka_ros_controllers/EffortJointImpedanceController
+    arm_id: panda
+    joint_names:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+    k_gains: # if changing the default values, remember to change in the cfg file as well
+        - 1200.0
+        - 1000.0
+        - 1000.0
+        - 800.0
+        - 300.0
+        - 200.0
+        - 50.0
+    d_gains:
+        - 50.0
+        - 50.0
+        - 50.0
+        - 20.0
+        - 20.0
+        - 20.0
+        - 10.0
+    publish_rate: 30.0
+    coriolis_factor: 1.0
+
+effort_joint_position_controller:
+    type: franka_ros_controllers/EffortJointPositionController
+    arm_id: panda
+    joint_names:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+    k_gains:
+        - 1200.0
+        - 1000.0
+        - 1000.0
+        - 800.0
+        - 300.0
+        - 200.0
+        - 50.0
+    d_gains:
+        - 50.0
+        - 50.0
+        - 50.0
+        - 20.0
+        - 20.0
+        - 20.0
+        - 10.0
+    publish_rate: 30.0
+
+effort_joint_torque_controller:
+    type: franka_ros_controllers/EffortJointTorqueController
+    arm_id: panda
+    compensate_coriolis: false
+    joint_names:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+

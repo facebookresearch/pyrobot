@@ -11,7 +11,7 @@ from pyrobot import World
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name='env/arm_env.yaml')
+    return World(config_name='env/locobot_arm_env.yaml')
 
 @pytest.mark.parametrize(
     "target_position", [[0, 0.7], [0.4, 0.4], [0.4, -0.4], [-0.4, 0.4], [-0.4, -0.4]]

@@ -1,0 +1,13 @@
+<?xml version='1.0' ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
+    <xacro:arg name="load_gazebo" default="false"/>
+    <xacro:include filename="$(find franka_panda_description)/robots/panda_arm.xacro"/>
+    
+    <xacro:if value="$(arg load_gazebo)">  
+        <xacro:panda_arm in_gazebo="true" />
+    </xacro:if>
+
+    <xacro:unless value="$(arg load_gazebo)">  
+        <xacro:panda_arm />
+    </xacro:unless>
+</robot>

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>franka_ros_controllers</name>
+  <version>1.0.0</version>
+  <description>test control</description>
+  <maintainer email="sxs1412@bham.ac.uk">Saif Sidhik</maintainer>
+  <license>Apache 2.0</license>
+
+  <author>Saif Sidhik</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>eigen</build_depend>
+
+  <build_export_depend>message_runtime</build_export_depend>
+
+  <depend>controller_interface</depend>
+  <depend>dynamic_reconfigure</depend>
+  <depend>franka_hw</depend>
+  <depend>geometry_msgs</depend>
+  <depend>hardware_interface</depend>
+  <depend>franka_core_msgs</depend>
+  <depend>libfranka</depend>
+  <depend>pluginlib</depend>
+  <depend>realtime_tools</depend>
+  <depend>roscpp</depend>
+
+  <exec_depend>franka_control</exec_depend>
+  <exec_depend>franka_description</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
+  <export>
+    <controller_interface plugin="${prefix}/controller_plugins.xml"/>
+  </export>
+</package>

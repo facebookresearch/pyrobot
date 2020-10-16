@@ -10,7 +10,7 @@ from pyrobot import World
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name='env/base_env.yaml')
+    return World(config_name='env/locobot_base_env.yaml')
 
 def test_vel_cmd_v(create_world):
     world = create_world

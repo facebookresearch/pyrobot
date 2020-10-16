@@ -77,10 +77,6 @@ modules:
       ARM_BASE_FRAME : "base_link"
       # end-effector frame of the arm
       EE_FRAME : "gripper_link"
-      # inverse kinematics position tolerance (m)
-      IK_POSITION_TOLERANCE : 0.01
-      # inverse kinematics orientation toelrance (rad)
-      IK_ORIENTATION_TOLERANCE : 0.1
       # maximum allowed joint error for checking if the _target_ joint value is reached
       MAX_JOINT_ERROR : 0.09
       # maximum allowed end-effector position error in `move_ee_xyz`

@@ -23,7 +23,7 @@ from pyrobot.algorithms.base_controller_impl.ilqr_utils import wrap_theta
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name='env/base_env.yaml')
+    return World(config_name='env/locobot_base_env.yaml')
 
 
 @pytest.mark.parametrize("base_controller", ["ilqr_control"])

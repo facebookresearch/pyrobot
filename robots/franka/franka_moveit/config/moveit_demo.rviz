@@ -1,0 +1,367 @@
+Panels:
+  - Class: rviz/Displays
+    Help Height: 84
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /MotionPlanning1
+        - /MotionPlanning1/Scene Geometry1
+        - /MotionPlanning1/Scene Robot1
+        - /MotionPlanning1/Planning Request1
+        - /MotionPlanning1/Planned Path1
+        - /PlanningScene1
+        - /PlanningScene1/Scene Geometry1
+      Splitter Ratio: 0.7425600290298462
+    Tree Height: 126
+  - Class: rviz/Help
+    Name: Help
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+  - Class: rviz_visual_tools/RvizVisualToolsGui
+    Name: RvizVisualToolsGui
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /rviz_visual_tools
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Acceleration_Scaling_Factor: 0.5
+      Class: moveit_rviz_plugin/MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      MoveIt_Allow_Approximate_IK: false
+      MoveIt_Allow_External_Program: false
+      MoveIt_Allow_Replanning: false
+      MoveIt_Allow_Sensor_Positioning: false
+      MoveIt_Goal_Tolerance: 0
+      MoveIt_Planning_Attempts: 10
+      MoveIt_Planning_Time: 5
+      MoveIt_Use_Cartesian_Path: false
+      MoveIt_Use_Constraint_Aware_IK: true
+      MoveIt_Warehouse_Host: 127.0.0.1
+      MoveIt_Warehouse_Port: 33829
+      MoveIt_Workspace:
+        Center:
+          X: 0
+          Y: 0
+          Z: 0
+        Size:
+          X: 2
+          Y: 2
+          Z: 2
+      Name: MotionPlanning
+      Planned Path:
+        Color Enabled: false
+        Interrupt Display: false
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          panda_link0:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link8:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Loop Animation: false
+        Robot Alpha: 0.5
+        Robot Color: 150; 50; 150
+        Show Robot Collision: false
+        Show Robot Visual: true
+        Show Trail: false
+        State Display Time: 0.05 s
+        Trail Step Size: 1
+        Trajectory Topic: /move_group/display_planned_path
+      Planning Metrics:
+        Payload: 1
+        Show Joint Torques: false
+        Show Manipulability: false
+        Show Manipulability Index: false
+        Show Weight Limit: false
+        TextHeight: 0.07999999821186066
+      Planning Request:
+        Colliding Link Color: 255; 0; 0
+        Goal State Alpha: 1
+        Goal State Color: 250; 128; 0
+        Interactive Marker Size: 0
+        Joint Violation Color: 255; 0; 255
+        Planning Group: panda_arm
+        Query Goal State: true
+        Query Start State: false
+        Show Workspace: false
+        Start State Alpha: 1
+        Start State Color: 0; 255; 0
+      Planning Scene Topic: /planning_scene
+      Robot Description: robot_description
+      Scene Geometry:
+        Scene Alpha: 0.8999999761581421
+        Scene Color: 50; 230; 50
+        Scene Display Time: 0.20000000298023224
+        Show Scene Geometry: false
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+      Scene Robot:
+        Attached Body Color: 150; 50; 150
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          panda_link0:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link8:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Robot Alpha: 1
+        Show Robot Collision: false
+        Show Robot Visual: true
+      Value: true
+      Velocity_Scaling_Factor: 0.5
+    - Class: moveit_rviz_plugin/PlanningScene
+      Enabled: true
+      Move Group Namespace: ""
+      Name: PlanningScene
+      Planning Scene Topic: move_group/monitored_planning_scene
+      Robot Description: robot_description
+      Scene Geometry:
+        Scene Alpha: 1
+        Scene Color: 170; 255; 255
+        Scene Display Time: 0.20000000298023224
+        Show Scene Geometry: true
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+      Scene Robot:
+        Attached Body Color: 150; 50; 150
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          panda_link0:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          panda_link8:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Robot Alpha: 1
+        Show Robot Collision: false
+        Show Robot Visual: true
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Default Light: true
+    Fixed Frame: panda_link0
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz/Interact
+      Hide Inactive Objects: true
+    - Class: rviz/MoveCamera
+    - Class: rviz/Select
+    - Class: rviz_visual_tools/KeyTool
+  Value: true
+  Views:
+    Current:
+      Class: rviz/XYOrbit
+      Distance: 2.827594041824341
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: 0.11356700211763382
+        Y: 0.10592000186443329
+        Z: 2.2351800055275817e-7
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.27479690313339233
+      Target Frame: panda_link0
+      Value: XYOrbit (rviz)
+      Yaw: 5.819954872131348
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 759
+  Help:
+    collapsed: false
+  Hide Left Dock: false
+  Hide Right Dock: false
+  MotionPlanning:
+    collapsed: false
+  MotionPlanning - Trajectory Slider:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd000000010000000000000274000002a1fc020000000dfb000000100044006900730070006c006100790073010000003b0000010d000000c700fffffffb0000000800480065006c00700000000342000000bb0000006e00fffffffb0000000a00560069006500770073000000026d000000b5000000a000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb0000002e004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000014e0000018e0000018300fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006900000004bd0000008d0000003f00fffffffb000000120020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000034f000001fb0000000000000000fb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000308000001760000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000003f00ffffff00000326000002a100000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  RvizVisualToolsGui:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 1440
+  X: 297
+  Y: 101
