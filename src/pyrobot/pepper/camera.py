@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import copy
 import rospy
 import threading
+import numpy as np
 import message_filters
 from copy import deepcopy
 from sensor_msgs.msg import CameraInfo
@@ -25,14 +27,18 @@ class PepperCamera(Camera):
 
         :type configs: YACS CfgNode
         """
-        super(PepperCamera, self).__init__(configs=configs)
+        # super(PepperCamera, self).__init__(configs=configs)
+        self.configs = configs
         self.cv_bridge = CvBridge()
         self.rgb_top_lock = threading.RLock()
         self.rgb_bottom_lock = threading.RLock()
         self.depth_lock = threading.RLock()
+        self.depth_info_lock = threading.RLock()
         self.rgb_img_top = None
         self.rgb_img_bottom = None
         self.depth_img = None
+        self.depth_info = None
+        self.camera_P = None
 
         rospy.Subscriber(
             self.configs.CAMERA.ROSTOPIC_CAMERA_TOP_STREAM,
@@ -48,6 +54,11 @@ class PepperCamera(Camera):
             self.configs.CAMERA.ROSTOPIC_CAMERA_DEPTH_STREAM,
             Image,
             self._rgb_depth_callback)
+
+        rospy.Subscriber(
+            self.configs.CAMERA.ROSTOPIC_CAMERA_DEPTH_INFO_STREAM,
+            CameraInfo,
+            self._camera_info_callback)
 
     def _rgb_top_callback(self, rgb_top):
         self.rgb_top_lock.acquire()
@@ -90,6 +101,12 @@ class PepperCamera(Camera):
 
         self.depth_lock.release()
 
+    def _camera_info_callback(self, msg):
+        self.depth_info_lock.acquire()
+        self.depth_info = msg
+        self.camera_P = np.array(msg.P).reshape((3, 4))
+        self.depth_info_lock.release()
+
     def get_rgb(self):
         """
         This function will raise a not implemented exception. To retrieve
@@ -97,6 +114,12 @@ class PepperCamera(Camera):
         methods should be used.
         """
         raise NotImplementedError('Use get_rgb_top or get_rgb_bottom instead')
+
+    def get_rgb_depth(self):
+        """
+        This function will raise a not implemented exception.
+        """
+        raise NotImplementedError
 
     def get_rgb_top(self):
         """
@@ -131,3 +154,16 @@ class PepperCamera(Camera):
         depth = deepcopy(self.depth_img)
         self.depth_lock.release()
         return depth
+
+    def get_intrinsics(self):
+        """
+        This function returns the camera intrinsics.
+
+        :rtype: np.ndarray
+        """
+        if self.camera_P is None:
+            return self.camera_P
+        self.depth_info_lock.acquire()
+        P = copy.deepcopy(self.camera_P)
+        self.depth_info_lock.release()
+        return P[:3, :3]
