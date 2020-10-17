@@ -57,7 +57,7 @@ _CAMERAC.ROSTOPIC_CAMERA_BOTTOM_STREAM = '/naoqi_driver/camera/bottom/image_raw'
 # CameraInfo topic for the depth camera
 _CAMERAC.ROSTOPIC_CAMERA_DEPTH_INFO_STREAM = '/naoqi_driver/camera/depth/camera_info'
 # Image topic for the depth camera
-_CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = 'naoqi_driver/camera/depth/image_raw'
+_CAMERAC.ROSTOPIC_CAMERA_DEPTH_STREAM = '/naoqi_driver/camera/depth/image_raw'
 
 _BASEC = _C.BASE
 # Base class name
