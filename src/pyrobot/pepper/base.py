@@ -79,8 +79,7 @@ class PepperBase(Base):
 
     def go_to_relative(self, xyt_position, blocking=True, timeout=20.0):
         """
-        Moves the robot to the robot to given
-        goal state relative to its initial pose.
+        Moves the robot to the given goal in the robot frame.
 
         :param xyt_position: The relative goal state of the form (x,y,t)
         :param blocking: If True the method will be a blocking call
@@ -102,7 +101,7 @@ class PepperBase(Base):
 
     def go_to_absolute(self, xyt_position, blocking=True, timeout=20.0):
         """
-        Moves the robot to the robot to given goal state in the world frame.
+        Moves the robot to the given goal state in the world frame.
 
         :param xyt_position: The goal state of the form (x,y,t)
                              in the world (map) frame.
