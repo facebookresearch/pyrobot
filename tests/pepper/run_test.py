@@ -126,7 +126,10 @@ def main(_):
 
         wrapper = PepperRosWrapper()
         wrapper.launchWrapper(pepper, "/naoqi_driver")
-        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_TOP, Camera.K_VGA)
+
+        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_TOP, Camera.K_QVGA)
+        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_BOTTOM, Camera.K_QVGA)
+        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_DEPTH, Camera.K_QVGA)
 
         test_cmds = [
             'test_base_pepper.py test_gripper_pepper.py test_camera_pepper.py '

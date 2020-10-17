@@ -44,18 +44,23 @@ def test_set_vel(create_robot, exe_time):
     assert (time.time() - start_time) < exe_time + epsilon_seconds
 
 
-def test_go_to_relative(create_robot):
-    xyt_position = [[0.8, 0.7, 0.0], [-0.8, -0.7, 0.0]]
+@pytest.mark.parametrize("xyt_position", [[0.8, 0.7, 0.0], [-0.8, -0.7, 0.0]])
+def test_go_to_relative(create_robot, xyt_position):
     bot = create_robot
 
-    start_pose = bot.base.get_state()
-    bot.base.go_to_relative(xyt_position[0])
-    bot.base.go_to_relative(xyt_position[1])
+    goal_pose = np.zeros(3)
+    x, y, theta = bot.base.get_state()
+    dx, dy, d_theta = xyt_position
+
+    goal_pose[0] = x + dx * np.cos(theta) - dy * np.sin(theta)
+    goal_pose[1] = y + dx * np.sin(theta) + dy * np.cos(theta)
+    goal_pose[2] = theta + d_theta
+
+    bot.base.go_to_relative(xyt_position)
     end_pose = bot.base.get_state()
 
-    assert abs(end_pose[2] - start_pose[2]) < 0.15
-    assert np.linalg.norm(
-        np.array(end_pose[:2]) - np.array(start_pose[:2])) < 0.2
+    assert abs(end_pose[2] - goal_pose[2]) < 0.15
+    assert np.linalg.norm(np.array(end_pose[:2]) - goal_pose[:2]) < 0.2
 
 
 @pytest.mark.parametrize("xyt_position", [[0.1, 0.3, 0.5], [-1.0, -0.2, 0.0]])
