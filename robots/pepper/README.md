@@ -61,6 +61,8 @@ From another terminal, execute the __qibullet_launcher.py__ script:
 python qibullet_launcher.py
 ```
 
+By default, only the top camera of the robot is subscribed to, you can modify the `qibullet_launcher.py` script to subscribe to other cameras (bottom or depth cameras, more informations [here](https://github.com/softbankrobotics-research/qibullet/wiki/Tutorials:-Virtual-Robot#cameras))
+
 __WARNING__: If you compiled naoqi_driver from source, you first need to source the catkin_workspace of the driver before running qibullet_launcher.py with the same terminal.
 
 Once the qibullet_launcher.py is running, your PyRobot scripts or the one provided in the _examples/pepper_ folder can be launched. You can modify the __qibullet_launcher.py__ script to launch a simulation that suits your needs (subscribing to another camera, changing the environment, running in headless mode, etc.). More information can be found in the [simulator's wiki](https://github.com/softbankrobotics-research/qibullet/wiki)
