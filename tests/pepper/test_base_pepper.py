@@ -56,7 +56,7 @@ def test_go_to_relative(create_robot, xyt_position):
     goal_pose[1] = y + dx * np.sin(theta) + dy * np.cos(theta)
     goal_pose[2] = theta + d_theta
 
-    bot.base.go_to_relative(xyt_position)
+    bot.base.go_to_relative(xyt_position, timeout=40.0)
     end_pose = bot.base.get_state()
 
     assert abs(end_pose[2] - goal_pose[2]) < 0.15
@@ -67,7 +67,7 @@ def test_go_to_relative(create_robot, xyt_position):
 def test_go_to_absolute(create_robot, xyt_position):
     bot = create_robot
 
-    bot.base.go_to_absolute(xyt_position)
+    bot.base.go_to_absolute(xyt_position, timeout=40.0)
     assert abs(xyt_position[2] - bot.base.get_state()[2]) < 0.15
     assert np.linalg.norm(
         np.array(xyt_position[:2]) - np.array(bot.base.get_state()[:2])) < 0.2

@@ -3,11 +3,8 @@
 import os
 import shutil
 import time
+import signal
 import webbrowser
-from qibullet import SimulationManager
-from qibullet import Camera
-from qibullet import PepperVirtual
-from qibullet import PepperRosWrapper
 from subprocess import Popen, PIPE, STDOUT
 
 from absl import flags, app
@@ -35,6 +32,26 @@ def start_roscore(wait_time=3):
     """
     print('Launching roscore...')
     process = Popen(['roscore'], stdin=PIPE, stdout=FNULL, stderr=STDOUT)
+    time.sleep(wait_time)
+    return process
+
+
+def start_virtualenv(wait_time=3):
+    """
+    Starting a virtual environment for Pepper: a qibullet simulation and a ROS
+    wrapper. Python 2 is used to launch that script
+    """
+    print('Launching virtual environment...')
+    folder = os.path.dirname(os.path.realpath(__file__))
+    virtualenv_script = os.path.join(folder, "virtualenv.py")
+
+    print(virtualenv_script)
+    process = Popen(
+        ["python2", "virtualenv.py"],
+        stdin=PIPE,
+        stdout=FNULL,
+        stderr=STDOUT)
+
     time.sleep(wait_time)
     return process
 
@@ -73,6 +90,15 @@ def stop_roscore(process):
     p = Popen(['rosnode', 'cleanup'])
     p.wait()
     print('Rosnode successfully stopped!')
+
+
+def stop_virtualenv(process):
+    """
+    Stops the virtual environment
+    """
+    os.kill(process.pid, signal.SIGINT)
+    process.wait()
+    print('Stopping virtual environment...')
 
 
 def main(_):
@@ -116,20 +142,7 @@ def main(_):
 
         # Launching a roscore
         roscore_process = start_roscore()
-
-        # Launching Pepper in qibullet, with a ROS wrapper
-        simulation_manager = SimulationManager()
-        client = simulation_manager.launchSimulation(gui=False)
-        pepper = simulation_manager.spawnPepper(
-            client,
-            spawn_ground_plane=True)
-
-        wrapper = PepperRosWrapper()
-        wrapper.launchWrapper(pepper, "/naoqi_driver")
-
-        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_TOP, Camera.K_QVGA)
-        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_BOTTOM, Camera.K_QVGA)
-        pepper.subscribeCamera(PepperVirtual.ID_CAMERA_DEPTH, Camera.K_QVGA)
+        virtualenv_process = start_virtualenv()
 
         test_cmds = [
             'test_base_pepper.py test_gripper_pepper.py test_camera_pepper.py '
@@ -137,8 +150,7 @@ def main(_):
 
         run_test(test_cmds, 'pepper_simulated.html')
 
-        wrapper.stopWrapper()
-        simulation_manager.stopSimulation(client)
+        stop_virtualenv(virtualenv_process)
         stop_roscore(roscore_process)
 
         # # Write put coverage results.
