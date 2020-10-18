@@ -12,6 +12,7 @@
                  "sim2real", 
                  "visual_nav_cmp"],
     "Sawyer Examples":["manipulation_sawyer"],
+    "Pepper Examples":["setup_pepper"],
     "Help and Support": ["new_robot_support", 
 			 "datasets",
                          "network", 

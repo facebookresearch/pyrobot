@@ -1,4 +1,8 @@
-# PyRobot setup for Pepper
+---
+id: setup_pepper
+title: PyRobot setup for Pepper
+sidebar_label: [Basic] Setup
+--
 
 ## Prerequisite
 Make sure that [ROS](http://wiki.ros.org/ROS/Installation) is installed on your computer.
