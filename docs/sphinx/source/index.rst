@@ -16,7 +16,6 @@ Here lies API documentation for `PyRobot <https://github.com/facebookresearch/py
    algorithms/algorithms
    robots/robots
    sensors/sensors
-   locobot/locobot
 
 :ref:`search`
 ==================

@@ -2,7 +2,7 @@
 Gripper
 ====================================
 
-.. autoclass:: pyrobot.robots.Gripper
+.. autoclass:: pyrobot.robots.gripper.Gripper
         :members:
         :show-inheritance:
         :special-members:

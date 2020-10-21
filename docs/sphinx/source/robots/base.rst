@@ -2,7 +2,7 @@
 Base
 ====================================
 
-.. autoclass:: pyrobot.robots.Base
+.. autoclass:: pyrobot.robots.base.Base
         :members:
         :show-inheritance:
         :special-members:

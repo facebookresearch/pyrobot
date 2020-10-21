@@ -2,7 +2,7 @@
 Arm
 ====================================
 
-.. autoclass:: pyrobot.robots.Arm
+.. autoclass:: pyrobot.robots.arm.Arm
         :members:
         :show-inheritance:
         :special-members:
