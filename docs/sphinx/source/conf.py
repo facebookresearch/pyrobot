@@ -69,6 +69,7 @@ MOCK_MODULES = [
     "bezier",
     "scipy.linalg",
     "moveit_msgs",
+    "hydra",
     "hydra.experimental",    
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
