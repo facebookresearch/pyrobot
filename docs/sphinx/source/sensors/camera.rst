@@ -2,7 +2,7 @@
 Camera
 ====================================
 
-.. autoclass:: pyrobot.sensors.Camera
+.. autoclass:: pyrobot.sensors.camera.Camera
         :members:
         :show-inheritance:
         :special-members:
