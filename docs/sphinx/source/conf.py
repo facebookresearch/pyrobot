@@ -71,7 +71,8 @@ MOCK_MODULES = [
     "moveit_msgs",
     "hydra",
     "hydra.experimental",   
-    "hydra.utils" 
+    "hydra.utils",
+    "omegaconf" 
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
