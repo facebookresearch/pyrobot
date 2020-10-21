@@ -1,8 +1,8 @@
 ====================================
-Base
+Arm
 ====================================
 
-.. autoclass:: locobot.base.LoCoBotBase
+.. autoclass:: pyrobot.robots.locobot.arm.LoCoBotArm
         :members:
         :show-inheritance:
         :special-members:

@@ -37,6 +37,12 @@ sudo ninja install
 
 5. Download the missing ```libdepthengine.so.1.0``` and ```libstdc++.so.6``` from [here](https://drive.google.com/drive/folders/1PYci8STgGtf2GMMl1I8wrVRMXMw-mPbC?usp=sharing) into ```path/to/Azure-Kinect-Sensor-SDK/build/bin```
 
+11. Copy udev rules from the ROS driver repo to your machine. 
+```bash
+sudo cd path/to/Azure-Kinect-Sensor-SDK/scripts/99-k4a.rules /etc/udev/rules.d/
+```
+**Unplug and replug your sensor into the machine after copying the file over.**
+
 6. Test out that the setup is working connecting the Azure kinect to the computer and running
 ```bash
 sudo path/to/Azure-Kinect-Sensor-SDK/build/bin/k4aviewer
@@ -75,6 +81,14 @@ To fix this, open ```<repo>/include/azure_kinect_ros_driver/k4a_ros_device.h and
 
 ```
 
+9. Install missing k4a packages.
+```bash
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+sudo apt-add-repository https://packages.microsoft.com/ubuntu/18.04/prod
+sudo apt-get update
+sudo apt-get install libk4a1.3 libk4a1.3-dev k4a-tools=1.3.0
+```
+
 9. Compile the ROS packages -
 ```bash
 cd path/to/azure_kinect_ws
@@ -83,12 +97,6 @@ catkin_make
 
 10. Download the missing ```libdepthengine.so.1.0``` and ```libstdc++.so.6``` from [here](https://drive.google.com/drive/folders/1PYci8STgGtf2GMMl1I8wrVRMXMw-mPbC?usp=sharing) into ```path/to/azure_kinect_ws/devel/lib```
 
-
-11. Copy udev rules from the ROS driver repo to your machine. 
-```bash
-sudo cd path/to/Azure-Kinect-Sensor-SDK/scripts/99-k4a.rules /etc/udev/rules.d/
-```
-**Unplug and replug your sensor into the machine after copying the file over.**
 
 12. Finally, test out the ROS-Kinect setup by running,
 ```bash
