@@ -42,8 +42,6 @@ class ProportionalControl(BaseController):
         self.robot_label = list(self.robots.keys())[0]
         self.bot_base = self.robots[self.robot_label]["base"]
 
-        self._as = self.bot_base._as
-
         self.ctrl_pub = self.bot_base.ctrl_pub
 
         self.rot_max_vel = self.configs.MAX_ABS_TURN_SPEED_P_CONTROLLER
@@ -150,11 +148,6 @@ class ProportionalControl(BaseController):
 
         while True:
 
-            if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the Proportional execution")
-
-                return False
-
             if self.bot_base.base_state.should_stop:
                 if not self.ignore_collisions:
                     rospy.loginfo("curr error = {} meters".format(cur_error))
@@ -220,11 +213,6 @@ class ProportionalControl(BaseController):
         self.bot_base.base_state.should_stop = False
         ret_val = True
         while True:
-
-            if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the Proportional execution")
-
-                return False
 
             if self.bot_base.base_state.should_stop:
                 if not self.ignore_collisions:

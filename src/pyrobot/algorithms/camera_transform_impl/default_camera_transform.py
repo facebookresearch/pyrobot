@@ -118,11 +118,13 @@ class DefaultCameraTransform(CameraTransform):
         return T
 
     def get_intrinsics(self):
-        fx = self.camera.configs["Camera.fx"]
-        fy = self.camera.configs["Camera.fy"]
-        cx = self.camera.configs["Camera.cx"]
-        cy = self.camera.configs["Camera.cy"]
-        Itc = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
+        Itc = self.camera.get_intrinsics()
+        if Itc is None:
+            fx = self.camera.configs["Camera.fx"]
+            fy = self.camera.configs["Camera.fy"]
+            cx = self.camera.configs["Camera.cx"]
+            cy = self.camera.configs["Camera.cy"]
+            Itc = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
         return Itc
 
     def check_cfg(self):

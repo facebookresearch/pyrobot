@@ -40,8 +40,6 @@ class MovebaseControl(BaseController):
         self.robot_label = list(self.robots.keys())[0]
         self.bot_base = self.robots[self.robot_label]["base"]
 
-        self._as = self.bot_base._as
-
         self.base_state = self.bot_base.base_state
         self.MAP_FRAME = self.bot_base.configs.MAP_FRAME
         self.BASE_FRAME = self.bot_base.configs.BASE_FRAME
@@ -121,10 +119,6 @@ class MovebaseControl(BaseController):
         rospy.sleep(0.1)
         rospy.loginfo("Waiting for the Result")
         while True:
-            if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the Movebase execution")
-                self._cancel_goal()
-                return False
             if self.execution_status is 4:
                 rospy.loginfo("move_base failed to find a valid plan to goal")
                 return False
