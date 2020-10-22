@@ -18,6 +18,7 @@ Check the following definition of World, Algorithms, Robot, and Sensor base clas
    sawyer/sawyer
 
 Check the following API of the robots we support.
+
 .. toctree::
    :maxdepth: 2
 
