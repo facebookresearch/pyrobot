@@ -1,5 +1,5 @@
 ====================================
-PyRobot Next Robot Modules
+PyRobot Robot Base Classes
 ====================================
 
 Here are the wrapper definitions of robot modules.
@@ -10,14 +10,3 @@ Here are the wrapper definitions of robot modules.
    arm
    base
    gripper
-
-Here are the wrapper definitions for using PyRobot with the `LoCoBot <http://locobot.org/>`_ robot.
-
-.. toctree::
-   :maxdepth: 2
-
-   locobot/base
-   locobot/arm
-   locobot/camera
-   locobot/gripper
-
