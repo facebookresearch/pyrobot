@@ -1,5 +1,5 @@
 ====================================
-PyRobot wrapper on LoCoBot
+PyRobot Robot Base Classes
 ====================================
 
 Here are the wrapper definitions for using PyRobot with the `LoCoBot <http://locobot.org/>`_ robot.
@@ -12,4 +12,3 @@ Here are the wrapper definitions for using PyRobot with the `LoCoBot <http://loc
    arm
    camera
    gripper
-
