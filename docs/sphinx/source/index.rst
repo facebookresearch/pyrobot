@@ -17,12 +17,16 @@ Check the following definition of World, Algorithms, Robot, and Sensor base clas
    locobot/locobot
    sawyer/sawyer
 
-Check the following API of the robots we support.
+Check the following wrapper definition of the robots we support.
 
 .. toctree::
    :maxdepth: 2
 
    locobot/locobot
+
+Check the following wrapper definition of the sensors we support.
+
+Check the following wrapper definition of the algorithms we support.
 
 :ref:`search`
 ==================
