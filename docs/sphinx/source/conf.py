@@ -70,9 +70,10 @@ MOCK_MODULES = [
     "scipy.linalg",
     "moveit_msgs",
     "hydra",
-    "hydra.experimental",   
+    "hydra.experimental",
     "hydra.utils",
-    "omegaconf" 
+    "omegaconf",
+    "control_msgs"
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
