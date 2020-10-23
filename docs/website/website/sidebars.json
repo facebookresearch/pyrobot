@@ -1,22 +1,23 @@
 {
   "docs": {
-  	"Getting Started": ["overview", 
+  	"Getting Started": ["overview",
                         "software"],
-    "Locobot Examples": ["calibration", 
-                 "navigation", 
-                 "manipulation", 
-                 "demonstrations", 
-                 "pushing", 
+    "Locobot Examples": ["calibration",
+                 "navigation",
+                 "manipulation",
+                 "demonstrations",
+                 "pushing",
                  "active_camera",
-                 "grasping", 
-                 "sim2real", 
+                 "grasping",
+                 "sim2real",
                  "visual_nav_cmp"],
     "Sawyer Examples":["manipulation_sawyer"],
-    "Help and Support": ["new_robot_support", 
+    "Help and Support": ["new_robot_support",
 			 "datasets",
-                         "network", 
+                         "network",
                      	 "contributing",
                      	 "faq",
-                         "contact"]
+                         "contact"],
+    "The Next Version of PyRobot!": ["next-software", "next-navigation", "next-manipulation"]
   }
 }

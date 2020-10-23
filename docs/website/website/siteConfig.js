@@ -48,7 +48,9 @@ const siteConfig = {
     {href: 'https://pyrobot-docs.readthedocs.io/en/latest/#', label: 'API'},
     {doc: 'datasets', label: 'Datasets'},
     {doc: 'faq', label: 'Help'},
-    {href: 'https://github.com/facebookresearch/pyrobot', label: 'GitHub'}
+    {href: 'https://github.com/facebookresearch/pyrobot', label: 'GitHub'},
+    {href: 'https://pyrobot-next.readthedocs.io/en/api_0.4/', label: 'next-API'},
+    {href: 'https://github.com/facebookresearch/pyrobot/tree/API_0.4', label: 'next-Github'}
     // {blog: true, label: 'Blog'}
   ],
 
