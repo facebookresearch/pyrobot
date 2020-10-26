@@ -1,5 +1,5 @@
 ====================================
-PyRobot Next Sensor Modules
+PyRobot Sensor Base Classes
 ====================================
 
 Here are the wrapper definitions of sensor modules.
@@ -8,4 +8,3 @@ Here are the wrapper definitions of sensor modules.
    :maxdepth: 2
 
    camera
-

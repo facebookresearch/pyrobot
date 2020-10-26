@@ -1,10 +1,9 @@
 ====================================
-Arm
+LoCoBot Gripper
 ====================================
 
-.. autoclass:: pyrobot.robots.locobot.arm.LoCoBotArm
+.. autoclass:: pyrobot.robots.locobot.gripper.LoCoBotGripper
         :members:
         :show-inheritance:
         :special-members:
         :exclude-members: __metaclass__, __weakref__
-

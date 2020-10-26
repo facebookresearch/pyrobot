@@ -1,5 +1,5 @@
 ====================================
-Camera
+LoCoBot Camera
 ====================================
 
 .. autoclass:: pyrobot.robots.locobot.camera.SimpleCamera
@@ -13,4 +13,3 @@ Camera
         :show-inheritance:
         :special-members:
         :exclude-members: __metaclass__, __weakref__
-
