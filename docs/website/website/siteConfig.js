@@ -35,6 +35,7 @@ const siteConfig = {
 
   // Used for publishing and more
   // projectName: 'pyrobot',
+  cname: 'pyrobot.org',
   projectName: 'pyrobot',
   organizationName: 'facebookresearch',
   // organizationName: 'facebook',
