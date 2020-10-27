@@ -38,7 +38,6 @@ from pyrobot.locobot.base_controllers import (
     ProportionalControl,
     ILQRControl,
     MoveBaseControl,
-    GPMPControl,
 )
 
 import actionlib
@@ -343,9 +342,9 @@ class LoCoBotBase(Base):
         # Set up low-level controllers.
         if base_controller is None:
             base_controller = self.configs.BASE.BASE_CONTROLLER
-        assert base_controller in ["proportional", "ilqr", "movebase", "gpmp"], (
+        assert base_controller in ["proportional", "ilqr", "movebase"], (
             "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
-            "movebase, gpmp but is {:s}".format(base_controller)
+            "movebase but is {:s}".format(base_controller)
         )
         self.base_controller = base_controller
         if base_controller == "ilqr":
@@ -358,8 +357,6 @@ class LoCoBotBase(Base):
             )
         elif base_controller == "movebase":
             self.controller = MoveBaseControl(self.base_state, self.configs, self._as)
-        elif base_controller == "gpmp":
-            self.controller = GPMPControl(self, self.base_state, self.configs, self._as)
 
         rospy.sleep(2)
 
@@ -437,21 +434,11 @@ class LoCoBotBase(Base):
                 result = self.planner.move_to_goal(
                     self.xyt_position, self.controller.goto
                 )
-            elif self.base_controller == "gpmp":
-                result = self.controller.go_to_absolute_with_map(
-                    self.xyt_position, self.close_loop, self.smooth, self.planner
-                )
         else:
             result = self.controller.go_to_absolute(
                 self.xyt_position, self.close_loop, self.smooth
             )
-        # except AssertionError as error:
-        #     print(error)
-        #     result = False
-        # except:
-        #     print("Unexpected error encountered during positon control!")
-        #     result = False
-
+        
         return result
 
     def clean_shutdown(self):
@@ -459,11 +446,7 @@ class LoCoBotBase(Base):
         self._as.disable()
         self.stop()
         self.controller_sub.unregister()
-
-        if self.base_controller == "gpmp" or self.base_controller == "movebase":
-            self.controller.cancel_goal()
-
-        # del self._as
+        
 
     def get_state(self, state_type):
         """
