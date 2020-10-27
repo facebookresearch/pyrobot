@@ -54,8 +54,6 @@ def make_module(cfg):
 
 def make_robot(robot_cfg, ns="", overrides=[], ros_launch_manager=None):
 
-    # TODO: add check if the robot name passed is correct
-
     if isinstance(robot_cfg, str):
         robot_cfg = compose("robot/" + robot_cfg + ".yaml", overrides)
     elif not isinstance(robot_cfg, DictConfig):
@@ -138,12 +136,18 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
 
 class World(object):
     """
-    TODO: Add more detailed info here.
-    Root class for all problem
-
+    Root class for four types or modules: robots, sensors, algorithms, and objects (obstacles), each being a dictionary of robot/sensors/algorithms/object instances.
+    All of these instances can be queried by self.robots/sensors/algorithms/objectsp["label"]
     """
 
-    def __init__(self, configs_path=None, config_name=None, overrides=[]):
+    def __init__(self, config_name=None, configs_path=None, overrides=[]):
+        """
+        Constructor for World object.
+
+        :param configs_name: file name for the config file correspond to the world object. Type: str
+        :param configs_path: folder path for the config file correspond to the world object. If None, default to be `{$pyrobot-root}/src/pyrobot/hydra_config`. Type: str
+        :param overrides: a list of override commands. Details described in: https://hydra.cc/docs/next/experimental/compose_api/#internaldocs-banner. Type: list[str].
+        """
 
         # overrides: https://hydra.cc/docs/next/experimental/compose_api/#internaldocs-banner
         # TODO: see if ros can be made optional
