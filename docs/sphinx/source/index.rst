@@ -24,14 +24,18 @@ Check the following wrapper definition of the robots we support.
 
    locobot/locobot
 
+
 Check the following wrapper definition of the sensors we support.
 
+
 Check the following wrapper definition of the algorithms we support.
+
 
 .. toctree::
    :maxdepth: 2
 
    algorithms/algorithms
+
 
 :ref:`search`
 ==================
