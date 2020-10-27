@@ -18,6 +18,6 @@
                      	 "contributing",
                      	 "faq",
                          "contact"],
-    "The Next Version of PyRobot!": ["next-software", "next-navigation", "next-manipulation"]
+    "The Next Version of PyRobot!": ["next-software", "next-manipulation"]
   }
 }
