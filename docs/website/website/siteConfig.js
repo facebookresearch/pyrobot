@@ -25,7 +25,7 @@ const siteConfig = {
   tagline: 'An Open Source Robotics Research Platform',
   // url: 'https://pyrobot-v1-website.netlify.com', // Your website URL
   // baseUrl: '/', // Base URL for your project */
-  url: 'https://www.pyrobot.org', // Your website URL
+  url: 'https://pyrobot.org', // Your website URL
   // url: 'https://pyrobot-v1-website.netlify.com', // Your website URL
   // baseUrl: '/', // Base URL for your project */
   baseUrl: '/', // Base URL for your project */
