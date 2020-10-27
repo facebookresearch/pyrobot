@@ -56,20 +56,6 @@ def main(_):
     states = get_trajectory(bot, FLAGS.type)
     bot.base.track_trajectory(states, close_loop=FLAGS.close_loop)
 
-    if hasattr(bot.base.controller, "plot_plan_execution"):
-        file_name = os.path.join(
-            "{:s}_trajectory_{:s}_close{:d}-{:s}.pdf".format(
-                FLAGS.botname, FLAGS.type, int(FLAGS.close_loop), get_time_str()
-            )
-        )
-        save_dir = os.path.join(os.path.dirname(__file__), "tmp")
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        file_name = os.path.join(save_dir, file_name)
-        rospy.loginfo("Wrote run data to %s.", file_name)
-        bot.base.controller.plot_plan_execution(file_name)
-    bot.base.stop()
-
 
 if __name__ == "__main__":
     app.run(main)

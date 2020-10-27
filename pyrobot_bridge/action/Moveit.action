@@ -1,0 +1,19 @@
+#goal definition
+string action_type
+bool wait
+
+# used by set_joint_positions
+float64[] values
+
+# used by move_ee_xyz
+geometry_msgs/Pose[] waypoints
+float64 eef_step
+float64 jump_th
+
+---
+#result definition
+float64[] res_values
+
+---
+#feedback
+float64[] feedback_values

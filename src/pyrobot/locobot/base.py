@@ -28,13 +28,27 @@ except:
 from pyrobot.core import Base
 from std_msgs.msg import Empty
 
-from pyrobot.locobot.base_control_utils import MoveBasePlanner, _get_absolute_pose
+from pyrobot.locobot.base_control_utils import (
+    MoveBasePlanner,
+    _get_absolute_pose,
+    LocalActionStatus,
+    LocalActionServer,
+)
 from pyrobot.locobot.base_controllers import (
     ProportionalControl,
     ILQRControl,
     MoveBaseControl,
 )
+
+import actionlib
+from control_msgs.msg import (
+    FollowJointTrajectoryAction,
+    FollowJointTrajectoryGoal,
+)
+from std_msgs.msg import Empty
+
 from pyrobot.locobot.bicycle_model import wrap_theta
+from actionlib_msgs.msg import GoalStatus
 
 
 class BaseSafetyCallbacks(object):
@@ -255,45 +269,184 @@ class LoCoBotBase(Base):
         self.build_map = rospy.get_param("use_vslam", False)
         self.base_state = BaseState(base, self.build_map, map_img_dir, configs)
 
-        # Path planner
+        ###################### Action server specific things######################
+
+        self.action_name = "pyrobot/locobot/base/controller_server"
+        self.controller_sub = rospy.Subscriber(
+            self.action_name, Empty, self._execute_controller,
+        )
+        self._as = LocalActionServer()
+        self.controller_pub = rospy.Publisher(self.action_name, Empty, queue_size=1)
+        # class variables shared when communicating between client and server
+        self.smooth, self.use_map, self.close_loop = None, None, None
+        self.xyt_position = None
+        self.xyt_positions = None
+        self.controls = None
+
+        self.load_planner(base_planner)
+        self.load_controller(base_controller)
+        rospy.on_shutdown(self.clean_shutdown)
+
+    # TODO: change this to a planner object.
+    # This requires uniformity across all controllers
+    def load_planner(self, base_planner=None):
+
+        """
+        Method to load a particular planner for Locobot base
+
+        :param base_planner: Name of the planner to be loaded
+
+        :type base_planner: string
+        """
+
+        if not self._as.is_available():
+            rospy.logwarn(
+                "Current planner is use by action server.\
+                Please consider using cancel_goal method before calling this method."
+            )
+            return False
+
         if base_planner is None:
-            base_planner = configs.BASE.BASE_PLANNER
+            base_planner = self.configs.BASE.BASE_PLANNER
         assert base_planner in [
             "movebase",
             "none",
         ], "BASE.[BASE_PLANNER] should be movebase or none."
         if base_planner == "movebase":
-            self.planner = MoveBasePlanner(self.configs)
+            self.planner = MoveBasePlanner(self.configs, self._as)
         elif base_planner == "none":
             # No path planning is done here.
             self.planner = None
         self.base_planner = base_planner
 
+        rospy.sleep(2)
+
+    # TODO: change this to a controller object.
+    # This requires uniformity across all controllers
+    def load_controller(self, base_controller=None):
+
+        """
+        Method to load a particular controller for Locobot base
+
+        :param base_controller: Name of the controller to be loaded
+
+        :type base_controller: string
+        """
+        if not self._as.is_available():
+            rospy.logwarn(
+                "Current controller is use by action server.\
+                Please consider using cancel_goal method before calling this method."
+            )
+            return False
+
         # Set up low-level controllers.
         if base_controller is None:
-            base_controller = configs.BASE.BASE_CONTROLLER
+            base_controller = self.configs.BASE.BASE_CONTROLLER
         assert base_controller in ["proportional", "ilqr", "movebase"], (
             "BASE.BASE_CONTROLLER should be one of proportional, ilqr, "
             "movebase but is {:s}".format(base_controller)
         )
-
         self.base_controller = base_controller
         if base_controller == "ilqr":
-            self.controller = ILQRControl(self.base_state, self.ctrl_pub, self.configs)
+            self.controller = ILQRControl(
+                self.base_state, self.ctrl_pub, self.configs, self._as
+            )
         elif base_controller == "proportional":
             self.controller = ProportionalControl(
-                self.base_state, self.ctrl_pub, self.configs
+                self.base_state, self.ctrl_pub, self.configs, self._as
             )
         elif base_controller == "movebase":
-            self.controller = MoveBaseControl(self.base_state, self.configs)
+            self.controller = MoveBaseControl(self.base_state, self.configs, self._as)
 
-        rospy.on_shutdown(self.clean_shutdown)
+        rospy.sleep(2)
+
+    def _execute_controller(self, goal):
+
+        assert self._called_method in [
+            "go_to_absolute",
+            "track_trajectory",
+        ], "Invalid action server method called"
+        if self._called_method == "go_to_absolute":
+            result = self._go_to_absolute()
+        elif self._called_method == "track_trajectory":
+            result = self._track_trajectory()
+
+        if self._as.is_disabled():
+            print("Locobot base server is disabled")
+        elif self._as.is_preempt_requested():
+            rospy.logwarn("Current action has been Preempted")
+            self._as.set_preempted()
+        elif result:
+            self._as.set_succeeded()
+        else:
+            self._as.set_aborted()
+
+    def _track_trajectory(self):
+
+        try:
+            if self.base_controller == "ilqr":
+                result = self.controller.track_trajectory(
+                    self.xyt_states, self.controls, self.close_loop
+                )
+            else:
+                plan_idx = 0
+                result = True
+                while True:
+
+                    if self._as.is_preempt_requested():
+                        rospy.loginfo("Preempted the tracjectory execution")
+                        result = False
+                        break
+
+                    plan_idx = min(plan_idx, len(self.xyt_states) - 1)
+                    point = self.xyt_states[plan_idx]
+                    if not self.controller.go_to_absolute(
+                        point, close_loop=self.close_loop
+                    ):
+                        print("hhlhlhlhlhlh")
+                        result = False
+                        break
+                    if plan_idx == len(self.xyt_states) - 1:
+                        break
+                    plan_idx += self.configs.BASE.TRACKED_POINT
+        except AssertionError as error:
+            print(error)
+            result = False
+        except:
+            print("Unexpected error encountered during trajectory tracking!")
+            result = False
+
+        return result
+
+    def _go_to_absolute(self):
+
+        # try:
+        if self.use_map:
+            assert self.build_map, (
+                "Error: Cannot use map without " "enabling build map feature"
+            )
+            if self.base_controller == "ilqr":
+                goto = partial(
+                    self.go_to_relative, close_loop=self.close_loop, smooth=self.smooth,
+                )
+                result = self.planner.move_to_goal(self.xyt_position, goto)
+            elif self.base_controller == "proportional":
+                result = self.planner.move_to_goal(
+                    self.xyt_position, self.controller.goto
+                )
+        else:
+            result = self.controller.go_to_absolute(
+                self.xyt_position, self.close_loop, self.smooth
+            )
+        
+        return result
 
     def clean_shutdown(self):
-        rospy.loginfo("Stop LoCoBot Base")
-        if self.base_controller == "movebase" :
-            self.controller.cancel_goal()
+        rospy.loginfo("Stopping LoCoBot Base. Waiting for base thread to finish")
+        self._as.disable()
         self.stop()
+        self.controller_sub.unregister()
+        
 
     def get_state(self, state_type):
         """
@@ -315,7 +468,7 @@ class LoCoBotBase(Base):
             assert self.build_map, "build_map was set to False"
             return self.base_state.vslam.base_pose
 
-    def _get_plan(self, xyt_position):
+    def get_plan(self, xyt_position):
         """
         Generates a plan that can take take the robot to given goal state.
 
@@ -330,8 +483,24 @@ class LoCoBotBase(Base):
             raise ValueError("Failed to find a valid plan!")
         return self.planner.parse_plan(plan)
 
+    def _wait(self, wait):
+
+        status = self._as.get_state()
+        if wait:
+            while status != LocalActionStatus.SUCCEEDED:
+                if (
+                    status == LocalActionStatus.ABORTED
+                    or status == LocalActionStatus.PREEMPTED
+                    or status == LocalActionStatus.DISABLED
+                ):
+                    return False
+                status = self._as.get_state()
+            return True
+        else:
+            return None
+
     def go_to_relative(
-        self, xyt_position, use_map=False, close_loop=True, smooth=False
+        self, xyt_position, use_map=False, close_loop=True, smooth=False, wait=True
     ):
         """
         Moves the robot to the robot to given goal state
@@ -345,21 +514,24 @@ class LoCoBotBase(Base):
                            account of odometry.
         :param smooth: When set to "True", ensures that the
                        motion leading to the goal is a smooth one.
+        :param wait: Makes the process wait at this funciton until the execution is 
+                       complete
 
         :type xyt_position: list or np.ndarray
         :type use_map: bool
         :type close_loop: bool
         :type smooth: bool
+        :type wait: bool
 
         :return: True if successful; False otherwise (timeout, etc.)
-        :rtype: bool
+        :rtype: bool or None
         """
         start_pos = self.base_state.state.state_f.copy()
         goal_pos = _get_absolute_pose(xyt_position, start_pos.ravel())
-        return self.go_to_absolute(goal_pos, use_map, close_loop, smooth)
+        return self.go_to_absolute(goal_pos, use_map, close_loop, smooth, wait)
 
     def go_to_absolute(
-        self, xyt_position, use_map=False, close_loop=True, smooth=False
+        self, xyt_position, use_map=False, close_loop=True, smooth=False, wait=True
     ):
         """
         Moves the robot to the robot to given goal state in the world frame.
@@ -373,48 +545,69 @@ class LoCoBotBase(Base):
                            account of odometry.
         :param smooth: When set to "True", ensures that the motion
                        leading to the goal is a smooth one.
+        :param wait: Makes the process wait at this funciton until the execution is 
+                       complete
 
         :type xyt_position: list or np.ndarray
         :type use_map: bool
         :type close_loop: bool
         :type smooth: bool
+        :type wait: bool
 
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
 
-        xyt_position = np.asarray(xyt_position)
-
-        try:
-            if use_map:
-                # assert self.build_map, (
-                #     "Error: Cannot use map without " "enabling build map feature"
-                # )
-                if self.base_controller == "ilqr":
-                    goto = partial(
-                        self.go_to_relative, close_loop=close_loop, smooth=smooth
-                    )
-                    self.planner.move_to_goal(xyt_position, goto)
-                    return
-                elif self.base_controller == "proportional":
-                    self.planner.move_to_goal(xyt_position, self.controller.goto)
-                    return
-                elif self.base_controller == "gpmp":
-                    self.controller.go_to_absolute_with_map(
-                        xyt_position, close_loop, smooth, self.planner
-                    )
-                    return
-
-            self.controller.go_to_absolute(xyt_position, close_loop, smooth)
-        except AssertionError as error:
-            print(error)
+        if not self._as.is_available():
+            rospy.logwarn(
+                "Base action server already in use by a different goal.\
+                           Please consider using cancel_goal method before calling this method."
+            )
             return False
-        except:
-            print("Unexpected error encountered during positon control!")
-            return False
-        return True
+        self._as.set_active()  # block action server and set active
+        self.xyt_position = np.asarray(xyt_position)
+        self.use_map = use_map
+        self.smooth = smooth
+        self.close_loop = close_loop
+        self._called_method = "go_to_absolute"
+        self.controller_pub.publish(Empty())
 
-    def track_trajectory(self, states, controls=None, close_loop=True):
+        self._wait(wait)
+
+    def get_last_goal_result(self):
+
+        """
+        Returns the status of the commanded goal action.
+        None - No last action to report
+        ACTIVE = 1
+        PREEMPTED  = 2
+        SUCCEEDED = 3
+        ABORTED = 4
+        FREE = 5
+        UNKOWN = 6
+        PREEMPTING = 7     
+        :rtype: LocalActionStatus
+
+        """
+
+        return self._as.get_state()
+
+    def cancel_last_goal(self, stop_robot=True):
+
+        """
+        Cancels the last action server command executions.
+
+        :param stop_robot: stops the robot abruptly if enabled.
+
+        :type stop_robot: bool
+        """
+
+        self._as.cancel_goal()
+
+        if stop_robot:
+            self.stop()
+
+    def track_trajectory(self, states, controls=None, close_loop=True, wait=True):
         """
         State trajectory that the robot should track.
 
@@ -435,24 +628,18 @@ class LoCoBotBase(Base):
             rospy.loginfo("The given trajectory is empty")
             return
 
-        try:
-            if self.base_controller == "ilqr":
-                self.controller.track_trajectory(states, controls, close_loop)
-            else:
-                plan_idx = 0
-
-                while True:
-                    plan_idx = min(plan_idx, len(states) - 1)
-                    point = states[plan_idx]
-                    self.controller.go_to_absolute(point, close_loop=close_loop)
-
-                    if plan_idx == len(states) - 1:
-                        break
-                    plan_idx += self.configs.BASE.TRACKED_POINT
-        except AssertionError as error:
-            print(error)
+        if not self._as.is_available():
+            rospy.logwarn(
+                "Base action server already in use by a different goal.\
+                           Please consider using cancel_goal method before calling this method."
+            )
             return False
-        except:
-            print("Unexpected error encountered during trajectory tracking!")
-            return False
-        return True
+        self._as.set_active()  # block action server and set active
+
+        self.xyt_states = states
+        self.controls = controls
+        self.close_loop = close_loop
+        self._called_method = "track_trajectory"
+        self.controller_pub.publish(Empty())
+
+        self._wait(wait)

@@ -37,7 +37,7 @@ class LoCoBotCamera(object):
         # Pan and tilt related vairades.
         self.pan = 0.0
         self.tilt = 0.0
-
+        
     def get_rgb(self):
         observations = self.sim.get_sensor_observations()
         return observations["rgb"][:, :, 0:3]
@@ -57,14 +57,14 @@ class LoCoBotCamera(object):
 		:return: the intrinsic matrix (shape: :math:`[3, 3]`)
 		:rtype: np.ndarray
 		"""
-        fx = self.configs['Camera.fx']
-        fy = self.configs['Camera.fy']
-        cx = self.configs['Camera.cx']
-        cy = self.configs['Camera.cy']
+        fx = self.depth_cam.cfg_data['Camera.fx']
+        fy = self.depth_cam.cfg_data['Camera.fy']
+        cx = self.depth_cam.cfg_data['Camera.cx']
+        cy = self.depth_cam.cfg_data['Camera.cy']
         Itc = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
         return Itc
 
-    def pix_to_3dpt(self, rs, cs, in_cam=False, initial_rotation=None):
+    def pix_to_3dpt(self, rs, cs, in_cam=False):
         """
         Get the 3D points of the pixels in RGB images.
 
@@ -80,11 +80,6 @@ class LoCoBotCamera(object):
                    which means all columns.
         :param in_cam: return points in camera frame,
                        otherwise, return points in base frame
-
-        :param initial_rotation: a known initial rotation of the camera sensor
-                                 to calibrate habitat origin. The default value
-                                 is None which means it uses the Habitat-reported
-                                 value.
 
         :type rs: list or np.ndarray
         :type cs: list or np.ndarray
@@ -108,49 +103,54 @@ class LoCoBotCamera(object):
         if in_cam:
             return pts, colors
 
-        # here, points are now given in camera frame
-        # the thing to do next is to transform the points from camera frame into the
-        # global frame of pyrobot environment
-        # This does not translate to what habitat thinks as origin,
-        # because pyrobot's habitat-reference origin is `self.agent.init_state`
-        # So, CAMERA frame -> HABITAT frame -> PYROBOT frame
+        pts = self._cam2pyrobot(pts)
+        return pts, colors
 
-        init_state = self.agent.initial_state # habitat - x,y,z
+    def _cam2pyrobot(self, pts):
+        """
+        here, points are  given in camera frame
+        the thing to do next is to transform the points from camera frame into the
+        global frame of pyrobot environment
+        This does not translate to what habitat thinks as origin,
+        because pyrobot's habitat-reference origin is `self.agent.init_state`
+        So, CAMERA frame -> HABITAT frame -> PYROBOT frame (robot base frame)
+        :param pts: point coordinates in camera frame
+                  (shape: :math:`[N, 3]`)
+
+        :type pts: np.ndarray
+
+        :returns: pts
+
+                  pts: point coordinates in world frame
+                  (shape: :math:`[N, 3]`)
+
+        :rtype: np.ndarray
+        """
+
         cur_state = self.agent.get_state()
         cur_sensor_state = cur_state.sensor_states['rgb']
-        if initial_rotation is None:
-            initial_rotation = init_state.sensor_states['rgb'].rotation
+        initial_rotation = cur_state.rotation
         rot_init_rotation = self._rot_matrix(initial_rotation)
 
+        ros_to_habitat_frame = np.array([[0.0, -1.0, 0.0],
+                                         [0.0, 0.0, -1.0],
+                                         [1.0, 0.0, 0.0]])
 
-        ros_to_habitat_frame = np.array([[ 0.0, -1.0,  0.0],
-                                         [ 0.0,  0.0,  1.0],
-                                         [-1.0,  0.0,  0.0]])
-
-        camera_to_image_frame = np.array([[1.0,  0.0,  0.0],
-                                          [0.0, -1.0,  0.0],
-                                          [0.0,  0.0, -1.0]])
-
-        relative_position = cur_sensor_state.position - init_state.position
+        relative_position = cur_sensor_state.position - cur_state.position
         relative_position = rot_init_rotation.T @ relative_position
 
         cur_rotation = self._rot_matrix(cur_sensor_state.rotation)
         cur_rotation = rot_init_rotation.T @ cur_rotation
-
-        rot_habitat_origin_to_image_frame = cur_rotation @ camera_to_image_frame
-
         # now do the final transformation and return the points
-        pts = np.dot(pts, rot_habitat_origin_to_image_frame.T)
-        pts = pts + relative_position
+        pts = np.dot(pts, cur_rotation.T)
+        pts = pts - relative_position
         pts = ros_to_habitat_frame.T @ pts.T
         pts = pts.T
-        return pts, colors
-
+        return pts
 
     def _rot_matrix(self, habitat_quat):
         quat_list = [habitat_quat.x, habitat_quat.y, habitat_quat.z, habitat_quat.w]
         return prutil.quat_to_rot_mat(quat_list)
-
 
     def get_current_pcd(self, in_cam=True):
         """
@@ -167,8 +167,13 @@ class LoCoBotCamera(object):
 		          colors: rgb values for pts_in_cam (shape: :math:`[N, 3]`)
 		:rtype: tuple(np.ndarray, np.ndarray)
 		"""
-
-        raise NotImplementedError
+        rgb_im, depth_im = self.get_rgb_depth()
+        pcd_in_cam, colors = self.depth_cam.get_pcd_ic(depth_im=depth_im, rgb_im=rgb_im)
+        pts = pcd_in_cam[:3, :].T
+        if in_cam:
+            return pts, colors
+        pts = self._cam2pyrobot(pts)
+        return pts, colors
 
     @property
     def state(self):
@@ -240,7 +245,6 @@ class LoCoBotCamera(object):
         self.set_pan_tilt(self.pan, tilt)
 
     def _compute_relative_pose(self, pan, tilt):
-
         pan_link = 0.1  # length of pan link
         tilt_link = 0.1  # length of tilt link
 

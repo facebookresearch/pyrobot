@@ -1,7 +1,97 @@
 version: 2.1
 
 jobs:
-  
+  kinetic_ubuntu_16_habitat:
+    resource_class: gpu.small
+    machine:
+      image: ubuntu-1604:201903-01
+      #docker_layer_caching: true    # default - false
+
+    steps:
+      - checkout
+      - run:
+          name: Installer Python3
+          command: |
+            cd ~/project
+            git submodule update --init
+            mkdir -p ~/low_cost_ws/src
+            mv ~/project ~/low_cost_ws/src/pyrobot
+   
+            sudo apt-get update
+            pip install catkin_pkg
+            
+            source ~/.bashrc
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/install
+            chmod +x locobot_install_all.sh
+            ./locobot_install_all.sh -t sim_only -p 3 -l interbotix
+            
+      - run:
+          name: Install cuda
+          command: |
+              wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.44-1_amd64.deb
+              sudo dpkg -i cuda-repo-ubuntu1604_8.0.44-1_amd64.deb
+              sudo apt-get update || true
+              sudo apt-get --yes --force-yes install cuda
+              touch ./cuda_installed
+              nvidia-smi
+
+      - run:
+          name: Install Habitat headless with cuda
+          command: |
+            cd ~/
+            source ~/.bashrc
+            source /opt/ros/kinetic/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
+            
+            pip install cmake # Inside PyRobot Virtual Environment
+
+            sudo apt-get install -y software-properties-common
+            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+            sudo apt update || true
+            sudo apt install g++-7 -y
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 \
+                         --slave /usr/bin/g++ g++ /usr/bin/g++-7 
+            sudo update-alternatives --config gcc
+
+            git clone --branch stable https://github.com/facebookresearch/habitat-sim.git
+            cd habitat-sim
+            pip install -r requirements.txt
+            sudo apt-get install -y --no-install-recommends \
+                libjpeg-dev libglm-dev libgl1-mesa-glx libegl1-mesa-dev mesa-utils xorg-dev freeglut3-dev
+            sudo apt-get install -y libbullet-dev
+            export PATH=/usr/local/cuda/bin:$PATH
+            python setup.py install --headless --with-cuda --bullet
+
+      - run:
+          name: Run roscore in background
+          command: |
+            #sudo apt-get install -y xvfb
+            #Xvfb :1 -screen 0 1600x1200x16  &
+            #export DISPLAY=:1.0
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            #export PYTHONPATH=$PYTHONPATH:/usr/local/cython #Put GPMP on path
+            roscore
+          no_output_timeout: 1.00h
+          background: true
+          
+      - run:
+          name: Run tests
+          command: |
+            sleep 150 # Wait for Gazebo to properly spin up
+            source ~/.bashrc
+            source /opt/ros/$ROS_DISTRO/setup.bash
+            source ~/low_cost_ws/devel/setup.bash
+            source ~/pyenv_pyrobot_python3/bin/activate
+            source ~/pyrobot_catkin_ws/devel/setup.bash
+            export PATH=/usr/local/cuda/bin:$PATH
+            cd ~/low_cost_ws/src/pyrobot/tests/
+            pytest test_habitat_locobot.py -v
+            
+       
   kinetic_install_ubuntu_16:
     resource_class: xlarge
     docker:
@@ -12,11 +102,25 @@ jobs:
       - run:
           name: Installer Python2
           command: |
+            cd ~/project
+            git submodule update --init
+            mkdir -p ~/low_cost_ws/src
+            mv ~/project ~/low_cost_ws/src/pyrobot
+            
+            # This step is needed as we copy the repo instead of clone using install script
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_description/urdf
+            ln interbotix_locobot_description.urdf locobot_description.urdf
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
+            ln interbotix_locobot.srdf locobot.srdf
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_control/src
+            sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -1.30, 1.617, 0.5, 0};/' locobot_controller.cpp
+    
             sudo apt-get install -y python-rosdep
-            sudo rm -rf /etc/apt/sources.list.d/ros1-latest.list*
+            sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
+            # sudo rm -rf /etc/apt/sources.list.d/ros1-latest.list*
             # https://answers.ros.org/question/325039/apt-update-fails-cannot-install-pkgs-key-not-working/
-            sudo apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
-            cd ~/project/robots/LoCoBot/install
+            # sudo apt-key del 421C365BD9FF1F717815A3895523BAEEB01FA116
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2 -l cmu
  
@@ -27,10 +131,10 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            cd ~/project
+            cd ~/low_cost_ws/src/pyrobot
             chmod +x install_pyrobot.sh
             ./install_pyrobot.sh -p 3
-            cd ~/project/robots/LoCoBot
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
@@ -52,7 +156,7 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            export PYTHONPATH=$PYTHONPATH:/usr/local/cython
+            export PYTHONPATH=$PYTHONPATH:/usr/local/cython #Put GPMP on path
             roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
@@ -65,7 +169,7 @@ jobs:
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python2/bin/activate
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -78,7 +182,7 @@ jobs:
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -93,8 +197,22 @@ jobs:
       - run:
           name: Installer Python2
           command: |
+            cd ~/project
+            git submodule update --init
+            mkdir -p ~/low_cost_ws/src
+            mv ~/project ~/low_cost_ws/src/pyrobot
+            
+            # This step is needed as we copy the repo instead of clone using install script
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_description/urdf
+            ln interbotix_locobot_description.urdf locobot_description.urdf
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_moveit_config/config
+            ln interbotix_locobot.srdf locobot.srdf
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_control/src
+            sed -i 's/\(float restJnts\[5\] = \)\(.*\)/\1{0, -1.30, 1.617, 0.5, 0};/' locobot_controller.cpp
+            
             sudo apt-get install -y python-rosdep
-            cd ~/project/robots/LoCoBot/install
+            sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot/install
             chmod +x locobot_install_all.sh
             ./locobot_install_all.sh -t sim_only -p 2 -l interbotix
  
@@ -105,10 +223,10 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            cd ~/project
+            cd ~/low_cost_ws/src/pyrobot
             chmod +x install_pyrobot.sh
             ./install_pyrobot.sh -p 3
-            cd ~/project/robots/LoCoBot
+            cd ~/low_cost_ws/src/pyrobot/robots/LoCoBot
             source ~/pyenv_pyrobot_python3/bin/activate
             pip3 install --ignore-installed -r requirements_python3.txt
             deactivate
@@ -122,7 +240,7 @@ jobs:
             source ~/.bashrc
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
-            export PYTHONPATH=$PYTHONPATH:/usr/local/cython
+            export PYTHONPATH=$PYTHONPATH:/usr/local/cython #Put GPMP on path
             roslaunch locobot_control main.launch use_sim:=true use_rviz:=false
           no_output_timeout: 1.00h
           background: true
@@ -135,7 +253,7 @@ jobs:
             source /opt/ros/$ROS_DISTRO/setup.bash
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python2/bin/activate
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -148,7 +266,7 @@ jobs:
             source ~/low_cost_ws/devel/setup.bash
             source ~/pyenv_pyrobot_python3/bin/activate
             source ~/pyrobot_catkin_ws/devel/setup.bash
-            cd ~/project/tests/
+            cd ~/low_cost_ws/src/pyrobot/tests/
             chmod +x circleci_tests.sh
             ./circleci_tests.sh
 
@@ -159,3 +277,4 @@ workflows:
     jobs:
       - kinetic_install_ubuntu_16
       - melodic_install_ubuntu_18
+      - kinetic_ubuntu_16_habitat

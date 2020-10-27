@@ -81,9 +81,15 @@
     <node name="turtlebot_controller_node" pkg="turtlebot_controller" 
                             type="turtlebot_controller_node"/>
                             
+    <node name="gpmp_action_server" pkg="locobot_control" 
+                            type="pointrobot3factor_ros_server.py" output="screen"/>
 
     <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
                   type="kinematics.py"/>
+
+    <node name="pyrobot_moveit" pkg="pyrobot_bridge"
+                  type="moveit_bridge.py"/>
+
 
     
     <group if="$(eval arg('use_base') or arg('use_sim'))" >
