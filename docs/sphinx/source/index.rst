@@ -14,8 +14,8 @@ Check the following definition of World, Algorithms, Robot, and Sensor base clas
    :maxdepth: 2
 
    core/core
-   locobot/locobot
-   sawyer/sawyer
+   robots/robots
+   sensors/sensors
 
 Check the following wrapper definition of the robots we support.
 
@@ -27,6 +27,9 @@ Check the following wrapper definition of the robots we support.
 Check the following wrapper definition of the sensors we support.
 
 Check the following wrapper definition of the algorithms we support.
+.. toctree::
+   :maxdepth: 2
+
+   algorithms/algorithms
 
 :ref:`search`
-==================
