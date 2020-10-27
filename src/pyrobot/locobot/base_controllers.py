@@ -15,11 +15,13 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from numpy import sign
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
-
+import tf
 from pyrobot.locobot.base_control_utils import (
     TrajectoryTracker,
     position_control_init_fn,
     _get_absolute_pose,
+    SimpleGoalState,
+    check_server_client_link,
 )
 from pyrobot.locobot.base_control_utils import build_pose_msg
 from pyrobot.locobot.bicycle_model import BicycleSystem
@@ -47,7 +49,7 @@ class ProportionalControl:
     controller used to control the base
     """
 
-    def __init__(self, bot_base, ctrl_pub, configs):
+    def __init__(self, bot_base, ctrl_pub, configs, action_server):
         """
         The constructor for ProportionalControl class.
 
@@ -61,6 +63,7 @@ class ProportionalControl:
         :type base_state: BaseState
         :type ctrl_pub: rospy.Publisher
         """
+        self._as = action_server
 
         self.configs = configs
         self.bot_base = bot_base
@@ -121,17 +124,21 @@ class ProportionalControl:
         ret_val = True
 
         while True:
+
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the Proportional execution")
+
+                return False
+
+            if self.bot_base.should_stop:
+                if not self.ignore_collisions:
+                    rospy.loginfo("curr error = {} meters".format(cur_error))
+
+                    self.stop()
+                    return False
+
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = self._norm_pose(target_world - self.bot_base.state.theta)
-
-                if self.bot_base.should_stop:
-                    if not self.ignore_collisions:
-                        rospy.loginfo(
-                            "curr error = {} degrees".format(degrees(cur_error))
-                        )
-                        self.stop()
-                        ret_val = False
-                        break
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.rot_error_thr:
@@ -188,6 +195,19 @@ class ProportionalControl:
         self.bot_base.should_stop = False
         ret_val = True
         while True:
+
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the Proportional execution")
+
+                return False
+
+            if self.bot_base.should_stop:
+                if not self.ignore_collisions:
+                    rospy.loginfo("curr error = {} meters".format(cur_error))
+
+                    self.stop()
+                    return False
+
             if time.time() - prev_time > (1.0 / self.hz):
                 cur_error = abs(
                     abs(target)
@@ -196,13 +216,6 @@ class ProportionalControl:
                         + (self.bot_base.state.y - init_y) ** 2
                     )
                 )
-
-                if self.bot_base.should_stop:
-                    if not self.ignore_collisions:
-                        rospy.loginfo("curr error = {} meters".format(cur_error))
-                        self.stop()
-                        ret_val = False
-                        break
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.dist_error_thr:
@@ -278,11 +291,15 @@ class ProportionalControl:
 
         theta_2 = -theta_1 + rot
         # first rotate by theta1
-        self._step_angle(theta_1)
+        if not self._step_angle(theta_1):
+            return False
         # move the distance
-        self._step_x(dist)
+        if not self._step_x(dist):
+            return False
         # second rotate by theta2
-        self._step_angle(theta_2)
+        if not self._step_angle(theta_2):
+            return False
+
         return True
 
     def _get_xyt(self, pose):
@@ -337,7 +354,7 @@ class ILQRControl(TrajectoryTracker):
     on top of mobile bases.
     """
 
-    def __init__(self, bot_base, ctrl_pub, configs):
+    def __init__(self, bot_base, ctrl_pub, configs, action_server):
         """
         Constructor for ILQR based Control.
 
@@ -349,7 +366,7 @@ class ILQRControl(TrajectoryTracker):
         :type base_state: BaseState
         :type ctrl_pub: rospy.Publisher
         """
-
+        self._as = action_server
         self.configs = configs
         self.max_v = self.configs.BASE.MAX_ABS_FWD_SPEED
         self.min_v = -self.configs.BASE.MAX_ABS_FWD_SPEED
@@ -431,7 +448,8 @@ class ILQRControl(TrajectoryTracker):
         """
         # Compute plan
         plan = self.generate_plan(states, controls)
-
+        if not plan:
+            return False
         # Execute a plan
         return self.execute_plan(plan, close_loop)
 
@@ -441,7 +459,7 @@ class MoveBaseControl(object):
     used to control the base
     """
 
-    def __init__(self, base_state, configs):
+    def __init__(self, base_state, configs, action_server):
         """
         The constructor for MoveBaseControl class.
 
@@ -450,7 +468,7 @@ class MoveBaseControl(object):
         :type configs: dict
         :type base_state: BaseState
         """
-
+        self._as = action_server
         self.configs = configs
         self.base_state = base_state
         self.MAP_FRAME = self.configs.BASE.MAP_FRAME
@@ -493,16 +511,20 @@ class MoveBaseControl(object):
         rospy.sleep(0.1)
         rospy.loginfo("Waiting for the Result")
         while True:
-            assert (
-                self.execution_status is not 4
-            ), "move_base failed to find a valid plan to goal"
+            if self._as.is_preempt_requested():
+                rospy.loginfo("Preempted the Movebase execution")
+                self.cancel_goal()
+                return False
+            if self.execution_status is 4:
+                rospy.loginfo("move_base failed to find a valid plan to goal")
+                return False
             if self.execution_status is 3:
                 rospy.loginfo("Base reached the goal state")
-                return
+                return True
             if self.base_state.should_stop:
                 rospy.loginfo("Base asked to stop. Cancelling goal sent to move_base.")
                 self.cancel_goal()
-                return
+                return False
 
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=False):
         """
@@ -522,6 +544,7 @@ class MoveBaseControl(object):
         """
         assert not smooth, "movebase controller cannot generate smooth motion"
         assert close_loop, "movebase controller cannot work in open loop"
-        self._send_action_goal(
+        return self._send_action_goal(
             xyt_position[0], xyt_position[1], xyt_position[2], self.MAP_FRAME
         )
+

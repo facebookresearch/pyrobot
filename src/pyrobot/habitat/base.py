@@ -38,7 +38,7 @@ class LoCoBotBase(object):
 
     def get_state(self, state_type="odom"):
         # Returns (x, y, yaw)
-        assert state_type == "odom", "Error: Only Odom state is availalabe"
+        assert state_type == "odom", "Error: Only Odom state is available"
         cur_state = self.get_full_state()
 
         init_rotation = self._rot_matrix(self.init_state.rotation)
@@ -152,10 +152,14 @@ class LoCoBotBase(object):
             return False
 
         (cur_x, cur_y, cur_yaw) = self.get_state()
-        rel_x = xyt_position[0] - cur_x
-        rel_y = xyt_position[1] - cur_y
+        rel_X = xyt_position[0] - cur_x
+        rel_Y = xyt_position[1] - cur_y
         abs_yaw = xyt_position[2]
-        return self._go_to_relative_pose(rel_x, rel_y, abs_yaw)
+        # convert rel_X & rel_Y from global frame to  current frame
+        R = np.array([[np.cos(cur_yaw), np.sin(cur_yaw)],
+                      [-np.sin(cur_yaw), np.cos(cur_yaw)]])
+        rel_x, rel_y = np.matmul(R, np.array([rel_X, rel_Y]).reshape(-1,1))
+        return self._go_to_relative_pose(rel_x[0], rel_y[0], abs_yaw)
 
     def _act(self, action_name, actuation):
         """Take the action specified by action_id

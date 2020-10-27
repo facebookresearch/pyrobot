@@ -32,6 +32,13 @@ from cv_bridge import CvBridge, CvBridgeError
 
 import message_filters
 
+import actionlib
+from pyrobot_bridge.msg import (
+    MoveitAction,
+    MoveitGoal,
+)
+from actionlib_msgs.msg import GoalStatus
+
 
 class Robot:
     """
@@ -379,7 +386,9 @@ class Camera(object):
     def get_depth(self):
         """
         This function returns the depth image perceived by the camera.
-
+        
+        The depth image is in meters.
+        
         :rtype: np.ndarray or None
         """
         self.camera_img_lock.acquire()
@@ -391,13 +400,16 @@ class Camera(object):
     def get_rgb_depth(self):
         """
         This function returns both the RGB and depth
-        images perceived by the camera.
+        images perceived by the camera. 
+
+        The depth image is in meters.
 
         :rtype: np.ndarray or None
         """
         self.camera_img_lock.acquire()
         rgb = copy.deepcopy(self.rgb_img)
         depth = copy.deepcopy(self.depth_img)
+        depth = depth / self.configs.CAMERA.DEPTH_MAP_FACTOR
         self.camera_img_lock.release()
         return rgb, depth
 
@@ -448,7 +460,7 @@ class Arm(object):
         self.configs = configs
         self.moveit_planner = moveit_planner
         self.planning_time = planning_time
-        self.moveit_group = None
+
         self.use_moveit = use_moveit
 
         self.joint_state_lock = threading.RLock()
@@ -685,18 +697,32 @@ class Arm(object):
                 raise ValueError(
                     "Moveit is not initialized, " "did you pass in use_moveit=True?"
                 )
+
+            self._cancel_moveit_goal()
+
             if isinstance(positions, np.ndarray):
                 positions = positions.tolist()
 
             rospy.loginfo("Moveit Motion Planning...")
-            result = self.moveit_group.moveToJointPosition(
-                self.arm_joint_names, positions, wait=wait
-            )
+
+            moveit_goal = MoveitGoal()
+            moveit_goal.wait = wait
+            moveit_goal.action_type = "set_joint_positions"
+            moveit_goal.values = positions
+            self._moveit_client.send_goal(moveit_goal)
+
+            if wait:
+                self._moveit_client.wait_for_result()
+                status = self._moveit_client.get_state()
+                if status == GoalStatus.SUCCEEDED:
+                    result = True
         else:
             self._pub_joint_positions(positions)
             if wait:
                 result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
-        return result
+
+        if wait:
+            return result
 
     def make_plan_joint_positions(self, positions, **kwargs):
         result = None
@@ -709,10 +735,12 @@ class Arm(object):
             )
 
         rospy.loginfo("Moveit Motion Planning...")
-        result = self.moveit_group.motionPlanToJointPosition(
-            self.arm_joint_names, positions
-        )
-        return [p.positions for p in result]
+
+        raise NotImplementedError
+        # result = self.moveit_group.motionPlanToJointPosition(
+        #     self.arm_joint_names, positions
+        # )
+        # return [p.positions for p in result]
 
     def set_joint_velocities(self, velocities, **kwargs):
         """
@@ -740,7 +768,6 @@ class Arm(object):
         (w.r.t. 'ARM_BASE_FRAME').
         Computes IK solution in joint space and calls set_joint_positions.
         Will wait for command to complete if wait is set to True.
-
         :param position: position of the end effector (shape: :math:`[3,]`)
         :param orientation: orientation of the end effector
                             (can be rotation matrix, euler angles (yaw,
@@ -762,60 +789,12 @@ class Arm(object):
         :return: Returns True if command succeeded, False otherwise
         :rtype: bool
         """
-        if plan:
-            if not self.use_moveit:
-                raise ValueError(
-                    "Using plan=True when moveit is not"
-                    " initialized, did you pass "
-                    "in use_moveit=True?"
-                )
-            pose = Pose()
-            position = position.flatten()
-            if orientation.size == 4:
-                orientation = orientation.flatten()
-                ori_x = orientation[0]
-                ori_y = orientation[1]
-                ori_z = orientation[2]
-                ori_w = orientation[3]
-            elif orientation.size == 3:
-                quat = prutil.euler_to_quat(orientation)
-                ori_x = quat[0]
-                ori_y = quat[1]
-                ori_z = quat[2]
-                ori_w = quat[3]
-            elif orientation.size == 9:
-                quat = prutil.rot_mat_to_quat(orientation)
-                ori_x = quat[0]
-                ori_y = quat[1]
-                ori_z = quat[2]
-                ori_w = quat[3]
-            else:
-                raise TypeError(
-                    "Orientation must be in one "
-                    "of the following forms:"
-                    "rotation matrix, euler angles, or quaternion"
-                )
-            pose.position.x, pose.position.y, pose.position.z = (
-                position[0],
-                position[1],
-                position[2],
-            )
-            (
-                pose.orientation.x,
-                pose.orientation.y,
-                pose.orientation.z,
-                pose.orientation.w,
-            ) = (ori_x, ori_y, ori_z, ori_w)
-            result = self.moveit_group.moveToPose(pose, wait=True)
+        joint_positions = self.compute_ik(position, orientation, numerical=numerical)
+        result = False
+        if joint_positions is None:
+            rospy.logerr("No IK solution found; check if target_pose is valid")
         else:
-            joint_positions = self.compute_ik(
-                position, orientation, numerical=numerical
-            )
-            result = False
-            if joint_positions is None:
-                rospy.logerr("No IK solution found; check if target_pose is valid")
-            else:
-                result = self.set_joint_positions(joint_positions, plan=plan, wait=wait)
+            result = self.set_joint_positions(joint_positions, plan=plan, wait=wait)
         return result
 
     def make_plan_pose(
@@ -865,12 +844,19 @@ class Arm(object):
             pose.orientation.z,
             pose.orientation.w,
         ) = (ori_x, ori_y, ori_z, ori_w)
-        result = self.moveit_group.motionPlanToPose(pose, wait=True)
 
-        return [p.positions for p in result]
+        raise NotImplementedError
+        # result = self.moveit_group.motionPlanToPose(pose, wait=True)
+        # return [p.positions for p in result]
 
     def move_ee_xyz(
-        self, displacement, eef_step=0.005, numerical=True, plan=True, **kwargs
+        self,
+        displacement,
+        eef_step=0.005,
+        numerical=True,
+        plan=True,
+        wait=True,
+        **kwargs
     ):
         """
         Keep the current orientation fixed, move the end
@@ -901,6 +887,12 @@ class Arm(object):
         if num_pts <= 1:
             num_pts = 2
         if (hasattr(self, "ana_ik_solver") and not numerical) or not plan:
+
+            if not wait:
+                raise NotImplementedError(
+                    "Not wait is supported only in plan=True case."
+                )
+
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
             cur_pos, cur_ori, cur_quat = ee_pose
             waypoints_sp = np.linspace(0, path_len, num_pts)
@@ -936,6 +928,8 @@ class Arm(object):
                     "in use_moveit=True?"
                 )
 
+            self._cancel_moveit_goal()
+
             ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
             cur_pos, cur_ori, cur_quat = ee_pose
             cur_pos = np.array(cur_pos).reshape(-1, 1)
@@ -957,28 +951,38 @@ class Arm(object):
                 wpose.orientation.w = cur_quat[3]
                 moveit_waypoints.append(copy.deepcopy(wpose))
 
-            result = self.moveit_group.followCartesian(
-                way_points=moveit_waypoints,  # waypoints to follow
-                way_point_frame=self.configs.ARM.ARM_BASE_FRAME,
-                max_step=eef_step,  # eef_step
-                jump_threshold=0.0,
-            )  # jump_threshold
+            moveit_goal = MoveitGoal()
+            moveit_goal.wait = wait
+            moveit_goal.action_type = "move_ee_xyz"
+            moveit_goal.waypoints = moveit_waypoints
+            moveit_goal.eef_step = eef_step
+            self._moveit_client.send_goal(moveit_goal)
 
-            if result is False:
-                return False
+            if wait:
+                self._moveit_client.wait_for_result()
+                status = self._moveit_client.get_state()
+                if status != GoalStatus.SUCCEEDED:
+                    return False
 
-            ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
-            cur_pos, cur_ori, cur_quat = ee_pose
+                ee_pose = self.get_ee_pose(self.configs.ARM.ARM_BASE_FRAME)
+                cur_pos, cur_ori, cur_quat = ee_pose
 
-            cur_pos = np.array(cur_pos).reshape(-1, 1)
+                cur_pos = np.array(cur_pos).reshape(-1, 1)
 
-            success = True
-            diff = cur_pos.flatten() - waypoints[:, -1].flatten()
-            error = np.linalg.norm(diff)
-            if error > self.configs.ARM.MAX_EE_ERROR:
-                rospy.logerr("Move end effector along xyz failed!")
-                success = False
-            return success
+                success = True
+                diff = cur_pos.flatten() - waypoints[:, -1].flatten()
+                error = np.linalg.norm(diff)
+                if error > self.configs.ARM.MAX_EE_ERROR:
+                    rospy.logerr("Move end effector along xyz failed!")
+                    success = False
+                return success
+
+    def _cancel_moveit_goal(self):
+        if not self._moveit_client.gh:
+            return
+        # 2 is for "Done" state of action
+        if self._moveit_client.simple_state != 2:
+            self._moveit_client.cancel_all_goals()
 
     def compute_fk_position(self, joint_positions, des_frame):
         """
@@ -1180,18 +1184,22 @@ class Arm(object):
         """
         Initialize moveit and setup move_group object
         """
-        self.moveit_group = MoveGroup(
-            self.configs.ARM.MOVEGROUP_NAME,
-            self.configs.ARM.ARM_BASE_FRAME,
-            self.configs.ARM.EE_FRAME,
-            self.configs.ARM.ROSSRV_CART_PATH,
-            self.configs.ARM.ROSSRV_MP_PATH,
-            listener=self.tf_listener,
-            plan_only=False,
+        rospy.set_param("pyrobot/moveit_planner", self.moveit_planner)
+        rospy.set_param("pyrobot/move_group_name", self.configs.ARM.MOVEGROUP_NAME)
+        self._moveit_client = actionlib.SimpleActionClient(
+            "/pyrobot/moveit_server", MoveitAction
         )
 
-        self.moveit_group.setPlannerId(self.moveit_planner)
-        self.moveit_group.setPlanningTime(self.planning_time)
+        rospy.sleep(0.1)  # Ensures client spins up properly
+        server_up = self._moveit_client.wait_for_server(timeout=rospy.Duration(10.0))
+        if not server_up:
+            rospy.logerr(
+                "Timed out waiting for the pyrobot-moveit server"
+                " Action Server to connect. Start the action server"
+                " before running example."
+            )
+            rospy.signal_shutdown("Timed out waiting for Action Server")
+            sys.exit(1)
 
     def _angle_error_is_small(self, target_joints):
         cur_joint_vals = self.get_joint_angles()

@@ -18,7 +18,7 @@ from pyrobot import Robot
 if __name__ == "__main__":
     bot = Robot("locobot")
     rgb, depth = bot.camera.get_rgb_depth()
-    actual_depth_values = depth.astype(np.float64) / 1000
     cv2.imshow("Color", rgb[:, :, ::-1])
-    cv2.imshow("Depth", depth)
+    # Multiply by 1000 just to increase contrast in depth image
+    cv2.imshow("Depth", 1000* depth) 
     cv2.waitKey(5000)

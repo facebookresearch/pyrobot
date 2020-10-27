@@ -4,8 +4,8 @@
 # Camera Parameters. Adjust them!
 #--------------------------------------------------------------------------------------------
 
-Camera.fx: 1000
-Camera.fy: 1000
+Camera.fx: 256
+Camera.fy: 256
 Camera.cx: 256
 Camera.cy: 256
 
