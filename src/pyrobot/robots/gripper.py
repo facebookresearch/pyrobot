@@ -40,7 +40,7 @@ class Gripper(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, configs):
+    def __init__(self, configs, ns=""):
         """
         Constructor for Gripper parent class.
 
@@ -48,6 +48,7 @@ class Gripper(object):
         :type configs: YACS CfgNode
         """
         self.configs = configs
+        self.ns = ns
 
     @abstractmethod
     def open(self, **kwargs):

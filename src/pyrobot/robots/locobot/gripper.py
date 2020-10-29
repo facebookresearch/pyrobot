@@ -12,13 +12,15 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Empty
 from std_msgs.msg import Int8
 
+from pyrobot.utils.util import append_namespace
+
 
 class LoCoBotGripper(Gripper):
     """
     Interface for gripper
     """
 
-    def __init__(self, configs, wait_time=3):
+    def __init__(self, configs, ns="", wait_time=3):
         """
         The constructor for LoCoBotGripper class.
 
@@ -27,19 +29,23 @@ class LoCoBotGripper(Gripper):
         :type configs: YACS CfgNode
         :type wait_time: float
         """
-        super(LoCoBotGripper, self).__init__(configs=configs)
+        super(LoCoBotGripper, self).__init__(configs=configs, ns=ns)
         self._gripper_state_lock = threading.RLock()
         self._gripper_state = None
         # Publishers and subscribers
         self.wait_time = wait_time
         self.pub_gripper_close = rospy.Publisher(
-            self.configs.ROSTOPIC_GRIPPER_CLOSE, Empty, queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_CLOSE), 
+            Empty, 
+            queue_size=1
         )
         self.pub_gripper_open = rospy.Publisher(
-            self.configs.ROSTOPIC_GRIPPER_OPEN, Empty, queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_OPEN), 
+            Empty, 
+            queue_size=1
         )
         rospy.Subscriber(
-            self.configs.ROSTOPIC_GRIPPER_STATE,
+            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_STATE),
             Int8,
             self._callback_gripper_state,
         )

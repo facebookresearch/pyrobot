@@ -17,7 +17,7 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 import pyrobot.utils.util as prutil
 
 
-from pyrobot.utils.util import try_cv2_import
+from pyrobot.utils.util import try_cv2_import, append_namespace
 
 cv2 = try_cv2_import()
 
@@ -34,7 +34,7 @@ class Camera(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, configs):
+    def __init__(self, configs, ns=""):
         """
         Constructor for Camera parent class.
 
@@ -42,6 +42,7 @@ class Camera(object):
         :type configs: YACS CfgNode
         """
         self.configs = configs
+        self.ns = ns
         self.cv_bridge = CvBridge()
         self.camera_info_lock = threading.RLock()
         self.camera_img_lock = threading.RLock()
@@ -49,15 +50,17 @@ class Camera(object):
         self.depth_img = None
         self.camera_info = None
         self.camera_P = None
+
+        info_topic = append_namespace(self.ns, self.configs.ROSTOPIC_CAMERA_INFO_STREAM)
         rospy.Subscriber(
             self.configs.ROSTOPIC_CAMERA_INFO_STREAM,
             CameraInfo,
             self._camera_info_callback,
         )
 
-        rgb_topic = self.configs.ROSTOPIC_CAMERA_RGB_STREAM
+        rgb_topic = append_namespace(self.ns, self.configs.ROSTOPIC_CAMERA_RGB_STREAM)
         self.rgb_sub = message_filters.Subscriber(rgb_topic, Image)
-        depth_topic = self.configs.ROSTOPIC_CAMERA_DEPTH_STREAM
+        depth_topic = append_namespace(self.ns, self.configs.ROSTOPIC_CAMERA_DEPTH_STREAM)
         self.depth_sub = message_filters.Subscriber(depth_topic, Image)
         img_subs = [self.rgb_sub, self.depth_sub]
         self.sync = message_filters.ApproximateTimeSynchronizer(

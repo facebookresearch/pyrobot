@@ -16,7 +16,7 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 
 import pyrobot.utils.util as prutil
 
-from pyrobot.utils.util import try_cv2_import
+from pyrobot.utils.util import try_cv2_import, append_namespace
 
 cv2 = try_cv2_import()
 
@@ -38,7 +38,7 @@ class Base(object):
     specific Base classes would be built.
     """
 
-    def __init__(self, configs):
+    def __init__(self, configs, ns=""):
         """
         The consturctor for Base class.
 
@@ -46,8 +46,11 @@ class Base(object):
         :type configs: YACS CfgNode
         """
         self.configs = configs
+        self.ns = ns
         self.ctrl_pub = rospy.Publisher(
-            configs.ROSTOPIC_BASE_COMMAND, Twist, queue_size=1
+            append_namespace(self.ns, configs.ROSTOPIC_BASE_COMMAND), 
+            Twist, 
+            queue_size=1
         )
 
     def stop(self):

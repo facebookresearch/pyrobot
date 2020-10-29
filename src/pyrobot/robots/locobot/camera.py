@@ -21,7 +21,7 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 from tf import TransformListener
 
-from pyrobot.utils.util import try_cv2_import
+from pyrobot.utils.util import try_cv2_import, append_namespace
 
 cv2 = try_cv2_import()
 
@@ -35,32 +35,13 @@ def constrain_within_range(value, MIN, MAX):
 def is_within_range(value, MIN, MAX):
     return (value <= MAX) and (value >= MIN)
 
-
-class SimpleCamera(Camera):
-    """
-    This is camera class that interfaces with the Realsense
-    camera on the locobot and locobot-lite.
-    This class does not have the pan and tilt actuation
-    capabilities for the camera.
-    """
-
-    def __init__(self, configs):
-        """
-        Constructor of the SimpleCamera class.
-
-        :param configs: Camera specific configuration object
-
-        :type configs: YACS CfgNode
-        """
-        super(SimpleCamera, self).__init__(configs=configs)
-
-class LoCoBotCamera(SimpleCamera):
+class LoCoBotCamera(Camera):
     """
     This is camera class that interfaces with the Realsense
     camera and the pan and tilt joints on the robot.
     """
 
-    def __init__(self, configs):
+    def __init__(self, configs, ns=""):
         """
         Constructor of the LoCoBotCamera class.
 
@@ -80,19 +61,23 @@ class LoCoBotCamera(SimpleCamera):
                 " correctly using PyRobot!!!"
             )
             return
-        super(LoCoBotCamera, self).__init__(configs=configs)
+        super(LoCoBotCamera, self).__init__(configs=configs, ns=ns)
 
         rospy.Subscriber(
-            self.configs.ROSTOPIC_JOINT_STATES,
+            append_namespace(self.ns, self.configs.ROSTOPIC_JOINT_STATES), 
             JointState,
             self._camera_pose_callback,
         )
 
         self.set_pan_pub = rospy.Publisher(
-            self.configs.ROSTOPIC_SET_PAN, Float64, queue_size=1
+            append_namespace(self.ns,self.configs.ROSTOPIC_SET_PAN),
+            Float64, 
+            queue_size=1
         )
         self.set_tilt_pub = rospy.Publisher(
-            self.configs.ROSTOPIC_SET_TILT, Float64, queue_size=1
+            append_namespace(self.ns,self.configs.ROSTOPIC_SET_TILT),
+            Float64, 
+            queue_size=1
         )
         self.pan = None
         self.tilt = None

@@ -33,6 +33,8 @@ from pyrobot.robots.locobot.base_control_utils import (
     LocalActionServer,
 )
 
+from pyrobot.utils.util import append_namespace
+
 import actionlib
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
@@ -50,43 +52,32 @@ class BaseSafetyCallbacks(object):
     when these sensors get tripped.
     """
 
-    def __init__(self, base):
+    def __init__(self, base, ns):
+        self.ns = ns
         self.should_stop = False
         self.bumper = False
         self.cliff = False
         self.wheel_drop = False
         self.subscribers = []
 
-        if base == "create":
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_BUMPER, Bumper, self.bumper_callback_create
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_CLIFF, Empty, self.cliff_callback
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_WHEELDROP, Empty, self.wheeldrop_callback
-            )
-            self.subscribers.append(s)
-        else:
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_BUMPER,
-                BumperEvent,
-                self.bumper_callback_kobuki,
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_CLIFF, CliffEvent, self.cliff_callback
-            )
-            self.subscribers.append(s)
-            s = rospy.Subscriber(
-                self.configs.ROSTOPIC_WHEELDROP,
-                WheelDropEvent,
-                self.wheeldrop_callback,
-            )
-            self.subscribers.append(s)
+        s = rospy.Subscriber(
+            append_namespace(self.ns, self.configs.ROSTOPIC_BUMPER),
+            BumperEvent,
+            self.bumper_callback_kobuki,
+        )
+        self.subscribers.append(s)
+        s = rospy.Subscriber(
+            append_namespace(self.ns, self.configs.ROSTOPIC_CLIFF), 
+            CliffEvent, 
+            self.cliff_callback
+        )
+        self.subscribers.append(s)
+        s = rospy.Subscriber(
+            append_namespace(self.ns, self.configs.ROSTOPIC_WHEELDROP),
+            WheelDropEvent,
+            self.wheeldrop_callback,
+        )
+        self.subscribers.append(s)
 
     def bumper_callback_create(self, data):
         bumped = data.is_left_pressed or data.is_right_pressed
@@ -126,10 +117,10 @@ class BaseSafetyCallbacks(object):
             s.unregister()
 
 class BaseState(BaseSafetyCallbacks):
-    def __init__(self, base, configs):
+    def __init__(self, base, configs, ns):
         # Set up SLAM, if requested.
         self.configs = configs
-        BaseSafetyCallbacks.__init__(self, base)
+        BaseSafetyCallbacks.__init__(self, base, ns)
 
     def __del__(self):
         BaseSafetyCallbacks.__del__(self)
@@ -143,10 +134,7 @@ class LoCoBotBase(Base):
     def __init__(
         self,
         configs,
-        map_img_dir=None,
-        base_controller="ilqr",
-        base_planner=None,
-        base=None,
+        ns=""
     ):
         """
         The constructor for LoCoBotBase class.
@@ -158,7 +146,7 @@ class LoCoBotBase(Base):
         :type configs: YACS CfgNode
         :type map_img_dir: string
         """
-        super(LoCoBotBase, self).__init__(configs=configs)
+        super(LoCoBotBase, self).__init__(configs=configs, ns=ns)
         use_base = rospy.get_param("use_base", False) or rospy.get_param(
             "use_sim", False
         )
@@ -177,11 +165,7 @@ class LoCoBotBase(Base):
             "create",
         ], "BASE should be one of kobuki, create but is {:s}".format(base)
 
-        if map_img_dir is None:
-            map_img_dir = os.path.join(expanduser("~"), ".ros/Imgs")
-
-        self.build_map = rospy.get_param("use_vslam", False)
-        self.base_state = BaseState(base, configs)
+        self.base_state = BaseState(base, configs, ns)
 
         ###################### Action server specific things######################
 

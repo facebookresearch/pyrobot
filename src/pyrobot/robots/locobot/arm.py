@@ -10,6 +10,8 @@ from locobot_control.srv import JointCommand
 from pyrobot.robots.arm import Arm
 from std_msgs.msg import Empty
 
+from pyrobot.utils.util import append_namespace
+
 
 class LoCoBotArm(Arm):
     """
@@ -20,7 +22,8 @@ class LoCoBotArm(Arm):
 
     def __init__(
         self,
-        configs
+        configs,
+        ns=""
     ):
         """
         The constructor for LoCoBotArm class.
@@ -49,18 +52,23 @@ class LoCoBotArm(Arm):
             return
         super(LoCoBotArm, self).__init__(
             configs=configs,
+            ns=ns
         )
 
         self.joint_stop_pub = rospy.Publisher(
-            self.configs.ROSTOPIC_STOP_EXECUTION, Empty, queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_STOP_EXECUTION), 
+            Empty, 
+            queue_size=1
         )
         # Services
         self.joint_cmd_srv = rospy.ServiceProxy(
-            self.configs.ROSSERVICE_JOINT_COMMAND, JointCommand
+            append_namespace(self.ns, self.configs.ROSSERVICE_JOINT_COMMAND), 
+            JointCommand
         )
         
         self.torque_cmd_srv = rospy.ServiceProxy(
-            self.configs.ROSTOPIC_TORQUE_COMMAND, JointCommand
+            append_namespace(self.ns, self.configs.ROSTOPIC_TORQUE_COMMAND), 
+            JointCommand
         )
 
     def set_joint_velocities(self, velocities, **kwargs):

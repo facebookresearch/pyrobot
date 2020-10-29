@@ -26,34 +26,6 @@ ros_launch:
     base: null
     camera: null
 
-
-# Common contains all the commonly shared objects
-common:
-  VSLAM:
-    # topic name of the camera pose
-    ROSTOPIC_CAMERA_POSE : "/orb_slam2_rgbd/slam/camera_pose"
-    # topic name of the camera trajectory
-    ROSTOPIC_CAMERA_TRAJ : "/orb_slam2_rgbd/slam/camera_traj"
-    # reference link name of the visual SLAM system, the pose of this frame
-    # in the first time step will be used to define
-    # the origin/orientation of the world frame
-    VSLAM_BASE_FRAME : "/base_link"
-    # RGB camera center frame name
-    RGB_CAMERA_CENTER_FRAME : "/camera_color_optical_frame"
-    # minimum depth values to be considered as valid
-    DEPTH_MIN : 0.2
-    # maximum depth values to be considered as valid
-    DEPTH_MAX : 1.5
-    # configuration file name for ORB-SLAM2
-    CFG_FILENAME : "realsense_d435.yaml"
-    # sample every n pixels in depth images during
-    # reconstruction (to save computation time)
-    SUBSAMPLE_PIXS : 1
-    # publishing frequence of the occupancy map
-    OCCUPANCY_MAP_RATE : 0.5
-    # Factor to scale depth image by to convert it into meters
-    DEPTH_MAP_FACTOR : 1000
-
 modules:
 
   - object:
@@ -112,11 +84,6 @@ modules:
       CLASS : "LoCoBotBase"
       # Type of base being used 'kobuki' or 'create'
       BASE_TYPE : "kobuki"
-      # Type of contrller being used for postion control
-      # 'ilqr' or 'proportional' or 'movebase'
-      BASE_CONTROLLER : null
-      # Type of planner being used for slam base path planning 'movebase'
-      BASE_PLANNER : "movebase"
       # Rostopic on which the velocity commands to be published
       ROSTOPIC_BASE_COMMAND : "/navigation_velocity_smoother/raw_cmd_vel"
       # Rostopic on which the wheel-encoder-based odommetry is available

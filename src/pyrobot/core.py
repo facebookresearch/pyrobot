@@ -47,6 +47,7 @@ import os.path as osp
 
 
 def make_module(cfg):
+    print(cfg)
     module = instantiate(cfg.object, configs=cfg.conf)
     return module
 

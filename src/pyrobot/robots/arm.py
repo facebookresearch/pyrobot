@@ -16,7 +16,7 @@ from sensor_msgs.msg import JointState, CameraInfo, Image
 
 import pyrobot.utils.util as prutil
 
-from pyrobot.utils.util import try_cv2_import
+from pyrobot.utils.util import try_cv2_import, append_namespace
 
 cv2 = try_cv2_import()
 
@@ -40,7 +40,8 @@ class Arm(object):
 
     def __init__(
         self,
-        configs
+        configs,
+        ns=""
     ):
         """
         Constructor for Arm parent class.
@@ -48,6 +49,7 @@ class Arm(object):
         :param configs: configurations for arm
         """
         self.configs = configs
+        self.ns = ns
 
         self.joint_state_lock = threading.RLock()
 
@@ -59,7 +61,9 @@ class Arm(object):
         self._joint_velocities = dict()
         self._joint_efforts = dict()
         rospy.Subscriber(
-            configs.ROSTOPIC_JOINT_STATES, JointState, self._callback_joint_states
+            append_namespace(self.ns, configs.ROSTOPIC_JOINT_STATES), 
+            JointState, 
+            self._callback_joint_states
         )
 
         # Publishers
@@ -304,5 +308,7 @@ class Arm(object):
 
     def _setup_joint_pub(self):
         self.joint_pub = rospy.Publisher(
-            self.configs.ROSTOPIC_SET_JOINT, JointState, queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_SET_JOINT), 
+            JointState, 
+            queue_size=1
         )
