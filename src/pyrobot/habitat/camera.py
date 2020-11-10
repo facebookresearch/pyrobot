@@ -29,38 +29,39 @@ class LoCoBotCamera(object):
 
         # Depth Image processor
         self.depth_cam = DepthImgProcessor(
-            subsample_pixs=1,
-            depth_threshold=(0, 100),
-            cfg_filename="realsense_habitat.yaml"
+            subsample_pixs=1, depth_threshold=(0, 100), cfg_filename="realsense_habitat.yaml"
         )
 
         # Pan and tilt related vairades.
         self.pan = 0.0
         self.tilt = 0.0
-        
+
     def get_rgb(self):
         observations = self.sim.get_sensor_observations()
         return observations["rgb"][:, :, 0:3]
 
     def get_depth(self):
         observations = self.sim.get_sensor_observations()
-        return observations["depth"]
+        return observations["depth"] / self.configs.CAMERA.DEPTH_MAP_FACTOR
 
     def get_rgb_depth(self):
         observations = self.sim.get_sensor_observations()
-        return observations["rgb"][:, :, 0:3], observations["depth"]
+        return (
+            observations["rgb"][:, :, 0:3],
+            observations["depth"] / self.configs.CAMERA.DEPTH_MAP_FACTOR,
+        )
 
     def get_intrinsics(self):
         """
-		Returns the instrinsic matrix of the camera
+        Returns the instrinsic matrix of the camera
 
-		:return: the intrinsic matrix (shape: :math:`[3, 3]`)
-		:rtype: np.ndarray
-		"""
-        fx = self.depth_cam.cfg_data['Camera.fx']
-        fy = self.depth_cam.cfg_data['Camera.fy']
-        cx = self.depth_cam.cfg_data['Camera.cx']
-        cy = self.depth_cam.cfg_data['Camera.cy']
+        :return: the intrinsic matrix (shape: :math:`[3, 3]`)
+        :rtype: np.ndarray
+        """
+        fx = self.depth_cam.cfg_data["Camera.fx"]
+        fy = self.depth_cam.cfg_data["Camera.fy"]
+        cx = self.depth_cam.cfg_data["Camera.cx"]
+        cy = self.depth_cam.cfg_data["Camera.cy"]
         Itc = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]])
         return Itc
 
@@ -128,13 +129,11 @@ class LoCoBotCamera(object):
         """
 
         cur_state = self.agent.get_state()
-        cur_sensor_state = cur_state.sensor_states['rgb']
+        cur_sensor_state = cur_state.sensor_states["rgb"]
         initial_rotation = cur_state.rotation
         rot_init_rotation = self._rot_matrix(initial_rotation)
 
-        ros_to_habitat_frame = np.array([[0.0, -1.0, 0.0],
-                                         [0.0, 0.0, -1.0],
-                                         [1.0, 0.0, 0.0]])
+        ros_to_habitat_frame = np.array([[0.0, -1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0, 0.0]])
 
         relative_position = cur_sensor_state.position - cur_state.position
         relative_position = rot_init_rotation.T @ relative_position
@@ -154,19 +153,19 @@ class LoCoBotCamera(object):
 
     def get_current_pcd(self, in_cam=True):
         """
-		Return the point cloud at current time step (one frame only)
+        Return the point cloud at current time step (one frame only)
 
-		:param in_cam: return points in camera frame,
-		               otherwise, return points in base frame
+        :param in_cam: return points in camera frame,
+                       otherwise, return points in base frame
 
-		:type in_cam: bool
-		:returns: tuple (pts, colors)
+        :type in_cam: bool
+        :returns: tuple (pts, colors)
 
-		          pts: point coordinates in world frame (shape: :math:`[N, 3]`)
+                  pts: point coordinates in world frame (shape: :math:`[N, 3]`)
 
-		          colors: rgb values for pts_in_cam (shape: :math:`[N, 3]`)
-		:rtype: tuple(np.ndarray, np.ndarray)
-		"""
+                  colors: rgb values for pts_in_cam (shape: :math:`[N, 3]`)
+        :rtype: tuple(np.ndarray, np.ndarray)
+        """
         rgb_im, depth_im = self.get_rgb_depth()
         pcd_in_cam, colors = self.depth_cam.get_pcd_ic(depth_im=depth_im, rgb_im=rgb_im)
         pts = pcd_in_cam[:3, :].T
@@ -178,69 +177,69 @@ class LoCoBotCamera(object):
     @property
     def state(self):
         """
-		Return the current pan and tilt joint angles of the robot camera.
+        Return the current pan and tilt joint angles of the robot camera.
 
-		:return:
-		        pan_tilt: A list the form [pan angle, tilt angle]
-		:rtype: list
-		"""
+        :return:
+                pan_tilt: A list the form [pan angle, tilt angle]
+        :rtype: list
+        """
         return self.get_state()
 
     def get_state(self):
         """
-		Return the current pan and tilt joint angles of the robot camera.
+        Return the current pan and tilt joint angles of the robot camera.
 
-		:return:
-		        pan_tilt: A list the form [pan angle, tilt angle]
-		:rtype: list
-		"""
+        :return:
+                pan_tilt: A list the form [pan angle, tilt angle]
+        :rtype: list
+        """
         return [self.pan, self.tilt]
 
     def get_pan(self):
         """
-		Return the current pan joint angle of the robot camera.
+        Return the current pan joint angle of the robot camera.
 
-		:return:
-		        pan: Pan joint angle
-		:rtype: float
-		"""
+        :return:
+                pan: Pan joint angle
+        :rtype: float
+        """
         return self.pan
 
     def get_tilt(self):
         """
-		Return the current tilt joint angle of the robot camera.
+        Return the current tilt joint angle of the robot camera.
 
-		:return:
-		        tilt: Tilt joint angle
-		:rtype: float
-		"""
+        :return:
+                tilt: Tilt joint angle
+        :rtype: float
+        """
         return self.tilt
 
     def set_pan(self, pan, wait=True):
         """
-		Sets the pan joint angle to the specified value.
+        Sets the pan joint angle to the specified value.
 
-		:param pan: value to be set for pan joint
-		:param wait: wait until the pan angle is set to
-		             the target angle.
+        :param pan: value to be set for pan joint
+        :param wait: wait until the pan angle is set to
+                     the target angle.
 
-		:type pan: float
-		:type wait: bool
-		"""
+        :type pan: float
+        :type wait: bool
+        """
 
         self.set_pan_tilt(pan, self.tilt)
 
     def set_tilt(self, tilt, wait=True):
         """
-		Sets the tilt joint angle to the specified value.
+        Sets the tilt joint angle to the specified value.
 
-		:param tilt: value to be set for the tilt joint
-		:param wait: wait until the tilt angle is set to
-		             the target angle.
+        :param tilt: value to be set for the tilt joint
+        :param wait: wait until the tilt angle is set to
+                     the target angle.
 
-		:type tilt: float
-		:type wait: bool
-		"""
+        :type tilt: float
+        :type wait: bool
+        """
 
         self.set_pan_tilt(self.pan, tilt)
 
@@ -250,22 +249,14 @@ class LoCoBotCamera(object):
 
         sensor_offset_tilt = np.asarray([0.0, 0.0, -1 * tilt_link])
 
-        quat_cam_to_pan = habUtils.quat_from_angle_axis(
-            -1 * tilt, np.asarray([1.0, 0.0, 0.0])
-        )
+        quat_cam_to_pan = habUtils.quat_from_angle_axis(-1 * tilt, np.asarray([1.0, 0.0, 0.0]))
 
-        sensor_offset_pan = habUtils.quat_rotate_vector(
-            quat_cam_to_pan, sensor_offset_tilt
-        )
+        sensor_offset_pan = habUtils.quat_rotate_vector(quat_cam_to_pan, sensor_offset_tilt)
         sensor_offset_pan += np.asarray([0.0, pan_link, 0.0])
 
-        quat_pan_to_base = habUtils.quat_from_angle_axis(
-            -1 * pan, np.asarray([0.0, 1.0, 0.0])
-        )
+        quat_pan_to_base = habUtils.quat_from_angle_axis(-1 * pan, np.asarray([0.0, 1.0, 0.0]))
 
-        sensor_offset_base = habUtils.quat_rotate_vector(
-            quat_pan_to_base, sensor_offset_pan
-        )
+        sensor_offset_base = habUtils.quat_rotate_vector(quat_pan_to_base, sensor_offset_pan)
         sensor_offset_base += np.asarray([0.0, 0.5, 0.1])  # offset w.r.t base
 
         # translation
@@ -274,21 +265,21 @@ class LoCoBotCamera(object):
 
     def set_pan_tilt(self, pan, tilt, wait=True):
         """
-		Sets both the pan and tilt joint angles to the specified values.
+        Sets both the pan and tilt joint angles to the specified values.
 
-		:param pan: value to be set for pan joint
-		:param tilt: value to be set for the tilt joint
-		:param wait: wait until the pan and tilt angles are set to
-		             the target angles.
+        :param pan: value to be set for pan joint
+        :param tilt: value to be set for the tilt joint
+        :param wait: wait until the pan and tilt angles are set to
+                     the target angles.
 
-		:type pan: float
-		:type tilt: float
-		:type wait: bool
-		"""
+        :type pan: float
+        :type tilt: float
+        :type wait: bool
+        """
         self.pan = pan
         self.tilt = tilt
         sensor_offset, quat_base_to_sensor = self._compute_relative_pose(pan, tilt)
-        cur_state = self.agent.get_state() # Habitat frame
+        cur_state = self.agent.get_state()  # Habitat frame
         sensor_position = cur_state.position + sensor_offset
         sensor_quat = cur_state.rotation * quat_base_to_sensor
         cur_state.sensor_states["rgb"].position = sensor_position
@@ -298,7 +289,7 @@ class LoCoBotCamera(object):
 
     def reset(self):
         """
-		This function resets the pan and tilt joints by actuating
-		them to their home configuration.
-		"""
+        This function resets the pan and tilt joints by actuating
+        them to their home configuration.
+        """
         self.set_pan_tilt(self.configs.CAMERA.RESET_PAN, self.configs.CAMERA.RESET_TILT)
