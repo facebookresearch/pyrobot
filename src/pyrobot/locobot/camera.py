@@ -410,9 +410,7 @@ class DepthImgProcessor:
                  camera frame (shape: :math:`[4, N]`)
         :rtype np.ndarray
         """
-        pts_in_cam = prutil.pix_to_3dpt(
-            depth_im, rs, cs, self.intrinsic_mat, float(self.cfg_data["DepthMapFactor"])
-        )
+        pts_in_cam = prutil.pix_to_3dpt(depth_im, rs, cs, self.intrinsic_mat, 1.0)
         return pts_in_cam
 
     def get_pcd_ic(self, depth_im, rgb_im=None):
@@ -438,7 +436,7 @@ class DepthImgProcessor:
         # pcd in camera from depth
         depth_im = depth_im[0 :: self.subsample_pixs, 0 :: self.subsample_pixs]
         rgb_im = rgb_im[0 :: self.subsample_pixs, 0 :: self.subsample_pixs]
-        depth = depth_im.reshape(-1) / float(self.cfg_data["DepthMapFactor"])
+        depth = depth_im.reshape(-1)
         rgb = None
         if rgb_im is not None:
             rgb = rgb_im.reshape(-1, 3)
@@ -452,9 +450,7 @@ class DepthImgProcessor:
         else:
             uv_one_in_cam = self.uv_one_in_cam
         pts_in_cam = np.multiply(uv_one_in_cam, depth)
-        pts_in_cam = np.concatenate(
-            (pts_in_cam, np.ones((1, pts_in_cam.shape[1]))), axis=0
-        )
+        pts_in_cam = np.concatenate((pts_in_cam, np.ones((1, pts_in_cam.shape[1]))), axis=0)
         return pts_in_cam, rgb
 
     def get_pcd_iw(self, pts_in_cam, extrinsic_mat):

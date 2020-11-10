@@ -31,6 +31,8 @@ _CAMERAC.CLASS = "LoCoBotCamera"
 _CAMERAC.RESET_PAN = 0.0
 # reset value for the tilt
 _CAMERAC.RESET_TILT = 0.0
+# camera depth map factor
+_CAMERAC.DEPTH_MAP_FACTOR = 1.0
 
 # Base specific settings
 _BASEC = _C.BASE
