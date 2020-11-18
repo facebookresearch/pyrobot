@@ -4,28 +4,25 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
-import rospkg
 import threading
 import yaml
 from copy import deepcopy
 
-import message_filters
+# import message_filters
 import numpy as np
 import pyrobot.utils.util as prutil
-import rospy
+# import rospy
 
 from pyrobot.core import Camera
-from sensor_msgs.msg import CameraInfo
-from sensor_msgs.msg import Image
-from sensor_msgs.msg import JointState
-from std_msgs.msg import Float64
-from tf import TransformListener
+# from sensor_msgs.msg import CameraInfo
+# from sensor_msgs.msg import Image
+# from sensor_msgs.msg import JointState
+# from std_msgs.msg import Float64
+# from tf import TransformListener
 
 from pyrobot.utils.util import try_cv2_import
 
 cv2 = try_cv2_import()
-
-from cv_bridge import CvBridge, CvBridgeError
 
 
 def constrain_within_range(value, MIN, MAX):
@@ -485,9 +482,9 @@ class DepthImgProcessor:
         :return: configurations in the configuration file
         :rtype: dict
         """
-        rospack = rospkg.RosPack()
-        slam_pkg_path = rospack.get_path("orb_slam2_ros")
-        cfg_path = os.path.join(slam_pkg_path, "cfg", cfg_filename)
+        # ./robots/LoCoBot/locobot_navigation/orb_slam2_ros/cfg/realsense_habitat.yaml
+        cfg_path = os.path.join(os.path.dirname(__file__), cfg_filename)
+        # cfg_path = os.path.join(slam_pkg_path, "cfg", cfg_filename)
         with open(cfg_path, "r") as f:
             for i in range(1):
                 f.readline()

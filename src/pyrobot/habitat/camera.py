@@ -11,12 +11,10 @@ from pyrobot.utils.util import try_cv2_import
 
 cv2 = try_cv2_import()
 
-from cv_bridge import CvBridge, CvBridgeError
-
 import habitat_sim.agent as habAgent
 import habitat_sim.utils as habUtils
 from pyrobot.locobot.camera import DepthImgProcessor
-from tf.transformations import euler_from_quaternion, euler_from_matrix
+from .transformations import euler_from_quaternion, euler_from_matrix
 
 
 class LoCoBotCamera(object):

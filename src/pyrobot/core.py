@@ -14,30 +14,30 @@ import time
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-import rospy
-import tf
-from geometry_msgs.msg import Twist, Pose, PoseStamped
-from sensor_msgs.msg import JointState, CameraInfo, Image
+# import rospy
+# import tf
+# from geometry_msgs.msg import Twist, Pose, PoseStamped
+# from sensor_msgs.msg import JointState, CameraInfo, Image
 
 import pyrobot.utils.util as prutil
 
 from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from pyrobot_bridge.srv import *
+# from pyrobot_bridge.srv import *
 
 from pyrobot.utils.util import try_cv2_import
 
 cv2 = try_cv2_import()
 
-from cv_bridge import CvBridge, CvBridgeError
+# from cv_bridge import CvBridge, CvBridgeError
 
-import message_filters
+# import message_filters
 
-import actionlib
-from pyrobot_bridge.msg import (
-    MoveitAction,
-    MoveitGoal,
-)
-from actionlib_msgs.msg import GoalStatus
+# import actionlib
+# from pyrobot_bridge.msg import (
+#     MoveitAction,
+#     MoveitGoal,
+# )
+# from actionlib_msgs.msg import GoalStatus
 
 
 class Robot:
@@ -113,8 +113,8 @@ class Robot:
         self.configs.freeze()
         try:
             rospy.init_node("pyrobot", anonymous=True)
-        except rospy.exceptions.ROSException:
-            rospy.logwarn("ROS node [pyrobot] has already been initialized")
+        except Exception as e:
+            pass
 
         root_node += this_robot
         root_node += "."
@@ -160,7 +160,7 @@ class Robot:
             self.gripper = gripper_class(self.configs, **gripper_config)
 
         # sleep some time for tf listeners in subclasses
-        rospy.sleep(2)
+        # rospy.sleep(2)
 
 
 class Base(object):
@@ -386,9 +386,9 @@ class Camera(object):
     def get_depth(self):
         """
         This function returns the depth image perceived by the camera.
-        
+
         The depth image is in meters.
-        
+
         :rtype: np.ndarray or None
         """
         self.camera_img_lock.acquire()
@@ -400,7 +400,7 @@ class Camera(object):
     def get_rgb_depth(self):
         """
         This function returns both the RGB and depth
-        images perceived by the camera. 
+        images perceived by the camera.
 
         The depth image is in meters.
 
