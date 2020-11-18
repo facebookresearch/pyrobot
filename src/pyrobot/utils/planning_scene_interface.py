@@ -42,7 +42,7 @@ else:
     import thread
 
 
-import rospy
+# import rospy
 
 try:
     from pyassimp import pyassimp
@@ -53,11 +53,11 @@ except:
     # https://bugs.launchpad.net/ubuntu/+source/assimp/+bug/1589949
     use_pyassimp = False
 
-from geometry_msgs.msg import Pose, PoseStamped, Point
-from moveit_msgs.msg import CollisionObject, AttachedCollisionObject
-from moveit_msgs.msg import PlanningScene, PlanningSceneComponents, ObjectColor
-from moveit_msgs.srv import GetPlanningScene, ApplyPlanningScene
-from shape_msgs.msg import MeshTriangle, Mesh, SolidPrimitive, Plane
+# from geometry_msgs.msg import Pose, PoseStamped, Point
+# from moveit_msgs.msg import CollisionObject, AttachedCollisionObject
+# from moveit_msgs.msg import PlanningScene, PlanningSceneComponents, ObjectColor
+# from moveit_msgs.srv import GetPlanningScene, ApplyPlanningScene
+# from shape_msgs.msg import MeshTriangle, Mesh, SolidPrimitive, Plane
 
 
 class PlanningSceneInterface(object):
@@ -69,12 +69,12 @@ class PlanningSceneInterface(object):
         """
         Constructor of PlanningSceneInterface class
 
-        :param frame: The fixed frame in which planning is being 
+        :param frame: The fixed frame in which planning is being
                         done (needs to be part of robot?)
         :param ns: A namespace to push all topics down into.
-        :param init_from_service: Whether to initialize our list of objects 
-                    by calling the service 
-                    NOTE: this requires that said service be in the move_group 
+        :param init_from_service: Whether to initialize our list of objects
+                    by calling the service
+                    NOTE: this requires that said service be in the move_group
                     launch file, which is not the default from the setup assistant.
 
         """
@@ -368,7 +368,7 @@ class PlanningSceneInterface(object):
     def removeCollisionObject(self, name, use_service=True):
         """
         Removes an object from the scene
-        
+
         :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         """
@@ -388,8 +388,8 @@ class PlanningSceneInterface(object):
 
     def removeAttachedObject(self, name, use_service=True):
         """
-        Removes an attached object. 
-        
+        Removes an attached object.
+
         :param name: name of the object to be removed
         :param use_service: If true, update will be sent via apply service
         """
