@@ -38,7 +38,7 @@ from franka_control.msg import ErrorRecoveryActionGoal
 from franka_control_msgs.msg import RobotState
 
 import franka_dataflow
-from robot_params import RobotParams
+from .robot_params import RobotParams
 
 class RobotEnable(object):
     """

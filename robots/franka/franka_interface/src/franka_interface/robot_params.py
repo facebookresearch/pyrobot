@@ -228,8 +228,8 @@ if __name__ == '__main__':
     
     rp = RobotParams()
     # print rp.__dict__
-    print rp.get_robot_ip()
-    print rp.get_robot_name()
-    print rp.get_joint_names()
+    print (rp.get_robot_ip())
+    print (rp.get_robot_name())
+    print (rp.get_joint_names())
 
 

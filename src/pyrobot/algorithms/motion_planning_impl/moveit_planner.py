@@ -31,6 +31,7 @@ class MoveitPlanner(MotionPlanner):
             self.robots[self.robot_label]["arm"].configs["MOVEGROUP_NAME"],
             self.robots[self.robot_label]["arm"].configs["ARM_ROBOT_DSP_PARAM_NAME"],
         )
+        self.move_group_interface.setMaxVelocityScalingFactor(0.3)
         self.ee_frame = self.robots[self.robot_label]["arm"].configs["EE_FRAME"]
 
     def plan_end_effector_pose(self, position, orientation):

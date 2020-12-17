@@ -87,7 +87,11 @@ class FrankaGripper(Gripper):
         :rtype: bool
         """
         self._caller = "close gripper"
-        self.grasp(0.001, 0.1)
+        def cb( _, result):
+            if not result.success:
+                width = max(abs(self._joint_positions['panda_finger_joint1'] - self._joint_positions['panda_finger_joint2']), 0.001)
+                self.grasp(width, 10)
+        return self.grasp(0.001, 0.1, cb = cb)
 
     def move_joints(self, width, wait=True):
         """
@@ -114,7 +118,7 @@ class FrankaGripper(Gripper):
 
         self._move_action_client.send_goal(goal, done_cb =self._done_cb, active_cb = self._active_cb, feedback_cb = self._feedback_cb)
 
-    def grasp(self, width, force, epsilon_inner = 0.005, epsilon_outer = 0.005, wait=True):
+    def grasp(self, width, force, epsilon_inner = 0.005, epsilon_outer = 0.005, wait=True, cb=None):
         """
         Grasps an object.
        
@@ -146,8 +150,10 @@ class FrankaGripper(Gripper):
         goal.speed = self._gripper_speed
         goal.force = force
         goal.epsilon = GraspEpsilon(inner = epsilon_inner, outer = epsilon_outer)
+        if not cb:
+            cb = self._done_cb
 
-        self._grasp_action_client.send_goal(goal, done_cb=self._done_cb, active_cb=self._active_cb, feedback_cb=self._feedback_cb)
+        self._grasp_action_client.send_goal(goal, done_cb = cb, active_cb = self._active_cb, feedback_cb = self._feedback_cb)
 
     def stop(self):
         """

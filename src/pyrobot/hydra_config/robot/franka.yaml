@@ -45,7 +45,7 @@ modules:
       # base frame for the arm
       ARM_BASE_FRAME : "panda_link0"
       # end-effector frame of the arm
-      EE_FRAME : "panda_link8"
+      EE_FRAME : "panda_hand"
       # joint states topic name for the arm
       ROSTOPIC_JOINT_STATES : "/joint_states"
 

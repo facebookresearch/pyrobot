@@ -45,9 +45,8 @@ from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 
 import franka_dataflow
-from robot_params import RobotParams
+from .robot_params import RobotParams
 
-from franka_moveit import PandaMoveGroupInterface
 from franka_tools import FrankaFramesInterface, FrankaControllerManagerInterface, JointTrajectoryActionClient, CollisionBehaviourInterface
 
 
@@ -221,11 +220,9 @@ class ArmInterface(object):
         franka_dataflow.wait_for(lambda: self._jacobian is not None,
                                  timeout_msg=err_msg, timeout=5.0)
 
-        try:
-            self._movegroup_interface = PandaMoveGroupInterface()
-        except:
-            rospy.loginfo("MoveGroup was not found! This is okay if moveit service is not required!")
-            self._movegroup_interface = None
+
+        rospy.loginfo("MoveGroup was not found! This is okay if moveit service is not required!")
+        self._movegroup_interface = None
 
         self.set_joint_position_speed(self._speed_ratio)
 

@@ -84,7 +84,7 @@ class CollisionBehaviourInterface(object):
 
             rospy.loginfo("CollisionBehaviourInterface: Collision behaviour change request: %s. \n\tDetails: %s"%("Success" if response.success else "Failed!", response.error))
 
-        except rospy.ServiceException, e:
+        except rospy.ServiceException as e:
             rospy.logwarn("CollisionBehaviourInterface: Collision behaviour change service call failed: %s"%e)
             return False
 
