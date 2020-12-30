@@ -123,6 +123,9 @@ fi
 
 source /opt/ros/$ROS_NAME/setup.bash
 
+# STEP 2.5 - Install Franka
+sudo apt install ros-melodic-libfranka ros-melodic-franka-ros
+
 
 # STEP 3 - Install ROS debian dependencies
 declare -a ros_package_names=(
