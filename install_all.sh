@@ -123,10 +123,6 @@ fi
 
 source /opt/ros/$ROS_NAME/setup.bash
 
-# STEP 2.5 - Install Franka
-sudo apt install ros-melodic-libfranka ros-melodic-franka-ros
-
-
 # STEP 3 - Install ROS debian dependencies
 declare -a ros_package_names=(
 	"ros-$ROS_NAME-dynamixel-motor" 
@@ -143,7 +139,9 @@ declare -a ros_package_names=(
 	"ros-$ROS_NAME-orocos-kdl"
 	"ros-$ROS_NAME-joy"
 	"ros-$ROS_NAME-python-orocos-kdl"
-  	"ros-$ROS_NAME-ddynamic-reconfigure"
+	"ros-$ROS_NAME-ddynamic-reconfigure"
+	"ros-$ROS_NAME-libfranka"
+	"ros-$ROS_NAME-franka-ros"
 	)
 
 install_packages "${ros_package_names[@]}"
