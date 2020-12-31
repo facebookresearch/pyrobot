@@ -14,7 +14,6 @@ import numpy as np
 import rospy
 import tf
 import tf.transformations
-from ca_msgs.msg import Bumper
 from kobuki_msgs.msg import BumperEvent, CliffEvent, WheelDropEvent
 from nav_msgs.msg import Odometry
 
