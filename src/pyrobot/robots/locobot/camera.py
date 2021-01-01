@@ -79,6 +79,7 @@ class LoCoBotCamera(Camera):
             Float64, 
             queue_size=1
         )
+
         self.pan = None
         self.tilt = None
         self.tol = 0.01

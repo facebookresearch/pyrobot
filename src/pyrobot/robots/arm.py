@@ -170,7 +170,7 @@ class Arm(object):
             raise ValueError("Joint torque for joint $s" " not available!" % joint)
         return self._joint_efforts[joint]
 
-    def set_joint_positions(self, positions, plan=True, wait=True, **kwargs):
+    def set_joint_positions(self, positions, wait=True, **kwargs):
         """
         Sets the desired joint angles for all arm joints
 
@@ -187,39 +187,10 @@ class Arm(object):
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
-        result = False
-        if isinstance(positions, np.ndarray):
-            positions = positions.flatten().tolist()
-        if plan:
-            if not self.use_moveit:
-                raise ValueError(
-                    "Moveit is not initialized, " "did you pass in use_moveit=True?"
-                )
-
-            self._cancel_moveit_goal()
-
-            if isinstance(positions, np.ndarray):
-                positions = positions.tolist()
-
-            rospy.loginfo("Moveit Motion Planning...")
-
-            moveit_goal = MoveitGoal()
-            moveit_goal.wait = wait
-            moveit_goal.action_type = "set_joint_positions"
-            moveit_goal.values = positions
-            self._moveit_client.send_goal(moveit_goal)
-
-            if wait:
-                self._moveit_client.wait_for_result()
-                status = self._moveit_client.get_state()
-                if status == GoalStatus.SUCCEEDED:
-                    result = True
-        else:
-            self._pub_joint_positions(positions)
-            if wait:
-                result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
-
+        
+        self._pub_joint_positions(positions)
         if wait:
+            result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
             return result
 
     def set_joint_velocities(self, velocities, **kwargs):
