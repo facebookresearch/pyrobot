@@ -25,10 +25,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import message_filters
 
 import actionlib
-from pyrobot_bridge.msg import (
-    MoveitAction,
-    MoveitGoal,
-)
+
 from actionlib_msgs.msg import GoalStatus
 
 
