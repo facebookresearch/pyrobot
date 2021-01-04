@@ -71,9 +71,9 @@ install_packages () {
 
 
 # STEP 0 - Make sure you have installed Ubuntu 16.04, and upgrade to lastest dist
-#if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
-#        sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
-#fi
+if [ $(dpkg-query -W -f='${Status}' librealsense2 2>/dev/null | grep -c "ok installed") -eq 0 ]; then 
+       sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y dist-upgrade
+fi
 
 
 # STEP 1 - Install basic dependencies
@@ -309,6 +309,13 @@ if [ ! -d "$LOCOBOT_FOLDER/src/turtlebot" ]; then
 	sudo apt-get install ros-$ROS_NAME-kobuki-* -y
 	sudo apt-get install ros-$ROS_NAME-ecl-streams -y
 fi
+
+if [ ! -d "$LOCOBOT_FOLDER/src/franka_interface" ]; then
+	cd $LOCOBOT_FOLDER/src/
+	mkdir franka_interface
+	cd franka_interface
+
+	git clone https://github.com/Jekyll1021/franka_interface.git
 
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 

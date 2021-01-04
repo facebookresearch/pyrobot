@@ -1,5 +1,7 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+
 """
-Example to show how to read images from the camera. 
+Example to show how to control locobot head motor and read images from the camera. 
 """
 from __future__ import print_function
 

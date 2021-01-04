@@ -47,8 +47,6 @@ class GPMPControl(BaseController):
         self.robot_label = list(self.robots.keys())[0]
         self.bot_base = self.robots[self.robot_label]["base"]
 
-        self._as = self.bot_base._as
-
         self.base_state = self.bot_base.base_state
         self.MAP_FRAME = self.bot_base.configs.MAP_FRAME
         self.BASE_FRAME = self.bot_base.configs.BASE_FRAME
@@ -154,11 +152,6 @@ class GPMPControl(BaseController):
         status = self.gpmp_ctrl_client_.get_state()
         if wait:
             while status != GoalStatus.SUCCEEDED:
-                if self._as.is_preempt_requested():
-                    rospy.loginfo("Preempted the GPMP execution")
-                    self.cancel_goal()
-                    return False
-
                 if self.base_state.should_stop:
                     rospy.loginfo("collision detection. Stopping")
                     self.cancel_goal()
@@ -178,12 +171,6 @@ class GPMPControl(BaseController):
         )
 
         while g_distance > self.configs.TRESHOLD_LIN:
-
-            if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the GPMP execution")
-                self.cancel_goal()
-                return False
-
             if self.base_state.should_stop:
                 self.cancel_goal()
                 return False

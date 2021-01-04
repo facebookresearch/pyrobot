@@ -1,3 +1,5 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+
 """
 Example to show how to read images from the camera. 
 """

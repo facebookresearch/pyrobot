@@ -40,8 +40,6 @@ class ILQRControl(BaseController):
         self.robot_label = list(self.robots.keys())[0]
         self.bot_base = self.robots[self.robot_label]["base"]
 
-        self._as = self.bot_base._as
-
         self.ctrl_pub = self.bot_base.ctrl_pub
 
         self.max_v = self.configs.MAX_ABS_FWD_SPEED
@@ -143,13 +141,6 @@ class ILQRControl(BaseController):
             controls = us
             states = xs
             for j in range(T):
-
-                if self._as.is_preempt_requested():
-                    rospy.loginfo(
-                        "Preempted the ILQR execution. Plan generation failed"
-                    )
-                    return False
-
                 A, B, C, _ = self.system.dynamics_fn(states[j], controls[j])
                 As.append(A)
                 Bs.append(B)
@@ -206,11 +197,6 @@ class ILQRControl(BaseController):
         us = []
         urefs = []
         for i in range(plan.T):
-
-            if self._as.is_preempt_requested():
-                rospy.loginfo("Preempted the ILQR execution. Execution failed")
-                return False
-
             if self.bot_base.base_state.should_stop:
                 self.stop()
                 self.bot_base.base_state.should_stop = False

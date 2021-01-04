@@ -1,3 +1,5 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+
 from __future__ import print_function
 
 from pyrobot.utils.util import try_cv2_import

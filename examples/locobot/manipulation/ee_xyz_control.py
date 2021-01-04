@@ -1,3 +1,5 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+
 import hydra
 
 from hydra.experimental import initialize, compose
@@ -9,7 +11,6 @@ from pyrobot import World, make_algorithm
 from pyrobot.algorithms.kinematics import Kinematics 
 
 import copy
-
 
 def main():
     
@@ -28,7 +29,6 @@ def main():
     world.algorithms['moveit_kin_planner'].plan_end_effector_pose(tar_pos, cur_quat)
 
     bot["arm"].go_home()
-
 
 if __name__ == "__main__":
     main()

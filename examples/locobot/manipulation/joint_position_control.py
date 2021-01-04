@@ -1,3 +1,5 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+
 import hydra
 
 from hydra.experimental import initialize, compose
