@@ -11,6 +11,7 @@ import geometry_msgs.msg
 from geometry_msgs.msg import PoseStamped, Pose
 import os
 
+
 def try_cv2_import():
     """
     In order to import cv2 in python3 we need to remove
@@ -39,8 +40,10 @@ def try_cv2_import():
 
     return cv2
 
+
 def append_namespace(ns, rostopic):
     return os.path.join("/", os.path.join(ns, rostopic.strip("/")))
+
 
 def list_to_pose(pose_list):
     pose_msg = Pose()

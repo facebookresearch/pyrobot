@@ -35,14 +35,14 @@ class LoCoBotGripper(Gripper):
         # Publishers and subscribers
         self.wait_time = wait_time
         self.pub_gripper_close = rospy.Publisher(
-            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_CLOSE), 
-            Empty, 
-            queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_CLOSE),
+            Empty,
+            queue_size=1,
         )
         self.pub_gripper_open = rospy.Publisher(
-            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_OPEN), 
-            Empty, 
-            queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_OPEN),
+            Empty,
+            queue_size=1,
         )
         rospy.Subscriber(
             append_namespace(self.ns, self.configs.ROSTOPIC_GRIPPER_STATE),

@@ -74,7 +74,7 @@ MOCK_MODULES = [
     "hydra.utils",
     "omegaconf",
     "control_msgs",
-    "control_msgs.msg"
+    "control_msgs.msg",
 ]
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 

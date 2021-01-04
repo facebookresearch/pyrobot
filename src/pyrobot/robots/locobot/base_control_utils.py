@@ -8,6 +8,7 @@ import sys
 import threading
 import copy
 
+
 class SimpleGoalState:
     PENDING = 0
     ACTIVE = 1

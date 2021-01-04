@@ -3,7 +3,11 @@ from pyrobot.algorithms.base_localizer import BaseLocalizer
 
 from pyrobot.algorithms.base_controller_impl.ilqr_utils import Foo, BicycleSystem
 
-from pyrobot.algorithms.base_controller_impl.base_control_utils import LQRSolver, _get_absolute_pose, position_control_init_fn
+from pyrobot.algorithms.base_controller_impl.base_control_utils import (
+    LQRSolver,
+    _get_absolute_pose,
+    position_control_init_fn,
+)
 
 
 from geometry_msgs.msg import Twist
@@ -124,7 +128,7 @@ class ILQRControl(BaseController):
         """
 
         iters = 2
-    
+
         # Initialize with simple non-saturated controls.
         us = np.zeros((len(xs), 2), dtype=np.float32) + 0.1
 

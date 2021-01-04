@@ -1,9 +1,9 @@
 # /***************************************************************************
 # Modified from: Saif Sidhik franka_interface
-# 
+#
 # @package: PyRobot
 # @author: Zisu Dong <jdong1021@fb.com>
-# 
+#
 # **************************************************************************/
 
 
@@ -12,8 +12,14 @@ import errno
 import rospy
 
 
-def wait_for(test, timeout=1.0, raise_on_error=True, rate=100,
-             timeout_msg="timeout expired", body=None):
+def wait_for(
+    test,
+    timeout=1.0,
+    raise_on_error=True,
+    rate=100,
+    timeout_msg="timeout expired",
+    body=None,
+):
     """
     Waits until some condition evaluates to true.
 

@@ -15,9 +15,15 @@ from std_msgs.msg import Float64
 
 from .utils import wait_for
 
-from .franka_tools import FrankaFramesInterface, FrankaControllerManagerInterface, JointTrajectoryActionClient, CollisionBehaviourInterface
+from .franka_tools import (
+    FrankaFramesInterface,
+    FrankaControllerManagerInterface,
+    JointTrajectoryActionClient,
+    CollisionBehaviourInterface,
+)
 
 from pyrobot.robots.arm import Arm
+
 
 class FrankaArm(Arm):
     """
@@ -26,15 +32,12 @@ class FrankaArm(Arm):
     without any motion planning), for position/velocity/torque control, etc.
     """
 
-    def __init__(
-        self,
-        configs
-    ):        
+    def __init__(self, configs):
         super(FrankaArm, self).__init__(
             configs=configs,
         )
 
-        self._ns = "/franka_ros_interface" 
+        self._ns = "/franka_ros_interface"
 
         self._errors = dict()
 
@@ -47,9 +50,11 @@ class FrankaArm(Arm):
         try:
             self._collision_behaviour_interface = CollisionBehaviourInterface()
         except rospy.ROSException:
-            rospy.loginfo("Collision Service Not found. It will not be possible to change collision behaviour of robot!")
+            rospy.loginfo(
+                "Collision Service Not found. It will not be possible to change collision behaviour of robot!"
+            )
             self._collision_behaviour_interface = None
-        self._ctrl_manager = FrankaControllerManagerInterface(ns = self._ns, sim=False)
+        self._ctrl_manager = FrankaControllerManagerInterface(ns=self._ns, sim=False)
 
         self._speed_ratio = 0.15
 
@@ -82,30 +87,38 @@ class FrankaArm(Arm):
         """
         if wait:
             threshold = 0.005
-            curr_controller = self._ctrl_manager.set_motion_controller(self._ctrl_manager.joint_trajectory_controller)
+            curr_controller = self._ctrl_manager.set_motion_controller(
+                self._ctrl_manager.joint_trajectory_controller
+            )
 
             min_traj_dur = 0.5
-            traj_client = JointTrajectoryActionClient(joint_names = self.arm_joint_names)
+            traj_client = JointTrajectoryActionClient(joint_names=self.arm_joint_names)
             traj_client.clear()
 
-            dur = np.maximum(np.abs(np.array(positions) - np.array(self.get_joint_angles())) / self.configs.JOINT_VELOCITY_LIMITS, min_traj_dur)
+            dur = np.maximum(
+                np.abs(np.array(positions) - np.array(self.get_joint_angles()))
+                / self.configs.JOINT_VELOCITY_LIMITS,
+                min_traj_dur,
+            )
 
-            traj_client.add_point(positions = self.get_joint_angles(), time = 0.0001)
-            traj_client.add_point(positions = positions, time = max(dur)/self._speed_ratio)
+            traj_client.add_point(positions=self.get_joint_angles(), time=0.0001)
+            traj_client.add_point(
+                positions=positions, time=max(dur) / self._speed_ratio
+            )
 
             diffs = (np.array(positions) - np.array(self.get_joint_angles())).tolist()
 
             fail_msg = "FrankaArm: franka failed to reach commanded joint positions."
 
-            traj_client.start() # send the trajectory action request
+            traj_client.start()  # send the trajectory action request
 
             wait_for(
-                test=lambda: traj_client.result() is not None or \
-                        (all(diff < threshold for diff in diffs)),
+                test=lambda: traj_client.result() is not None
+                or (all(diff < threshold for diff in diffs)),
                 timeout=10,
                 timeout_msg=fail_msg,
                 rate=100,
-                raise_on_error=False
+                raise_on_error=False,
             )
             res = traj_client.result()
             if res is not None and res.error_code:
@@ -156,7 +169,6 @@ class FrankaArm(Arm):
         self._command_msg.header.stamp = rospy.Time.now()
         self._joint_command_publisher.publish(self._command_msg)
 
-
     def _pub_joint_torques(self, torques):
         self._command_msg.names = self.arm_joint_names
         self._command_msg.effort = list(torques)
@@ -169,16 +181,18 @@ class FrankaArm(Arm):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self._joint_command_publisher = rospy.Publisher(
-                '/franka_ros_interface/motion_controller/arm/joint_commands',
+                "/franka_ros_interface/motion_controller/arm/joint_commands",
                 JointCommand,
                 tcp_nodelay=True,
-                queue_size=queue_size)
+                queue_size=queue_size,
+            )
 
         self._pub_joint_cmd_timeout = rospy.Publisher(
-            '/franka_ros_interface/motion_controller/arm/joint_command_timeout',
+            "/franka_ros_interface/motion_controller/arm/joint_command_timeout",
             Float64,
             latch=True,
-            queue_size=10)
+            queue_size=10,
+        )
 
     def _clean_shutdown(self):
         self._pub_joint_cmd_timeout.unregister()
@@ -186,7 +200,7 @@ class FrankaArm(Arm):
 
     def set_joint_position_speed(self, speed=0.3):
         """
-        Set ratio of max joint speed to use during joint position 
+        Set ratio of max joint speed to use during joint position
         moves (only for move_to_joint_positions).
 
         Set the proportion of maximum controllable velocity to use
@@ -200,6 +214,8 @@ class FrankaArm(Arm):
                       default= 0.3; range= [0.0-1.0]
         """
         if speed > 0.3:
-            rospy.logwarn("ArmInterface: Setting speed above 0.3 could be risky!! Be extremely careful.")
-        
+            rospy.logwarn(
+                "ArmInterface: Setting speed above 0.3 could be risky!! Be extremely careful."
+            )
+
         self._speed_ratio = speed

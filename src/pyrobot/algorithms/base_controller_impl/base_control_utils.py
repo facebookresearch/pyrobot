@@ -13,7 +13,11 @@ from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from nav_msgs.srv import GetPlan
 
-from pyrobot.algorithms.base_controller_impl.ilqr_utils import wrap_theta, Foo, BicycleSystem
+from pyrobot.algorithms.base_controller_impl.ilqr_utils import (
+    wrap_theta,
+    Foo,
+    BicycleSystem,
+)
 
 ANGLE_THRESH = 0.05
 
@@ -282,6 +286,7 @@ def get_trajectory_negcircle(start_pos, dt, r, v, angle):
     controls = get_control_trajectory("circle", T, v, -w)
     states = get_state_trajectory_from_controls(start_pos, dt, controls)
     return states, controls
+
 
 class LQRSolver(object):
     """
@@ -625,4 +630,3 @@ class ILQRSolver(object):
                 break
             step_size = step_size * 0.5
         return out_step_size, out_controls, out_cost
-

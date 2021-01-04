@@ -43,7 +43,7 @@ class BaseLocalizer(Algorithm):
             1) The base localizer algorithm handles one robot, and one robot only
             2) The robot has a base
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """

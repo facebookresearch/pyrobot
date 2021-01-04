@@ -29,7 +29,6 @@ import actionlib
 from actionlib_msgs.msg import GoalStatus
 
 
-
 class Arm(object):
     """
     This is a parent class on which the robot
@@ -38,11 +37,7 @@ class Arm(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(
-        self,
-        configs,
-        ns=""
-    ):
+    def __init__(self, configs, ns=""):
         """
         Constructor for Arm parent class.
 
@@ -61,9 +56,9 @@ class Arm(object):
         self._joint_velocities = dict()
         self._joint_efforts = dict()
         rospy.Subscriber(
-            append_namespace(self.ns, configs.ROSTOPIC_JOINT_STATES), 
-            JointState, 
-            self._callback_joint_states
+            append_namespace(self.ns, configs.ROSTOPIC_JOINT_STATES),
+            JointState,
+            self._callback_joint_states,
         )
 
         # Publishers
@@ -187,7 +182,7 @@ class Arm(object):
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
-        
+
         self._pub_joint_positions(positions)
         if wait:
             result = self._loop_angle_pub_cmd(self._pub_joint_positions, positions)
@@ -279,7 +274,7 @@ class Arm(object):
 
     def _setup_joint_pub(self):
         self.joint_pub = rospy.Publisher(
-            append_namespace(self.ns, self.configs.ROSTOPIC_SET_JOINT), 
-            JointState, 
-            queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_SET_JOINT),
+            JointState,
+            queue_size=1,
         )

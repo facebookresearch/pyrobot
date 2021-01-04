@@ -29,7 +29,7 @@ class CameraTransform(Algorithm):
 
     def pix_to_pt(self, rows, columns, depth_img, rgb_img=None, in_cam=True):
         """
-        This function takes in row and column indices of depth and rgb image, 
+        This function takes in row and column indices of depth and rgb image,
             and map to 3d point in camera frame or in specified base frame.
 
         Args:
@@ -39,13 +39,13 @@ class CameraTransform(Algorithm):
             rgb_img: array of rgb image with shape (Camera.height, Camera.width, 3). Default: None.
                 If None, the function would only return 3D points but not color.
             in_cam: bool, specify if the returned 3d points are in camera frame. Default: True.
-                If True, the function would return 3D points w.r.t camera frame; 
+                If True, the function would return 3D points w.r.t camera frame;
                 else it would return points w.r.t base frame specified in camera configs.
 
         Returns:
-            pts: array of queried pixel positions in 3D with shape (n, 3). 
+            pts: array of queried pixel positions in 3D with shape (n, 3).
                 Each of the n entries is an [x, y, z] vector
-            colors: array of queried pixel colors in 3D with shape (n, 3). 
+            colors: array of queried pixel colors in 3D with shape (n, 3).
                 Each of the n entries is an [r, g, b] vector
                 If rgb_img is None, colors would be None.
         """
@@ -53,7 +53,7 @@ class CameraTransform(Algorithm):
 
     def pcd_from_img(self, depth_img, rgb_img=None, in_cam=True):
         """
-        This function takes in depth and rgb image, 
+        This function takes in depth and rgb image,
             and map to 3d point in camera frame or in specified base frame.
 
         Args:
@@ -61,15 +61,15 @@ class CameraTransform(Algorithm):
             rgb_img: array of rgb image with shape (Camera.height, Camera.width, 3). Default: None.
                 If None, the function would only return 3D points but not color.
             in_cam: bool, specify if the returned 3d point cloud are in camera frame. Default: True.
-                If True, the function would return 3D point cloud w.r.t camera frame; 
+                If True, the function would return 3D point cloud w.r.t camera frame;
                 else it would return points w.r.t base frame specified in camera configs.
 
         Returns:
-            pts: array of queried pixel positions in 3D with shape (n, 3), 
-                where n is the number of valid points in depth image. 
+            pts: array of queried pixel positions in 3D with shape (n, 3),
+                where n is the number of valid points in depth image.
                 Each of the n entries is an [x, y, z] vector
-            colors: array of queried pixel colors in 3D with shape (n, 3). 
-                where n is the number of valid points in depth image. 
+            colors: array of queried pixel colors in 3D with shape (n, 3).
+                where n is the number of valid points in depth image.
                 Each of the n entries is an [r, g, b] vector
                 If rgb_img is None, colors would be None.
         """
@@ -122,12 +122,14 @@ class CameraTransform(Algorithm):
             4) The camera has intrinsic params: fx, fy, cx, cy
             5) The camera has image size specified
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """
-        assert len(self.robots.keys()) + len(self.sensors.keys()) == 1, "One camera transform only handle one camera!"
-        
+        assert (
+            len(self.robots.keys()) + len(self.sensors.keys()) == 1
+        ), "One camera transform only handle one camera!"
+
         if len(self.robots.keys()) > 0:
             robot_label = list(self.robots.keys())[0]
             assert (
@@ -169,7 +171,6 @@ class CameraTransform(Algorithm):
         assert (
             "Camera.width" in camera.configs.keys()
         ), "Camera.width required for camera intrinsics!"
-
 
     def get_class_name(self):
         return "CameraTransform"

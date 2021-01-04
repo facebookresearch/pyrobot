@@ -8,7 +8,7 @@ from omegaconf import DictConfig
 import numpy as np
 
 from pyrobot import World, make_algorithm
-from pyrobot.algorithms.kinematics import Kinematics 
+from pyrobot.algorithms.kinematics import Kinematics
 
 import copy
 import time
@@ -34,16 +34,19 @@ def main():
         },
     ]
 
-    world =  World(config_name='env/locobot_arm_env.yaml')
+    world = World(config_name="env/locobot_arm_env.yaml")
 
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
     bot["arm"].go_home()
 
     for pose in target_poses:
-        world.algorithms['moveit_kin_planner'].plan_end_effector_pose(pose["position"], pose["orientation"])
+        world.algorithms["moveit_kin_planner"].plan_end_effector_pose(
+            pose["position"], pose["orientation"]
+        )
         time.sleep(1)
 
     bot["arm"].go_home()
+
 
 if __name__ == "__main__":
     main()

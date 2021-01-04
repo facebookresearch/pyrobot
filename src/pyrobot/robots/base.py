@@ -45,9 +45,9 @@ class Base(object):
         self.configs = configs
         self.ns = ns
         self.ctrl_pub = rospy.Publisher(
-            append_namespace(self.ns, configs.ROSTOPIC_BASE_COMMAND), 
-            Twist, 
-            queue_size=1
+            append_namespace(self.ns, configs.ROSTOPIC_BASE_COMMAND),
+            Twist,
+            queue_size=1,
         )
 
     def stop(self):

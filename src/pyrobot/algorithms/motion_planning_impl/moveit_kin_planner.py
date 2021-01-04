@@ -11,6 +11,7 @@ class MoveitKinPlanner(MotionPlanner):
     """
     Implementation of moveit!-based motion planning algorithm, with explicit kinematics dependency.
     """
+
     def __init__(
         self,
         configs,

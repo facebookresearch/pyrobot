@@ -18,17 +18,18 @@ from pyrobot import World, make_algorithm
 import copy
 import time
 
+
 def main():
-    world =  World(config_name='env/base_env.yaml')
+    world = World(config_name="env/base_env.yaml")
 
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
 
-    bot['base'].set_vel(
+    bot["base"].set_vel(
         0.2,
         0.5,
         1.0,
     )
-    bot['base'].stop()
+    bot["base"].stop()
 
 
 if __name__ == "__main__":

@@ -23,16 +23,14 @@ from pyrobot.algorithms.base_controller_impl.ilqr_utils import wrap_theta
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name='env/locobot_base_env.yaml')
+    return World(config_name="env/locobot_base_env.yaml")
 
 
 @pytest.mark.parametrize("base_controller", ["ilqr_control"])
 @pytest.mark.parametrize("close_loop", [True, False])
-def test_trajectory_tracking_circle(
-    create_world, base_controller, close_loop
-):
+def test_trajectory_tracking_circle(create_world, base_controller, close_loop):
     world = create_world
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
 
     dt = 1.0 / world.algorithms[base_controller].configs.BASE_CONTROL_RATE
     v = world.algorithms[base_controller].configs.MAX_ABS_FWD_SPEED / 2.0
@@ -56,11 +54,13 @@ def _test_relative_position_control(
     angular_thresh,
 ):
     world = create_world
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
 
     start_state = np.array(world.algorithms["odom_localizer"].get_odom_state())
     desired_target = _get_absolute_pose(posn, start_state)
-    world.algorithms[base_controller].go_to_relative(posn, close_loop=close_loop, smooth=smooth)
+    world.algorithms[base_controller].go_to_relative(
+        posn, close_loop=close_loop, smooth=smooth
+    )
     end_state = np.array(world.algorithms["odom_localizer"].get_odom_state())
 
     dist = np.linalg.norm(end_state[:2] - desired_target[:2])
@@ -82,7 +82,7 @@ posns = np.array(
 )
 
 posns_movebase = np.array(
-    [[2.0, -2.0, np.pi/2]],
+    [[2.0, -2.0, np.pi / 2]],
     dtype=np.float32,
 )
 
@@ -113,9 +113,7 @@ def test_relative_position_control1_movebase(
 
 @pytest.mark.parametrize("base_controller", ["ilqr_control"])
 @pytest.mark.parametrize("posn", posns)
-def test_relative_position_control2_close_sharp(
-    create_world, posn, base_controller
-):
+def test_relative_position_control2_close_sharp(create_world, posn, base_controller):
     _test_relative_position_control(
         posn, create_world, base_controller, True, False, 0.05, 10
     )
@@ -123,9 +121,7 @@ def test_relative_position_control2_close_sharp(
 
 @pytest.mark.parametrize("base_controller", ["ilqr_control"])
 @pytest.mark.parametrize("posn", posns)
-def test_relative_position_control2_open_sharp(
-    create_world, posn, base_controller
-):
+def test_relative_position_control2_open_sharp(create_world, posn, base_controller):
     _test_relative_position_control(
         posn, create_world, base_controller, False, False, 0.10, 20
     )

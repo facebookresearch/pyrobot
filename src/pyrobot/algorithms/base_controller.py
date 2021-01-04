@@ -32,8 +32,8 @@ class BaseController(Algorithm):
         This function takes in desired xyt_position in base frame, and move the base to this xyt_position
 
         Args:
-            xyt_position: a list-like object with size 3 in the form of [x, y, theta], 
-                denoting desired translation along x-axis in base frame (meters), 
+            xyt_position: a list-like object with size 3 in the form of [x, y, theta],
+                denoting desired translation along x-axis in base frame (meters),
                          desired translation along y-axis in base frame (meters),
                          desired orientation in base frame (radius) respectively.
             close_loop: bool. Specify if the controller should work in close loop. Default: True
@@ -48,8 +48,8 @@ class BaseController(Algorithm):
         This function takes in desired xyt_position in world frame, and move the base to this xyt_position
 
         Args:
-            xyt_position: a list-like object with size 3 in the form of [x, y, theta], 
-                denoting desired translation along x-axis in world frame (meters), 
+            xyt_position: a list-like object with size 3 in the form of [x, y, theta],
+                denoting desired translation along x-axis in world frame (meters),
                          desired translation along y-axis in world frame (meters),
                          desired orientation in world frame (radius) respectively.
             close_loop: bool. Specify if the controller should work in close loop. Default: True
@@ -61,13 +61,13 @@ class BaseController(Algorithm):
 
     def track_trajectory(self, states, close_loop=True):
         """
-        This function takes in a trajectory of (x, y, theta) points in world frame, 
+        This function takes in a trajectory of (x, y, theta) points in world frame,
         and move the base to follow the trajectory
 
         Args:
-            states: a list of (x, y, theta) vectors [[x1, y1, theta1], ..., [xn, yn, thetan]] 
+            states: a list of (x, y, theta) vectors [[x1, y1, theta1], ..., [xn, yn, thetan]]
             such that in each entry
-                x denotes desired translation along x-axis in world frame (meters), 
+                x denotes desired translation along x-axis in world frame (meters),
                 y denotes desired translation along y-axis in world frame (meters),
                 theta denotes desired orientation in world frame (radius) respectively.
             close_loop: bool. Specify if the controller should work in close loop. Default: True
@@ -91,7 +91,7 @@ class BaseController(Algorithm):
             2) The robot has a base
             3) The base has a control subscriber which allows the controller to publish velocity commands
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """
@@ -101,10 +101,8 @@ class BaseController(Algorithm):
             "base" in self.robots[robot_label].keys()
         ), "base required for base controllers!"
 
-        bot_base = self.robots[robot_label]['base']
-        assert (
-            bot_base.ctrl_pub
-        ), "control publisher required for base controllers!"
+        bot_base = self.robots[robot_label]["base"]
+        assert bot_base.ctrl_pub, "control publisher required for base controllers!"
 
     def get_class_name(self):
         return "BaseController"

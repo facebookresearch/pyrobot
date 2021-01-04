@@ -8,6 +8,7 @@ import rospy
 from nav_msgs.srv import GetPlan
 from geometry_msgs.msg import PoseStamped
 
+
 class MovebasePlanner(BasePlanner):
     """base class of camera transformation algorithms."""
 
@@ -59,7 +60,10 @@ class MovebasePlanner(BasePlanner):
         """
         goal_state = build_pose_msg(x, y, thetaheta, self.MAP_FRAME)
         self._transform_listener.waitForTransform(
-            self.base_frame, self.bot_base.configs.MAP_FRAME, rospy.Time.now(), rospy.Duration(3)
+            self.base_frame,
+            self.bot_base.configs.MAP_FRAME,
+            rospy.Time.now(),
+            rospy.Duration(3),
         )
         start_state = self._transform_listener.transformPose(
             self.MAP_FRAME, self.start_state
@@ -68,10 +72,8 @@ class MovebasePlanner(BasePlanner):
             start=start_state, goal=goal_state, tolerance=self.tolerance
         )
 
-        assert (
-            len(response.plan.poses) > 0
-        ), "Failed to find a valid plan!"
-        
+        assert len(response.plan.poses) > 0, "Failed to find a valid plan!"
+
         return response.plan.poses
 
     def move_to_goal(self, x, y, theta):
@@ -123,7 +125,9 @@ class MovebasePlanner(BasePlanner):
                     0,
                 ]
 
-            angle, distance = self._compute_relative_ang_dist(point[0], point[1], point[2])
+            angle, distance = self._compute_relative_ang_dist(
+                point[0], point[1], point[2]
+            )
             g_angle, g_distance = self._compute_relative_ang_dist(x, y, theta)
             if not self.algorithms["BaseController"].go_to_relative([0, 0, angle]):
                 return False
@@ -152,9 +156,7 @@ class MovebasePlanner(BasePlanner):
     def check_cfg(self):
         super().check_cfg()
 
-        assert (
-            len(self.algorithms.keys()) == 1
-        ), "MovebasePlanner has one dependency!"
+        assert len(self.algorithms.keys()) == 1, "MovebasePlanner has one dependency!"
 
         assert (
             "BaseController" in self.algorithms.keys()

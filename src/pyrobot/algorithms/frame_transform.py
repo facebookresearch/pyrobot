@@ -5,9 +5,10 @@ class FrameTransform(Algorithm):
     """
     Base class of frame transformation algorithms.
 
-    Specifically, this algorithm handles getting transformation of the latest known timestamp, 
+    Specifically, this algorithm handles getting transformation of the latest known timestamp,
     including position and orientation, between two frames.
     """
+
     def __init__(
         self,
         configs,

@@ -12,9 +12,7 @@ from nav_msgs.msg import Odometry
 import numpy as np
 
 
-
 class OdomLocalizer(BaseLocalizer):
-
     def __init__(
         self,
         configs,
@@ -52,7 +50,7 @@ class OdomLocalizer(BaseLocalizer):
 
     def check_cfg(self):
         super().check_cfg()
-        
+
         robot_label = list(self.robots.keys())[0]
         assert (
             "ROSTOPIC_ODOMETRY" in self.robots[robot_label]["base"].configs.keys()
@@ -65,9 +63,9 @@ class OdomLocalizer(BaseLocalizer):
             orientation_q.x,
             orientation_q.y,
             orientation_q.z,
-            orientation_q.w]
-        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
-            orientation_list)
+            orientation_q.w,
+        ]
+        (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(orientation_list)
         state = copy.deepcopy(getattr(self, state_var))
         state.update(msg.pose.pose.position.x, msg.pose.pose.position.y, yaw)
         setattr(self, state_var, state)
@@ -80,12 +78,11 @@ class XYTState(object):
     """
 
     def __init__(self):
-        self.x = 0.
-        self.y = 0.
-        self.theta = 0.
+        self.x = 0.0
+        self.y = 0.0
+        self.theta = 0.0
         self.old_theta = 0
-        self._state_f = np.array([self.x, self.y, self.theta],
-                                 dtype=np.float32).T
+        self._state_f = np.array([self.x, self.y, self.theta], dtype=np.float32).T
         self.update_called = False
 
     def update(self, x, y, theta):
@@ -95,13 +92,11 @@ class XYTState(object):
         self.theta = theta
         self.x = x
         self.y = y
-        self._state_f = np.array([self.x, self.y, self.theta],
-                                 dtype=np.float32).T
+        self._state_f = np.array([self.x, self.y, self.theta], dtype=np.float32).T
         self.update_called = True
 
     @property
     def state_f(self):
         """Returns the current state as a numpy array."""
-        assert (self.update_called), "Odometry callback hasn't been called."
+        assert self.update_called, "Odometry callback hasn't been called."
         return self._state_f
-

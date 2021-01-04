@@ -28,7 +28,7 @@ class BasePlanner(Algorithm):
 
     def get_plan_absolute(self, x, y, theta):
         """
-        This function takes in desired x, y, theta position in world frame, 
+        This function takes in desired x, y, theta position in world frame,
             and generate a plan as a list of poses in the world frame
 
         Args:
@@ -37,8 +37,8 @@ class BasePlanner(Algorithm):
             theta: desired orientation in world frame. Unit: radius.
         Returns:
             plan: list of x, y, t points along the planned trajectory (point1, point2, ..., pointn)
-                each of the point would take form that 
-                point.pose.position.x, point.pose.position.y, point.pose.position.theta 
+                each of the point would take form that
+                point.pose.position.x, point.pose.position.y, point.pose.position.theta
                 denotes x, y, t position of each point in world frame.
 
         If a plan cannot be generated, this function should raise an error.
@@ -47,8 +47,8 @@ class BasePlanner(Algorithm):
 
     def move_to_goal(self, x, y, theta):
         """
-        This function takes in desired x, y, theta position in world frame, 
-            compute a plan as a list of poses in the world frame, 
+        This function takes in desired x, y, theta position in world frame,
+            compute a plan as a list of poses in the world frame,
             and move the base to the desired pose following the plan
 
         Args:
@@ -57,7 +57,7 @@ class BasePlanner(Algorithm):
             theta: desired orientation in world frame. Unit: radius.
         Returns:
             status: bool. True if the base gets to the target xyt pose; False otherwise.
-                
+
         If a plan cannot be generated or the generated plan cannot be executed, this function should raise an error.
         """
         raise NotImplementedError()
@@ -70,7 +70,7 @@ class BasePlanner(Algorithm):
             1) The base planner algorithm handles one robot, and one robot only
             2) The robot has a base
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """

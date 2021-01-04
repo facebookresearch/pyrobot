@@ -76,7 +76,7 @@ class Kinematics(Algorithm):
             2) The robot has an arm
             3) The arm has a base frame, an end-effector frame, and urdf description.
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """

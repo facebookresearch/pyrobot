@@ -2,10 +2,10 @@
 
 # /***************************************************************************
 # Modified from: Saif Sidhik franka_interface
-# 
+#
 # @package: PyRobot
 # @author: Zisu Dong <jdong1021@fb.com>
-# 
+#
 # **************************************************************************/
 
 import rospy
@@ -18,8 +18,11 @@ from franka_control_msgs.msg import JointControllerStates
 
 from . import ControllerParamConfigClient
 
-from controller_manager_msgs.utils import ( ControllerLister, 
-                                get_rosparam_controller_names)
+from controller_manager_msgs.utils import (
+    ControllerLister,
+    get_rosparam_controller_names,
+)
+
 
 def _resolve_controllers_ns(cm_ns):
     """
@@ -40,9 +43,9 @@ def _resolve_controllers_ns(cm_ns):
     :return: Controllers namespace
     :rtype: str
     """
-    ns = cm_ns.rsplit('/', 1)[0]
+    ns = cm_ns.rsplit("/", 1)[0]
     if not ns:
-        ns += '/'
+        ns += "/"
     return ns
 
 
@@ -55,8 +58,8 @@ def _append_ns(in_ns, suffix):
     :rtype: str
     """
     ns = in_ns
-    if ns[-1] != '/':
-        ns += '/'
+    if ns[-1] != "/":
+        ns += "/"
     ns += suffix
     return ns
 
@@ -71,44 +74,66 @@ def _rosparam_controller_type(ctrls_ns, ctrl_name):
     :return: Controller type
     :rtype: str
     """
-    type_param = _append_ns(ctrls_ns, ctrl_name) + '/type'
+    type_param = _append_ns(ctrls_ns, ctrl_name) + "/type"
     return rospy.get_param(type_param)
+
 
 def _get_controller_name_from_rosparam_server(rosparam_name):
     try:
         cname = rospy.get_param(rosparam_name)
     except KeyError:
-        rospy.loginfo("FrankaControllerManagerInterface: cannot detect controller name"
-                        " under param {}".format(rosparam_name))
-        cname = ''
+        rospy.loginfo(
+            "FrankaControllerManagerInterface: cannot detect controller name"
+            " under param {}".format(rosparam_name)
+        )
+        cname = ""
     except (socket.error, socket.gaierror):
-        rospy.logerr("Failed to connect to the ROS parameter server!\n"
+        rospy.logerr(
+            "Failed to connect to the ROS parameter server!\n"
             "Please check to make sure your ROS networking is "
-            "properly configured:\n")
+            "properly configured:\n"
+        )
         sys.exit()
 
     return cname
 
+
 class ControllerStateInfo:
     """
-        Class for creating a storage object for controller state published by the induvidual franka_ros_controllers.
+    Class for creating a storage object for controller state published by the induvidual franka_ros_controllers.
     """
+
     def __init__(self, controller_state_msg):
         self.controller_name = controller_state_msg.controller_name
         self.p = np.asarray([j.p for j in controller_state_msg.joint_controller_states])
         self.d = np.asarray([j.d for j in controller_state_msg.joint_controller_states])
         self.i = np.asarray([j.i for j in controller_state_msg.joint_controller_states])
-        self.process_value = np.asarray([j.process_value for j in controller_state_msg.joint_controller_states])
-        self.set_point = np.asarray([j.set_point for j in controller_state_msg.joint_controller_states])
-        self.process_value_dot = np.asarray([j.process_value_dot for j in controller_state_msg.joint_controller_states])
-        self.error = np.asarray([j.error for j in controller_state_msg.joint_controller_states])
-        self.time_step = np.asarray([j.time_step for j in controller_state_msg.joint_controller_states])
-        self.i_clamp = np.asarray([j.i_clamp for j in controller_state_msg.joint_controller_states])
-        self.command = np.asarray([j.command for j in controller_state_msg.joint_controller_states])
+        self.process_value = np.asarray(
+            [j.process_value for j in controller_state_msg.joint_controller_states]
+        )
+        self.set_point = np.asarray(
+            [j.set_point for j in controller_state_msg.joint_controller_states]
+        )
+        self.process_value_dot = np.asarray(
+            [j.process_value_dot for j in controller_state_msg.joint_controller_states]
+        )
+        self.error = np.asarray(
+            [j.error for j in controller_state_msg.joint_controller_states]
+        )
+        self.time_step = np.asarray(
+            [j.time_step for j in controller_state_msg.joint_controller_states]
+        )
+        self.i_clamp = np.asarray(
+            [j.i_clamp for j in controller_state_msg.joint_controller_states]
+        )
+        self.command = np.asarray(
+            [j.command for j in controller_state_msg.joint_controller_states]
+        )
+
 
 class FrankaControllerManagerInterface(object):
     """
-    
+
     :type synchronous_pub: bool
     :param synchronous_pub: designates the JointCommand Publisher
         as Synchronous if True and Asynchronous if False.
@@ -125,73 +150,96 @@ class FrankaControllerManagerInterface(object):
     :param ns: base namespace of interface ('frank_ros_interface'/'panda_simulator')
     :type ns: str
 
-    :param sim: Flag specifying whether the robot is in simulation or not 
+    :param sim: Flag specifying whether the robot is in simulation or not
         (can be obtained from :py:class:`franka_interface.RobotParams` instance)
     :type sim: bool
     """
 
-    def __init__(self, ns="franka_ros_interface", synchronous_pub = False, sim = False):
+    def __init__(self, ns="franka_ros_interface", synchronous_pub=False, sim=False):
 
-        self._ns = ns if ns[0] == '/' else '/' + ns
+        self._ns = ns if ns[0] == "/" else "/" + ns
         self._prefix = "/controller_manager"
         self._cm_ns = self._prefix
-        self._service_names = ["list_controllers",
-                             "unload_controller",
-                             "load_controller",
-                             "switch_controller"]
-
+        self._service_names = [
+            "list_controllers",
+            "unload_controller",
+            "load_controller",
+            "switch_controller",
+        ]
 
         load_srv_name = self._cm_ns + "/load_controller"
-        self._load_srv = rospy.ServiceProxy(load_srv_name,
-                                                LoadController,
-                                                persistent=True)
+        self._load_srv = rospy.ServiceProxy(
+            load_srv_name, LoadController, persistent=True
+        )
         unload_srv_name = self._cm_ns + "/unload_controller"
-        self._unload_srv = rospy.ServiceProxy(unload_srv_name,
-                                                  UnloadController,
-                                                  persistent=True)
+        self._unload_srv = rospy.ServiceProxy(
+            unload_srv_name, UnloadController, persistent=True
+        )
         switch_srv_name = self._cm_ns + "/switch_controller"
-        self._switch_srv = rospy.ServiceProxy(switch_srv_name,
-                                                  SwitchController,
-                                                  persistent=True)
+        self._switch_srv = rospy.ServiceProxy(
+            switch_srv_name, SwitchController, persistent=True
+        )
 
         list_srv_name = self._cm_ns + "/list_controllers"
-        self._list_srv = rospy.ServiceProxy(list_srv_name,
-                                                  ListControllers,
-                                                  persistent=True)
+        self._list_srv = rospy.ServiceProxy(
+            list_srv_name, ListControllers, persistent=True
+        )
 
         list_types_srv_name = self._cm_ns + "/list_controller_types"
-        self._list_types_srv = rospy.ServiceProxy(list_types_srv_name,
-                                                  ListControllerTypes,
-                                                  persistent=True)
+        self._list_types_srv = rospy.ServiceProxy(
+            list_types_srv_name, ListControllerTypes, persistent=True
+        )
 
         self._in_sim = sim
 
         self._controller_lister = ControllerLister(self._cm_ns)
 
         self._controller_names_from_rosparam = {
-            'joint_position_controller': _get_controller_name_from_rosparam_server('/controllers_config/position_controller'),
-            'joint_velocity_controller': _get_controller_name_from_rosparam_server('/controllers_config/velocity_controller'),
-            'joint_torque_controller': _get_controller_name_from_rosparam_server('/controllers_config/torque_controller'),
-            'joint_trajectory_controller': _get_controller_name_from_rosparam_server('/controllers_config/trajectory_controller'),
-            'effort_joint_position_controller': _get_controller_name_from_rosparam_server('/controllers_config/impedance_controller'),
-            'default_controller': _get_controller_name_from_rosparam_server('/controllers_config/default_controller'),
+            "joint_position_controller": _get_controller_name_from_rosparam_server(
+                "/controllers_config/position_controller"
+            ),
+            "joint_velocity_controller": _get_controller_name_from_rosparam_server(
+                "/controllers_config/velocity_controller"
+            ),
+            "joint_torque_controller": _get_controller_name_from_rosparam_server(
+                "/controllers_config/torque_controller"
+            ),
+            "joint_trajectory_controller": _get_controller_name_from_rosparam_server(
+                "/controllers_config/trajectory_controller"
+            ),
+            "effort_joint_position_controller": _get_controller_name_from_rosparam_server(
+                "/controllers_config/impedance_controller"
+            ),
+            "default_controller": _get_controller_name_from_rosparam_server(
+                "/controllers_config/default_controller"
+            ),
         }
 
-
         if self._in_sim:
-            self._non_motion_controllers = [self._ns[1:] + '/custom_franka_state_controller', self._ns[1:] + '/panda_gripper_controller', self._ns[1:] + '/effort_joint_gravity_controller', self._ns[1:] + '/joint_state_controller']
+            self._non_motion_controllers = [
+                self._ns[1:] + "/custom_franka_state_controller",
+                self._ns[1:] + "/panda_gripper_controller",
+                self._ns[1:] + "/effort_joint_gravity_controller",
+                self._ns[1:] + "/joint_state_controller",
+            ]
         else:
-            self._non_motion_controllers = [self._ns[1:] + '/custom_franka_state_controller',self._ns[1:] + '/franka_state_controller']
+            self._non_motion_controllers = [
+                self._ns[1:] + "/custom_franka_state_controller",
+                self._ns[1:] + "/franka_state_controller",
+            ]
 
         self._assert_one_active_controller()
 
-        self._state_subscriber = rospy.Subscriber("%s/motion_controller/arm/joint_controller_states" %(self._ns),
-                                                    JointControllerStates, self._on_controller_state, queue_size = 1,
-                                                    tcp_nodelay = True)
+        self._state_subscriber = rospy.Subscriber(
+            "%s/motion_controller/arm/joint_controller_states" % (self._ns),
+            JointControllerStates,
+            self._on_controller_state,
+            queue_size=1,
+            tcp_nodelay=True,
+        )
 
         self._param_config_clients = {}
         self._dont_start_config_client = False
-
 
         rospy.on_shutdown(self._clean_shutdown)
 
@@ -200,22 +248,26 @@ class FrankaControllerManagerInterface(object):
         if self._state_subscriber:
             self._state_subscriber.unregister()
 
-
     def _on_controller_state(self, msg):
         self._controller_state = deepcopy(ControllerStateInfo(msg))
 
         self._assert_one_active_controller()
 
-        if self._current_controller and self._current_controller not in self._param_config_clients:
-            self._param_config_clients[self._current_controller] = ControllerParamConfigClient(self._current_controller)
+        if (
+            self._current_controller
+            and self._current_controller not in self._param_config_clients
+        ):
+            self._param_config_clients[
+                self._current_controller
+            ] = ControllerParamConfigClient(self._current_controller)
             self._param_config_clients[self._current_controller].start()
-
 
     def _assert_one_active_controller(self):
         ctrlr_list = self.list_active_controllers(only_motion_controllers=True)
-        assert len(ctrlr_list) <= 1, "FrankaControllerManagerInterface: More than one motion controller active!"
+        assert (
+            len(ctrlr_list) <= 1
+        ), "FrankaControllerManagerInterface: More than one motion controller active!"
         self._current_controller = ctrlr_list[0].name if len(ctrlr_list) > 0 else None
-
 
     def load_controller(self, name):
         """
@@ -242,22 +294,27 @@ class FrankaControllerManagerInterface(object):
         :type name: str
         :param name: name of the controller to be started
         """
-        assert len(self.list_active_controllers(only_motion_controllers=True)) == 0, "FrankaControllerManagerInterface: One motion controller already active: %s. Stop this controller before activating another!"%self._current_controller
+        assert len(self.list_active_controllers(only_motion_controllers=True)) == 0, (
+            "FrankaControllerManagerInterface: One motion controller already active: %s. Stop this controller before activating another!"
+            % self._current_controller
+        )
 
         strict = SwitchControllerRequest.STRICT
-        req = SwitchControllerRequest(start_controllers=[name],
-                                      stop_controllers=[],
-                                      strictness=strict)
-        rospy.logdebug("FrankaControllerManagerInterface: Starting controller: %s"%name)
+        req = SwitchControllerRequest(
+            start_controllers=[name], stop_controllers=[], strictness=strict
+        )
+        rospy.logdebug(
+            "FrankaControllerManagerInterface: Starting controller: %s" % name
+        )
         self._switch_srv.call(req)
 
         self._assert_one_active_controller()
 
     def get_controller_state(self):
         """
-            Get the status of the current controller, including set points, computed 
-            command, controller gains etc. See the ControllerStateInfo class (above) 
-            parameters for more info.
+        Get the status of the current controller, including set points, computed
+        command, controller gains etc. See the ControllerStateInfo class (above)
+        parameters for more info.
         """
         return deepcopy(self._controller_state)
 
@@ -269,12 +326,13 @@ class FrankaControllerManagerInterface(object):
         :param name: name of the controller to be stopped
         """
         strict = SwitchControllerRequest.STRICT
-        req = SwitchControllerRequest(start_controllers=[],
-                                      stop_controllers=[name],
-                                      strictness=strict)
-        rospy.logdebug("FrankaControllerManagerInterface: Stopping controller: %s"%name)
+        req = SwitchControllerRequest(
+            start_controllers=[], stop_controllers=[name], strictness=strict
+        )
+        rospy.logdebug(
+            "FrankaControllerManagerInterface: Stopping controller: %s" % name
+        )
         self._switch_srv.call(req)
-
 
     def list_loaded_controllers(self):
         """
@@ -287,7 +345,7 @@ class FrankaControllerManagerInterface(object):
         req = ListControllersRequest()
 
         return self._list_srv.call(req)
-    
+
     def list_controller_types(self):
         """
         :return: List of controller types associated to a controller manager
@@ -321,12 +379,12 @@ class FrankaControllerManagerInterface(object):
             add_ctrl = not any(name == ctrl.name for ctrl in controllers)
             if add_ctrl:
                 type_str = _rosparam_controller_type(all_ctrls_ns, name)
-                uninit_ctrl = ControllerState(name=name,
-                                              type=type_str,
-                                              state='uninitialized')
+                uninit_ctrl = ControllerState(
+                    name=name, type=type_str, state="uninitialized"
+                )
                 controllers.append(uninit_ctrl)
         for c in controllers:
-            if c.name[0] == '/':
+            if c.name[0] == "/":
                 c.name = c.name[1:]
         return controllers
 
@@ -348,25 +406,29 @@ class FrankaControllerManagerInterface(object):
     def set_motion_controller(self, controller_name):
         """
         Set the specified controller as the (only) motion controller
-    
+
         :return: name of currently active controller (can be used to switch back to this later)
         :rtype: str
         :type controller_name: str
         :param controller_name: name of controller to start
         """
 
-        if controller_name.strip() == '':
-            rospy.logdebug("FrankaControllerManagerInterface: Empty controller name in controller switch request. Ignoring.")
+        if controller_name.strip() == "":
+            rospy.logdebug(
+                "FrankaControllerManagerInterface: Empty controller name in controller switch request. Ignoring."
+            )
             return self._current_controller
 
-        if controller_name[0] == '/':
+        if controller_name[0] == "/":
             controller_name = controller_name[1:]
-        
+
         curr_ctrlr = self._current_controller
-        switch_ctrl = (curr_ctrlr != controller_name)
+        switch_ctrl = curr_ctrlr != controller_name
 
         if switch_ctrl:
-            active_controllers = self.list_active_controllers(only_motion_controllers = True)
+            active_controllers = self.list_active_controllers(
+                only_motion_controllers=True
+            )
             for ctrlr in active_controllers:
                 self.stop_controller(ctrlr.name)
                 rospy.sleep(0.5)
@@ -376,10 +438,13 @@ class FrankaControllerManagerInterface(object):
 
             self.start_controller(controller_name)
         else:
-            rospy.logdebug("FrankaControllerManagerInterface: Controller '{0}' already active. Not switching.".format(controller_name))
+            rospy.logdebug(
+                "FrankaControllerManagerInterface: Controller '{0}' already active. Not switching.".format(
+                    controller_name
+                )
+            )
 
         return curr_ctrlr
-
 
     def is_running(self, controller_name):
         """
@@ -392,9 +457,9 @@ class FrankaControllerManagerInterface(object):
         """
         controllers = self.controller_dict()
 
-        ctrl_state = controllers.get(controller_name,None)
+        ctrl_state = controllers.get(controller_name, None)
 
-        return ctrl_state is not None and ctrl_state.state=="running"
+        return ctrl_state is not None and ctrl_state.state == "running"
 
     def is_loaded(self, controller_name):
         """
@@ -407,9 +472,9 @@ class FrankaControllerManagerInterface(object):
         """
         controllers = self.controller_dict()
 
-        ctrl_state = controllers.get(controller_name,None)
+        ctrl_state = controllers.get(controller_name, None)
 
-        return ctrl_state is not None and ctrl_state.state!="uninitialized"
+        return ctrl_state is not None and ctrl_state.state != "uninitialized"
 
     def list_motion_controllers(self):
         """
@@ -426,15 +491,14 @@ class FrankaControllerManagerInterface(object):
 
         return motion_controllers
 
-
-    def list_active_controllers(self, only_motion_controllers = False):
+    def list_active_controllers(self, only_motion_controllers=False):
         """
         :return: List of  active controllers associated to a controller manager
             namespace. Contains both stopped/running controllers, as returned by
             the `list_controllers` service, plus uninitialized controllers with
             configurations loaded in the parameter server.
         :rtype: [ControllerState obj]
-        
+
         :param only_motion_controller: if True, only motion controllers are returned
         :type only_motion_controller: bool
 
@@ -443,7 +507,7 @@ class FrankaControllerManagerInterface(object):
             controllers = self.list_motion_controllers()
         else:
             controllers = self.list_controllers()
-        
+
         active_controllers = []
         for controller in controllers:
             if controller.state == "running":
@@ -451,24 +515,29 @@ class FrankaControllerManagerInterface(object):
 
         return active_controllers
 
-    def list_active_controller_names(self, only_motion_controllers = False):
+    def list_active_controller_names(self, only_motion_controllers=False):
         """
         :return: List of names active controllers associated to a controller manager
-            namespace. 
+            namespace.
         :rtype: [str]
-        
+
         :param only_motion_controller: if True, only motion controllers are returned
         :type only_motion_controller: bool
 
         """
-        return [c.name for c in self.list_active_controllers(only_motion_controllers = only_motion_controllers)]
+        return [
+            c.name
+            for c in self.list_active_controllers(
+                only_motion_controllers=only_motion_controllers
+            )
+        ]
 
     def get_controller_config_client(self, controller_name):
         """
         :return: The parameter configuration client object associated with the specified
             controller
         :rtype: ControllerParamConfigClient obj (if None, returns False)
-        
+
         :param controller_name: name of controller whose config client is required
         :type controller_name: str
 
@@ -476,7 +545,11 @@ class FrankaControllerManagerInterface(object):
         if controller_name in self._param_config_clients:
             return self._param_config_clients[controller_name]
         else:
-            rospy.logwarn("FrankaControllerManagerInterface: No parameter configuration client available for controller {}".format(controller_name))
+            rospy.logwarn(
+                "FrankaControllerManagerInterface: No parameter configuration client available for controller {}".format(
+                    controller_name
+                )
+            )
             return False
 
     def get_current_controller_config_client(self):
@@ -484,7 +557,7 @@ class FrankaControllerManagerInterface(object):
         :return: The parameter configuration client object associated with the currently
             active controller
         :rtype: ControllerParamConfigClient obj (if None, returns False)
-        
+
         :param controller_name: name of controller whose config client is required
         :type controller_name: str
 
@@ -495,93 +568,96 @@ class FrankaControllerManagerInterface(object):
 
         return self.get_controller_config_client(self._current_controller)
 
-
     def list_controller_names(self):
         """
         :return: List of names all controllers associated to a controller manager
-            namespace. 
+            namespace.
         :rtype: [str]
-        
+
         :param only_motion_controller: if True, only motion controllers are returned
         :type only_motion_controller: bool
 
         """
         return [c.name for c in self.list_controllers()]
 
-
-
     """
         Properties that give the names of the controllers for each type.
     """
+
     @property
     def joint_velocity_controller(self):
         """
-        :getter: Returns the name of joint velocity controller 
-            (defined in franka_ros_controllers, and specified 
-            in robot_config.yaml). Can be used for changing 
-            motion controller using 
+        :getter: Returns the name of joint velocity controller
+            (defined in franka_ros_controllers, and specified
+            in robot_config.yaml). Can be used for changing
+            motion controller using
             :py:meth:`FrankaControllerManagerInterface.set_motion_controller`.
         :type: str
         """
-        return self._controller_names_from_rosparam['joint_velocity_controller'] 
+        return self._controller_names_from_rosparam["joint_velocity_controller"]
+
     @property
     def joint_position_controller(self):
         """
-        :getter: Returns the name of joint position controller 
-            (defined in franka_ros_controllers, and specified 
-            in robot_config.yaml). Can be used for changing 
-            motion controller using 
+        :getter: Returns the name of joint position controller
+            (defined in franka_ros_controllers, and specified
+            in robot_config.yaml). Can be used for changing
+            motion controller using
             :py:meth:`FrankaControllerManagerInterface.set_motion_controller`.
         :type: str
         """
-        return self._controller_names_from_rosparam['joint_position_controller'] 
+        return self._controller_names_from_rosparam["joint_position_controller"]
+
     @property
     def joint_torque_controller(self):
         """
-        :getter: Returns the name of joint torque controller 
-            (defined in franka_ros_controllers, and specified 
-            in robot_config.yaml). Can be used for changing 
-            motion controller using 
+        :getter: Returns the name of joint torque controller
+            (defined in franka_ros_controllers, and specified
+            in robot_config.yaml). Can be used for changing
+            motion controller using
             :py:meth:`FrankaControllerManagerInterface.set_motion_controller`.
         :type: str
         """
-        return self._controller_names_from_rosparam['joint_torque_controller']     
+        return self._controller_names_from_rosparam["joint_torque_controller"]
+
     @property
     def joint_impedance_controller(self):
         """
-        :getter: Returns the name of joint impedance controller 
-            (defined in franka_ros_controllers, and specified 
-            in robot_config.yaml). Can be used for changing 
-            motion controller using 
+        :getter: Returns the name of joint impedance controller
+            (defined in franka_ros_controllers, and specified
+            in robot_config.yaml). Can be used for changing
+            motion controller using
             :py:meth:`FrankaControllerManagerInterface.set_motion_controller`.
         :type: str
         """
-        return self._controller_names_from_rosparam['joint_impedance_controller']  
+        return self._controller_names_from_rosparam["joint_impedance_controller"]
+
     @property
     def effort_joint_position_controller(self):
         """
-        :getter: Returns the name of effort-based joint position controller 
-            (defined in franka_ros_controllers, and specified 
-            in robot_config.yaml). Can be used for changing 
-            motion controller using 
+        :getter: Returns the name of effort-based joint position controller
+            (defined in franka_ros_controllers, and specified
+            in robot_config.yaml). Can be used for changing
+            motion controller using
             :py:meth:`FrankaControllerManagerInterface.set_motion_controller`.
         :type: str
         """
-        return self._controller_names_from_rosparam['effort_joint_position_controller']
+        return self._controller_names_from_rosparam["effort_joint_position_controller"]
+
     @property
     def joint_trajectory_controller(self):
         """
-        :getter: Returns the name of joint trajectory controller 
-            (defined in franka_ros_controllers, and specified 
-            in robot_config.yaml). Can be used for changing 
-            motion controller using 
+        :getter: Returns the name of joint trajectory controller
+            (defined in franka_ros_controllers, and specified
+            in robot_config.yaml). Can be used for changing
+            motion controller using
             :py:meth:`FrankaControllerManagerInterface.set_motion_controller`.
             This controller exposes trajectory following service.
         :type: str
         """
         if self._in_sim:
             return self.joint_position_controller
-        return self._controller_names_from_rosparam['joint_trajectory_controller']
+        return self._controller_names_from_rosparam["joint_trajectory_controller"]
 
     @property
     def current_controller(self):
@@ -602,16 +678,11 @@ class FrankaControllerManagerInterface(object):
             :py:meth:`joint_trajectory_controller`.
         :type: str
         """
-        return self._controller_names_from_rosparam['default_controller']
-
-    
+        return self._controller_names_from_rosparam["default_controller"]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from franka_tools import FrankaFramesInterface
+
     cmi = FrankaControllerManagerInterface()
-    f =  FrankaFramesInterface()
-
-
-
-
+    f = FrankaFramesInterface()

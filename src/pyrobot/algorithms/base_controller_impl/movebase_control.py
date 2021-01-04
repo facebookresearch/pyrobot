@@ -1,7 +1,10 @@
 from pyrobot.algorithms.base_controller import BaseController
 from pyrobot.algorithms.base_localizer import BaseLocalizer
 
-from pyrobot.algorithms.base_controller_impl.base_control_utils import build_pose_msg, _get_absolute_pose
+from pyrobot.algorithms.base_controller_impl.base_control_utils import (
+    build_pose_msg,
+    _get_absolute_pose,
+)
 
 import actionlib
 from actionlib_msgs.msg import GoalStatusArray, GoalID
@@ -84,7 +87,7 @@ class MovebaseControl(BaseController):
 
     def check_cfg(self):
         super().check_cfg()
-        
+
         assert (
             len(self.algorithms.keys()) == 1
         ), "Movebase controller only have one dependency!"
@@ -133,4 +136,3 @@ class MovebaseControl(BaseController):
     def _move_base_status_callback(self, msg):
         if len(msg.status_list) > 0:
             self.execution_status = msg.status_list[-1].status
-

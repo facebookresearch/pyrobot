@@ -35,6 +35,7 @@ def constrain_within_range(value, MIN, MAX):
 def is_within_range(value, MIN, MAX):
     return (value <= MAX) and (value >= MIN)
 
+
 class LoCoBotCamera(Camera):
     """
     This is camera class that interfaces with the Realsense
@@ -64,20 +65,20 @@ class LoCoBotCamera(Camera):
         super(LoCoBotCamera, self).__init__(configs=configs, ns=ns)
 
         rospy.Subscriber(
-            append_namespace(self.ns, self.configs.ROSTOPIC_JOINT_STATES), 
+            append_namespace(self.ns, self.configs.ROSTOPIC_JOINT_STATES),
             JointState,
             self._camera_pose_callback,
         )
 
         self.set_pan_pub = rospy.Publisher(
-            append_namespace(self.ns,self.configs.ROSTOPIC_SET_PAN),
-            Float64, 
-            queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_SET_PAN),
+            Float64,
+            queue_size=1,
         )
         self.set_tilt_pub = rospy.Publisher(
-            append_namespace(self.ns,self.configs.ROSTOPIC_SET_TILT),
-            Float64, 
-            queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_SET_TILT),
+            Float64,
+            queue_size=1,
         )
 
         self.pan = None

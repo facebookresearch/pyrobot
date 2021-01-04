@@ -1,7 +1,10 @@
 from pyrobot.algorithms.base_controller import BaseController
 from pyrobot.algorithms.base_localizer import BaseLocalizer
 
-from pyrobot.algorithms.base_controller_impl.base_control_utils import build_pose_msg, _get_absolute_pose
+from pyrobot.algorithms.base_controller_impl.base_control_utils import (
+    build_pose_msg,
+    _get_absolute_pose,
+)
 
 from tf import TransformListener
 from tf.transformations import euler_from_quaternion
@@ -19,8 +22,6 @@ from numpy import sign
 
 
 class ProportionalControl(BaseController):
-
-
     def __init__(
         self,
         configs,
@@ -76,10 +77,16 @@ class ProportionalControl(BaseController):
         ), "Proportional controller \
                         cannot work in open loop"
         pose_stamped = build_pose_msg(
-            xyt_position[0], xyt_position[1], xyt_position[2], self.bot_base.configs.MAP_FRAME
+            xyt_position[0],
+            xyt_position[1],
+            xyt_position[2],
+            self.bot_base.configs.MAP_FRAME,
         )
         self._transform_listener.waitForTransform(
-            self.base_frame, self.bot_base.configs.MAP_FRAME, rospy.Time(0), rospy.Duration(3)
+            self.base_frame,
+            self.bot_base.configs.MAP_FRAME,
+            rospy.Time(0),
+            rospy.Duration(3),
         )
         base_pose = self._transform_listener.transformPose(
             self.base_frame, pose_stamped
@@ -96,7 +103,7 @@ class ProportionalControl(BaseController):
 
     def check_cfg(self):
         super().check_cfg()
-        
+
         assert (
             len(self.algorithms.keys()) == 1
         ), "Proportional controller only have one dependency!"
@@ -155,7 +162,9 @@ class ProportionalControl(BaseController):
                     return False
 
             if time.time() - prev_time > (1.0 / self.hz):
-                cur_error = self._norm_pose(target_world - self.algorithms["BaseLocalizer"].get_odom_state()[2])
+                cur_error = self._norm_pose(
+                    target_world - self.algorithms["BaseLocalizer"].get_odom_state()[2]
+                )
 
                 # stop if error goes beyond some value
                 if abs(cur_error) < self.rot_error_thr:
@@ -223,8 +232,13 @@ class ProportionalControl(BaseController):
                 cur_error = abs(
                     abs(target)
                     - sqrt(
-                        (self.algorithms["BaseLocalizer"].get_odom_state()[0] - init_x) ** 2
-                        + (self.algorithms["BaseLocalizer"].get_odom_state()[1] - init_y) ** 2
+                        (self.algorithms["BaseLocalizer"].get_odom_state()[0] - init_x)
+                        ** 2
+                        + (
+                            self.algorithms["BaseLocalizer"].get_odom_state()[1]
+                            - init_y
+                        )
+                        ** 2
                     )
                 )
 

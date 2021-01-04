@@ -3,9 +3,15 @@ import rospy
 
 
 class IKSolver(object):
-    def __init__(self, base_link, tip_link,
-                 timeout=0.005, epsilon=1e-5, solve_type="Speed",
-                 urdf_string=None):
+    def __init__(
+        self,
+        base_link,
+        tip_link,
+        timeout=0.005,
+        epsilon=1e-5,
+        solve_type="Speed",
+        urdf_string=None,
+    ):
         """
         Create a TRAC_IK instance and keep track of it.
         :param str base_link: Starting link of the chain.
@@ -18,28 +24,41 @@ class IKSolver(object):
             the param server at /robot_description.
         """
         if urdf_string is None:
-            urdf_string = rospy.get_param('/robot_description')
+            urdf_string = rospy.get_param("/robot_description")
         self._urdf_string = urdf_string
         self._timeout = timeout
         self._epsilon = epsilon
         self._solve_type = solve_type
         self.base_link = base_link
         self.tip_link = tip_link
-        self._ik_solver = TracIKWrapper(self.base_link,
-                                  self.tip_link,
-                                  self._urdf_string,
-                                  self._timeout,
-                                  self._epsilon,
-                                  self._solve_type)
+        self._ik_solver = TracIKWrapper(
+            self.base_link,
+            self.tip_link,
+            self._urdf_string,
+            self._timeout,
+            self._epsilon,
+            self._solve_type,
+        )
         self.number_of_joints = self._ik_solver.getNrOfJointsInChain()
-        self.joint_names = self._ik_solver.getJointNamesInChain(
-            self._urdf_string)
+        self.joint_names = self._ik_solver.getJointNamesInChain(self._urdf_string)
 
-    def get_ik(self, qinit,
-               x, y, z,
-               rx, ry, rz, rw,
-               bx=1e-5, by=1e-5, bz=1e-5,
-               brx=1e-3, bry=1e-3, brz=1e-3):
+    def get_ik(
+        self,
+        qinit,
+        x,
+        y,
+        z,
+        rx,
+        ry,
+        rz,
+        rw,
+        bx=1e-5,
+        by=1e-5,
+        bz=1e-5,
+        brx=1e-3,
+        bry=1e-3,
+        brz=1e-3,
+    ):
         """
         Do the IK call.
         :param list of float qinit: Initial status of the joints as seed.
@@ -60,13 +79,13 @@ class IKSolver(object):
         :rtype: tuple of float.
         """
         if len(qinit) != self.number_of_joints:
-            raise Exception("qinit has length %i and it should have length %i" % (
-                len(qinit), self.number_of_joints))
-        solution = self._ik_solver.CartToJnt(qinit,
-                                             x, y, z,
-                                             rx, ry, rz, rw,
-                                             bx, by, bz,
-                                             brx, bry, brz)
+            raise Exception(
+                "qinit has length %i and it should have length %i"
+                % (len(qinit), self.number_of_joints)
+            )
+        solution = self._ik_solver.CartToJnt(
+            qinit, x, y, z, rx, ry, rz, rw, bx, by, bz, brx, bry, brz
+        )
         if solution:
             return solution
         else:
@@ -90,12 +109,14 @@ class IKSolver(object):
             all joints.
         """
         if len(lower_bounds) != self.number_of_joints:
-            raise Exception("lower_bounds array size mismatch, it's size %i, should be %i" % (
-                len(lower_bounds),
-                self.number_of_joints))
+            raise Exception(
+                "lower_bounds array size mismatch, it's size %i, should be %i"
+                % (len(lower_bounds), self.number_of_joints)
+            )
 
         if len(upper_bounds) != self.number_of_joints:
-            raise Exception("upper_bounds array size mismatch, it's size %i, should be %i" % (
-                len(upper_bounds),
-                self.number_of_joints))
-        self._ik_solver.setKDLLimits(lower_bounds, upper_bounds) 
+            raise Exception(
+                "upper_bounds array size mismatch, it's size %i, should be %i"
+                % (len(upper_bounds), self.number_of_joints)
+            )
+        self._ik_solver.setKDLLimits(lower_bounds, upper_bounds)

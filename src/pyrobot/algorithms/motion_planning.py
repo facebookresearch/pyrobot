@@ -6,7 +6,7 @@ class MotionPlanner(Algorithm):
     Base class of Motion Planning algorithms.
     Specifically, this algorithm handles computing and executing of motion plans.
 
-    The algorithm should take a robot model urdf, specified in a tree of joint frames, 
+    The algorithm should take a robot model urdf, specified in a tree of joint frames,
     and an end-effector frame, in the constructor.
     Motion plans should be computed w.r.t that urdf and end-effector frame.
     """
@@ -43,7 +43,7 @@ class MotionPlanner(Algorithm):
         Returns:
             plan: list of timestamped joint angle points along the planned trajectory. Unit: radius.
                 i.e. for a 5DoF arm with (joint1, joint2, ..., joint5) in urdf,
-                this function should return a list of points 
+                this function should return a list of points
                 with point.positions, point.velocities and point.accelarations as vectors of size 5
                 (angle1, angle2, ..., angle5)
 
@@ -64,7 +64,7 @@ class MotionPlanner(Algorithm):
         Returns:
             plan: list of timestamped joint angle points along the planned trajectory. Unit: radius.
                 i.e. for a 5DoF arm with (joint1, joint2, ..., joint5) in urdf,
-                this function should return a list of points 
+                this function should return a list of points
                 with point.positions, point.velocities and point.accelarations as vectors of size 5
                 (angle1, angle2, ..., angle5)
 
@@ -84,7 +84,7 @@ class MotionPlanner(Algorithm):
             2) The robot has an arm
             3) The arm has a base frame, an end-effector frame, and urdf description.
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """

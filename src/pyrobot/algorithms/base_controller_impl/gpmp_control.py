@@ -76,10 +76,11 @@ class GPMPControl(BaseController):
 
     def go_to_absolute(self, xyt_position, close_loop=True, smooth=True):
         if self.use_map:
-            return self._go_to_absolute_with_map(xyt_position, close_loop=True, smooth=True)
+            return self._go_to_absolute_with_map(
+                xyt_position, close_loop=True, smooth=True
+            )
         else:
             return self._go_to_absolute(xyt_position, close_loop=True, smooth=True)
-
 
     def track_trajectory(self, states, close_loop=True):
         raise NotImplementedError()

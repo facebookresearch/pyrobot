@@ -105,7 +105,11 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
                 dependency = world._algorithms_pool[dependency_cfg["algorithm"]]
             else:
                 dependency = make_algorithm(
-                    dependency_cfg["algorithm"], world, ns, overrides, ros_launch_manager
+                    dependency_cfg["algorithm"],
+                    world,
+                    ns,
+                    overrides,
+                    ros_launch_manager,
                 )
                 world._algorithms_pool[dependency_cfg["algorithm"]] = dependency
 

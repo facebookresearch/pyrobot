@@ -72,13 +72,14 @@ class KDLSolver(object):
             and len(init_joint_positions) == self.arm_dof
         ), "Incorrect IK request. Please fix it."
 
-        solution = self.ik_solver.get_ik(init_joint_positions, 
-            pose[0], 
-            pose[1], 
-            pose[2], 
-            pose[3], 
-            pose[4], 
-            pose[5], 
+        solution = self.ik_solver.get_ik(
+            init_joint_positions,
+            pose[0],
+            pose[1],
+            pose[2],
+            pose[3],
+            pose[4],
+            pose[5],
             pose[6],
             tolerance[0],
             tolerance[1],

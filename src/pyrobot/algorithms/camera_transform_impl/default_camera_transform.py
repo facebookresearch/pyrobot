@@ -5,6 +5,7 @@ import pyrobot.utils.util as prutil
 
 import numpy as np
 
+
 class DefaultCameraTransform(CameraTransform):
     """base class of camera transformation algorithms."""
 
@@ -52,15 +53,20 @@ class DefaultCameraTransform(CameraTransform):
         self.uv_one = np.concatenate((img_pixs, np.ones((1, img_pixs.shape[1]))))
         self.uv_one_in_cam = np.dot(self.intrinsic_mat_inv, self.uv_one)
 
-
     def pix_to_pt(self, rows, columns, depth_img, rgb_img=None, in_cam=True):
-        trans, quat = self.algorithms["FrameTransform"].get_transform(self.cam_frame, self.base_frame)
+        trans, quat = self.algorithms["FrameTransform"].get_transform(
+            self.cam_frame, self.base_frame
+        )
         rot = prutil.quat_to_rot_mat(quat)
         base2cam_trans = np.array(trans).reshape(-1, 1)
         base2cam_rot = np.array(rot)
 
         pts_in_cam = prutil.pix_to_3dpt(
-            depth_img, rows, columns, self.get_intrinsics(), float(self.depth_map_factor)
+            depth_img,
+            rows,
+            columns,
+            self.get_intrinsics(),
+            float(self.depth_map_factor),
         )
         pts = pts_in_cam[:3, :].T
 
@@ -76,7 +82,9 @@ class DefaultCameraTransform(CameraTransform):
         return pts, colors
 
     def pcd_from_img(self, depth_img, rgb_img=None, in_cam=True):
-        trans, quat = self.algorithms["FrameTransform"].get_transform(self.cam_frame, self.base_frame)
+        trans, quat = self.algorithms["FrameTransform"].get_transform(
+            self.cam_frame, self.base_frame
+        )
         rot = prutil.quat_to_rot_mat(quat)
         base2cam_trans = np.array(trans).reshape(-1, 1)
         base2cam_rot = np.array(rot)
@@ -110,7 +118,9 @@ class DefaultCameraTransform(CameraTransform):
         return pts, rgb
 
     def get_transform_matrix(self, source_frame, target_frame):
-        trans, quat = self.algorithms["FrameTransform"].get_transform(source_frame, target_frame)
+        trans, quat = self.algorithms["FrameTransform"].get_transform(
+            source_frame, target_frame
+        )
         rot = prutil.quat_to_rot_mat(quat)
         T = np.eye(4)
         T[:3, :3] = rot
@@ -127,7 +137,7 @@ class DefaultCameraTransform(CameraTransform):
 
     def check_cfg(self):
         super().check_cfg()
-        
+
         assert (
             len(self.algorithms.keys()) == 1
         ), "CameraTransform only have one dependency!"

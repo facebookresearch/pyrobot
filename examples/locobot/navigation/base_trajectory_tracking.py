@@ -23,6 +23,7 @@ from pyrobot.algorithms.base_controller_impl.base_control_utils import (
 import copy
 import time
 
+
 def get_trajectory(world, bot, trajectory_type):
     dt = 0.1
     v = 0.1
@@ -44,18 +45,19 @@ def get_trajectory(world, bot, trajectory_type):
 
     return states
 
-def main():
-    world =  World(config_name='env/base_env.yaml')
 
-    bot = world.robots['locobot']
+def main():
+    world = World(config_name="env/base_env.yaml")
+
+    bot = world.robots["locobot"]
 
     states = get_trajectory(world, bot, "circle")
 
-    world.algorithms['ilqr_control'].track_trajectory(states)
+    world.algorithms["ilqr_control"].track_trajectory(states)
     time.sleep(1)
     print("ilqr_control completed!")
 
-    bot['base'].stop()
+    bot["base"].stop()
 
 
 if __name__ == "__main__":

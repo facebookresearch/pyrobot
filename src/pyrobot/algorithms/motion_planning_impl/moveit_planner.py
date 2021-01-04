@@ -86,7 +86,7 @@ class MoveitPlanner(MotionPlanner):
         success = self.move_group_interface.setJointValueTarget(target_joint)
 
         p_out = self.move_group_interface.plan()
-        
+
         self.move_group_interface.execute(p_out)
         return p_out.trajectory.joint_trajectory
 

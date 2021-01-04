@@ -66,9 +66,9 @@ class BaseSafetyCallbacks(object):
         )
         self.subscribers.append(s)
         s = rospy.Subscriber(
-            append_namespace(self.ns, self.configs.ROSTOPIC_CLIFF), 
-            CliffEvent, 
-            self.cliff_callback
+            append_namespace(self.ns, self.configs.ROSTOPIC_CLIFF),
+            CliffEvent,
+            self.cliff_callback,
         )
         self.subscribers.append(s)
         s = rospy.Subscriber(
@@ -115,6 +115,7 @@ class BaseSafetyCallbacks(object):
         for s in self.subscribers:
             s.unregister()
 
+
 class BaseState(BaseSafetyCallbacks):
     def __init__(self, base, configs, ns):
         # Set up SLAM, if requested.
@@ -130,11 +131,7 @@ class LoCoBotBase(Base):
     This is a common base class for the locobot and locobot-lite base.
     """
 
-    def __init__(
-        self,
-        configs,
-        ns=""
-    ):
+    def __init__(self, configs, ns=""):
         """
         The constructor for LoCoBotBase class.
 

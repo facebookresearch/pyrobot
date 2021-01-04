@@ -14,7 +14,7 @@ from pyrobot import World
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name='env/locobot_arm_env.yaml')
+    return World(config_name="env/locobot_arm_env.yaml")
 
 
 @pytest.mark.parametrize(
@@ -22,12 +22,12 @@ def create_world():
 )
 def test_position_control(create_world, position):
     world = create_world
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
     bot["arm"].go_home()
     time.sleep(1)
-    bot['arm'].set_joint_positions(position)
+    bot["arm"].set_joint_positions(position)
     time.sleep(1)
-    joint_angles = bot['arm'].get_joint_angles()
+    joint_angles = bot["arm"].get_joint_angles()
     ag_error = np.fabs(joint_angles.flatten() - np.array(position).flatten())
     assert np.max(ag_error) < 0.06
 
@@ -51,12 +51,14 @@ orientations = [
 )
 def test_ee_pose_control(create_world, position, orientation):
     world = create_world
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
     bot["arm"].go_home()
     time.sleep(1)
-    world.algorithms['moveit_kin_planner'].plan_end_effector_pose(position, orientation)
+    world.algorithms["moveit_kin_planner"].plan_end_effector_pose(position, orientation)
     time.sleep(1)
-    trans, quat = world.algorithms['tf_transform'].get_transform(bot['arm'].configs.ARM_BASE_FRAME, bot['arm'].configs.EE_FRAME)
+    trans, quat = world.algorithms["tf_transform"].get_transform(
+        bot["arm"].configs.ARM_BASE_FRAME, bot["arm"].configs.EE_FRAME
+    )
     pos_error = np.linalg.norm(np.array(position).flatten() - np.array(trans).flatten())
     if orientation.size == 4:
         tgt_quat = orientation.flatten()
@@ -73,22 +75,29 @@ def test_ee_pose_control(create_world, position, orientation):
     rot_similarity = quat_diff[3]
     assert rot_similarity > 0.98 and pos_error < 0.02
 
+
 def test_ee_xyz_control(create_world):
     world = create_world
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
     bot["arm"].go_home()
     time.sleep(1)
     displacement = np.array([0, 0, -0.15])
-    
-    ee_pose = world.algorithms['tf_transform'].get_transform(bot['arm'].configs.ARM_BASE_FRAME, bot['arm'].configs.EE_FRAME)
+
+    ee_pose = world.algorithms["tf_transform"].get_transform(
+        bot["arm"].configs.ARM_BASE_FRAME, bot["arm"].configs.EE_FRAME
+    )
     cur_pos, cur_quat = ee_pose
     tar_pos = cur_pos + displacement
 
-    world.algorithms['moveit_kin_planner'].plan_end_effector_pose(tar_pos, cur_quat)
+    world.algorithms["moveit_kin_planner"].plan_end_effector_pose(tar_pos, cur_quat)
 
     time.sleep(1)
-    new_pos, new_quat = world.algorithms['tf_transform'].get_transform(bot['arm'].configs.ARM_BASE_FRAME, bot['arm'].configs.EE_FRAME)
-    pos_error = np.linalg.norm(np.array(new_pos).flatten() - np.array(tar_pos).flatten())
+    new_pos, new_quat = world.algorithms["tf_transform"].get_transform(
+        bot["arm"].configs.ARM_BASE_FRAME, bot["arm"].configs.EE_FRAME
+    )
+    pos_error = np.linalg.norm(
+        np.array(new_pos).flatten() - np.array(tar_pos).flatten()
+    )
     quat_diff = tft.quaternion_multiply(tft.quaternion_inverse(cur_quat), new_quat)
     rot_similarity = quat_diff[3]
 
@@ -99,15 +108,15 @@ def test_ee_xyz_control(create_world):
 
 def test_gripper_control(create_world):
     world = create_world
-    bot = world.robots['locobot']
+    bot = world.robots["locobot"]
     bot["arm"].go_home()
     time.sleep(1)
-    bot['gripper'].open()
+    bot["gripper"].open()
     time.sleep(1)
-    g_state = bot['gripper'].get_gripper_state()
+    g_state = bot["gripper"].get_gripper_state()
     assert g_state == 0
 
-    bot['gripper'].close()
+    bot["gripper"].close()
     time.sleep(1)
-    g_state = bot['gripper'].get_gripper_state()
+    g_state = bot["gripper"].get_gripper_state()
     assert g_state == 3

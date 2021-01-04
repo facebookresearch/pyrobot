@@ -20,11 +20,7 @@ class LoCoBotArm(Arm):
     without any motion planning), for position/velocity/torque control, etc.
     """
 
-    def __init__(
-        self,
-        configs,
-        ns=""
-    ):
+    def __init__(self, configs, ns=""):
         """
         The constructor for LoCoBotArm class.
 
@@ -50,25 +46,22 @@ class LoCoBotArm(Arm):
                 "arm correctly using PyRobot!!!"
             )
             return
-        super(LoCoBotArm, self).__init__(
-            configs=configs,
-            ns=ns
-        )
+        super(LoCoBotArm, self).__init__(configs=configs, ns=ns)
 
         self.joint_stop_pub = rospy.Publisher(
-            append_namespace(self.ns, self.configs.ROSTOPIC_STOP_EXECUTION), 
-            Empty, 
-            queue_size=1
+            append_namespace(self.ns, self.configs.ROSTOPIC_STOP_EXECUTION),
+            Empty,
+            queue_size=1,
         )
         # Services
         self.joint_cmd_srv = rospy.ServiceProxy(
-            append_namespace(self.ns, self.configs.ROSSERVICE_JOINT_COMMAND), 
-            JointCommand
+            append_namespace(self.ns, self.configs.ROSSERVICE_JOINT_COMMAND),
+            JointCommand,
         )
-        
+
         self.torque_cmd_srv = rospy.ServiceProxy(
-            append_namespace(self.ns, self.configs.ROSTOPIC_TORQUE_COMMAND), 
-            JointCommand
+            append_namespace(self.ns, self.configs.ROSTOPIC_TORQUE_COMMAND),
+            JointCommand,
         )
 
     def set_joint_velocities(self, velocities, **kwargs):

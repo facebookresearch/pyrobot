@@ -11,7 +11,6 @@ import numpy as np
 
 
 class VSLAMLocalizer(BaseLocalizer):
-
     def __init__(
         self,
         configs,

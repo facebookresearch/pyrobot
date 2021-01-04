@@ -40,7 +40,7 @@ class SLAM(Algorithm):
         This function fetches the 3D point cloud reconstructed using sensory input along the trajectory.
 
         Returns:
-            pts: points of the point cloud (shape: :math:`[N, 3]`) 
+            pts: points of the point cloud (shape: :math:`[N, 3]`)
             colors: color of the points (shape: :math:`[N, 3]`); None if using depth camera only
         """
         raise NotImplementedError()
@@ -50,7 +50,7 @@ class SLAM(Algorithm):
         This function fetches the occupancy map reconstructed using sensory input along the trajectory.
 
         Returns:
-            occ_map: 2D occupancy map (shape: :math:`[(x_max - x_min) / resolution, (y_max - y_min) / resolution]`) 
+            occ_map: 2D occupancy map (shape: :math:`[(x_max - x_min) / resolution, (y_max - y_min) / resolution]`)
         """
         raise NotImplementedError()
 
@@ -63,19 +63,15 @@ class SLAM(Algorithm):
             2) The robot has a base
             3) The robot has a camera
 
-        For any algorithm specific config checks, please extend the check_cfg function 
+        For any algorithm specific config checks, please extend the check_cfg function
             with customized algorithm config checks after calling this function
             using `super().check_cfg()`
         """
 
         assert len(self.robots.keys()) == 1, "One SLAM only handle one base!"
         robot_label = list(self.robots.keys())[0]
-        assert (
-            "base" in self.robots[robot_label].keys()
-        ), "base required for SLAM!"
-        assert (
-            "camera" in self.robots[robot_label].keys()
-        ), "camera required for SLAM!"
+        assert "base" in self.robots[robot_label].keys(), "base required for SLAM!"
+        assert "camera" in self.robots[robot_label].keys(), "camera required for SLAM!"
         # TODO: check for resolution
 
     def get_class_name(self):

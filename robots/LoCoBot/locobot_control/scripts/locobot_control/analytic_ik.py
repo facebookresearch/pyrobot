@@ -215,7 +215,7 @@ class AnalyticInverseKinematics:
         """
 
         :param trans: cartesian param in m [x,y,z]
-        :param quat: quaternion [x,y,z,w] 
+        :param quat: quaternion [x,y,z,w]
         :param current_config: [list of len 5] current config of robot
         :return: [joint angles in radians]
         """

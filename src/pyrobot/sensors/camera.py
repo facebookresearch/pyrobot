@@ -60,7 +60,9 @@ class Camera(object):
 
         rgb_topic = append_namespace(self.ns, self.configs.ROSTOPIC_CAMERA_RGB_STREAM)
         self.rgb_sub = message_filters.Subscriber(rgb_topic, Image)
-        depth_topic = append_namespace(self.ns, self.configs.ROSTOPIC_CAMERA_DEPTH_STREAM)
+        depth_topic = append_namespace(
+            self.ns, self.configs.ROSTOPIC_CAMERA_DEPTH_STREAM
+        )
         self.depth_sub = message_filters.Subscriber(depth_topic, Image)
         img_subs = [self.rgb_sub, self.depth_sub]
         self.sync = message_filters.ApproximateTimeSynchronizer(
