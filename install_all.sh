@@ -125,6 +125,8 @@ source /opt/ros/$ROS_NAME/setup.bash
 
 # STEP 3 - Install ROS debian dependencies
 declare -a ros_package_names=(
+	"ros-$ROS_NAME-libfranka"
+	"ros-$ROS_NAME-franka-ros"
 	"ros-$ROS_NAME-dynamixel-motor" 
 	"ros-$ROS_NAME-moveit" 
 	"ros-$ROS_NAME-trac-ik"
@@ -140,8 +142,6 @@ declare -a ros_package_names=(
 	"ros-$ROS_NAME-joy"
 	"ros-$ROS_NAME-python-orocos-kdl"
 	"ros-$ROS_NAME-ddynamic-reconfigure"
-	"ros-$ROS_NAME-libfranka"
-	"ros-$ROS_NAME-franka-ros"
 	)
 
 install_packages "${ros_package_names[@]}"
@@ -312,10 +312,10 @@ fi
 
 if [ ! -d "$LOCOBOT_FOLDER/src/franka_interface" ]; then
 	cd $LOCOBOT_FOLDER/src/
-	mkdir franka_interface
-	cd franka_interface
-
 	git clone https://github.com/Jekyll1021/franka_interface.git
+
+if [ ! -d "$LOCOBOT_FOLDER/src/panda_moveit_config_pyrobot" ]; then
+	git clone https://github.com/Jekyll1021/panda_moveit_config_pyrobot.git
 
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 

@@ -6,7 +6,7 @@ ros_launch:
   wait: 30
 
   test:
-    common: "roslaunch panda_moveit_config move_group.launch fake_execution:=false load_gripper:=true info:=true"
+    common: "roslaunch panda_moveit_config_pyrobot move_group.launch fake_execution:=false load_gripper:=true info:=true"
 
 algorithm:
   _target_: pyrobot.algorithms.motion_planning_impl.moveit_planner.MoveitPlanner
