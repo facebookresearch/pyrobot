@@ -9,13 +9,13 @@ import numpy as np
 from copy import deepcopy
 from rospy_message_converter import message_converter
 
-from franka_control_msgs.msg import JointCommand, RobotState, EndPointState
+from franka_core_msgs.msg import JointCommand, RobotState, EndPointState
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64
 
 from .utils import wait_for
 
-from .franka_tools import (
+from franka_tools import (
     FrankaFramesInterface,
     FrankaControllerManagerInterface,
     JointTrajectoryActionClient,

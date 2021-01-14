@@ -9,7 +9,7 @@ ros_launch:
     common: "roslaunch panda_moveit_config move_group.launch fake_execution:=false load_gripper:=true info:=true"
 
 algorithm:
-  _target_: pyrobot.algorithms.motion_planner_impl.moveit_planner.MoveitPlanner
+  _target_: pyrobot.algorithms.motion_planning_impl.moveit_planner.MoveitPlanner
 
 robot_labels: ['franka']
 

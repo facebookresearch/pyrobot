@@ -32,11 +32,12 @@ class TFTransform(FrameTransform):
 
     def get_transform(self, source_frame, target_frame):
         try:
+            time = rospy.get_rostime()
             self.tf_listener.waitForTransform(
-                source_frame, target_frame, rospy.Time(0), rospy.Duration(3)
+                source_frame, target_frame, time, rospy.Duration(3)
             )
             (trans, quat) = self.tf_listener.lookupTransform(
-                source_frame, target_frame, rospy.Time(0)
+                source_frame, target_frame, time
             )
         except (
             tf.LookupException,

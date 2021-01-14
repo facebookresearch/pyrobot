@@ -52,14 +52,15 @@ class Arm(object):
         self.arm_dof = len(self.arm_joint_names)
 
         # Subscribers
-        self._joint_angles = dict()
-        self._joint_velocities = dict()
-        self._joint_efforts = dict()
+        self._joint_states = None
+
         rospy.Subscriber(
             append_namespace(self.ns, configs.ROSTOPIC_JOINT_STATES),
             JointState,
             self._callback_joint_states,
         )
+
+        rospy.sleep(1)
 
         # Publishers
         self.joint_pub = None
@@ -79,6 +80,7 @@ class Arm(object):
         :return: joint_angles
         :rtype: np.ndarray
         """
+        rospy.sleep(0.1)
         self.joint_state_lock.acquire()
         joint_angles = []
         for joint in self.arm_joint_names:
@@ -131,9 +133,14 @@ class Arm(object):
         """
         if joint not in self.arm_joint_names:
             raise ValueError("%s not in arm joint list!" % joint)
-        if joint not in self._joint_angles.keys():
+        angle = None
+        for idx, name in enumerate(self._joint_states.name):
+            if name == joint:
+                angle = self._joint_states.position[idx]
+
+        if angle is None:
             raise ValueError("Joint angle for joint $s not available!" % joint)
-        return self._joint_angles[joint]
+        return angle
 
     def get_joint_velocity(self, joint):
         """
@@ -146,9 +153,15 @@ class Arm(object):
         """
         if joint not in self.arm_joint_names:
             raise ValueError("%s not in arm joint list!" % joint)
-        if joint not in self._joint_velocities.keys():
+        
+        vel = None
+
+        for idx, name in enumerate(self._joint_states.name):
+            if name == joint:
+                vel = self._joint_states.velocity[idx]
+        if vel is None:
             raise ValueError("Joint velocity for joint" " $s not available!" % joint)
-        return self._joint_velocities[joint]
+        return vel
 
     def get_joint_torque(self, joint):
         """
@@ -161,9 +174,15 @@ class Arm(object):
         """
         if joint not in self.arm_joint_names:
             raise ValueError("%s not in arm joint list!" % joint)
-        if joint not in self._joint_efforts.keys():
+
+        eff = None
+        for idx, name in enumerate(self._joint_states.name):
+            if name == joint:
+                eff = self._joint_states.effort[idx]
+
+        if eff is None:
             raise ValueError("Joint torque for joint $s" " not available!" % joint)
-        return self._joint_efforts[joint]
+        return eff
 
     def set_joint_positions(self, positions, wait=True, **kwargs):
         """
@@ -214,14 +233,7 @@ class Arm(object):
         :type msg: sensor_msgs/JointState
         """
         self.joint_state_lock.acquire()
-        for idx, name in enumerate(msg.name):
-            if name in self.arm_joint_names:
-                if idx < len(msg.position):
-                    self._joint_angles[name] = msg.position[idx]
-                if idx < len(msg.velocity):
-                    self._joint_velocities[name] = msg.velocity[idx]
-                if idx < len(msg.effort):
-                    self._joint_efforts[name] = msg.effort[idx]
+        self._joint_states = msg
         self.joint_state_lock.release()
 
     def _pub_joint_positions(self, positions):
