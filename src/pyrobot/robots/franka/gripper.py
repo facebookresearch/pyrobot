@@ -123,7 +123,7 @@ class FrankaGripper(Gripper):
                     ),
                     0.001,
                 )
-                self.grasp(width, 10)
+                self.grasp(width, 50)
 
         return self.grasp(0.001, 0.1, cb=cb)
 
