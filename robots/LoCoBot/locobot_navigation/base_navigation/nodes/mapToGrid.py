@@ -109,6 +109,7 @@ class PcdToOcGrid:
     def updateGrid(self):
         if self.points is None:
             return
+        print(CELL_RESOLUTION, self.xCells, self.yCells, self.xMin, self.yMin, self.ocGrid)
         self.grid.header.seq = self.grid.header.seq + 1
         self.grid.header.stamp = rospy.Time.now()
         self.grid.info.map_load_time = rospy.Time.now()
