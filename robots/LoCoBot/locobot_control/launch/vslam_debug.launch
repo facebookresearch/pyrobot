@@ -4,7 +4,7 @@
     <arg name="use_vslam" default="true"/>
     <arg name="use_base" default="true"/>
     <arg name="torque_control" default="false"/>
-    <arg name="use_sim" default="true"/>
+    <arg name="use_sim" default="false"/>
     <arg name="teleop" default="false"/>
     <arg name="use_rviz" default="true"/>
     <arg name="base" default="kobuki"/> <!-- Options: create and kobuki -->
@@ -89,7 +89,7 @@
 
     <node name="turtlebot_controller_node" pkg="turtlebot_controller" 
                             type="turtlebot_controller_node"/>
-
+<!-- 
 
     <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
                   type="kinematics.py"/>
@@ -97,7 +97,7 @@
     <node name="pyrobot_moveit" pkg="pyrobot_bridge"
                   type="moveit_bridge.py"/>
 
-
+ -->
     
     <group if="$(eval arg('use_base') or arg('use_sim'))" >
         <include file="$(find base_navigation)/launch/move_base.launch">
