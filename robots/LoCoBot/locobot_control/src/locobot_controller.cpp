@@ -73,7 +73,7 @@ LoCoBotController::~LoCoBotController() {
   if (use_group_["arm"]) {
     if (!torque_control_) {
       std::map<std::string, float> restJntsMap;
-      float restJnts[5] = {0, -0.3890, 1.617, -0.1812, 0.0153};
+      float restJnts[5] = {0, -1.30, 1.617, 0.5, 0};
       restJntsMap["joint_1"] = restJnts[0];
       restJntsMap["joint_2"] = restJnts[1];
       restJntsMap["joint_3"] = restJnts[2];

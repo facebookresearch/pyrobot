@@ -25,9 +25,9 @@
       <param name="local_costmap/global_frame" value="$(arg odom_frame_id)"/>
       <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
       <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)"/>
-      <rosparam file="$(find base_navigation)/config/turtlebot/global_map_extra.yaml"
+<!--       <rosparam file="$(find base_navigation)/config/turtlebot/global_map_extra.yaml"
                   command="load"
-                  ns="global_costmap" />
+                  ns="global_costmap" /> -->
       <rosparam file="$(find base_navigation)/config/turtlebot/local_map_extra.yaml"
                   command="load"
                   ns="local_costmap" />

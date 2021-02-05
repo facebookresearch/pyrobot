@@ -1,0 +1,122 @@
+<launch>
+    <arg name="use_camera" default="true"/>
+    <arg name="use_arm" default="false"/>
+    <arg name="use_vslam" default="true"/>
+    <arg name="use_base" default="true"/>
+    <arg name="torque_control" default="false"/>
+    <arg name="use_sim" default="false"/>
+    <arg name="teleop" default="false"/>
+    <arg name="use_rviz" default="true"/>
+    <arg name="base" default="kobuki"/> <!-- Options: create and kobuki -->
+
+    <param name="use_camera" value="$(arg use_camera)"/>
+    <param name="use_arm" value="$(arg use_arm)"/>
+    <param name="use_vslam" value="$(arg use_vslam)"/>
+    <param name="use_sim" value="$(arg use_sim)"/>
+    <param name="use_base" value="$(arg use_base)"/>
+    <param name="torque_control" value="$(arg torque_control)"/>
+    <param name="teleop" value="$(arg teleop)"/>
+
+
+
+    <group unless="$(arg use_sim)">
+
+        <group if="$(arg use_camera)">
+            <include file="$(find realsense2_camera)/launch/rs_rgbd.launch">
+                <arg name="enable_pointcloud" value="false"/>
+            </include>
+        </group>
+
+        <group if="$(arg use_vslam)">
+            <group if="$(arg use_camera)">
+                  <include file="$(find orb_slam2_ros)/launch/orb_slam2_realsense.launch">
+                      <arg name="launch_realsense" value="false"/>
+                  </include>
+            </group>
+            <group unless="$(arg use_camera)">
+                  <include file="$(find orb_slam2_ros)/launch/orb_slam2_realsense.launch"/>
+            </group>
+        </group>
+
+        <group if="$(arg use_base)" >
+
+            <include file="$(find base_navigation)/launch/main_base.launch">
+                <arg name="base" value="$(arg base)"/>
+            </include>
+
+        </group>
+
+        <group if="$(arg teleop)">
+            <include file="$(find locobot_control)/launch/dynamixel_controllers.launch">
+                <arg name="dynamixel_info" value="$(find locobot_control)/config/dynamixels_teleop.yaml"/>
+            </include>
+        </group>
+        <group unless="$(arg teleop)">
+            <group if="$(eval arg('use_arm') or arg('use_camera') or arg('use_vslam'))">
+                <include file="$(find locobot_control)/launch/dynamixel_controllers.launch"/>
+            </group>
+        </group>
+
+        <node name="calibration_tf_broadcaster" pkg="locobot_calibration"
+              type="calibration_publish_transforms.py"/>
+
+    </group>
+
+    <!-- Gazebo -->
+    <group if="$(arg use_sim)">
+        
+        <include file="$(find locobot_gazebo)/launch/gazebo_locobot.launch">
+            <arg name="base" value="$(arg base)"/>
+        </include>
+
+        <include file="$(find locobot_gazebo)/launch/gazebo_locobot_control.launch"/>
+        <node name="locobot_gazebo" pkg="locobot_gazebo" type="locobot_gazebo" 
+            respawn="true" output="screen"/> 
+
+        <group if="$(arg use_vslam)">
+            
+          <include file="$(find orb_slam2_ros)/launch/orb_slam2_realsense.launch">
+              <arg name="launch_realsense" value="false"/>
+          </include>
+            
+        </group>
+
+
+    </group>
+
+
+    <!-- Common -->
+
+    <node name="turtlebot_controller_node" pkg="turtlebot_controller" 
+                            type="turtlebot_controller_node"/>
+<!-- 
+
+    <node name="pyrobot_kinematics" pkg="pyrobot_bridge"
+                  type="kinematics.py"/>
+
+    <node name="pyrobot_moveit" pkg="pyrobot_bridge"
+                  type="moveit_bridge.py"/>
+
+ -->
+    
+    <group if="$(eval arg('use_base') or arg('use_sim'))" >
+        <include file="$(find base_navigation)/launch/move_base.launch">
+            <arg name="use_map" value="$(arg use_vslam)"/>
+            <arg name="base" value="$(arg base)"/>
+        </include>
+    </group>
+
+
+    <group if="$(eval base =='create')">
+        <include file="$(find locobot_lite_moveit_config)/launch/demo.launch">
+            <arg name="use_rviz" value="$(arg use_rviz)"/>
+        </include>
+    </group>
+
+    <group if="$(eval base =='kobuki')">
+        <include file="$(find locobot_moveit_config)/launch/demo.launch">
+            <arg name="use_rviz" value="$(arg use_rviz)"/>
+        </include>
+    </group>
+
+</launch>
