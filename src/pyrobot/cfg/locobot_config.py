@@ -122,9 +122,9 @@ _BASEC.VSLAM.ROSTOPIC_CAMERA_TRAJ = "/orb_slam2_rgbd/slam/camera_traj"
 # reference link name of the visual SLAM system, the pose of this frame
 # in the first time step will be used to define
 # the origin/orientation of the world frame
-_BASEC.VSLAM.VSLAM_BASE_FRAME = "/base_link"
+_BASEC.VSLAM.VSLAM_BASE_FRAME = "base_link"
 # RGB camera center frame name
-_BASEC.VSLAM.RGB_CAMERA_CENTER_FRAME = "/camera_color_optical_frame"
+_BASEC.VSLAM.RGB_CAMERA_CENTER_FRAME = "camera_color_optical_frame"
 # minimum depth values to be considered as valid
 _BASEC.VSLAM.DEPTH_MIN = 0.2
 # maximum depth values to be considered as valid

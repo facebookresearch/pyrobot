@@ -253,7 +253,7 @@ class VisualSLAM(object):
             xcells = (int((self.x_max - self.x_min) / self.map_resultion)) + 1
             ycells = (int((self.y_max - self.y_min) / self.map_resultion)) + 1
             occ_map = np.zeros(xcells * ycells)
-            return occ_map, xcells, ycells, self.x_min, self.y_min
+            return occ_map.astype(np.uint8).tolist(), xcells, ycells, self.x_min, self.y_min
 
         (self.x_min, self.y_min, self.x_max, self.y_max) = self._calc_grid_bds(pts)
 
@@ -268,7 +268,7 @@ class VisualSLAM(object):
         pts = pts[:, 1] * xcells + pts[:, 0]
         occ_map = np.zeros(xcells * ycells)
         occ_map[pts] = self.obstacle_cost
-        return occ_map, xcells, ycells, self.x_min, self.y_min
+        return occ_map.astype(np.uint8).tolist(), xcells, ycells, self.x_min, self.y_min
 
     def _pub_occupancy_map(self):
         occ_map, width, height, x_min, y_min = self.get_occupancy_map()
@@ -367,7 +367,7 @@ class VisualSLAM(object):
     def _init_occupancy_map(self):
         grid = OccupancyGrid()
         grid.header.seq = 1
-        grid.header.frame_id = "/map"
+        grid.header.frame_id = "map"
         grid.info.origin.position.z = 0
         grid.info.origin.orientation.x = 0
         grid.info.origin.orientation.y = 0

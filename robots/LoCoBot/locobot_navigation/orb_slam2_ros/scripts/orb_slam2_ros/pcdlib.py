@@ -233,7 +233,7 @@ class PointCloudProcessor:
             return None, None
         num_frames = 0
         num_pts = 0
-        for KFid, ext_mat in self.extrinsic_mats.iteritems():
+        for KFid, ext_mat in self.extrinsic_mats.items():
             if KFid not in self.pcd_pool_in_cam:
                 continue
             num_frames += 1
@@ -244,7 +244,7 @@ class PointCloudProcessor:
         all_pts = np.zeros((num_pts, 3))
         all_colors = np.zeros((num_pts, 3))
         cur_id = 0
-        for KFid, ext_mat in self.extrinsic_mats.iteritems():
+        for KFid, ext_mat in self.extrinsic_mats.items():
             if KFid not in self.pcd_pool_in_cam:
                 continue
             pcd_in_cam, rgb = self.pcd_pool_in_cam[KFid]
