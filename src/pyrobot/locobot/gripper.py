@@ -21,7 +21,6 @@ class LoCoBotGripper(Gripper):
     def __init__(self, configs, wait_time=3):
         """
         The constructor for LoCoBotGripper class.
-
         :param configs: configurations for gripper
         :param wait_time: waiting time for opening/closing gripper
         :type configs: YACS CfgNode
@@ -47,19 +46,12 @@ class LoCoBotGripper(Gripper):
     def get_gripper_state(self):
         """
         Return the gripper state. 
-
         :return: state
-
                  state = -1: unknown gripper state
-
                  state = 0: gripper is fully open
-
                  state = 1: gripper is closing
-
                  state = 2: there is an object in the gripper
-
                  state = 3: gripper is fully closed
-
         :rtype: int
         """
         self._gripper_state_lock.acquire()
@@ -70,7 +62,6 @@ class LoCoBotGripper(Gripper):
     def open(self, wait=True):
         """
         Commands gripper to open fully
-
         :param wait: True if blocking call and will return
                      after target_joint is achieved, False otherwise
         :type wait: bool
@@ -82,7 +73,6 @@ class LoCoBotGripper(Gripper):
     def reset(self, wait=True):
         """
         Utility function to reset gripper if it is stuck
-
         :param wait: True if blocking call and will return
                      after target_joint is achieved, False otherwise
         :type wait: bool
@@ -94,7 +84,6 @@ class LoCoBotGripper(Gripper):
     def close(self, wait=True):
         """
         Commands gripper to close fully
-
         :param wait: True if blocking call and will return
                      after target_joint is achieved, False otherwise
         :type wait: bool
@@ -106,7 +95,6 @@ class LoCoBotGripper(Gripper):
     def _callback_gripper_state(self, msg):
         """
         ROS subscriber callback for gripper state
-
         :param msg: Contains message published in topic
         :type msg: std_msgs/Int8
         """

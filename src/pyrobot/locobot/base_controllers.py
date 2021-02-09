@@ -548,7 +548,6 @@ class MoveBaseControl(object):
             xyt_position[0], xyt_position[1], xyt_position[2], self.MAP_FRAME
         )
 
-
 import sys
 from control_msgs.msg import (
     FollowJointTrajectoryAction,
