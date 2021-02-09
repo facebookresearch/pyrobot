@@ -5,10 +5,11 @@
 
 import sys
 import numpy as np
-import rospy
-import tf
-import geometry_msgs.msg
-from geometry_msgs.msg import PoseStamped, Pose
+# import rospy
+# import tf
+import pyrobot.habitat.transformations as tf_transformations
+# import geometry_msgs.msg
+# from geometry_msgs.msg import PoseStamped, Pose
 from pyrobot.utils.planning_scene_interface import PlanningSceneInterface
 
 
@@ -55,7 +56,7 @@ def list_to_pose(pose_list):
         pose_msg.position.x = pose_list[0]
         pose_msg.position.y = pose_list[1]
         pose_msg.position.z = pose_list[2]
-        q = tf.transformations.quaternion_from_euler(
+        q = tf_transformations.quaternion_from_euler(
             pose_list[3], pose_list[4], pose_list[5]
         )
         pose_msg.orientation.x = q[0]
@@ -105,7 +106,7 @@ def quat_to_rot_mat(quat):
     :return: the rotation matrix (shape: :math:`[3, 3]`)
     :rtype: numpy.ndarray
     """
-    return tf.transformations.quaternion_matrix(quat)[:3, :3]
+    return tf_transformations.quaternion_matrix(quat)[:3, :3]
 
 
 def euler_to_quat(euler):
@@ -118,7 +119,7 @@ def euler_to_quat(euler):
     :return: quaternion [x, y, z, w] (shape: :math:`[4,]`)
     :rtype: numpy.ndarray
     """
-    return tf.transformations.quaternion_from_euler(
+    return tf_transformations.quaternion_from_euler(
         euler[0], euler[1], euler[2], axes="rzyx"
     )
 
@@ -135,7 +136,7 @@ def rot_mat_to_quat(rot):
     """
     R = np.eye(4)
     R[:3, :3] = rot
-    return tf.transformations.quaternion_from_matrix(R)
+    return tf_transformations.quaternion_from_matrix(R)
 
 
 def pix_to_3dpt(depth_im, rs, cs, intrinsic_mat, depth_map_factor, reduce=None, k=5):
@@ -258,7 +259,7 @@ class MoveitObjectHandler(object):
     def add_world_object(self, id_name, pose, size, frame="/base_link"):
         """
         Adds the particular BOX TYPE objects to the moveit planning scene
-        
+
         :param id_name: unique id that object should be labeled with
         :param pose: pose of the object
         :param size: size of the object
@@ -301,12 +302,12 @@ class MoveitObjectHandler(object):
         """
         Attaches the specified Box type object to the robot
 
-        :param link_name: name of the link to which the bject 
+        :param link_name: name of the link to which the bject
                           should be attached
         :param id_name: unique id associated with the object
         :param pose: pose of the object
         :parma size: size of the object
-        
+
         :type link_name: string
         :type id_name: string
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
@@ -328,12 +329,12 @@ class MoveitObjectHandler(object):
         """
         Detaches an object earlier attached to the robot
 
-        :param link_name: name of the link from which the bject 
+        :param link_name: name of the link from which the bject
                           should be detached
         :param id_name: unique id associated with the object
-        :param remove_from_world: if set true, deletes the 
+        :param remove_from_world: if set true, deletes the
                                   object from the scene.
-        
+
         :type link_name: string
         :type id_name: string
         :type remove_from_world: bool
@@ -363,11 +364,11 @@ class MoveitObjectHandler(object):
     def add_table(self, pose=None, size=None):
         """
         Adds a table in the planning scene in the base frame.
-        
+
         :param pose: pose of the object
         :parma size: size of the object
-        
-        
+
+
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
         :type size: tuple of length 3
         """
@@ -388,10 +389,10 @@ class MoveitObjectHandler(object):
 
         :param pose: pose of the object
         :parma size: size of the object
-        
-        
+
+
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
-        :type size: tuple of length 3        
+        :type size: tuple of length 3
         """
         if pose is not None and size is not None:
             self.add_world_object("kinect", pose=pose, size=size)
@@ -407,11 +408,11 @@ class MoveitObjectHandler(object):
     def add_gripper(self, pose=None, size=None):
         """
         Attaches gripper object to 'gripper' link.
-        
+
         :param pose: pose of the object
         :param size: size of the object
-        
-        
+
+
         :type pose: list of double of length 7 (x,y,z, q_x, q_y, q_z, q_w)
         :type size: tuple of length 3
         """

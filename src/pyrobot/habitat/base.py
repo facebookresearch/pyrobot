@@ -1,14 +1,13 @@
 import numpy as np
 import math
 import pyrobot.utils.util as prutil
-import rospy
 import habitat_sim.agent as habAgent
 import habitat_sim.utils as habUtils
 from habitat_sim.agent.controls import ActuationSpec
 import habitat_sim.errors
 
 import quaternion
-from tf.transformations import euler_from_quaternion, euler_from_matrix
+from .transformations import euler_from_matrix
 
 
 class LoCoBotBase(object):

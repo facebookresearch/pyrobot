@@ -15,7 +15,7 @@ def make_cfg(SIM):
 
     if SIM.SCENE_ID == "none":
         SIM.SCENE_ID = "data/scene_datasets/habitat-test-scenes/skokloster-castle.glb"
-    sim_cfg.scene.id = SIM.SCENE_ID
+    sim_cfg.scene_id = SIM.SCENE_ID
 
     sim_cfg.enable_physics = SIM.PHYSICS
     if SIM.PHYSICS:
