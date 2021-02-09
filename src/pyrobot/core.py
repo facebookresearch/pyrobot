@@ -45,6 +45,21 @@ import libtmux
 import os
 import os.path as osp
 
+class CollectionStruct:
+    def __init__(self, **entries):
+        self.__dict__.update(entries)
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __setitem__(self, key, value):
+        self.__dict__[key] = value
+
+    def keys(self):
+        return self.__dict__.keys()
+
+    def add_module(self, label, module):
+        self.__dict__[label] = module
 
 def make_module(cfg):
     module = instantiate(cfg.object, configs=cfg.conf)
@@ -63,7 +78,7 @@ def make_robot(robot_cfg, ns="", overrides=[], ros_launch_manager=None):
     for module_cfg in robot_cfg.modules:
         module_dict[module_cfg.name] = make_module(module_cfg)
 
-    return module_dict
+    return CollectionStruct(**module_dict)
 
 
 def make_sensor(sensor_cfg, ns="", overrides=[], ros_launch_manager=None):
@@ -79,7 +94,7 @@ def make_sensor(sensor_cfg, ns="", overrides=[], ros_launch_manager=None):
     module_dict = {}
     for module_cfg in sensor_cfg.modules:
         module_dict[module_cfg.name] = make_module(module_cfg)
-    return module_dict
+    return CollectionStruct(**module_dict)
 
 
 def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager=None):
@@ -97,7 +112,7 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
 
     # TODO: add sensors
     sensors = {}
-
+    dependencies_collection = None
     dependencies = {}
     if "dependencies" in algorithm_cfg.keys() and algorithm_cfg.dependencies:
         for dependency_cfg in algorithm_cfg.dependencies:
@@ -115,6 +130,9 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
 
             dependencies[dependency.get_class_name()] = dependency
 
+        dependencies_collection = CollectionStruct(**dependencies)
+
+    # in the algorithm constructor instead
     if "ros_launch" in algorithm_cfg.keys() and algorithm_cfg.ros_launch:
         if not ros_launch_manager:
             ros_launch_manager = world.ros_launch_manager
@@ -132,7 +150,7 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
         ros_launch_manager=ros_launch_manager,
         robots=robots,
         sensors=sensors,
-        algorithms=dependencies,
+        algorithms=dependencies_collection,
     )
     return algorithm
 
@@ -172,10 +190,10 @@ class World(object):
         except AssertionError as error:
             logging.warning(error)
 
-        self.robots = {}
-        self.sensors = {}
+        self.robots = CollectionStruct()
+        self.sensors = CollectionStruct()
         # public accessible algorithms
-        self.algorithms = {}
+        self.algorithms = CollectionStruct()
         # pool of all the available algorithms in the backend
         self._algorithms_pool = {}
 
@@ -215,21 +233,30 @@ class World(object):
             # TODO: Add, how to deal with objects, and obstacle module
 
     def add_robot(self, robot_cfg, label, ns="", overrides=[]):
-        self.robots[label] = make_robot(
-            robot_cfg, ns, overrides, self.ros_launch_manager
+        self.robots.add_module(
+            label,
+            make_robot(
+                robot_cfg, ns, overrides, self.ros_launch_manager
+            )
         )
 
     def add_sensor(self, sensor_cfg, label, ns="", overrides=[]):
-        self.sensors[label] = make_sensor(
-            sensor_cfg, ns, overrides, self.ros_launch_manager
+        self.sensors.add_module(
+            label, 
+            make_sensor(
+                sensor_cfg, ns, overrides, self.ros_launch_manager
+            )
         )
 
     def add_algorithm(self, algorithm_cfg, label, ns="", overrides=[]):
         if label in self._algorithms_pool.keys():
-            self.algorithms[label] = self._algorithms_pool[label]
+            self.algorithms.add_module(label, self._algorithms_pool[label])
         else:
-            self.algorithms[label] = make_algorithm(
-                algorithm_cfg, self, ns, overrides, self.ros_launch_manager
+            self.algorithms.add_module(
+                label, 
+                make_algorithm(
+                    algorithm_cfg, self, ns, overrides, self.ros_launch_manager
+                )
             )
 
 
