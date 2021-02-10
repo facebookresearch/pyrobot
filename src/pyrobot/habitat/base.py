@@ -9,6 +9,8 @@ import habitat_sim.errors
 
 import quaternion
 from tf.transformations import euler_from_quaternion, euler_from_matrix
+import threading
+import time
 
 
 class LoCoBotBase(object):
@@ -21,12 +23,25 @@ class LoCoBotBase(object):
 
         self.transform = None
         self.init_state = self.get_full_state()
+        self.moving = False
+        self.lin_vel = self.configs.BASE.FWD_SPEED  # m/s
+        self.ang_vel = self.configs.BASE.TURN_SPEED  # deg/s
+        self.dt = self.configs.BASE.SIM_DT  # sec
+        self.collided = False
 
     def execute_action(self, action_name, actuation):
         # actions = "turn_right" or "turn_left" or "move_forward"
         # returns a bool showing if collided or not
-
-        return self._act(action_name, actuation)
+        if not self.moving:
+            self.moving = True
+            self.collided = False
+            x = threading.Thread(target=self._act, args=(action_name, actuation, True))
+            x.start()
+            return True
+        else:
+            print("Robot is still moving, can't take another move commend")
+            return False
+        return
 
     def get_full_state(self):
         # Returns habitat_sim.agent.AgentState
@@ -107,7 +122,17 @@ class LoCoBotBase(object):
 
         (cur_x, cur_y, cur_yaw) = self.get_state()
         abs_yaw = cur_yaw + xyt_position[2]
-        return self._go_to_relative_pose(xyt_position[0], xyt_position[1], abs_yaw)
+        if not self.moving:
+            self.moving = True
+            self.collided = False
+            x = threading.Thread(
+                target=self._go_to_relative_pose, args=(xyt_position[0], xyt_position[1], abs_yaw)
+            )
+            x.start()
+            return True
+        else:
+            print("Robot is still moving, can't take another move commend")
+            return False
 
     def go_to_absolute(
         self, xyt_position, use_map=False, close_loop=False, smooth=False
@@ -156,12 +181,20 @@ class LoCoBotBase(object):
         rel_Y = xyt_position[1] - cur_y
         abs_yaw = xyt_position[2]
         # convert rel_X & rel_Y from global frame to  current frame
-        R = np.array([[np.cos(cur_yaw), np.sin(cur_yaw)],
-                      [-np.sin(cur_yaw), np.cos(cur_yaw)]])
-        rel_x, rel_y = np.matmul(R, np.array([rel_X, rel_Y]).reshape(-1,1))
-        return self._go_to_relative_pose(rel_x[0], rel_y[0], abs_yaw)
+        R = np.array([[np.cos(cur_yaw), np.sin(cur_yaw)], [-np.sin(cur_yaw), np.cos(cur_yaw)]])
+        rel_x, rel_y = np.matmul(R, np.array([rel_X, rel_Y]).reshape(-1, 1))
+        if not self.moving:
+            self.moving = True
+            self.collided = False
+            x = threading.Thread(
+                target=self._go_to_relative_pose, args=(rel_x[0], rel_y[0], abs_yaw)
+            )
+            x.start()
+        else:
+            print("Robot is still moving, can't take another move commend")
+            return False
 
-    def _act(self, action_name, actuation):
+    def _act(self, action_name, actuation, direct_call=False):
         """Take the action specified by action_id
 
 		:param action_id: ID of the action. Retreives the action from
@@ -169,11 +202,26 @@ class LoCoBotBase(object):
 		:return: Whether or not the action taken resulted in a collision
 		"""
         did_collide = False
-        act_spec = ActuationSpec(actuation)
-        did_collide = self.agent.controls.action(
-            self.agent.scene_node, action_name, act_spec, apply_filter=True
-        )
-
+        dist_moved = 0
+        prev_dist_moved = 0
+        while dist_moved < actuation:
+            if "turn" in action_name:
+                vel = self.ang_vel
+            else:
+                vel = self.lin_vel
+            prev_dist_moved = dist_moved
+            dist_moved = min(dist_moved + self.dt * vel, actuation)
+            delta_actuation = dist_moved - prev_dist_moved
+            act_spec = ActuationSpec(delta_actuation)
+            did_collide = self.agent.controls.action(
+                self.agent.scene_node, action_name, act_spec, apply_filter=True
+            )
+            if did_collide:
+                self.collided = True
+                break
+            time.sleep(self.dt)
+        if direct_call:
+            self.moving = False
         return did_collide
 
     def _go_to_relative_pose(self, rel_x, rel_y, abs_yaw):
@@ -200,12 +248,14 @@ class LoCoBotBase(object):
 
             if did_collide:
                 print("Error: Collision accured while 1st rotating!")
+                self.moving = False
                 return False
 
             # move to (x,y) point
             did_collide = self._act("move_forward", math.sqrt(rel_x ** 2 + rel_y ** 2))
             if did_collide:
                 print("Error: Collision accured while moving straight!")
+                self.moving = False
                 return False
         # rotate to match the final yaw!
         (cur_x, cur_y, cur_yaw) = self.get_state()
@@ -215,6 +265,9 @@ class LoCoBotBase(object):
         if abs(rel_yaw) < 1e-4:
             rel_yaw = 0
 
+        # convert rel yaw from -pi to pi
+        rel_yaw = np.arctan2(np.sin(rel_yaw), np.cos(rel_yaw))
+
         action_name = "turn_left"
         if rel_yaw < 0.0:
             action_name = "turn_right"
@@ -223,8 +276,9 @@ class LoCoBotBase(object):
         did_collide = self._act(action_name, math.degrees(rel_yaw))
         if did_collide:
             print("Error: Collision accured while rotating!")
+            self.moving = False
             return False
-
+        self.moving = False
         return True
 
     def track_trajectory(self, states, controls, close_loop):

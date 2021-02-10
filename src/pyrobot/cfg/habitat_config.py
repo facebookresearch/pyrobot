@@ -38,6 +38,13 @@ _CAMERAC.DEPTH_MAP_FACTOR = 1.0
 _BASEC = _C.BASE
 # BASE class name
 _BASEC.CLASS = "LoCoBotBase"
+# BASE forward moving speed in m/s
+_BASEC.FWD_SPEED = 1
+# BASE turning speed in deg/s
+_BASEC.TURN_SPEED = 30
+# BASE simulation time step in sec
+_BASEC.SIM_DT = 0.01
+
 
 _COMMONC = _C.COMMON
 # Name of the common class variable that will be shared in Robot class
