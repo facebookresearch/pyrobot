@@ -4,21 +4,5 @@
 # LICENSE file in the root directory of this source tree.
 
 
-def test_simple_camera():
-    from pyrobot.locobot.camera import SimpleCamera
-
-
-def test_locobot_arm():
-    from pyrobot.locobot.arm import LoCoBotArm
-
-
-def test_locobot_base():
-    from pyrobot.locobot.base import LoCoBotBase
-
-
-def test_locobot_camera():
-    from pyrobot.locobot.camera import LoCoBotCamera
-
-
-def test_locobot_gripper():
-    from pyrobot.locobot.gripper import LoCoBotGripper
+def test_world():
+    from pyrobot import World

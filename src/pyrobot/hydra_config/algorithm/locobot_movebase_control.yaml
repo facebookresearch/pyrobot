@@ -1,0 +1,23 @@
+name: 'movebase_control'
+
+algorithm:
+  _target_: pyrobot.algorithms.base_controller_impl.movebase_control.MovebaseControl
+
+robot_labels: ['locobot']
+
+ros_launch:
+  mode: test
+  name: ${name}
+  wait: 30
+
+  test:
+    common: "roslaunch base_navigation move_base.launch use_map:=false base:=kobuki"
+
+conf:
+  ROSTOPIC_BASE_ACTION_COMMAND: "move_base"
+  ROSTOPIC_MOVE_BASE_STATUS: "/move_base/status"
+  ROSTOPIC_GOAL_CANCEL: "/move_base/cancel"
+  ROSTOPIC_MOVE_BASE_GOAL: "/move_base_simple/goal"
+
+dependencies:
+  - algorithm: 'odom_localizer'

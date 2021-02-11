@@ -1,0 +1,54 @@
+environment:
+  world_frame: 'map'
+
+  robots:
+    - robot: 'locobot'
+      label: 'locobot'
+      ns: ''
+      overrides: []
+      transform: 
+        position: [0.0,0.0,0.0]
+        rotation: [0.0,0.0,0.0,1.0]
+        frame: 'map'
+
+  sensors: null
+
+  
+  # TODO: This will be populated by any default table tops, maps etc.  
+  obstacles: null
+
+
+  # TODO: Will depend on the robots and sensors available
+  algorithms: 
+    - algorithm: 'locobot_movebase_control'
+      label: 'movebase_control'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'locobot_ilqr_control'
+      label: 'ilqr_control'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'locobot_proportional_control'
+      label: 'proportional_control'
+      ns: ''
+      overrides: []
+
+    - algorithm: 'locobot_odom_localizer'
+      label: 'odom_localizer'
+      ns: ''
+      overrides: []
+
+  # If sim, add any simulator related config
+  simlator: null # other options: habitat and gazebo
+
+
+  # TODO: move common ros things to this!
+  ros_launch:
+    ns: ''
+    name: 'world'
+    mode: gazebo
+    habitat: null
+    gazebo: null
+    realrobot: null

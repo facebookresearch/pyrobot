@@ -1,0 +1,14 @@
+name: 'vslam'
+
+algorithm:
+  _target_: pyrobot.algorithms.slam_impl.vslam.VSLAM
+
+robot_labels: ['locobot']
+
+conf:
+  MAP_IMG_DIR: /home/fair-pitt/.ros/Imgs
+  ROSTOPIC_CAMERA_POSE: "/orb_slam2_rgbd/slam/camera_pose"
+  ROSTOPIC_CAMERA_TRAJ: "/orb_slam2_rgbd/slam/camera_traj"
+  OCCUPANCY_MAP_RATE: 0.5
+  Z_MIN_TRESHOLD_OCC_MAP: 0.1
+  Z_MAX_TRESHOLD_OCC_MAP: 0.8

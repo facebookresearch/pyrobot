@@ -392,9 +392,9 @@ class MoveGroupInterface(object):
         :param way_point_frame: the frame in which the waypoints are given.
         :param max_step: resolution (m) of the interpolation
                         on the cartesian path
-        :param jump_treshold: a distance in joint space that, if exceeded between 
+        :param jump_treshold: a distance in joint space that, if exceeded between
                     consecutive points, is interpreted as a jump in IK solutions.
-        :param link_name: frame or link name for which cartesian trajectory 
+        :param link_name: frame or link name for which cartesian trajectory
                         should be followed
         :param start_state: robot start state of cartesian trajectory
         :param avoid_collisions: if enabled, produces collision free cartesian

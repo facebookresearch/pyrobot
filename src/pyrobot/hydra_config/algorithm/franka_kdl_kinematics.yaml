@@ -1,0 +1,12 @@
+name: 'kdl_kinematics'
+
+ros_launch: null
+
+algorithm:
+  _target_: pyrobot.algorithms.kinematics_impl.kdl_kinematics.KDLKinematics
+
+robot_labels: ['franka']
+
+conf:
+  IK_POSITION_TOLERANCE: 0.005
+  IK_ORIENTATION_TOLERANCE: 0.05

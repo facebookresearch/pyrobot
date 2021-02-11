@@ -15,8 +15,10 @@ if os.environ.get("DISPLAY", "") == "":
     mpl.use("Agg")
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
-from pyrobot.locobot.base_control_utils import position_control_init_fn
-from pyrobot.locobot.bicycle_model import wrap_theta
+from pyrobot.algorithms.base_controller_impl.base_control_utils import (
+    position_control_init_fn,
+)
+from pyrobot.algorithms.base_controller_impl.ilqr_utils import wrap_theta
 
 
 def _get_time_str():

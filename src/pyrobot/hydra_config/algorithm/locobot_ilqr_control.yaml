@@ -1,0 +1,14 @@
+name: 'ilqr_control'
+
+algorithm:
+  _target_: pyrobot.algorithms.base_controller_impl.ilqr_control.ILQRControl
+
+robot_labels: ['locobot']
+
+conf:
+  MAX_ABS_FWD_SPEED: 0.2
+  MAX_ABS_TURN_SPEED: 0.5
+  BASE_CONTROL_RATE: 10
+
+dependencies:
+  - algorithm: 'odom_localizer'

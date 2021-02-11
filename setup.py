@@ -40,7 +40,9 @@ setup(
     url="https://github.com/facebookresearch/pyrobot.git",
     license="MIT",
     packages=packages,
-    package_data={"pyrobot": ["cfg/*.yaml"],},
+    package_data={
+        "pyrobot": ["cfg/*.yaml"],
+    },
     package_dir={"": "src"},
     install_requires=read_requirements_file(requirements_file),
 )

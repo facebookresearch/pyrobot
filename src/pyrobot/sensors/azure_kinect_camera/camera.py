@@ -12,7 +12,7 @@ class AzureKinectCamera(Kinect2Camera):
     This is camera class that interfaces with the KinectV2 camera
     """
 
-    def __init__(self, configs):
+    def __init__(self, configs, ns=""):
         """
         Constructor of the KinectV2Camera class.
 
@@ -20,4 +20,4 @@ class AzureKinectCamera(Kinect2Camera):
 
         :type configs: YACS CfgNode
         """
-        super(AzureKinectCamera, self).__init__(configs=configs)
+        super(AzureKinectCamera, self).__init__(configs=configs, ns=ns)

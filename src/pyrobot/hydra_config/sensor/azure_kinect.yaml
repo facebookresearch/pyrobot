@@ -1,0 +1,46 @@
+
+name: 'azure_kinect' # This is fixed!
+
+
+# TODO: to be filled by ros-control manager
+ros_launch:
+  mode: realrobot
+  name: ${name}
+  wait: 30
+  habitat:
+    common: null
+    arm: null
+    base: null
+    camera: null
+
+  realrobot:
+    common: 'roslaunch azure_kinect_ros_driver driver.launch'
+    arm: null
+    base: null
+    camera: null
+
+
+# Common contains all the commonly shared objects
+common: null
+
+modules:
+
+  - object:
+      _target_: pyrobot.sensors.azure_kinect_camera.camera.AzureKinectCamera
+      # params: 
+    ns: ''
+    transform:
+      use_udf: True 
+      position: null
+      rotation: null
+      frame: null
+    name : 'camera'
+    conf: 
+      # ARM class name
+      CLASS : "AzureKinectCamera"
+     # topic name of the camera info
+      ROSTOPIC_CAMERA_INFO_STREAM : "/rgb/camera_info"
+      # topic name of the RGB images
+      ROSTOPIC_CAMERA_RGB_STREAM : "/rgb/image_raw"
+      # topic name of the depth images
+      ROSTOPIC_CAMERA_DEPTH_STREAM : "/depth_to_rgb/image_raw"

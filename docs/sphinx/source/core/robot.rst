@@ -1,5 +1,5 @@
 ====================================
-Robot
+PyRobot World Instance
 ====================================
 
 .. autoclass:: pyrobot.core.Robot
@@ -7,4 +7,3 @@ Robot
         :show-inheritance:
         :special-members:
         :exclude-members: __metaclass__, __weakref__
-

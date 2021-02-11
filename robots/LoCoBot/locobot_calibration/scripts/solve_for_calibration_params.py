@@ -639,7 +639,7 @@ def setup_camera_solver(
 
 def transform_points_to_base(pts, quat, trans, opt_quat, opt_trans):
     """Transform pts from target frame to base frame.
-    pts is B x N x 3 """
+    pts is B x N x 3"""
     n_measures = pts.shape[0]
     for i in range(trans.shape[1] - 1, -1, -1):
         if opt_trans[i] is not None:
@@ -657,7 +657,7 @@ def transform_points_to_base(pts, quat, trans, opt_quat, opt_trans):
 
 def transform_points_from_base(pts, quat, trans, opt_quat, opt_trans):
     """Transform pts from base frame to target frame.
-    pts is B x N x 3 """
+    pts is B x N x 3"""
     t_pts_3d = pts
     n_measures = pts.shape[0]
     for j in range(quat.shape[1]):

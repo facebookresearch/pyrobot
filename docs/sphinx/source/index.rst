@@ -7,14 +7,24 @@
 PyRobot's API documentation!
 ============================
 
-Here lies API documentation for `PyRobot <https://github.com/facebookresearch/pyrobot>`_. For tutorials on using `PyRobot <https://github.com/facebookresearch/pyrobot>`_ please refer to the `PyRobot <https://pyrobot.org>`_.
+Here lies API documentation for the next version of `PyRobot <https://github.com/facebookresearch/pyrobot/tree/API_0.4>`_.
+Check the following definition of World, Algorithms, Robot, and Sensor base classes.
 
 .. toctree::
    :maxdepth: 2
 
    core/core
+   robots/robots
+   sensors/sensors
+   algorithms/algorithms
+
+Check the following wrapper definition of the robots we support.
+
+.. toctree::
+   :maxdepth: 2
+
    locobot/locobot
-   sawyer/sawyer
+
+Check the following wrapper definition of the sensors we support.
 
 :ref:`search`
-==================

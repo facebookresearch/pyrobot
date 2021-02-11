@@ -20,11 +20,8 @@ from geometry_msgs.msg import Twist, Pose, PoseStamped
 from sensor_msgs.msg import JointState, CameraInfo, Image
 
 import pyrobot.utils.util as prutil
-
-from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
-from pyrobot_bridge.srv import *
-
 from pyrobot.utils.util import try_cv2_import
+from pyrobot.registry import registry, CollectionStruct
 
 cv2 = try_cv2_import()
 
@@ -33,12 +30,8 @@ from cv_bridge import CvBridge, CvBridgeError
 import message_filters
 
 import actionlib
-from pyrobot_bridge.msg import (
-    MoveitAction,
-    MoveitGoal,
-)
-from actionlib_msgs.msg import GoalStatus
 
+from actionlib_msgs.msg import GoalStatus
 
 
 from hydra.experimental import initialize, compose
@@ -47,67 +40,114 @@ from omegaconf import DictConfig
 import logging
 import os
 
-
-
 import libtmux
 import os
 import os.path as osp
 
+
 def make_module(cfg):
-    module =  instantiate(cfg.object, configs=cfg.conf)
+    module = instantiate(cfg.object, configs=cfg.conf)
     return module
 
-
-def make_robot(robot_cfg, ns='', overrides=[], ros_launch_manager=None):
-
-    # TODO: add check if the robot name passed is correct        
-    
-
+def make_robot(robot_cfg, ns="", overrides=[], ros_launch_manager=None):
     if isinstance(robot_cfg, str):
-        robot_cfg=compose("robot/" + robot_cfg + ".yaml", overrides)
+        robot_cfg = compose("robot/" + robot_cfg + ".yaml", overrides)
     elif not isinstance(robot_cfg, DictConfig):
-        raise ValueError('Expected either robot name or robot config object')
+        raise ValueError("Expected either robot name or robot config object")
     ros_launch_manager.launch_cfg(robot_cfg.ros_launch, ns=ns)
 
-    module_dict ={}
+    module_dict = {}
     for module_cfg in robot_cfg.modules:
         module_dict[module_cfg.name] = make_module(module_cfg)
 
-    return module_dict
+    return CollectionStruct(**module_dict)
 
-def make_sensor(self, sensor_cfg, ns='', overrides=[], ros_launch_manager=None):
-        
-    # TODO: add check if the sensor name passed is correct        
-    
-
+def make_sensor(sensor_cfg, ns="", overrides=[], ros_launch_manager=None):
+    # TODO: add check if the sensor name passed is correct
     if isinstance(sensor_cfg, str):
-        sensor_cfg=compose("sensor/" + sensor_cfg + ".yaml", overrides)
+        sensor_cfg = compose("sensor/" + sensor_cfg + ".yaml", overrides)
     elif not isinstance(sensor_cfg, DictConfig):
-        raise ValueError('Expected either robot name or robot config object')
+        raise ValueError("Expected either robot name or robot config object")
     ros_launch_manager.launch_cfg(sensor_cfg.ros_launch, ns=ns)
 
-    module_dict ={}
+    module_dict = {}
     for module_cfg in sensor_cfg.modules:
         module_dict[module_cfg.name] = make_module(module_cfg)
-    return module_dict
+    return CollectionStruct(**module_dict)
+
+def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager=None):
+    # TODO: add check if the algorithm name passed is correct
+    if isinstance(algorithm_cfg, str):
+        if registry.module_exist(algorithm_cfg) == "algorithm":
+            algorithm_cfg = compose("algorithm/" + algorithm_cfg + ".yaml", overrides)
+        else:
+            try:
+                algorithm_cfg = compose(algorithm_cfg, overrides)
+            except:
+                raise ValueError("Expected valid algorithm config")
+    elif not isinstance(algorithm_cfg, DictConfig):
+        raise ValueError("Expected either algorithm name or algorithm config object")
+
+    robots = {}
+    if "robot_labels" in algorithm_cfg.keys() and algorithm_cfg.robot_labels:
+        for robot_label in algorithm_cfg.robot_labels:
+            robots[robot_label] = world.robots[robot_label]
+
+    # TODO: add sensors
+    sensors = {}
+    dependencies_collection = None
+    dependencies = {}
+    if "dependencies" in algorithm_cfg.keys() and algorithm_cfg.dependencies:
+        for dependency_cfg in algorithm_cfg.dependencies:
+            if dependency_cfg["algorithm"] in world._algorithms_pool.keys():
+                dependency = world._algorithms_pool[dependency_cfg["algorithm"]]
+            else:
+                dependency = make_algorithm(
+                    dependency_cfg["algorithm"],
+                    world,
+                    ns,
+                    overrides,
+                    ros_launch_manager,
+                )
+                world._algorithms_pool[dependency_cfg["algorithm"]] = dependency
+
+            dependencies[dependency.get_class_name()] = dependency
+
+        dependencies_collection = CollectionStruct(**dependencies)
+
+    algorithm = instantiate(
+        algorithm_cfg.algorithm,
+        configs=algorithm_cfg,
+        world=world,
+        ros_launch_manager=ros_launch_manager,
+        robots=robots,
+        sensors=sensors,
+        algorithms=dependencies_collection,
+    )
+    return algorithm
 
 class World(object):
     """
-    TODO: Add more detailed info here.
-    Root class for all problem
-
+    Root class for four types or modules: robots, sensors, algorithms, and objects (obstacles), each being a dictionary of robot/sensors/algorithms/object instances.
+    All of these instances can be queried by self.robots/sensors/algorithms/objectsp["label"]
     """
 
-    def __init__(self, configs_path=None, config_name=None, overrides=[]):
+    def __init__(self, config_name=None, configs_path=None, overrides=[]):
+        """
+        Constructor for World object.
+
+        :param configs_name: file name for the config file correspond to the world object. Type: str
+        :param configs_path: folder path for the config file correspond to the world object. If None, default to be `{$pyrobot-root}/src/pyrobot/hydra_config`. Type: str
+        :param overrides: a list of override commands. Details described in: https://hydra.cc/docs/next/experimental/compose_api/#internaldocs-banner. Type: list[str].
+        """
 
         # overrides: https://hydra.cc/docs/next/experimental/compose_api/#internaldocs-banner
         # TODO: see if ros can be made optional
         self.ros_launch_manager = RosLaunchManager()
 
-        if self.ros_launch_manager.get_window('roscore') is None:
-            self.ros_launch_manager.create_and_cmd(name='roscore', cmd='roscore', ns='')
+        if self.ros_launch_manager.get_window("roscore") is None:
+            self.ros_launch_manager.create_and_cmd(name="roscore", cmd="roscore", ns="")
             rospy.sleep(1)
-
 
         try:
             rospy.init_node("pyrobot", anonymous=True)
@@ -115,20 +155,26 @@ class World(object):
             rospy.logwarn("ROS node [pyrobot] has already been initialized")
 
         if configs_path is None:
-            configs_path = 'hydra_config'
+            configs_path = "hydra_config"
         try:
             initialize(configs_path)
         except AssertionError as error:
             logging.warning(error)
 
-        
-        self.robots = {}
-        self.sensors = {}
-        self.algorithms = {}
+        self.robots = CollectionStruct()
+        self.sensors = CollectionStruct()
+        # public accessible algorithms
+        self.algorithms = CollectionStruct()
+        # pool of all the available algorithms in the backend
+        self._algorithms_pool = {}
+
         self.objects = {}
         self.simulator = {}
         # Any sensor streams and commands are stored here
         self.measurements = {}
+
+        if registry.module_exist(config_name) == "world" and configs_path == "hydra_config":
+            config_name=os.path.join("world", "{}.yaml".format(config_name))
 
         if config_name is not None:
 
@@ -136,64 +182,96 @@ class World(object):
 
             if world_config.environment.robots is not None:
                 for robot in world_config.environment.robots:
-                    self.add_robot(robot.robot, robot.label, ns= robot.ns, overrides=robot.overrides)
+                    self.add_robot(
+                        robot.robot, robot.label, ns=robot.ns, overrides=robot.overrides
+                    )
 
             if world_config.environment.sensors is not None:
                 for sensor in world_config.environment.sensors:
-                    self.add_sensor(sensor.sensor, sensor.label, ns= sensor.ns, overrides= sensor.overrides)                
+                    self.add_sensor(
+                        sensor.sensor,
+                        sensor.label,
+                        ns=sensor.ns,
+                        overrides=sensor.overrides,
+                    )
+
+            if world_config.environment.algorithms is not None:
+                for algorithm in world_config.environment.algorithms:
+                    self.add_algorithm(
+                        algorithm.algorithm,
+                        algorithm.label,
+                        ns=algorithm.ns,
+                        overrides=algorithm.overrides,
+                    )
 
             # TODO: Add, how to deal with objects, and obstacle module
 
-    def add_robot(self, robot_cfg, label, ns='', overrides=[]):
-        self.robots[label] = make_robot(robot_cfg, ns, overrides, self.ros_launch_manager)
+    def add_robot(self, robot_cfg, label, ns="", overrides=[]):
+        self.robots.add_module(
+            label,
+            make_robot(
+                robot_cfg, ns, overrides, self.ros_launch_manager
+            )
+        )
+
+    def add_sensor(self, sensor_cfg, label, ns="", overrides=[]):
+        self.sensors.add_module(
+            label, 
+            make_sensor(
+                sensor_cfg, ns, overrides, self.ros_launch_manager
+            )
+        )
+
+    def add_algorithm(self, algorithm_cfg, label, ns="", overrides=[]):
+        if label in self._algorithms_pool.keys():
+            self.algorithms.add_module(label, self._algorithms_pool[label])
+        else:
+            self.algorithms.add_module(
+                label, 
+                make_algorithm(
+                    algorithm_cfg, self, ns, overrides, self.ros_launch_manager
+                )
+            )
 
 
-    def add_sensor(self, sensor_cfg, label, ns='', overrides=[]):
-        self.sensor[label] = make_sensor(sensor_cfg, ns, overrides,self.ros_launch_manager)
-    
-    def add_algorithm(self, sensor_cfg, label, ns='', overrides=[]):
-        pass
-
-
-
-
-class  RosLaunchManager(object):
+class RosLaunchManager(object):
     """
     TODO: Add more details.
     """
-    def __init__(self, world_ns='pyrobot', scope='extend'):
+
+    def __init__(self, world_ns="pyrobot", scope="extend"):
 
         # scope = 'overwrite' or 'extend'
-        
-        self.server =  libtmux.Server()
+
+        self.server = libtmux.Server()
         self.world_ns = world_ns
         self.scope = scope
-        if scope == 'overwrite':
+        if scope == "overwrite":
             self.kill_session(self.world_ns)
 
         if self.server.has_session(self.world_ns):
-            self.session = self.server.find_where({ "session_name": self.world_ns})
+            self.session = self.server.find_where({"session_name": self.world_ns})
         else:
             self.session = self.server.new_session(self.world_ns)
 
-        #print("Available sessions:", self.server.list_sessions() )
+        # print("Available sessions:", self.server.list_sessions() )
         # maps from any node names to the window names.
-        self.process_dict = {} 
+        self.process_dict = {}
         self.window_names = []
         self.scope = scope
-        
+
     def set_env_ros(self, pane):
-        pane.send_keys('source /opt/ros/melodic/setup.bash')
-        pane.send_keys('source ~/low_cost_ws/devel/setup.bash')
-        pane.send_keys('source ~/pyenv_pyrobot_python2/bin/activate')
-        
+        pane.send_keys("source /opt/ros/melodic/setup.bash")
+        pane.send_keys("source ~/low_cost_ws/devel/setup.bash")
+        pane.send_keys("source ~/pyenv_pyrobot_python2/bin/activate")
+
     def set_ros_python(self, pane):
-        pane.send_keys('source /opt/ros/melodic/setup.bash')
-        pane.send_keys('source ~/low_cost_ws/devel/setup.bash')
-        pane.send_keys('source ~/pyrobot_catkin_ws/devel/setup.bash')
-        pane.send_keys('source ~/pyenv_pyrobot_python3/bin/activate')
+        pane.send_keys("source /opt/ros/melodic/setup.bash")
+        pane.send_keys("source ~/low_cost_ws/devel/setup.bash")
+        pane.send_keys("source ~/pyrobot_catkin_ws/devel/setup.bash")
+        pane.send_keys("source ~/pyenv_pyrobot_python3/bin/activate")
         # pane.send_keys('load_pyrobot_env')
-        
+
     def kill_session(self, sess_name):
         if self.server.has_session(sess_name):
             self.server.kill_session(sess_name)
@@ -212,89 +290,51 @@ class  RosLaunchManager(object):
         if window is not None:
             window.kill_window()
 
-    def create_and_cmd(self, name, cmd, ns=''):
+    def create_and_cmd(self, name, cmd, ns=""):
         window = self.get_window(name)
         if window is None:
             self.window_names.append(name)
             window = self.session.new_window(name)
         else:
-            if self.scope == 'overwrite':
+            if self.scope == "overwrite":
                 print("Overwriting the window: {}".format(name))
                 self.kill_window(name)
                 window = self.session.new_window(name)
             else:
                 pane = window.panes[0]
-                pane.send_keys('C-c', enter=False, suppress_history=False)
+                pane.send_keys("C-c", enter=False, suppress_history=False)
                 print("Window already exists. Killing past commands and running new.")
-                #print("Cannot overwite. A window with name {} already exits".format(name))
-                #return
+                # print("Cannot overwite. A window with name {} already exits".format(name))
+                # return
 
         pane = window.panes[0]
         self.set_env_ros(pane)
         # TODO: add namespace bash variable here!
-        if ns !='':
-            pane.send_keys('export ROS_NAMESPACE=/{}'.format(ns))
+        if ns != "":
+            pane.send_keys("export ROS_NAMESPACE=/{}".format(ns))
         pane.send_keys(cmd)
 
-    def launch_cfg(self, ros_cfg, ns = ''):
+    def launch_cfg(self, ros_cfg, ns=""):
         mode = ros_cfg.mode
         wait_time = ros_cfg.wait
 
         if isinstance(ros_cfg[mode], str):
             cmd = ros_cfg[mode]
-            if cmd is not  None:
+            if cmd is not None:
                 name = osp.join(ns, ros_cfg.name)
-                self.create_and_cmd(name, cmd + ' ns:={}'.format(ns),ns)
-        else: 
+                self.create_and_cmd(name, cmd + " ns:={}".format(ns), ns)
+        else:
             for key in ros_cfg[mode]:
                 cmd = ros_cfg[mode][key]
-                if cmd is not  None:
+                if cmd is not None:
                     name = osp.join(ns, ros_cfg.name)
-                    self.create_and_cmd(name, cmd + ' ns:={}'.format(ns), ns)
+                    self.create_and_cmd(name, cmd + " ns:={}".format(ns), ns)
 
-        rospy.sleep(wait_time) #seconds
-    
-    def __del__(self): 
-        if self.scope == 'overwrite':
+        rospy.sleep(wait_time)  # seconds
+
+    def __del__(self):
+        if self.scope == "overwrite":
             self.kill_session(self.world_ns)
         else:
             for window_name in self.window_names:
                 self.kill_window(window_name)
-
-# from abc import ABC, abstractmethod 
-# class Algorithm(ABC):
-#     """Algorithm base class on which everything else is bulit"""
-#     def __init__( self, cfg, 
-#                         ros_launch_manager = None, 
-#                         robots={}, 
-#                         sensors={}, 
-#                         algorithms={}, 
-#                         world={}
-#                 ):
-
-#         self.cfg = cfg
-#         if not self.check_cfg():
-#             print("Invalid config encoutered")
-#             return
-#         ros_launch_manager.launch(world_ns=None, robot_ns=None, algo_ns=self.cfg.ns)
-
-#     @abstractmethod
-#     def check_cfg(self):
-#         pass
-
-
-
-
-# class Kinematics(Algorithm):
-#     """docstring for Kinematics"""
-#     def __init__(self, cfg):
-        
-#         super(Algorithm, self).__init__(
-#                         cfg, 
-#                         ros_launch_manager = None, 
-#                         robots={}, 
-#                         sensors={}, 
-#                         algorithms={}, 
-#                         world={})
-#         self.arg = arg
-#         
