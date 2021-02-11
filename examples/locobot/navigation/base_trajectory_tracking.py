@@ -47,17 +47,17 @@ def get_trajectory(world, bot, trajectory_type):
 
 
 def main():
-    world = World(config_name="env/base_env.yaml")
+    world = World(config_name="locobot_base_env")
 
-    bot = world.robots["locobot"]
+    bot = world.robots.locobot
 
     states = get_trajectory(world, bot, "circle")
 
-    world.algorithms["ilqr_control"].track_trajectory(states)
+    world.algorithms.ilqr_control.track_trajectory(states)
     time.sleep(1)
     print("ilqr_control completed!")
 
-    bot["base"].stop()
+    bot.base.stop()
 
 
 if __name__ == "__main__":

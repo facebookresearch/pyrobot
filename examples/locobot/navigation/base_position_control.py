@@ -20,25 +20,25 @@ import time
 
 
 def main():
-    world = World(config_name="env/base_env.yaml")
+    world = World(config_name="locobot_base_env")
 
-    bot = world.robots["locobot"]
+    bot = world.robots.locobot
 
     displacement = np.array([5, 1, 0])
 
-    world.algorithms["proportional_control"].go_to_relative(displacement)
+    world.algorithms.proportional_control.go_to_relative(displacement)
     time.sleep(1)
     print("proportional_control completed!")
 
-    world.algorithms["ilqr_control"].go_to_relative(displacement)
+    world.algorithms.ilqr_control.go_to_relative(displacement)
     time.sleep(1)
     print("ilqr_control completed!")
 
-    world.algorithms["movebase_control"].go_to_relative(displacement)
+    world.algorithms.movebase_control.go_to_relative(displacement)
     time.sleep(1)
     print("movebase_control completed!")
 
-    bot["base"].stop()
+    bot.base.stop()
 
 
 if __name__ == "__main__":

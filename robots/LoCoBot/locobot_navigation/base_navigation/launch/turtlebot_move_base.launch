@@ -14,8 +14,8 @@
     <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
       <rosparam file="$(find turtlebot_navigation)/param/costmap_common_params.yaml" command="load" ns="global_costmap" />
       <rosparam file="$(find turtlebot_navigation)/param/costmap_common_params.yaml" command="load" ns="local_costmap" />   
-      <rosparam file="$(find base_navigation)/config/turtlebot/local_costmap_params.yaml" command="load" />   
       <rosparam file="$(find base_navigation)/config/turtlebot/global_costmap_params_with_map.yaml" command="load" />
+      <rosparam file="$(find base_navigation)/config/turtlebot/global_costmap_params.yaml" command="load" />
       <rosparam file="$(find base_navigation)/config/turtlebot/dwa_local_planner_params.yaml" command="load" />
       <rosparam file="$(find base_navigation)/config/turtlebot/move_base_params.yaml" command="load" />
       <rosparam file="$(find base_navigation)/config/turtlebot/global_planner_params.yaml" command="load" />
@@ -25,16 +25,16 @@
       <param name="local_costmap/global_frame" value="$(arg odom_frame_id)"/>
       <param name="local_costmap/robot_base_frame" value="$(arg base_frame_id)"/>
       <param name="DWAPlannerROS/global_frame_id" value="$(arg odom_frame_id)"/>
-      <rosparam file="$(find base_navigation)/config/turtlebot/global_map_extra.yaml"
-                  command="load"
-                  ns="global_costmap" />
-      <rosparam file="$(find base_navigation)/config/turtlebot/local_map_extra.yaml"
-                  command="load"
-                  ns="local_costmap" />
       <param name="recovery_behavior_enabled" value="false"/> 
       <remap from="cmd_vel" to="navigation_velocity_smoother/raw_cmd_vel"/>
       <remap from="odom" to="$(arg odom_topic)"/>
       <remap from="scan" to="$(arg laser_topic)"/>
+<!--       <rosparam file="$(find base_navigation)/config/turtlebot/global_map_extra.yaml"
+                  command="load"
+                  ns="global_costmap" /> -->
+      <rosparam file="$(find base_navigation)/config/turtlebot/local_map_extra.yaml"
+                  command="load"
+                  ns="local_costmap" />
     </node>
   </group>
 

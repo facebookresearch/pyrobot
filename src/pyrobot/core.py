@@ -20,8 +20,8 @@ from geometry_msgs.msg import Twist, Pose, PoseStamped
 from sensor_msgs.msg import JointState, CameraInfo, Image
 
 import pyrobot.utils.util as prutil
-
 from pyrobot.utils.util import try_cv2_import
+from pyrobot.registry import registry, CollectionStruct
 
 cv2 = try_cv2_import()
 
@@ -40,34 +40,16 @@ from omegaconf import DictConfig
 import logging
 import os
 
-
 import libtmux
 import os
 import os.path as osp
 
-class CollectionStruct:
-    def __init__(self, **entries):
-        self.__dict__.update(entries)
-
-    def __getitem__(self, key):
-        return self.__dict__[key]
-
-    def __setitem__(self, key, value):
-        self.__dict__[key] = value
-
-    def keys(self):
-        return self.__dict__.keys()
-
-    def add_module(self, label, module):
-        self.__dict__[label] = module
 
 def make_module(cfg):
     module = instantiate(cfg.object, configs=cfg.conf)
     return module
 
-
 def make_robot(robot_cfg, ns="", overrides=[], ros_launch_manager=None):
-
     if isinstance(robot_cfg, str):
         robot_cfg = compose("robot/" + robot_cfg + ".yaml", overrides)
     elif not isinstance(robot_cfg, DictConfig):
@@ -80,11 +62,8 @@ def make_robot(robot_cfg, ns="", overrides=[], ros_launch_manager=None):
 
     return CollectionStruct(**module_dict)
 
-
 def make_sensor(sensor_cfg, ns="", overrides=[], ros_launch_manager=None):
-
     # TODO: add check if the sensor name passed is correct
-
     if isinstance(sensor_cfg, str):
         sensor_cfg = compose("sensor/" + sensor_cfg + ".yaml", overrides)
     elif not isinstance(sensor_cfg, DictConfig):
@@ -96,12 +75,16 @@ def make_sensor(sensor_cfg, ns="", overrides=[], ros_launch_manager=None):
         module_dict[module_cfg.name] = make_module(module_cfg)
     return CollectionStruct(**module_dict)
 
-
 def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager=None):
-
     # TODO: add check if the algorithm name passed is correct
     if isinstance(algorithm_cfg, str):
-        algorithm_cfg = compose("algorithm/" + algorithm_cfg + ".yaml", overrides)
+        if registry.module_exist(algorithm_cfg) == "algorithm":
+            algorithm_cfg = compose("algorithm/" + algorithm_cfg + ".yaml", overrides)
+        else:
+            try:
+                algorithm_cfg = compose(algorithm_cfg, overrides)
+            except:
+                raise ValueError("Expected valid algorithm config")
     elif not isinstance(algorithm_cfg, DictConfig):
         raise ValueError("Expected either algorithm name or algorithm config object")
 
@@ -132,20 +115,9 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
 
         dependencies_collection = CollectionStruct(**dependencies)
 
-    # in the algorithm constructor instead
-    if "ros_launch" in algorithm_cfg.keys() and algorithm_cfg.ros_launch:
-        if not ros_launch_manager:
-            ros_launch_manager = world.ros_launch_manager
-        ros_launch_manager.launch_cfg(algorithm_cfg.ros_launch, ns=ns)
-
-    if "conf" not in algorithm_cfg.keys():
-        conf = {}
-    else:
-        conf = algorithm_cfg.conf
-
     algorithm = instantiate(
         algorithm_cfg.algorithm,
-        configs=conf,
+        configs=algorithm_cfg,
         world=world,
         ros_launch_manager=ros_launch_manager,
         robots=robots,
@@ -153,7 +125,6 @@ def make_algorithm(algorithm_cfg, world, ns="", overrides=[], ros_launch_manager
         algorithms=dependencies_collection,
     )
     return algorithm
-
 
 class World(object):
     """
@@ -201,6 +172,9 @@ class World(object):
         self.simulator = {}
         # Any sensor streams and commands are stored here
         self.measurements = {}
+
+        if registry.module_exist(config_name) == "world" and configs_path == "hydra_config":
+            config_name=os.path.join("world", "{}.yaml".format(config_name))
 
         if config_name is not None:
 

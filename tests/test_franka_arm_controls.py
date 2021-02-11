@@ -14,7 +14,7 @@ from pyrobot import World
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name="env/locobot_arm_env.yaml")
+    return World(config_name="locobot_arm_env")
 
 
 @pytest.mark.parametrize(
@@ -24,14 +24,14 @@ def create_world():
 def test_position_control(create_world, position):
     time.sleep(5)
     world = create_world
-    bot = world.robots["franka"]
-    bot["arm"].go_home()
-    joint_angles = bot["arm"].get_joint_angles()
+    bot = world.robots.franka
+    bot.arm.go_home()
+    joint_angles = bot.arm.get_joint_angles()
     print(joint_angles)
     time.sleep(1)
-    bot["arm"].set_joint_positions(position)
+    bot.arm.set_joint_positions(position)
     time.sleep(5)
-    joint_angles = bot["arm"].get_joint_angles()
+    joint_angles = bot.arm.get_joint_angles()
     print(joint_angles)
     ag_error = np.fabs(joint_angles.flatten() - np.array(position).flatten())
     assert np.max(ag_error) < 0.05
@@ -50,13 +50,13 @@ orientations = [
 def test_ee_pose_control(create_world, position, orientation):
     time.sleep(5)
     world = create_world
-    bot = world.robots["franka"]
-    bot["arm"].go_home()
+    bot = world.robots.franka
+    bot.arm.go_home()
     time.sleep(1)
-    world.algorithms["moveit_planner"].plan_end_effector_pose(position, orientation)
+    world.algorithms.moveit_planner.plan_end_effector_pose(position, orientation)
     time.sleep(5)
-    trans, quat = world.algorithms["tf_transform"].get_transform(
-        bot["arm"].configs.ARM_BASE_FRAME, bot["arm"].configs.EE_FRAME
+    trans, quat = world.algorithms.tf_transform.get_transform(
+        bot.arm.configs.ARM_BASE_FRAME, bot.arm.configs.EE_FRAME
     )
     pos_error = np.linalg.norm(np.array(position).flatten() - np.array(trans).flatten())
     if orientation.size == 4:

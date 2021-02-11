@@ -15,18 +15,18 @@ import copy
 
 def main():
 
-    world = World(config_name="env/arm_env.yaml")
+    world = World(config_name="locobot_arm_env")
 
-    bot = world.robots["locobot"]
+    bot = world.robots.locobot
 
     print("Opening gripper")
-    bot["gripper"].open()
+    bot.gripper.open()
 
     print("Closing gripper")
-    bot["gripper"].close()
+    bot.gripper.close()
 
     print("Opening gripper")
-    bot["gripper"].open()
+    bot.gripper.open()
 
 
 if __name__ == "__main__":

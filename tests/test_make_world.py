@@ -9,7 +9,7 @@ import rospy
 from pyrobot import World
 
 
-@pytest.mark.parametrize("world_config", ["env/simple_env.yaml"])
+@pytest.mark.parametrize("world_config", ["simple_env"])
 def test_make_world(world_config):
-    world = World(world_config)
+    world = World(config_name=world_config)
     return world

@@ -23,7 +23,7 @@ from pyrobot.algorithms.base_controller_impl.ilqr_utils import wrap_theta
 
 @pytest.fixture(scope="module")
 def create_world():
-    return World(config_name="env/locobot_base_env.yaml")
+    return World(config_name="locobot_base_env")
 
 
 @pytest.mark.parametrize("base_controller", ["ilqr_control"])
@@ -36,7 +36,7 @@ def test_trajectory_tracking_circle(create_world, base_controller, close_loop):
     v = world.algorithms[base_controller].configs.MAX_ABS_FWD_SPEED / 2.0
     w = world.algorithms[base_controller].configs.MAX_ABS_TURN_SPEED / 2.0
     r = v / w
-    start_state = np.array(world.algorithms["odom_localizer"].get_odom_state())
+    start_state = np.array(world.algorithms.odom_localizer.get_odom_state())
     states, _ = get_trajectory_circle(start_state, dt, r, v, np.pi)
     world.algorithms[base_controller].track_trajectory(states, close_loop=close_loop)
     end_state = np.array(world.algorithms["odom_localizer"].get_odom_state())
@@ -54,14 +54,14 @@ def _test_relative_position_control(
     angular_thresh,
 ):
     world = create_world
-    bot = world.robots["locobot"]
+    bot = world.robots.locobot
 
-    start_state = np.array(world.algorithms["odom_localizer"].get_odom_state())
+    start_state = np.array(world.algorithms.odom_localizer.get_odom_state())
     desired_target = _get_absolute_pose(posn, start_state)
     world.algorithms[base_controller].go_to_relative(
         posn, close_loop=close_loop, smooth=smooth
     )
-    end_state = np.array(world.algorithms["odom_localizer"].get_odom_state())
+    end_state = np.array(world.algorithms.odom_localizer.get_odom_state())
 
     dist = np.linalg.norm(end_state[:2] - desired_target[:2])
     angle = end_state[2] - desired_target[2]

@@ -30,8 +30,8 @@ environment:
       ns: ''
       overrides: []
 
-    - algorithm: 'locobot_moveit_kin_planner'
-      label: 'moveit_kin_planner'
+    - algorithm: 'locobot_moveit_planner'
+      label: 'moveit_planner'
       ns: ''
       overrides: []
 

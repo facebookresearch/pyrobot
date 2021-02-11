@@ -20,22 +20,22 @@ environment:
 
   # TODO: Will depend on the robots and sensors available
   algorithms: 
-    - algorithm: 'movebase_control'
+    - algorithm: 'locobot_movebase_control'
       label: 'movebase_control'
       ns: ''
       overrides: []
 
-    - algorithm: 'ilqr_control'
+    - algorithm: 'locobot_ilqr_control'
       label: 'ilqr_control'
       ns: ''
       overrides: []
 
-    - algorithm: 'proportional_control'
+    - algorithm: 'locobot_proportional_control'
       label: 'proportional_control'
       ns: ''
       overrides: []
 
-    - algorithm: 'odom_localizer'
+    - algorithm: 'locobot_odom_localizer'
       label: 'odom_localizer'
       ns: ''
       overrides: []
