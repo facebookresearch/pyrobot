@@ -51,6 +51,10 @@ class LoCoBotCamera(object):
             observations["depth"] / self.configs.CAMERA.DEPTH_MAP_FACTOR,
         )
 
+    def get_rgb_depth_segm(self):
+        observations = self.sim.get_sensor_observations()
+        return observations["rgb"][:, :, 0:3], observations["depth"], observations["semantic"]
+
     def get_intrinsics(self):
         """
         Returns the instrinsic matrix of the camera
