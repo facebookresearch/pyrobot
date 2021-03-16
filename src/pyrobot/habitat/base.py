@@ -256,7 +256,7 @@ class LoCoBotBase(object):
             cosine_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
             angle = np.arccos(cosine_angle)
 
-            did_collide = self._act(action_name, math.degrees(angle), cont_action=wait)
+            did_collide = self._act(action_name, math.degrees(angle), cont_action=not(wait))
 
             if did_collide:
                 print("Error: Collision accured while 1st rotating!")
@@ -264,7 +264,7 @@ class LoCoBotBase(object):
                 return False
 
             # move to (x,y) point
-            did_collide = self._act("move_forward", math.sqrt(rel_x ** 2 + rel_y ** 2), cont_action=wait)
+            did_collide = self._act("move_forward", math.sqrt(rel_x ** 2 + rel_y ** 2), cont_action=not(wait))
             if did_collide:
                 print("Error: Collision accured while moving straight!")
                 self._as.set_preempted()
@@ -285,7 +285,7 @@ class LoCoBotBase(object):
             action_name = "turn_right"
             rel_yaw *= -1
 
-        did_collide = self._act(action_name, math.degrees(rel_yaw), cont_action=wait)
+        did_collide = self._act(action_name, math.degrees(rel_yaw), cont_action=not(wait))
         if did_collide:
             print("Error: Collision accured while rotating!")
             self._as.set_preempted()
