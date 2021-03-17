@@ -1,6 +1,7 @@
 from pyrobot import Robot
 import os
 from pyrobot.utils.util import try_cv2_import
+from pyrobot.locobot.base_control_utils import LocalActionStatus
 
 cv2 = try_cv2_import()
 
@@ -24,13 +25,11 @@ bot = Robot("habitat", common_config=common_config)
 distance = 0.1  # in meter
 bot.base.execute_action("move_forward", actuation=distance)
 print("Move forward using discreate actions")
-while bot.base.moving:
+while bot.base._as.get_state() == LocalActionStatus.ACTIVE:
     visualize(bot, waitime=10)
 
 # Make the agent go to a relative pose
-print("Move the robot to a relative pose")
-bot.base.go_to_relative([1.0, 1.0, 0.0])
-while bot.base.moving:
+while bot.base._as.get_state() == LocalActionStatus.ACTIVE:
     visualize(bot, waitime=10)
 
 # Make the agent adjust its camera motors

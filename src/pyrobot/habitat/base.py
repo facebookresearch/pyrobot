@@ -140,7 +140,7 @@ class LoCoBotBase(object):
             return False
 
     def go_to_absolute(
-        self, xyt_position, use_map=False, close_loop=False, smooth=False, wait=False
+        self, xyt_position, use_map=False, close_loop=False, smooth=False, wait=True
     ):
         """
 		Moves the robot to the robot to given goal state in the world frame.
