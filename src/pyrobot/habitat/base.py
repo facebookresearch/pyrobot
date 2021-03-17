@@ -131,7 +131,7 @@ class LoCoBotBase(object):
             self._as.set_active()
             self.collided = False
             if wait:
-                return self._go_to_relative_pose(xyt_position[0], xyt_position[1], abs_yaw)
+                return self._go_to_relative_pose(xyt_position[0], xyt_position[1], abs_yaw, wait=True)
             else:
                 x = threading.Thread(
                     target=self._go_to_relative_pose, args=(xyt_position[0], xyt_position[1], abs_yaw, wait)
@@ -196,7 +196,7 @@ class LoCoBotBase(object):
             self._as.set_active()
             self.collided = False
             if wait:
-                return self._go_to_relative_pose(rel_x[0], rel_y[0], abs_yaw)
+                return self._go_to_relative_pose(rel_x[0], rel_y[0], abs_yaw, wait=True)
             else:
                 x = threading.Thread(
                     target=self._go_to_relative_pose, args=(rel_x[0], rel_y[0], abs_yaw, wait), 
