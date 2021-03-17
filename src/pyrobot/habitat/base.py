@@ -266,7 +266,7 @@ class LoCoBotBase(object):
 
             if did_collide:
                 print("Error: Collision accured while 1st rotating!")
-                self._as.set_succeeded()
+                self._as.set_preempted()
                 return False
 
             # move to (x,y) point
