@@ -130,10 +130,13 @@ class LoCoBotBase(object):
         if robot_state != LocalActionStatus.ACTIVE:
             self._as.set_active()
             self.collided = False
-            x = threading.Thread(
-                target=self._go_to_relative_pose, args=(xyt_position[0], xyt_position[1], abs_yaw, wait)
-            )
-            x.start()
+            if wait:
+                return self._go_to_relative_pose(xyt_position[0], xyt_position[1], abs_yaw)
+            else:
+                x = threading.Thread(
+                    target=self._go_to_relative_pose, args=(xyt_position[0], xyt_position[1], abs_yaw, wait)
+                )
+                x.start()
             return True
         else:
             print("Robot is still moving, can't take another move commend")
@@ -192,10 +195,13 @@ class LoCoBotBase(object):
         if robot_state != LocalActionStatus.ACTIVE:
             self._as.set_active()
             self.collided = False
-            x = threading.Thread(
-                target=self._go_to_relative_pose, args=(rel_x[0], rel_y[0], abs_yaw, wait), 
-            )
-            x.start()
+            if wait:
+                return self._go_to_relative_pose(rel_x[0], rel_y[0], abs_yaw)
+            else:
+                x = threading.Thread(
+                    target=self._go_to_relative_pose, args=(rel_x[0], rel_y[0], abs_yaw, wait), 
+                )
+                x.start()
         else:
             print("Robot is still moving, can't take another move commend")
             return False
@@ -231,10 +237,10 @@ class LoCoBotBase(object):
                 self._as.set_succeeded()
         else:
             act_spec = ActuationSpec(actuation)
-            did_collide = self.agent.controls.action(
+            self.collided = self.agent.controls.action(
                 self.agent.scene_node, action_name, act_spec, apply_filter=True
             )
-        return did_collide
+        return self.collided
 
     def _go_to_relative_pose(self, rel_x, rel_y, abs_yaw, wait=False):
         # clip relative movements beyond 10 micrometer precision
