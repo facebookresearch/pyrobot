@@ -7,13 +7,13 @@ import numpy as np
 import rospy
 from locobot_control.analytic_ik import AnalyticInverseKinematics as AIK
 from locobot_control.srv import JointCommand
-from pyrobot.robots.arm import Arm
+from pyrobot.robots.ros_arm import ROSArm
 from std_msgs.msg import Empty
 
 from pyrobot.utils.util import append_namespace
 
 
-class LoCoBotArm(Arm):
+class LoCoBotArm(ROSArm):
     """
     This class has functionality to control a robotic arm
     in joint and task space (with and

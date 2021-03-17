@@ -22,10 +22,10 @@ from franka_tools import (
     CollisionBehaviourInterface,
 )
 
-from pyrobot.robots.arm import Arm
+from pyrobot.robots.ros_arm import ROSArm
 
 
-class FrankaArm(Arm):
+class FrankaArm(ROSArm):
     """
     This class has functionality to control a robotic arm
     in joint and task space (with and

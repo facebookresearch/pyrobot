@@ -33,7 +33,7 @@ class TFTransform(FrameTransform):
 
     def get_transform(self, source_frame, target_frame):
         try:
-            time = rospy.get_rostime()
+            time = rospy.Time(0)
             self.tf_listener.waitForTransform(
                 source_frame, target_frame, time, rospy.Duration(3)
             )
