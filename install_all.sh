@@ -332,7 +332,7 @@ source $LOCOBOT_FOLDER/devel/setup.bash
 cd $LOCOBOT_FOLDER/src/pyrobot
 
 
-echo "Python $PYTHON_VERSION chosen for pyRobot installation."
+echo "Python 3 chosen for pyRobot installation."
 sudo apt-get -y install python-virtualenv
 sudo apt-get -y install ros-$ROS_NAME-orocos-kdl ros-$ROS_NAME-kdl-parser-py ros-$ROS_NAME-python-orocos-kdl ros-$ROS_NAME-trac-ik
 sudo apt-get install ros-$ROS_NAME-pybind11-catkin
