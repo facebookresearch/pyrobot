@@ -6,30 +6,35 @@ import os
 import sys
 import threading
 import time
-from abc import ABCMeta, abstractmethod
 
 import numpy as np
+import tf
 
 import pyrobot.utils.util as prutil
 
-from pyrobot.utils.util import try_cv2_import, append_namespace
+from pyrobot.robots.arm import Arm
+from fair_controller_manager import RobotInterface
 
-class Arm(object):
+import torch+
+
+class FrankaGRPCArm(Arm):
     """
     This is a parent class on which the robot
     specific Arm classes would be built.
     """
+    def __init__(self, configs):
+        self.configs = configs
+        self.robot = RobotInterface(
+            ip_address=self.configs.ip_address,
+        )
+        # set home pose
 
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
     def go_home(self):
         """
         Reset robot to default home position
         """
-        pass
+        self.robot.go_home()
 
-    @abstractmethod
     def get_joint_angles(self):
         """
         Return the joint angles
@@ -37,9 +42,8 @@ class Arm(object):
         :return: joint_angles
         :rtype: np.ndarray
         """
-        pass
+        return self.robot.get_joint_angles().numpy()
 
-    @abstractmethod
     def get_joint_velocities(self):
         """
         Return the joint velocities
@@ -47,9 +51,8 @@ class Arm(object):
         :return: joint_vels
         :rtype: np.ndarray
         """
-        pass
+        return self.robot.get_joint_velocities().numpy()
 
-    @abstractmethod
     def get_joint_torques(self):
         """
         Return the joint torques
@@ -57,9 +60,8 @@ class Arm(object):
         :return: joint_torques
         :rtype: np.ndarray
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def get_joint_angle(self, joint):
         """
         Return the joint angle of the 'joint'
@@ -69,9 +71,8 @@ class Arm(object):
         :return: joint angle
         :rtype: float
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def get_joint_velocity(self, joint):
         """
         Return the joint velocity of the 'joint'
@@ -81,9 +82,8 @@ class Arm(object):
         :return: joint velocity
         :rtype: float
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def get_joint_torque(self, joint):
         """
         Return the joint torque of the 'joint'
@@ -93,10 +93,9 @@ class Arm(object):
         :return: joint torque
         :rtype: float
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
-    def set_joint_positions(self, positions, wait=True, **kwargs):
+    def set_joint_positions(self, positions, **kwargs):
         """
         Sets the desired joint angles for all arm joints
 
@@ -113,10 +112,9 @@ class Arm(object):
         :return: True if successful; False otherwise (timeout, etc.)
         :rtype: bool
         """
+        positions = torch.Tensor(positions)
+        self.robot.set_joint_positions(positions)
 
-        pass
-
-    @abstractmethod
     def set_joint_velocities(self, velocities, **kwargs):
         """
         Sets the desired joint velocities for all arm joints
@@ -124,9 +122,8 @@ class Arm(object):
         :param velocities: target joint velocities
         :type velocities: list
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
     def set_joint_torques(self, torques, **kwargs):
         """
         Sets the desired joint torques for all arm joints
@@ -134,4 +131,4 @@ class Arm(object):
         :param torques: target joint torques
         :type torques: list
         """
-        pass
+        raise NotImplementedError

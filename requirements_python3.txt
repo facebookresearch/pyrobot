@@ -16,7 +16,7 @@ ipython==5.8.0
 Pillow==6.2.0
 torch
 torchvision
-opencv-python==4.0.0.21
-open3d_python==0.5.0.0
+opencv-python>=4.0.0.21
+open3d_python
 libtmux
 numpy-quaternion
