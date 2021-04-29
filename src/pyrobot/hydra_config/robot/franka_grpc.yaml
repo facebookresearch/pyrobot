@@ -1,0 +1,48 @@
+
+name: 'franka_grpc' # This is fixed!
+
+
+# TODO: to be filled by ros-control manager
+ros_launch:
+  mode: realrobot
+  name: ${name}
+  wait: 30
+  habitat:
+    common: null
+    arm: null
+    base: null
+    camera: null
+
+  realrobot:
+    common: null
+    arm: null
+    base: null
+    camera: null
+
+
+# Common contains all the commonly shared objects
+common: null
+
+modules:
+
+  - object:
+      _target_: pyrobot.robots.franka_grpc.arm.FrankaGRPCArm
+      # params: 
+    ns: ''
+    transform:
+      use_udf: True 
+      position: null
+      rotation: null
+      frame: null
+    name : 'arm'
+    conf: 
+      # ARM class name
+      CLASS : "FrankaGRPCArm"
+
+      IP_ADDRESS: "localhost"      
+
+      JOINT_NAMES: [panda_joint1, panda_joint2, panda_joint3, panda_joint4, panda_joint5, panda_joint6, panda_joint7]
+
+      NEUTRAL_POSE: [-0.008669, -0.77885205, 0.02380307, -2.3750463, 0.01694399, 1.59682397, 0.79241061]
+
+      JOINT_VELOCITY_LIMITS: [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100]

@@ -313,10 +313,11 @@ fi
 if [ ! -d "$LOCOBOT_FOLDER/src/franka_interface" ]; then
 	cd $LOCOBOT_FOLDER/src/
 	git clone https://github.com/Jekyll1021/franka_interface.git
+fi
 
 if [ ! -d "$LOCOBOT_FOLDER/src/panda_moveit_config_pyrobot" ]; then
 	git clone https://github.com/Jekyll1021/panda_moveit_config_pyrobot.git
-
+fi
 # STEP 6 - Make a virtual env to install other dependencies (with pip)
 
 cd $LOCOBOT_FOLDER

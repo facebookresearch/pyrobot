@@ -15,7 +15,7 @@ import pyrobot.utils.util as prutil
 from pyrobot.robots.arm import Arm
 from fair_controller_manager import RobotInterface
 
-import torch+
+import torch
 
 class FrankaGRPCArm(Arm):
     """
@@ -25,7 +25,7 @@ class FrankaGRPCArm(Arm):
     def __init__(self, configs):
         self.configs = configs
         self.robot = RobotInterface(
-            ip_address=self.configs.ip_address,
+            ip_address=self.configs.IP_ADDRESS,
         )
         # set home pose
 
