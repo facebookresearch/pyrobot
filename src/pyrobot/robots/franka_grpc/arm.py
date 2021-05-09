@@ -16,6 +16,40 @@ from pyrobot.robots.arm import Arm
 from fair_controller_manager import RobotInterface
 
 import torch
+import torchcontrol as toco
+
+
+class MyPDPolicy(toco.PolicyModule):
+    """
+    Custom policy that performs PD control around a desired joint position
+    """
+
+    def __init__(self, desired_joint_pos, kq, kqd, **kwargs):
+        """
+        Args:
+            desired_joint_pos (int):    Number of steps policy should execute
+            hz (double):                Frequency of controller
+            kq, kqd (torch.Tensor):     PD gains (1d array)
+        """
+        super().__init__(**kwargs)
+
+        self.q_desired = torch.nn.Parameter(desired_joint_pos)
+
+        # Initialize modules
+        self.feedback = toco.modules.JointSpacePD(kq, kqd)
+
+    def forward(self, state_dict: Dict[str, torch.Tensor]):
+        # Parse states
+        q_current = state_dict["joint_pos"]
+        qd_current = state_dict["joint_vel"]
+
+        # Execute PD control
+        output = self.feedback(
+            q_current, qd_current, self.q_desired, torch.zeros_like(qd_current)
+        )
+
+        return {"torque_desired": output}
+
 
 class FrankaGRPCArm(Arm):
     """
@@ -28,6 +62,19 @@ class FrankaGRPCArm(Arm):
             ip_address=self.configs.IP_ADDRESS,
         )
         # set home pose
+        self.robot.set_home_pose(torch.Tensor(self.configs.NEUTRAL_POSE))
+
+        q_initial = self.robot.get_joint_angles()
+        default_kq = torch.Tensor(self.robot.metadata.default_Kq)
+        default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
+        policy = MyPDPolicy(
+            desired_joint_pos=q_initial,
+            kq=default_kq,
+            kqd=default_kqd,
+        )
+        self.robot.send_torch_policy(policy, blocking=False)
+
+        self.joint_update_initialized = True
 
     def go_home(self):
         """
@@ -95,7 +142,7 @@ class FrankaGRPCArm(Arm):
         """
         raise NotImplementedError
 
-    def set_joint_positions(self, positions, **kwargs):
+    def set_joint_positions(self, positions, wait=True, **kwargs):
         """
         Sets the desired joint angles for all arm joints
 
@@ -113,7 +160,22 @@ class FrankaGRPCArm(Arm):
         :rtype: bool
         """
         positions = torch.Tensor(positions)
-        self.robot.set_joint_positions(positions)
+        if wait:
+            self.robot.set_joint_positions(positions)
+            self.joint_update_initialized = False
+        else:
+            if not self.joint_update_initialized:
+                q_initial = self.robot.get_joint_angles()
+                default_kq = torch.Tensor(self.robot.metadata.default_Kq)
+                default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
+                policy = MyPDPolicy(
+                    desired_joint_pos=q_initial,
+                    kq=default_kq,
+                    kqd=default_kqd,
+                )
+                self.robot.send_torch_policy(policy, blocking=False)
+            self.robot.update_current_policy({"q_desired": positions})
+
 
     def set_joint_velocities(self, velocities, **kwargs):
         """
