@@ -39,10 +39,10 @@ modules:
       # ARM class name
       CLASS : "FrankaGRPCArm"
 
-      IP_ADDRESS: "localhost"      
+      IP_ADDRESS: "192.168.0.111"      
 
       JOINT_NAMES: [panda_joint1, panda_joint2, panda_joint3, panda_joint4, panda_joint5, panda_joint6, panda_joint7]
 
-      NEUTRAL_POSE: [-0.008669, -0.77885205, 0.02380307, -2.3750463, 0.01694399, 1.59682397, 0.79241061]
+      NEUTRAL_POSE: [0.27622257233084296, -0.6471941955599277, -0.4006291366920136, -2.6599597236431434, 1.166209446404454, 1.645444805010038, -1.1321158081288878]
 
       JOINT_VELOCITY_LIMITS: [2.1750, 2.1750, 2.1750, 2.1750, 2.6100, 2.6100, 2.6100]

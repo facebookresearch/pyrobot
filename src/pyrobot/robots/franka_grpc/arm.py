@@ -6,6 +6,7 @@ import os
 import sys
 import threading
 import time
+from typing import Dict
 
 import numpy as np
 import tf
@@ -16,39 +17,11 @@ from pyrobot.robots.arm import Arm
 from fair_controller_manager import RobotInterface
 
 import torch
-import torchcontrol as toco
+import torchcontrol as tc
 
-
-class MyPDPolicy(toco.PolicyModule):
-    """
-    Custom policy that performs PD control around a desired joint position
-    """
-
-    def __init__(self, desired_joint_pos, kq, kqd, **kwargs):
-        """
-        Args:
-            desired_joint_pos (int):    Number of steps policy should execute
-            hz (double):                Frequency of controller
-            kq, kqd (torch.Tensor):     PD gains (1d array)
-        """
-        super().__init__(**kwargs)
-
-        self.q_desired = torch.nn.Parameter(desired_joint_pos)
-
-        # Initialize modules
-        self.feedback = toco.modules.JointSpacePD(kq, kqd)
-
-    def forward(self, state_dict: Dict[str, torch.Tensor]):
-        # Parse states
-        q_current = state_dict["joint_pos"]
-        qd_current = state_dict["joint_vel"]
-
-        # Execute PD control
-        output = self.feedback(
-            q_current, qd_current, self.q_desired, torch.zeros_like(qd_current)
-        )
-
-        return {"torque_desired": output}
+kp = [300.0, 300.0, 300.0, 300.0, 125.0, 75.0, 25.0]
+kd = [25.0, 25.0, 25.0, 25.0, 15.0, 12.5, 7.5]
+robot_description_path = "/home/fair-pitt/fair-robot-envs/fair_controller_manager/data/franka_panda/panda_arm.urdf"
 
 
 class FrankaGRPCArm(Arm):
@@ -64,15 +37,18 @@ class FrankaGRPCArm(Arm):
         # set home pose
         self.robot.set_home_pose(torch.Tensor(self.configs.NEUTRAL_POSE))
 
-        q_initial = self.robot.get_joint_angles()
-        default_kq = torch.Tensor(self.robot.metadata.default_Kq)
-        default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
-        policy = MyPDPolicy(
-            desired_joint_pos=q_initial,
-            kq=default_kq,
-            kqd=default_kqd,
+        q_initial = self.robot.go192get_joint_angles()
+        # default_kq = torch.Tensor(self.robot.metadata.default_Kq)
+        # default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
+        policy = tc.policies.JointImpedanceControl(
+            current_joint_pos=q_initial,
+            Kp=torch.Tensor(kp),
+            Kd=torch.Tensor(kd),
+            urdf_path=robot_description_path,
+            ee_joint_name="panda_joint8",
         )
         self.robot.send_torch_policy(policy, blocking=False)
+        time.sleep(1)
 
         self.joint_update_initialized = True
 
@@ -161,20 +137,28 @@ class FrankaGRPCArm(Arm):
         """
         positions = torch.Tensor(positions)
         if wait:
+            if self.joint_update_initialized:
+                self.robot.terminate_current_policy()
+                time.sleep(0.5)
             self.robot.set_joint_positions(positions)
             self.joint_update_initialized = False
         else:
             if not self.joint_update_initialized:
+                self.robot.terminate_current_policy()
                 q_initial = self.robot.get_joint_angles()
-                default_kq = torch.Tensor(self.robot.metadata.default_Kq)
-                default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
-                policy = MyPDPolicy(
-                    desired_joint_pos=q_initial,
-                    kq=default_kq,
-                    kqd=default_kqd,
+                # default_kq = torch.Tensor(self.robot.metadata.default_Kq)
+                # default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
+                policy = tc.policies.JointImpedanceControl(
+                    current_joint_pos=q_initial,
+                    Kp=torch.Tensor(kp),
+                    Kd=torch.Tensor(kd),
+                    urdf_path=robot_description_path,
+                    ee_joint_name="panda_joint8",
                 )
                 self.robot.send_torch_policy(policy, blocking=False)
-            self.robot.update_current_policy({"q_desired": positions})
+                time.sleep(0.5)
+                self.joint_update_initialized = True
+            self.robot.update_current_policy({"desired_joint_pos": positions})
 
 
     def set_joint_velocities(self, velocities, **kwargs):
