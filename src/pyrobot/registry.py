@@ -68,6 +68,7 @@ registry.register("world", "simple_env")
 registry.register("world", "locobot_base_env")
 registry.register("world", "locobot_arm_env")
 registry.register("world", "franka_arm_env")
+registry.register("world", "franka_grpc_env")
 
 registry.register("algorithm", "default_camera_transform")
 registry.register("algorithm", "franka_kdl_kinematics")

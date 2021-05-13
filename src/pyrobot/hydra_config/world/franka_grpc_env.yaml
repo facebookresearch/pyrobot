@@ -1,0 +1,34 @@
+environment:
+  world_frame: 'map'
+
+  robots:
+    - robot: 'franka_grpc'
+      label: 'franka_grpc'
+      ns: ''
+      overrides: []
+      transform: 
+        position: [0.0,0.0,0.0]
+        rotation: [0.0,0.0,0.0,1.0]
+        frame: 'map'
+
+  sensors: null
+
+  
+  # TODO: This will be populated by any default table tops, maps etc.  
+  obstacles: null
+
+
+  # TODO: Will depend on the robots and sensors available
+  algorithms: null
+
+  # If sim, add any simulator related config
+  simlator: null # other options: habitat and gazebo
+
+  # TODO: move common ros things to this!
+  ros_launch:
+    ns: ''
+    name: 'world'
+    mode: realrobot
+    habitat: null
+    gazebo: null
+    realrobot: null
