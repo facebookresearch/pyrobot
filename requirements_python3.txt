@@ -11,10 +11,9 @@ guzzle-sphinx-theme==0.7.11
 mock==3.0.5
 pyassimp
 pytz>=2015.7
-bezier>=0.10.0
 ipython==5.8.0
 Pillow==6.2.0
-opencv-python>=4.0.0.21
+opencv-python
 open3d_python
 libtmux
 numpy-quaternion

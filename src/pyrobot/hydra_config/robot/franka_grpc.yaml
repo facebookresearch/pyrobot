@@ -39,7 +39,7 @@ modules:
       # ARM class name
       CLASS : "FrankaGRPCArm"
 
-      IP_ADDRESS: "192.168.0.111"      
+      IP_ADDRESS: "localhost"      
 
       JOINT_NAMES: [panda_joint1, panda_joint2, panda_joint3, panda_joint4, panda_joint5, panda_joint6, panda_joint7]
 

@@ -1,8 +1,0 @@
-<launch>
-	<arg name="base"/> <!-- Options: create and kobuki -->
-
-	<group if="$(eval base =='kobuki')">
-		<include file="$(find base_navigation)/launch/turtlebot_main.launch"/>
-	</group>
-
-</launch>

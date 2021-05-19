@@ -19,9 +19,9 @@ from fair_controller_manager import RobotInterface
 import torch
 import torchcontrol as tc
 
-kp = [300.0, 300.0, 300.0, 300.0, 125.0, 75.0, 25.0]
-kd = [25.0, 25.0, 25.0, 25.0, 15.0, 12.5, 7.5]
-robot_description_path = "/home/fair-pitt/fair-robot-envs/fair_controller_manager/data/franka_panda/panda_arm.urdf"
+kp = [20, 30, 25, 25, 15, 10, 10] # [300.0, 300.0, 300.0, 300.0, 125.0, 75.0, 25.0]
+kd = [1.0, 1.5, 1.0, 1.0, 0.5, 0.5, 0.5] # [25.0, 25.0, 25.0, 25.0, 15.0, 12.5, 7.5]
+robot_description_path = "/home/pyrobot-neotic/fair-robot-envs/fair_controller_manager/data/franka_panda/panda_arm.urdf"
 
 
 class FrankaGRPCArm(Arm):
@@ -37,7 +37,7 @@ class FrankaGRPCArm(Arm):
         # set home pose
         self.robot.set_home_pose(torch.Tensor(self.configs.NEUTRAL_POSE))
 
-        q_initial = self.robot.go192get_joint_angles()
+        q_initial = self.robot.get_joint_angles()
         # default_kq = torch.Tensor(self.robot.metadata.default_Kq)
         # default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
         policy = tc.policies.JointImpedanceControl(
@@ -137,14 +137,10 @@ class FrankaGRPCArm(Arm):
         """
         positions = torch.Tensor(positions)
         if wait:
-            if self.joint_update_initialized:
-                self.robot.terminate_current_policy()
-                time.sleep(0.5)
             self.robot.set_joint_positions(positions)
             self.joint_update_initialized = False
         else:
             if not self.joint_update_initialized:
-                self.robot.terminate_current_policy()
                 q_initial = self.robot.get_joint_angles()
                 # default_kq = torch.Tensor(self.robot.metadata.default_Kq)
                 # default_kqd = torch.Tensor(self.robot.metadata.default_Kqd)
@@ -178,3 +174,6 @@ class FrankaGRPCArm(Arm):
         :type torques: list
         """
         raise NotImplementedError
+
+    def stop(self):
+        self.robot.terminate_current_policy()
