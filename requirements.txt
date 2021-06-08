@@ -17,3 +17,5 @@ opencv-python
 open3d_python
 libtmux
 numpy-quaternion
+rospkg
+empy

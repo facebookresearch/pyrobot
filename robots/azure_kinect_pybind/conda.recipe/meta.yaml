@@ -1,0 +1,27 @@
+package:
+  name: rbgt_pybind
+  version: 0.0.1
+
+source:
+  path: ..
+
+build:
+  number: 0
+  script: python -m pip install . -vvv
+
+requirements:
+  build:
+    - "{{ compiler('cxx') }}"
+    - cmake
+    - ninja
+
+  host:
+    - python
+    - pip
+
+  run:
+    - python
+
+about:
+  summary: A CMake example project built with pybind11.
+  license_file: LICENSE
