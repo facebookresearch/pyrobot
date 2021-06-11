@@ -1,137 +1,34 @@
-## API Re-Factoring
+## PyRobot Noetic Installation
 
-This branch is for the new API re-factoring of PyRobot.
-
-Extra install instructions,
-- Install Hydra 1.0 version: pip install hydra-core --pre --upgrade
-
-
-New fatures,
-
-- Hydra Configs
-- More programatically composable environment and robot objects!!
-- Cleaner interface objects linking robots and algorithms.
-  - TODO: cleaner command interface to send commands
-
-
-TODO List:
-- Code:
-  - Google Python standards
-  - Heavy and very detailed documentation.
-  - all prints are move to logging (hydra plugins should be enabled for logging)
-
-- ROS-Launch Manager 
-  - Takes care of sequence to launch.
-  - All launches happen from single python process.
-  - Accounts for name spaces and already running nodes, robots, sensors and algorithms.
-
-- Clean up installation
-  - Installation check through test catkin package.
-  - Modular Installation based on the Algorithm used.
-  - Conda environment instead of PIP ?
-
-- Testing
-  - Isolated tests 
-    - Use rosbags for real sensors and real robot modules!!
-  - Unit tests
-    - For non-ros modules
-  - End-to-End tests in Habitat.
-    - For active functions on the robot that interact with robot
-  - Habiat ROS node for Franka and LoCoBot
-
-- Robot web-visualizer!
-
-<a href="https://www.pyrobot.org/"><img class="doc_vid" src="docs/website/website/static/img/pyrobot.svg"></a>
-
-[PyRobot](https://www.pyrobot.org/) is a light weight, high-level interface which provides hardware independent APIs for robotic manipulation and navigation. This repository also contains the low-level stack for [LoCoBot](http://locobot.org), a low cost mobile manipulator hardware platform.
-
-- [What can you do with PyRobot?](#what-can-you-do-with-pyrobot)
-- [Installation](#installation)
-- [Getting Started](#getting-started)
-- [The Team](#the-team)
-- [Citation](#citation)
-- [License](#license)
-- [Future features](#Future-features)
-
-## What can you do with PyRobot?
-
-<p align="center">
-    <img src="https://thumbs.gfycat.com/FickleSpeedyChimneyswift-size_restricted.gif", height="180">
-    <img src="https://thumbs.gfycat.com/FinishedWeirdCockerspaniel-size_restricted.gif", height="180">
-    <img src="https://thumbs.gfycat.com/WeightyLeadingGrub-size_restricted.gif", height="180">
-</p>
-
-## Installation
-
-### Installing both PyRobot and LoCoBot dependencies
-
-* Install **Ubuntu 16.04**
-
-* Download the installation script
-  ```bash
-  sudo apt update
-  sudo apt-get install curl
-  curl 'https://raw.githubusercontent.com/facebookresearch/pyrobot/master/robots/LoCoBot/install/locobot_install_all.sh' > locobot_install_all.sh
-  ```
-
-* Run the script to install everything (ROS, realsense driver, etc.). 
-
-If you want to use real LoCoBot robot, please run the following command:
-**Please connect the nuc machine to a realsense camera before running the following commands**.
-  ```bash
-  #-t Decides the type of installation. Available Options: full or sim_only
-  #-p Decides the python version for pyRobot. Available Options: 2 or 3
-  #-l Decides the type of LoCoBot hardware platform. Available Options: cmu or interbotix
-  chmod +x locobot_install_all.sh
-  ./locobot_install_all.sh -t full -p 2 -l interbotix
-  ```
-
-If you want to use simulated LoCoBot in Gazebo only, please run the following commands instead:
-  ```bash
-  #-t Decides the type of installation. Available Options: full or sim_only
-  #-p Decides the python version for pyRobot. Available Options: 2 or 3
-  #-l Decides the type of LoCoBot hardware platform. Available Options: cmu or interbotix
-  chmod +x locobot_install_all.sh
-  ./locobot_install_all.sh -t sim_only -p 2 -l interbotix
-  ```
-
-**Note**: To install Python 3 compatible PyRobot, modify ```-p 2``` to ```-p 3``` in the above commands.
-
-### Installing just PyRobot
-
-* Install **Ubuntu 16.04**
-
-* Install [ROS kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
-
-* Install PyRobot
-
-  ```bash
-  cd ~
-  mkdir -p low_cost_ws/src
-  cd ~/low_cost_ws/src
-  git clone --recurse-submodules https://github.com/facebookresearch/pyrobot.git
-  cd pyrobot/
-  chmod +x install_pyrobot.sh
-  ./install_pyrobot.sh -p 2  #For python3, modify the argumet to -p 3 
-  ```
-
-**Warning**: As realsense keeps updating, compatibility issues might occur if you accidentally update
-realsense-related packages from `Software Updater` in ubuntu. Therefore, we recommend you not to update
-any libraries related to realsense. Check the list of updates carefully when ubuntu prompts software udpates.
-
-## Getting Started
-Please refer to [pyrobot.org](https://pyrobot.org/) and [locobot.org](http://locobot.org)
-
-## The Team
-
-[Adithya Murali](http://adithyamurali.com/), [Tao Chen](https://taochenshh.github.io), [Dhiraj Gandhi](http://www.cs.cmu.edu/~dgandhi/), Kalyan Vasudev, [Lerrel Pinto](http://www.cs.cmu.edu/~lerrelp/), [Saurabh Gupta](http://saurabhg.web.illinois.edu) and [Abhinav Gupta](http://www.cs.cmu.edu/~abhinavg/). We would also like to thank everyone who has helped PyRobot in any way.
-
-## Future features
-
-We are planning several features, namely:
-* Interfacing with other simulators like [AI Habitat](https://aihabitat.org)
-* Gravity compensation
-* PyRobot interface for [UR5](https://www.universal-robots.com)
+1. Follow the instruction [here](http://wiki.ros.org/noetic/Installation/Ubuntu) to install `ros-noetic-desktop-full`.
+2. Install all the debian packages: 
+```
+sudo apt-get install libk4a1.4 ros-noetic-moveit tmux ros-noetic-orocos-kdl ros-noetic-kdl-parser-py ros-noetic-trac-ik ros-noetic-pybind11-catkin ros-noetic-rospy-message-converter python-catkin-tools
+```
+3. Activate a Conda Env and Install GRPC Controller:
+```
+conda create -n <your-env-name> python=3.8
+conda activate <your-env-name>
+git clone git@github.com:fair-robotics/fair-robot-envs
+conda install -c file://$(eval pwd)/fair_controller_manager/conda/channel \
+  -c fair-robotics \
+  -c conda-forge \
+  fair-controller-manager
+```
+4. Clone and install noetic-devel branch, under the same conda env:
+```
+git clone -b noetic-devel https://github.com/facebookresearch/pyrobot.git
+pip install -e .
+```
+5. Extra installation for kdl kinematics and moveit binding (Optional):
+```
+mkdir -p pyrobot_catkin_ws/src
+cd pyrobot_catkin_ws/src
+git clone https://github.com/Jekyll1021/kinematics
+git clone https://github.com/Jekyll1021/moveit_pybind.git
+cd ..
+catkin_make --cmake-args -DPYTHON_EXECUTABLE=$(which python) -DPYTHON_INCLUDE_DIR=<path-to-conda>/anaconda3/envs/<your-env-name>/include/python3.8 -DPYTHON_LIBRARY=<path-to-conda>/anaconda3/envs/<your-env-name>/lib/libpython3.8.so
+```
 
 ## Citation
 ```
