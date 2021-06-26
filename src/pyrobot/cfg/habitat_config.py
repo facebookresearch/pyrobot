@@ -31,11 +31,20 @@ _CAMERAC.CLASS = "LoCoBotCamera"
 _CAMERAC.RESET_PAN = 0.0
 # reset value for the tilt
 _CAMERAC.RESET_TILT = 0.0
+# camera depth map factor
+_CAMERAC.DEPTH_MAP_FACTOR = 1.0
 
 # Base specific settings
 _BASEC = _C.BASE
 # BASE class name
 _BASEC.CLASS = "LoCoBotBase"
+# BASE forward moving speed in m/s
+_BASEC.FWD_SPEED = 1
+# BASE turning speed in deg/s
+_BASEC.TURN_SPEED = 30
+# BASE simulation time step in sec
+_BASEC.SIM_DT = 0.01
+
 
 _COMMONC = _C.COMMON
 # Name of the common class variable that will be shared in Robot class
@@ -66,19 +75,20 @@ _SIMULATORC.AGENT.NAME = ["realsense"]
 _SIMULATORC.AGENT.SENSORS = CN()
 
 # Set sensor names
-_SIMULATORC.AGENT.SENSORS.NAMES = ["rgb", "depth"]
+_SIMULATORC.AGENT.SENSORS.NAMES = ["rgb", "depth", "semantic"]
 
 # Set sensor type (COLOR, DEPTH, SEMANTIC)
-_SIMULATORC.AGENT.SENSORS.TYPES = ["COLOR", "DEPTH"]
+_SIMULATORC.AGENT.SENSORS.TYPES = ["COLOR", "DEPTH", "SEMANTIC"]
 
 # x, y, z and roll pitch yaw w.r.t to agent in meters and radians
 # TODO: Check if these units are consistant with Habitat-sim
 _SIMULATORC.AGENT.SENSORS.POSES = [
     [0.0, 0.6, 0.0, 0.0, 0.0, 0.0],
     [0.0, 0.6, 0.0, 0.0, 0.0, 0.0],
+    [0.0, 0.6, 0.0, 0.0, 0.0, 0.0]
 ]
 # Height and Widhth in Pixels
-_SIMULATORC.AGENT.SENSORS.RESOLUTIONS = [[512, 512], [512, 512]]
+_SIMULATORC.AGENT.SENSORS.RESOLUTIONS = [[512, 512], [512, 512], [512,512]]
 
 
 def get_cfg():

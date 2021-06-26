@@ -40,7 +40,6 @@ class Kinect2Camera(Camera):
         :type configs: YACS CfgNode
         """
         super(Kinect2Camera, self).__init__(configs=configs)
-        self.DepthMapFactor = float(self.configs.CAMERA.DEPTH_MAP_FACTOR)
         self.intrinsic_mat = None
 
     def get_current_pcd(self):
@@ -55,7 +54,7 @@ class Kinect2Camera(Camera):
         :rtype: tuple(np.ndarray, np.ndarray)
         """
         rgb_im, depth_im = self.get_rgb_depth()
-        depth = depth_im.reshape(-1) / self.DepthMapFactor
+        depth = depth_im.reshape(-1)
         rgb = rgb_im.reshape(-1, 3)
         if self.intrinsic_mat is None:
             self.intrinsic_mat = self.get_intrinsics()
@@ -68,9 +67,7 @@ class Kinect2Camera(Camera):
             self.uv_one_in_cam = np.dot(self.intrinsic_mat_inv, self.uv_one)
 
         pts_in_cam = np.multiply(self.uv_one_in_cam, depth)
-        pts_in_cam = np.concatenate(
-            (pts_in_cam, np.ones((1, pts_in_cam.shape[1]))), axis=0
-        )
+        pts_in_cam = np.concatenate((pts_in_cam, np.ones((1, pts_in_cam.shape[1]))), axis=0)
         pts = pts_in_cam[:3, :].T
         return pts, rgb
 
@@ -90,11 +87,11 @@ class Kinect2Camera(Camera):
                    which means all columns.
         :param reduce: whether to consider the depth at nearby pixels
                     'none': no neighbour consideration
-                    'mean': depth based on the mean of kernel sized k  centered at [rs,cs] 
-                    'max': depth based on the max of kernel sized k  centered at [rs,cs] 
-                    'min': depth based on the min of kernel sized k  centered at [rs,cs] 
+                    'mean': depth based on the mean of kernel sized k  centered at [rs,cs]
+                    'max': depth based on the max of kernel sized k  centered at [rs,cs]
+                    'min': depth based on the min of kernel sized k  centered at [rs,cs]
         :param k: kernel size for reduce type['mean', 'max', 'min']
-        
+
         :type rs: list or np.ndarray
         :type cs: list or np.ndarray
         :type reduce: str
@@ -111,9 +108,7 @@ class Kinect2Camera(Camera):
         :rtype: tuple(np.ndarray, np.ndarray)
         """
         rgb_im, depth_im = self.get_rgb_depth()
-        pts_in_cam = prutil.pix_to_3dpt(
-            depth_im, rs, cs, self.get_intrinsics(), self.DepthMapFactor, reduce, k
-        )
+        pts_in_cam = prutil.pix_to_3dpt(depth_im, rs, cs, self.get_intrinsics(), 1.0, reduce, k)
         pts = pts_in_cam[:3, :].T
         colors = rgb_im[rs, cs].reshape(-1, 3)
         return pts, colors
