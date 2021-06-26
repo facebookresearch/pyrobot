@@ -44,6 +44,10 @@ def make_cfg(SIM):
             ],
         }
 
+    if SIM.noisy:
+        sensors['rgb']['noise_model'] = 'GaussianNoiseModel'
+        sensors['depth']['noise_model'] = 'RedwoodDepthNoiseModel'
+
     # create sensor specifications
     sensor_specs = []
     for sensor_uuid, sensor_params in sensors.items():
@@ -53,7 +57,8 @@ def make_cfg(SIM):
         sensor_spec.resolution = sensor_params["resolution"]
         sensor_spec.position = sensor_params["position"]
         sensor_spec.gpu2gpu_transfer = False  # Todo: Move this to config
-
+        if SIM.noisy and sensor_uuid in ('rgb', 'depth'):
+            sensor_spec.noise_model = sensor_params['noise_model']
         print("==== Initialized Sensor Spec: =====")
         print("Sensor uuid: ", sensor_spec.uuid)
         print("Sensor type: ", sensor_spec.sensor_type)
@@ -69,13 +74,16 @@ def make_cfg(SIM):
     # TODO: Move agent actions to config
     agent_cfg.action_space = {
         "move_forward": habitat_sim.agent.ActionSpec(
-            "move_forward", habitat_sim.agent.ActuationSpec(amount=1.0)
+            "move_forward", habitat_sim.agent.ActuationSpec(amount=1.0) if not SIM.noisy else 
+                habitat_sim.agent.PyRobotNoisyActuationSpec(amount=1.0)
         ),
         "turn_left": habitat_sim.agent.ActionSpec(
-            "turn_left", habitat_sim.agent.ActuationSpec(amount=10.0)
+            "turn_left", habitat_sim.agent.ActuationSpec(amount=10.0) if not SIM.noisy else 
+                habitat_sim.agent.PyRobotNoisyActuationSpec(amount=10.0)
         ),
         "turn_right": habitat_sim.agent.ActionSpec(
-            "turn_right", habitat_sim.agent.ActuationSpec(amount=10.0)
+            "turn_right", habitat_sim.agent.ActuationSpec(amount=10.0) if not SIM.noisy else 
+                habitat_sim.agent.PyRobotNoisyActuationSpec(amount=10.0)
         ),
     }
     sim_cfg.default_agent_id = SIM.DEFAULT_AGENT_ID
