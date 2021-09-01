@@ -72,7 +72,7 @@ This is probably because of friction and over use. Applying some lubricant will 
 
 **9. How do I contribute?**
 
-Thanks in advance for your contributions. Please see [contribute.md](https://github.com/facebookresearch/pyrobot/blob/master/CONTRIBUTING.md)
+Thanks in advance for your contributions. Please see [contribute.md](https://github.com/facebookresearch/pyrobot/blob/main/CONTRIBUTING.md)
 
 **10. PyRobot doesn't work well if Robot is launched with different settings?**
 

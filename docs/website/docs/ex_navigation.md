@@ -247,7 +247,7 @@ robot.base.track_trajectory(states, close_loop=True)
 ```
 In this example, we tracked a very simple trajectory, but the implementation
 can track more complex trajectories as well. More a more advanced example see
-[here](https://github.com/facebookresearch/pyrobot/blob/master/examples/locobot/navigation/base_trajectory_tracking.py).
+[here](https://github.com/facebookresearch/pyrobot/blob/main/examples/locobot/navigation/base_trajectory_tracking.py).
 
 ## Position control with map (Real robot)
 Position control with map is an enhanced position control feature that allows
