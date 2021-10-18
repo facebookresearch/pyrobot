@@ -7,10 +7,10 @@ import sys
 import numpy as np
 # import rospy
 # import tf
-import pyrobot.habitat.transformations as tf_transformations
+from ..habitat import transformations as tf_transformations
 # import geometry_msgs.msg
 # from geometry_msgs.msg import PoseStamped, Pose
-from pyrobot.utils.planning_scene_interface import PlanningSceneInterface
+from .planning_scene_interface import PlanningSceneInterface
 
 
 def try_cv2_import():

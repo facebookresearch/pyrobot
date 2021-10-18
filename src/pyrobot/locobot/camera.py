@@ -10,17 +10,17 @@ from copy import deepcopy
 
 # import message_filters
 import numpy as np
-import pyrobot.utils.util as prutil
+from ..utils import util as prutil
 # import rospy
 
-from pyrobot.core import Camera
+from ..core import Camera
 # from sensor_msgs.msg import CameraInfo
 # from sensor_msgs.msg import Image
 # from sensor_msgs.msg import JointState
 # from std_msgs.msg import Float64
 # from tf import TransformListener
 
-from pyrobot.utils.util import try_cv2_import
+from ..utils.util import try_cv2_import
 
 cv2 = try_cv2_import()
 

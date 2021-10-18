@@ -42,5 +42,5 @@ setup(
     packages=packages,
     package_data={"pyrobot": ["cfg/*.yaml"],},
     package_dir={"": "src"},
-    install_requires=read_requirements_file(requirements_file),
+    # install_requires=read_requirements_file(requirements_file),
 )

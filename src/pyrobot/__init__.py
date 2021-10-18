@@ -3,5 +3,5 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from pyrobot.core import Robot
-from pyrobot.version import __version__
+from .core import Robot
+from .version import __version__

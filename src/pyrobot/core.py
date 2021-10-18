@@ -19,12 +19,12 @@ import numpy as np
 # from geometry_msgs.msg import Twist, Pose, PoseStamped
 # from sensor_msgs.msg import JointState, CameraInfo, Image
 
-import pyrobot.utils.util as prutil
+from .utils import util as prutil
 
-from pyrobot.utils.move_group_interface import MoveGroupInterface as MoveGroup
+from .utils.move_group_interface import MoveGroupInterface as MoveGroup
 # from pyrobot_bridge.srv import *
 
-from pyrobot.utils.util import try_cv2_import
+from .utils.util import try_cv2_import
 
 cv2 = try_cv2_import()
 
@@ -111,10 +111,6 @@ class Robot:
                 " are currently available: {}".format(robot_pool)
             )
         self.configs.freeze()
-        try:
-            rospy.init_node("pyrobot", anonymous=True)
-        except Exception as e:
-            pass
 
         root_node += this_robot
         root_node += "."
