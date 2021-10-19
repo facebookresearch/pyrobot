@@ -1,1 +1,0 @@
-../../../robots/LoCoBot/locobot_calibration/README.md

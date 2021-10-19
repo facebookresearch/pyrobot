@@ -1,1 +1,0 @@
-../../../examples/sim2real/README.md
