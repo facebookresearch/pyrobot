@@ -53,7 +53,7 @@ outlined on that page and do not file a public issue.
 ## Pull Requests
 Contributions will be managed through pull requests. This [article](https://gist.github.com/Chaser324/ce0505fbed06b947d962) is good resource for the pull request workflow.
 
-1. Fork the repo and create your branch from `master`.
+1. Fork the repo and create your branch from `main`.
 2. If you've changed APIs, update the documentation.
 3. Follow the steps in the section below section on [Testing](#testing)
 4. Make sure your code lints.

@@ -15,7 +15,7 @@ Here is an example of what one can accoplish through this tutorial
 
 ## Setup
 
-To install the Sawyer software, please follow the instructions in this [README](https://github.com/facebookresearch/pyrobot/tree/master/robots/sawyer) to install and setup the appropriate sawyer software.
+To install the Sawyer software, please follow the instructions in this [README](https://github.com/facebookresearch/pyrobot/tree/main/robots/sawyer) to install and setup the appropriate sawyer software.
 
 Go through the following steps to get the PyRobot code working on Sawyer.
 
