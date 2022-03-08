@@ -54,7 +54,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">PyRobot Next Version as a Modular Framework</h1></header><article><div><span><p>In this example we will run through a basic manipulation example to demonstrate PyRobot as a modular framework.</p>
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">PyRobot Next Version as a Modular Framework</h1></header><article><div><span><p>In this example we will run through a basic manipulation example to demonstrate PyRobot as a modular framework.</p>
 <p>This tutorial is using a simulated version of the robot. Before we get started with this, ensure the following:</p>
 <ul>
 <li>The appropriate python virtual environment has been sourced.</li>
@@ -71,38 +71,38 @@ world =  World(config_name=<span class="hljs-string">'env/locobot_arm_env.yaml'<
 </code></pre>
 <p>Now we have created a default manipulation world object configured by <code>{$path-to-pyrobot-root}/pyrobot/src/pyrobot/hydra_config/env/locobot_arm_env.yaml</code>. Let's take a look at what's inside this config file.</p>
 <pre><code class="hljs css language-yaml"><span class="hljs-attr">environment:</span>
-  <span class="hljs-attr">world_frame:</span> <span class="hljs-string">'map'</span>
+<span class="hljs-attr">  world_frame:</span> <span class="hljs-string">'map'</span>
 
   <span class="hljs-comment"># A locobot is instantiated at [0,0,0] in the world</span>
-  <span class="hljs-attr">robots:</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">robot:</span> <span class="hljs-string">'locobot'</span>
-      <span class="hljs-attr">label:</span> <span class="hljs-string">'locobot'</span>
+<span class="hljs-attr">  robots:</span>
+<span class="hljs-attr">    - robot:</span> <span class="hljs-string">'locobot'</span>
+<span class="hljs-attr">      label:</span> <span class="hljs-string">'locobot'</span>
       <span class="hljs-string">...</span>
 
   <span class="hljs-comment"># There's no sensor and obstacles in the environment</span>
-  <span class="hljs-attr">sensors:</span> <span class="hljs-literal">null</span>
+<span class="hljs-attr">  sensors:</span> <span class="hljs-literal">null</span>
 
-  <span class="hljs-attr">obstacles:</span> <span class="hljs-literal">null</span>
+<span class="hljs-attr">  obstacles:</span> <span class="hljs-literal">null</span>
 
   <span class="hljs-comment"># 4 Algorithms are instantiated with the world</span>
-  <span class="hljs-attr">algorithms:</span>
+<span class="hljs-attr">  algorithms:</span>
     <span class="hljs-string">...</span>
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">algorithm:</span> <span class="hljs-string">'locobot_moveit_kin_planner'</span>
-      <span class="hljs-attr">label:</span> <span class="hljs-string">'moveit_planner'</span>
+<span class="hljs-attr">    - algorithm:</span> <span class="hljs-string">'locobot_moveit_kin_planner'</span>
+<span class="hljs-attr">      label:</span> <span class="hljs-string">'moveit_planner'</span>
       <span class="hljs-string">...</span>
 
-    <span class="hljs-bullet">-</span> <span class="hljs-attr">algorithm:</span> <span class="hljs-string">'locobot_kdl_kinematics'</span>
-      <span class="hljs-attr">label:</span> <span class="hljs-string">'kdl_kinematics'</span>
+<span class="hljs-attr">    - algorithm:</span> <span class="hljs-string">'locobot_kdl_kinematics'</span>
+<span class="hljs-attr">      label:</span> <span class="hljs-string">'kdl_kinematics'</span>
       <span class="hljs-string">...</span>
 
   <span class="hljs-comment"># manages roslaunch files: this chuck specify the world would be spinning up in gazebo mode (simulation).</span>
-  <span class="hljs-attr">ros_launch:</span>
-    <span class="hljs-attr">ns:</span> <span class="hljs-string">''</span>
-    <span class="hljs-attr">name:</span> <span class="hljs-string">'world'</span>
-    <span class="hljs-attr">mode:</span> <span class="hljs-string">gazebo</span>
-    <span class="hljs-attr">habitat:</span> <span class="hljs-literal">null</span>
-    <span class="hljs-attr">gazebo:</span> <span class="hljs-literal">null</span>
-    <span class="hljs-attr">realrobot:</span> <span class="hljs-literal">null</span>
+<span class="hljs-attr">  ros_launch:</span>
+<span class="hljs-attr">    ns:</span> <span class="hljs-string">''</span>
+<span class="hljs-attr">    name:</span> <span class="hljs-string">'world'</span>
+<span class="hljs-attr">    mode:</span> <span class="hljs-string">gazebo</span>
+<span class="hljs-attr">    habitat:</span> <span class="hljs-literal">null</span>
+<span class="hljs-attr">    gazebo:</span> <span class="hljs-literal">null</span>
+<span class="hljs-attr">    realrobot:</span> <span class="hljs-literal">null</span>
 </code></pre>
 <p>Here we initiated a world object with a robot module with label <code>locobot</code> configured by <code>{$path-to-pyrobot-root}/pyrobot/src/pyrobot/hydra_config/robot/locobot.yaml</code>, and two algorithm module configured by <code>{$path-to-pyrobot-root}/pyrobot/src/pyrobot/hydra_config/algorithm/{$algorithm-name}.yaml</code> under mode <code>gazebo</code>.</p>
 <h1><a class="anchor" aria-hidden="true" id="robot-control"></a><a href="#robot-control" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Robot Control</h1>
@@ -113,42 +113,42 @@ world =  World(config_name=<span class="hljs-string">'env/locobot_arm_env.yaml'<
 <pre><code class="hljs css language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">'locobot'</span>
 
 <span class="hljs-attr">ros_launch:</span>
-  <span class="hljs-attr">mode:</span> <span class="hljs-string">gazebo</span>
-  <span class="hljs-attr">name:</span> <span class="hljs-string">${name}</span>
-  <span class="hljs-attr">wait:</span> <span class="hljs-number">30</span>
+<span class="hljs-attr">  mode:</span> <span class="hljs-string">gazebo</span>
+<span class="hljs-attr">  name:</span> <span class="hljs-string">${name}</span>
+<span class="hljs-attr">  wait:</span> <span class="hljs-number">30</span>
   <span class="hljs-string">...</span>
-  <span class="hljs-attr">gazebo:</span>
+<span class="hljs-attr">  gazebo:</span>
     <span class="hljs-comment"># roslaunch command for spinning up locobot in gazebo mode</span>
-    <span class="hljs-attr">common:</span> <span class="hljs-string">"roslaunch locobot_control main.launch use_sim:=true"</span>
+<span class="hljs-attr">    common:</span> <span class="hljs-string">"roslaunch locobot_control main.launch use_sim:=true"</span>
     <span class="hljs-string">...</span>
 <span class="hljs-string">...</span>
 <span class="hljs-attr">modules:</span>
-  <span class="hljs-bullet">-</span> <span class="hljs-attr">object:</span>
-      <span class="hljs-attr">_target_:</span> <span class="hljs-string">pyrobot.robots.locobot.arm.LoCoBotArm</span>
+<span class="hljs-attr">  - object:</span>
+<span class="hljs-attr">      _target_:</span> <span class="hljs-string">pyrobot.robots.locobot.arm.LoCoBotArm</span>
     <span class="hljs-string">...</span>
-    <span class="hljs-attr">name:</span> <span class="hljs-string">'arm'</span>
-    <span class="hljs-attr">conf:</span>
+<span class="hljs-attr">    name:</span> <span class="hljs-string">'arm'</span>
+<span class="hljs-attr">    conf:</span>
       <span class="hljs-string">...</span>
 
-  <span class="hljs-bullet">-</span> <span class="hljs-attr">object:</span>
-      <span class="hljs-attr">_target_:</span> <span class="hljs-string">pyrobot.robots.locobot.base.LoCoBotBase</span>
+<span class="hljs-attr">  - object:</span>
+<span class="hljs-attr">      _target_:</span> <span class="hljs-string">pyrobot.robots.locobot.base.LoCoBotBase</span>
     <span class="hljs-string">...</span>
-    <span class="hljs-attr">name:</span> <span class="hljs-string">'base'</span>
-    <span class="hljs-attr">conf:</span>
+<span class="hljs-attr">    name:</span> <span class="hljs-string">'base'</span>
+<span class="hljs-attr">    conf:</span>
       <span class="hljs-string">...</span>
 
-  <span class="hljs-bullet">-</span> <span class="hljs-attr">object:</span>
-      <span class="hljs-attr">_target_:</span> <span class="hljs-string">pyrobot.robots.locobot.gripper.LoCoBotGripper</span>
+<span class="hljs-attr">  - object:</span>
+<span class="hljs-attr">      _target_:</span> <span class="hljs-string">pyrobot.robots.locobot.gripper.LoCoBotGripper</span>
     <span class="hljs-string">...</span>
-    <span class="hljs-attr">name :</span> <span class="hljs-string">'gripper'</span>
-    <span class="hljs-attr">conf:</span>
+    <span class="hljs-string">name</span> <span class="hljs-string">:</span> <span class="hljs-string">'gripper'</span>
+<span class="hljs-attr">    conf:</span>
       <span class="hljs-string">...</span>
 
-  <span class="hljs-bullet">-</span> <span class="hljs-attr">object:</span>
-      <span class="hljs-attr">_target_:</span> <span class="hljs-string">pyrobot.robots.locobot.camera.LoCoBotCamera</span>
+<span class="hljs-attr">  - object:</span>
+<span class="hljs-attr">      _target_:</span> <span class="hljs-string">pyrobot.robots.locobot.camera.LoCoBotCamera</span>
     <span class="hljs-string">...</span>
-    <span class="hljs-attr">name :</span> <span class="hljs-string">'camera'</span>
-    <span class="hljs-attr">conf:</span>
+    <span class="hljs-string">name</span> <span class="hljs-string">:</span> <span class="hljs-string">'camera'</span>
+<span class="hljs-attr">    conf:</span>
       <span class="hljs-string">...</span>
 </code></pre>
 <p><code>locobot</code> is a dictionary consists of four components: <code>arm</code>, <code>base</code>, <code>gripper</code> and <code>camera</code>, which extend <code>Arm</code>, <code>Base</code>, <code>Gripper</code> and <code>Camera</code> base class respectively. Therefore, they are guaranteed to have the same interface defined by the base class, for example, <code>arm</code> would have <code>go_home</code>, <code>get_joint_positions/velocities/torque</code>, <code>set_joint_positions/velocities/torque</code> as its member function, and their behavior would be the same across hardware. We can query locobot arm component by:</p>
@@ -165,23 +165,23 @@ arm.go_home()
 <pre><code class="hljs css language-yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">'locobot_moveit_kin_planner'</span>
 
 <span class="hljs-attr">ros_launch:</span>
-  <span class="hljs-attr">mode:</span> <span class="hljs-string">test</span>
+<span class="hljs-attr">  mode:</span> <span class="hljs-string">test</span>
   <span class="hljs-string">...</span>
 
-  <span class="hljs-attr">test:</span>
-    <span class="hljs-attr">common:</span> <span class="hljs-string">"roslaunch locobot_moveit_config move_group.launch allow_trajectory_execution:=true fake_execution:=false info:=true"</span> <span class="hljs-comment"># write corresponding roslaunch command here</span>
+<span class="hljs-attr">  test:</span>
+<span class="hljs-attr">    common:</span> <span class="hljs-string">"roslaunch locobot_moveit_config move_group.launch allow_trajectory_execution:=true fake_execution:=false info:=true"</span> <span class="hljs-comment"># write corresponding roslaunch command here</span>
 
 <span class="hljs-attr">algorithm:</span>
-  <span class="hljs-attr">_target_:</span> <span class="hljs-string">pyrobot.algorithms.motion_planner_impl.moveit_kin_planner.MoveitKinPlanner</span> <span class="hljs-comment"># object definition path</span>
+<span class="hljs-attr">  _target_:</span> <span class="hljs-string">pyrobot.algorithms.motion_planner_impl.moveit_kin_planner.MoveitKinPlanner</span> <span class="hljs-comment"># object definition path</span>
 
 <span class="hljs-attr">robot_labels:</span> <span class="hljs-string">['locobot']</span> <span class="hljs-comment"># name of the robot it would be interact with</span>
 
 <span class="hljs-attr">conf:</span> <span class="hljs-comment"># any algorithm specific configs</span>
-  <span class="hljs-attr">IK_POSITION_TOLERANCE:</span> <span class="hljs-number">0.005</span>
-  <span class="hljs-attr">IK_ORIENTATION_TOLERANCE:</span> <span class="hljs-number">0.05</span>
+<span class="hljs-attr">  IK_POSITION_TOLERANCE:</span> <span class="hljs-number">0.005</span>
+<span class="hljs-attr">  IK_ORIENTATION_TOLERANCE:</span> <span class="hljs-number">0.05</span>
 
 <span class="hljs-attr">dependencies:</span>
-  <span class="hljs-bullet">-</span> <span class="hljs-attr">algorithm:</span> <span class="hljs-string">'locobot_kdl_kinematics'</span>
+<span class="hljs-attr">  - algorithm:</span> <span class="hljs-string">'locobot_kdl_kinematics'</span>
 </code></pre>
 <p>Same as <code>LoCoBotArm</code> object, <code>MoveitKinPlanner</code> also extends <code>MotionPlanner</code> base class, and therefore guarenteed to have member functions <code>plan_end_effector_pose</code>, <code>plan_joint_angles</code> and <code>compute_cartesian_path</code>.</p>
 <pre><code class="hljs css language-py">pos = np.array([<span class="hljs-number">0.339</span>, <span class="hljs-number">0.0116</span>, <span class="hljs-number">0.255</span>])

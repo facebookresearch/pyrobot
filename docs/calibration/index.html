@@ -54,7 +54,7 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 id="__docusaurus" class="postHeaderTitle">Camera Calibration</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="camera-calibration"></a><a href="#camera-calibration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Camera Calibration</h2>
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Camera Calibration</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="camera-calibration"></a><a href="#camera-calibration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Camera Calibration</h2>
 <h3><a class="anchor" aria-hidden="true" id="setup"></a><a href="#setup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setup</h3>
 <p>Calibration depends upon <code>torch</code>, <code>torchvision</code>, <code>numpy</code> and <code>opencv-python</code>
 packages. These should have been installed when you used the installation script to install <code>LoCoBot</code> and <code>PyRobot</code>.</p>
@@ -71,14 +71,14 @@ roslaunch locobot_calibration calibrate.<span class="hljs-built_in">launch</span
 The robot will move the arm and camera around and record images and joint
 angles. Keep robot arm workspace clear of obstacles.</li>
 </ol>
-<pre><code class="hljs"><span class="hljs-attr">source</span> <span class="hljs-string">~/pyenv_pyrobot/bin/activate</span>
-<span class="hljs-attr">cd</span> <span class="hljs-string">~/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_calibration/</span>
-<span class="hljs-comment">
-# By default the calibration routine will use 6 fixed poses. You can modify</span>
+<pre><code class="hljs">source ~<span class="hljs-string">/pyenv_pyrobot/bin/activate</span>
+<span class="hljs-keyword">cd</span> ~<span class="hljs-string">/low_cost_ws/src/pyrobot/robots/LoCoBot/locobot_calibration/</span>
+
+<span class="hljs-comment"># By default the calibration routine will use 6 fixed poses. You can modify</span>
 <span class="hljs-comment"># these poses as necessary in scripts/collect_calibration_data.py</span>
-<span class="hljs-attr">python</span> <span class="hljs-string">scripts/collect_calibration_data.py \
-    --data_dir tmp/calibration-data/v1/ \
-    --botname locobot</span>
+python scripts/collect_calibration_data.py \
+    <span class="hljs-params">--data_dir</span> tmp/calibration-data/v1/ \
+    <span class="hljs-params">--botname</span> locobot
 </code></pre>
 <ol start="3">
 <li>Run script to solve for calibration.</li>
@@ -118,6 +118,6 @@ can be done using the <code>arm_base_link</code> to <code>--to_optimize</code> f
 parameters. These will get incorporated in the ROS transform tree
 automatically. This service must be run anytime the camera is used.
 <strong>If you are using <code>locobot_control/main.launch</code>, this will be automatically launched and you do not have to run it separately.</strong></p>
-<pre><code class="hljs">roslaunch locobot_calibration calibration_publish.<span class="hljs-built_in">launch</span>
+<pre><code class="hljs">roslaunch locobot_calibration calibration_publish<span class="hljs-selector-class">.launch</span>
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/software"><span class="arrow-prev">← </span><span>Install software</span></a><a class="docs-next button" href="/docs/navigation"><span>[Basic] Navigation</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#camera-calibration">Camera Calibration</a><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#run-calibration-one-time">Run Calibration (One time)</a></li><li><a href="#publish-estimated-transforms">Publish Estimated Transforms</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/pyrobot_icon.svg" alt="PyRobot" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/overview.html">Getting Started</a><a href="/docs/calibration.html">Examples</a><a href="/docs/datasets.html">Datasets</a><a href="/docs/new_robot_support.html">Help and Support</a></div><div><h5>More</h5><a href="https://github.com/facebookresearch/pyrobot">GitHub</a><a class="github-button" href="https://github.com/facebookresearch/pyrobot" data-icon="octicon-star" data-show-count="true" aria-label="Star facebookresearch/pyrobot on GitHub">Star</a><a href="/docs/contact.html">Contact</a></div></section></footer></div></body></html>
