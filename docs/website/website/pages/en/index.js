@@ -74,6 +74,20 @@ class HomeSplash extends React.Component {
   }
 }
 
+function SocialBanner() {
+  return (
+    <div className="SocialBannerWrapper">
+      <div className="SocialBanner">
+        Support Ukraine 🇺🇦{' '}
+        <a href="https://opensource.fb.com/support-ukraine">
+          Help Provide Humanitarian Aid to Ukraine
+        </a>
+        .
+      </div>
+    </div>
+  );
+}
+
 class Index extends React.Component {
   render() {
     const {config: siteConfig, language = ''} = this.props;
@@ -227,6 +241,7 @@ class Index extends React.Component {
 
     return (
       <div>
+        <SocialBanner />
         <HomeSplash siteConfig={siteConfig} language={language} />
         <div className="mainContainer">
           <FeatureCallout />
