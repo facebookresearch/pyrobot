@@ -24,13 +24,7 @@ packages = find_packages('src')
 for p in packages:
     assert p == 'pyrobot' or p.startswith('pyrobot.')
 
-import sys
-if (sys.version_info > (3, 0)):
-    # Python 3 code in this block
-    requirements_file = 'requirements_python3.txt'
-else:
-    # Python 2 code in this block
-    requirements_file = 'requirements_python2.txt'
+requirements_file = 'requirements.txt'
 
 setup(
     name='pyrobot',

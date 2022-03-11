@@ -22,7 +22,7 @@ from std_msgs.msg import Float64
 from tf import TransformListener
 
 import sys
-ros_path = '/opt/ros/kinetic/lib/python2.7/dist-packages'
+ros_path = '/opt/ros/noetic/lib/python3/dist-packages'
 if ros_path in sys.path:
     sys.path.remove(ros_path)
     import cv2

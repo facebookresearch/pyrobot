@@ -1,0 +1,17 @@
+numpy
+PyYAML
+scipy
+matplotlib
+Pillow
+opencv-python
+open3d
+scikit-learn
+absl-py
+pytest-cov
+pytest-html
+yacs
+guzzle-sphinx-theme
+mock
+pyassimp
+pytz
+bezier
