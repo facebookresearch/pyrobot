@@ -57,11 +57,6 @@ COPY ./install_scripts/install_pytorch.sh /tmp/install_pytorch.sh
 RUN chmod +x /tmp/install_pytorch.sh
 RUN /tmp/install_pytorch.sh
 
-
-COPY ./install_scripts/install_dynamixel.sh /tmp/install_dynamixel.sh
-RUN chmod +x /tmp/install_dynamixel.sh
-RUN /tmp/install_dynamixel.sh
-
 # copy local requirements file for pip install python deps
 ENV IMPROB /workspace
 RUN mkdir ${IMPROB}
