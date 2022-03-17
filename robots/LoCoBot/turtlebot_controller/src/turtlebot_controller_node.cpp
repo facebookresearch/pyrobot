@@ -25,10 +25,10 @@ void TurtlebotController::executeBaseTajectory(const control_msgs::FollowJointTr
   // check if valid trajectory
   if (goal->trajectory.points.size() < 2)
   {
-    control_msgs::FollowJointTrajectoryResult result;
+    control_msgs::FollowJointTrajectoryResult (result);
     result.error_code = control_msgs::FollowJointTrajectoryResult::INVALID_GOAL;
     base_trajectory_server_->setSucceeded(result);
-    return;
+    return 0;
   }
 
   ROS_INFO("Starting turtlebot base trajectory");

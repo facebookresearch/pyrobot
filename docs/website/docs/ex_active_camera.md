@@ -4,7 +4,7 @@ title: Running camera tools on your robot
 sidebar_label: [Basic] Active Camera
 ---
 
-Here is a demo video showing what one can accomplish through this tutorial.
+Here is a demo video is showing what one can accomplish through this tutorial.
 
 <figure class="video_container">
   <iframe class="doc_vid" src="https://www.youtube.com/embed/M6QxNV3dfV4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
