@@ -114,21 +114,21 @@ class BaseSafetyCallbacks(object):
                 self.bumper = False
 
     def button_event_callback(self,data):
-	if data.state == ButtonEvent.RELEASED:
-	    state = "released"
-	else:
-	    state = "pressed"
+        if data.state == ButtonEvent.RELEASED:
+            state = "released"
+        else:
+            state = "pressed"
 
-	if data.button == ButtonEvent.Button0:
-	    button = "B0"
-	    self.emergency_stop = True
-	elif data.button == ButtonEvent.Button1:
-	    button = "B1"
-       	    self.emergency_stop = True
-	else:
-	    button = "B2"
+        if data.button == ButtonEvent.Button0:
+            button = "B0"
             self.emergency_stop = True
-	rospy.loginfo("Button %s was %s."%(button, state))
+        elif data.button == ButtonEvent.Button1:
+            button = "B1"
+            self.emergency_stop = True
+        else:
+            button = "B2"
+            self.emergency_stop = True
+        rospy.loginfo("Button %s was %s."%(button, state))
 
 
     def __del__(self):
