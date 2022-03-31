@@ -1,5 +1,5 @@
 numpy>=1.16.0
-opencv-python==4.0.0.21
+opencv-python==4.2.0.32
 recordclass==0.10.2
 yacs==0.1.6
 tensorflow==1.11.0
