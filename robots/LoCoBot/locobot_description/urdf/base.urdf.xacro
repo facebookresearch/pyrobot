@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+
+<robot name="locobot_base" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- Base macro -->
+  <xacro:macro name="locobot_base" params="parent *origin">
+    <joint name="base_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}" />
+      <child link="base_link" />
+    </joint>
+    <link name="base_link">
+        <visual>
+            <geometry>
+                <!-- new mesh -->
+                <mesh filename="package://locobot_description/meshes/main_body.dae"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0.001 0 0.05199"/>
+        </visual>
+        <collision name="base">
+            <geometry>
+                <cylinder length="0.10938" radius="0.178"/>
+            </geometry>
+            <origin rpy="0 0 0" xyz="0.0 0 0.05949"/>
+        </collision>
+        <inertial>
+            <!-- COM experimentally determined -->
+            <origin xyz="0.01 0 0"/>
+            <mass value="2.4"/>
+            <!-- 2.4/2.6 kg for small/big battery pack -->
+            <!-- Kobuki's inertia tensor is approximated by a cylinder with homogeneous mass distribution
+             More details: http://en.wikipedia.org/wiki/List_of_moment_of_inertia_tensors
+             m = 2.4 kg; h = 0.09 m; r = 0.175 m
+             ixx = 1/12 * m * (3 * r^2 + h^2)
+             iyy = 1/12 * m * (3 * r^2 + h^2)
+             izz = 1/2 * m * r^2
+          -->
+            <inertia ixx="0.019995" ixy="0.0" ixz="0.0" iyy="0.019995" iyz="0.0" izz="0.03675"/>
+        </inertial>
+    </link>
+
+    <gazebo reference="base_link">
+        <mu1>0.3</mu1>
+        <mu2>0.3</mu2>
+        <sensor type="contact" name="bumpers">
+          <always_on>1</always_on>
+          <update_rate>50.0</update_rate>
+          <visualize>true</visualize>
+          <contact>
+            <collision>${parent}</collision>
+          </contact>
+        </sensor>
+    </gazebo>
+    
+  </xacro:macro>
+
+</robot>
