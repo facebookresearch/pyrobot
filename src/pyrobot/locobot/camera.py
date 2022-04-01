@@ -455,12 +455,11 @@ class DepthImgProcessor:
                (depth_threshold is None)
         self.subsample_pixs = subsample_pixs
         self.depth_threshold = depth_threshold
-        self.cfg_data = self.read_cfg(cfg_filename)
         self.intrinsic_mat = self.get_intrinsic()
         self.intrinsic_mat_inv = np.linalg.inv(self.intrinsic_mat)
 
-        img_pixs = np.mgrid[0: self.cfg_data['Camera.height']: subsample_pixs,
-                   0: self.cfg_data['Camera.width']: subsample_pixs]
+        img_pixs = np.mgrid[0: self.configs.CAMERA.HEIGHT: subsample_pixs,
+                   0: self.configs.CAMERA.WIDTH: subsample_pixs]
         img_pixs = img_pixs.reshape(2, -1)
         img_pixs[[0, 1], :] = img_pixs[[1, 0], :]
         self.uv_one = np.concatenate((img_pixs,
@@ -502,7 +501,7 @@ class DepthImgProcessor:
         if isinstance(cs, np.ndarray):
             cs = cs.flatten()
         depth_im = depth_im[rs, cs]
-        depth = depth_im.reshape(-1) / float(self.cfg_data['DepthMapFactor'])
+        depth = depth_im.reshape(-1) / float(self.configs.CAMERA.DEPTH_MAP_FACTOR)
         img_pixs = np.stack((rs, cs)).reshape(2, -1)
         img_pixs[[0, 1], :] = img_pixs[[1, 0], :]
         uv_one = np.concatenate((img_pixs,
@@ -537,7 +536,7 @@ class DepthImgProcessor:
         # pcd in camera from depth
         depth_im = depth_im[0::self.subsample_pixs, 0::self.subsample_pixs]
         rgb_im = rgb_im[0::self.subsample_pixs, 0::self.subsample_pixs]
-        depth = depth_im.reshape(-1) / float(self.cfg_data['DepthMapFactor'])
+        depth = depth_im.reshape(-1) / float(self.configs.CAMERA.DEPTH_MAP_FACTOR)
         rgb = None
         if rgb_im is not None:
             rgb = rgb_im.reshape(-1, 3)
@@ -578,8 +577,9 @@ class DepthImgProcessor:
         pts_in_world = pts_in_world[:3, :].T
         return pts_in_world
 
+    """
     def read_cfg(self, cfg_filename):
-        """
+    
         Reads the configuration file
 
         :param cfg_filename: configuration file name for ORB-SLAM2
@@ -588,7 +588,7 @@ class DepthImgProcessor:
 
         :return: configurations in the configuration file
         :rtype: dict
-        """
+
         rospack = rospkg.RosPack()
         slam_pkg_path = rospack.get_path('orb_slam2_ros')
         cfg_path = os.path.join(slam_pkg_path,
@@ -599,6 +599,7 @@ class DepthImgProcessor:
                 f.readline()
             cfg_data = yaml.load(f)
         return cfg_data
+    """
 
     def get_intrinsic(self):
         """
@@ -607,10 +608,10 @@ class DepthImgProcessor:
         :return: the intrinsic matrix (shape: :math:`[3, 3]`)
         :rtype: np.ndarray
         """
-        fx = self.cfg_data['Camera.fx']
-        fy = self.cfg_data['Camera.fy']
-        cx = self.cfg_data['Camera.cx']
-        cy = self.cfg_data['Camera.cy']
+        fx = self.configs.CAMERA.FX 
+        fy = self.configs.CAMERA.FY 
+        cx = self.configs.CAMERA.CX 
+        cy = self.configs.CAMERA.CY 
         Itc = np.array([[fx, 0, cx],
                         [0, fy, cy],
                         [0, 0, 1]])
