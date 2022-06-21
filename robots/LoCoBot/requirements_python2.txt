@@ -1,4 +1,4 @@
-numpy==1.16.0
+numpy==1.22.0
 scipy==1.2.0
 matplotlib==2.2.3
 ipython==5.8.0
