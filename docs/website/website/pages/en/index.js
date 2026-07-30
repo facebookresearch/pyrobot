@@ -107,33 +107,6 @@ class Index extends React.Component {
       </Container>
     );
 
-    const FeatureCallout = () => (
-      <div
-        className="productShowcaseSection"
-        style={{textAlign: 'center'}}>
-        <h2>What can you do with PyRobot?</h2>
-
-        <div className="row">
-          <div className="column">
-            <img className="index_vid" src="https://thumbs.gfycat.com/FickleSpeedyChimneyswift-size_restricted.gif" alt="GIF" />
-            <br></br>
-            <h3>Manipulation</h3>
-          </div>
-          <div className="column">
-            <img className="index_vid" src="https://thumbs.gfycat.com/FinishedWeirdCockerspaniel-size_restricted.gif" alt="GIF" />
-            <br></br>
-            <h3>Navigation</h3>
-          </div>
-          <div className="column">
-            <img className="index_vid" src="https://thumbs.gfycat.com/WeightyLeadingGrub-size_restricted.gif" alt="GIF" />
-            <br></br>
-            <h3>Demonstrations</h3>
-          </div>
-        </div>
-
-      </div>
-    );
-
     const TryOut = () => (
       <Block id="try">
         {[
@@ -243,9 +216,6 @@ class Index extends React.Component {
       <div>
         <SocialBanner />
         <HomeSplash siteConfig={siteConfig} language={language} />
-        <div className="mainContainer">
-          <FeatureCallout />
-        </div>
       </div>
     );
   }
