@@ -5,6 +5,6 @@ ipython==5.8.0
 Pillow==6.2.0
 torch
 torchvision
-opencv-python==4.0.0.21
+opencv-python==4.2.0.32
 open3d_python==0.5.0.0
 bezier>=0.10.0
