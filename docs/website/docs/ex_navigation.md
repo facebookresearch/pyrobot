@@ -18,7 +18,7 @@ get started with this, ensure the following:
 
 * The robot base is supported by PyRobot. Check if your robot is supported [here](gs_overview.md).
 
-* The robot base is switched ON. With the LoCoBot the base beeps when connected.
+* The robot base is switched ON. With the LOCOBOT the base beeps when connected.
 
 * The robot's launch file has been run. Note that you have to set `use_base:=true`.
 
@@ -64,9 +64,9 @@ current_state = robot.base.get_state('vslam')
 ```
 
 ## Basic Control
-In this section, we will talk about two modes of controlling the LoCoBot base-
+In this section, we will talk about two modes of controlling the LOCOBOT base-
 Velocity control and Position control. One should note the same tutorials also
-apply to LoCoBot-Lite with very minimal change to the code. 
+apply to LOCOBOT-Lite with very minimal change to the code. 
 
 We will talk about velocity and position control by introducing examples.
 
@@ -113,7 +113,7 @@ Local frame is the frame of reference attached to the base of the robot and move
 Global frame is a stationary frame of reference. It is the initial frame that the robot started at.
 
 ### Position control
-This mode of control allows us to command the base to go to a specified target
+This mode of control it allows us to command the base to go to a specified target
 (of the form `[x, y, yaw]`) in the environment.
 
 We currently support three different base-controllers for position control:
@@ -143,7 +143,7 @@ robot.base.go_to_absolute(target_position)
 ```
 
 As shown below, we can also modify `go_to_absolute` or `go_to_relative`
-function arguments to enable or disable different features.
+ the function  and arguments to enable or disable different features.
 ```py
 # smooth ensures that the robot only follows smooth motions while going to goal
 # smooth mean no on-spot rotations.
@@ -204,7 +204,7 @@ robot.base.go_to_relative(target_position)
 <!--END_DOCUSAURUS_CODE_TABS-->
 
 ### Trajectory Tracking
-Feedback controllers implemented in the library can be used to close the loop
+Feedback controllers it is used to implemented in the library can be used to close the loop
 on a given state-space trajectory. The base state is characterized by `[x, y,
 yaw]`, the `x`-coordinate, `y`-coordinate and the robot heading `yaw`. Given a
 state-space trajectory (at the frequency at which the tracker is run), the
@@ -274,7 +274,7 @@ Note that this feature only works on the **real robot**.
 **Warning:**
 
 1. After running the above launch command,
-please do not move in front of the camera or temporarily block the camera view. These actions would be registered as permanent obstacles by SLAM which is running perpetualy in the background. The SLAM algorithm here does not deal with the dynamic obstacles.
+please do not move in front of the camera or temporarily block the camera view. These actions would be registered as permanent obstacles  or by SLAM which is running perpetualy in the background. The SLAM algorithm here does not deal with the dynamic obstacles.
 
 2. SLAM only works in environments that have rich RGB feature points and could fail otherwise.
 

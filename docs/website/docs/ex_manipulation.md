@@ -12,7 +12,7 @@ Here is a demo video showing what one can accomplish through this tutorial.
 </figure>
 
 ## Setup
-This tutorial can also be run using a simulated version of the robot. Before we get started with this, ensure the following:
+This tutorial can also be run using a simulated version of the robot. Before we get started with this, ensure the following steps:
 
 * The robot arm is supported by PyRobot. Check if your robot is supported [here](gs_overview.md).
 
@@ -81,7 +81,7 @@ for joint in target_joints:
     
 robot.arm.go_home()
 ```
-`Robot.arm.go_home()` makes the arm to move to its *home* position. Since we are using a 5-joint (DoF, degree-of-freedom) arm on the LoCoBot, the `target_joint` is a 5D vector of desired individual joint angles from the base of the arm to its wrist. Then finally through the `
+`Robot.arm.go_home()` makes the arms to move to its *home* position. Since we are using a 5-joint (DoF, degree-of-freedom) arm on the LoCoBot, the `target_joint` is a 5D vector of desired individual joint angles from the base of the arm to its wrist. Then finally through the `
 set_joint_positions` method the Robot will move to the desired `target_joint`. The `plan=False` argument means that the robot will not use MoveIt to plan around obstacles (like the base or the arm itself). To plan around obstacles, look at using [MoveIt](#planning-using-moveit).
 <figure class="video_container">
   <iframe class="doc_vid" src="https://www.youtube.com/embed/0GKUqgmJuDM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -171,7 +171,7 @@ robot.arm.go_home()
 ```
 If `plan=True`, it will call the internal cartesian path planning in [MoveIt](#planning-using-moveit). 
 
-If `plan=False`, it will simply perform linear interpolation along the target straight line and do inverse kinematics (you can choose whether you want to use the numerical inverse kinematics or analytical inverse kinematics by passing `numerical=True` or `numerical=False`) on each waypoints. Since LoCoBot is a 5-DOF robot, the numerical inverse kinematics sometimes fail to find the solution even though there exists a solution. So analytical inverse kinematics might work better in such cases.
+If `plan=False`, it will simply perform linear interpolation along the target straight line and do inverse kinematics (you can choose whether you want to use the numerical inverse kinematics or analytical inverse kinematics by passing `numerical=True` or `numerical=False`) on each waypoints. Since LoCoBot is a 5-DOF robot, the numerical inverse kinematics sometimes fails to find the solution even though there exists a solution. So analytical inverse kinematics might work better in such cases.
 
 <figure class="video_container">
   <iframe class="doc_vid" src="https://www.youtube.com/embed/s030tLu2oZs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -194,7 +194,7 @@ roslaunch locobot_control main.launch use_arm:=true torque_control:=true
 ```
 <!--END_DOCUSAURUS_CODE_TABS--> 
 
-Then you can use the following command to send torque values to robots. Try to keep the arm in initial condition as shown in the below video, as the behavior will be different for a different configuration. For this example, we are going to apply torque only on joint 4. This will move robot joint 4 to the extreme. After completion, 
+Then you can use the following commands to send torque values to robots. Try to keep the arm in initial condition as shown in the below video, as the behavior will be different for a different configuration. For this example, we are going to apply torque only on joint 4. This will move robot joint 4 to the extreme. After completion, 
 the joint will be free again. The torque requirements may vary from robot to robot. So if joint 4 doesn't move using following script, try to apply a higher magnitude of torque.
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot-->
@@ -237,7 +237,7 @@ robot.gripper.close()
 
 ## Planning using MoveIt
 
-To avoid hitting obstacles like the base or the arm itself, we support planning via [MoveIt!](https://moveit.ros.org/). To use this, we need to first set the robot with the approriate planning parameters:
+To avoid hitting the  obstacles like the base or the arm itself, we support planning via [MoveIt!](https://moveit.ros.org/). To use this, we need to first set the robot with the approriate planning parameters:
 
 <!--DOCUSAURUS_CODE_TABS-->
 <!--LoCoBot-->
@@ -272,7 +272,7 @@ robot.arm.go_home()
 
 ## Sensing
 
-Most arms come with proprioceptive feedback. The following functions can be used to read the current state of the robot (joint angles, velocities, torques), etc.
+Most arms come with  imperceptive feedback. The following functions can be used to read the current state of the robot (joint angles, velocities, torques), etc.
 
 ```py
 # Get all joint angles of the robot
