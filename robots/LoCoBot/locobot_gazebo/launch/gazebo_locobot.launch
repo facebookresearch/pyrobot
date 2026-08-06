@@ -27,14 +27,14 @@
   </group>
 
   <group if="$(eval base =='kobuki')">
-    <param name="robot_description" textfile="$(find locobot_description)/urdf/locobot_description.urdf"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(find locobot_description)/urdf/locobot_description_xacro.urdf.xacro"/>
 
     <include file="$(find locobot_moveit_config)/launch/planning_context.launch">
       <arg name="load_robot_description" value="true"/>
     </include>
 
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
-          args="-file $(find locobot_description)/urdf/locobot_description.urdf -urdf -z 0.05 -model locobot" >
+          args="-param robot_description -urdf -model locobot -z 0.05" >
     </node>
 
     <!-- Velocity muxer -->
